@@ -1,6 +1,6 @@
 "use client";
 
-import { Code2, Github, MessagesSquare } from "lucide-react";
+import { Code2, MessagesSquare } from "lucide-react";
 import { ThemeToggle } from "../theme-toggle";
 import {
   NavigationMenu,
@@ -12,11 +12,14 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import Link from "next/link";
+
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { useState } from 'react';
+import { useState, useEffect } from "react"
 import DiscordLink from "./DiscordLink";
 import GithubLink from "./GithubLink";
+import Logo from "./Logo/Logo";
+import { useTheme } from "next-themes"
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -61,6 +64,12 @@ const blogs: { title: string; href: string; description: string }[] = [
 
 export default function Header() {
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const { systemTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toggleNav = () => {
     setIsNavOpen(!isNavOpen);
@@ -69,10 +78,7 @@ export default function Header() {
   return (
     <header className="border-b">
       <div className="flex h-16 items-center px-4 container mx-auto">
-        <Link href="/" className="mr-8 flex items-center space-x-2">
-          <Code2 className="h-6 w-6" />
-          <span className="font-bold text-xl">DevHub</span>
-        </Link>
+        <Logo/>
         
         <NavigationMenu className="flex-1">
           <NavigationMenuList>
