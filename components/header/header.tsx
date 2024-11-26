@@ -1,7 +1,7 @@
 "use client";
 
 import { Code2, Github, MessagesSquare } from "lucide-react";
-import { ThemeToggle } from "./theme-toggle";
+import { ThemeToggle } from "../theme-toggle";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -14,6 +14,9 @@ import {
 import Link from "next/link";
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { useState } from 'react';
+import DiscordLink from "./DiscordLink";
+import GithubLink from "./GithubLink";
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -57,6 +60,12 @@ const blogs: { title: string; href: string; description: string }[] = [
 ];
 
 export default function Header() {
+  const [isNavOpen, setIsNavOpen] = useState(false);
+
+  const toggleNav = () => {
+    setIsNavOpen(!isNavOpen);
+  };
+
   return (
     <header className="border-b">
       <div className="flex h-16 items-center px-4 container mx-auto">
@@ -124,22 +133,9 @@ export default function Header() {
         </NavigationMenu>
 
         <div className="flex items-center space-x-2 ml-auto">
-          <Link
-            href="https://github.com"
-            className="hover:text-primary transition-colors"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Github className="h-5 w-5" />
-          </Link>
-          <Link
-            href="https://discord.com"
-            className="hover:text-primary transition-colors"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <MessagesSquare className="h-5 w-5" />
-          </Link>
+
+          <GithubLink />
+          <DiscordLink />
           <ThemeToggle />
         </div>
       </div>
