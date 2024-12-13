@@ -7,8 +7,8 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+        pathname: '/**',
       },
-      // Add other image domains if needed
     ],
   },
 }
