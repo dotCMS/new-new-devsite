@@ -1,19 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    async redirects() {
-        return [
-          {
-            source: '/',
-            destination: '/homepage',
-            permanent: true,
-          },
-        ]
+  reactStrictMode: true,
+  swcMinify: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
       },
-  output: 'export',
-  eslint: {
-    ignoreDuringBuilds: true,
+      // Add other image domains if needed
+    ],
   },
-  images: { unoptimized: true },
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
