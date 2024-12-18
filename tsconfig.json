@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "hooks/usePageAsset.js", "lib/page.utils.js", "components/my-page.js", "app/[[...slug]]/page.js", "lib/gql.js", "components/content-types/doc.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "hooks/usePageAsset.js", "lib/page.utils.js", "components/my-page.js", "app/[[...slug]]/page.js", "lib/gql.js", "components/content-types/doc.js", "app/blog/page.js"],
   "exclude": ["node_modules"]
 }

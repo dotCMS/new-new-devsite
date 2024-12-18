@@ -8,7 +8,7 @@ import Doc from "./content-types/doc";
 import { initEditor, isInsideEditor, postMessageToEditor } from '@dotcms/client';
 
 
-export function MyGraphQLPage({ pageAsset, nav, query, tableOfContents, params }) {
+export function MyGraphQLPage({ pageAsset, nav, query, sideNav, params }) {
     const pathname = usePathname();
 
     useEffect(() => {
@@ -30,7 +30,7 @@ export function MyGraphQLPage({ pageAsset, nav, query, tableOfContents, params }
 
             <div className="flex flex-1">
                 <main className="flex-1 p-4">
-                    <Doc contentlet={urlContentMap._map} tableOfContents={tableOfContents} currentPath={params.slug} />
+                    <Doc contentlet={urlContentMap._map} sideNav={sideNav} currentPath={params.slug} />
                 </main>
             </div>
 

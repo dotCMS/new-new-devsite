@@ -120,7 +120,7 @@ const TableOfContents= ({ items }) => {
   );
 };
 
-const Doc = ({ contentlet, tableOfContents }) => {
+const Doc = ({ contentlet, sideNav }) => {
   const currentPath = usePathname();
 
   const tocItems = [
@@ -129,7 +129,7 @@ const Doc = ({ contentlet, tableOfContents }) => {
     // Add more items as needed
   ];
 
-  if (!contentlet || !tableOfContents) {
+  if (!contentlet || !sideNav) {
     return <div>Loading...</div>;
   }
 
@@ -140,7 +140,7 @@ const Doc = ({ contentlet, tableOfContents }) => {
         <nav className="sticky top-8 pr-4">
           <h2 className="mb-4 text-lg font-semibold">Documentation</h2>
           <NavTree 
-            items={tableOfContents[0]?.dotcmsdocumentationchildren || []} 
+            items={sideNav[0]?.dotcmsdocumentationchildren || []} 
             currentPath={currentPath}
           />
         </nav>

@@ -55,5 +55,5 @@ export default async function Home({ searchParams, params }) {
     const path = getPath(params);
     const { pageAsset, nav, sideNav, query } = await fetchPageData(path, searchParams);
 
-    return <MyGraphQLPage nav={nav} pageAsset={pageAsset} query={query} tableOfContents={sideNav} params={params} />;
+    return <MyGraphQLPage nav={nav} pageAsset={pageAsset} query={query} sideNav={sideNav} params={params} />;
 }

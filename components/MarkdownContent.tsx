@@ -13,9 +13,11 @@ import { Components } from 'react-markdown'
 import { remarkRemoveAnchorLinks } from '@/lib/remarkRemoveAnchorLinks'
 import { smoothScroll } from '@/lib/smoothScroll'
 
+
 interface MarkdownContentProps {
   content: string
 }
+
 
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
 
@@ -81,7 +83,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
         {children}
       </a>
     ),
-    code({ node, inline, className, children, ...props }) {
+    code({ node, inline, className, children, ...props }: any) {
       const match = /language-(\w+)/.exec(className || '')
       return !inline && match ? (
         <SyntaxHighlighter
