@@ -53,7 +53,10 @@ const NavTree = React.memo(({ items, currentPath }) => {
           onOpenChange={() => toggleSection(item.urlTitle)}
         >
           <div className="flex flex-col">
-            <div className="flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-medium hover:bg-muted">
+            <div className={cn(
+                "flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-medium hover:bg-muted",
+                isCurrentPage ? "bg-muted font-medium text-foreground" : "text-muted-foreground"
+                )}>
               <Link
                 href={`/docs/latest/${item.urlTitle}`}
                 className={cn(
