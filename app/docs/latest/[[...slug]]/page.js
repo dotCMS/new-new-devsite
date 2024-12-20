@@ -20,7 +20,7 @@ async function fetchPageData(path, searchParams) {
         getGraphQLPageData(query),
         client.nav.get({
             path: "/",
-            depth: 2,
+            depth: 0,
             languageId: searchParams.language_id,
         }),
         getSideNav()
