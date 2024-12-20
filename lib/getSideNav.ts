@@ -1,6 +1,16 @@
+import {dotCache} from '@/lib/cacheService'
 const GRAPHQL_ENPOINT = `/api/v1/graphql`
 
+
+const cacheKey = "coreNavLeftCacheKey";
 export const getSideNav = async () => {
+
+    const cachedValue = dotCache.get(cacheKey);
+
+    if(cachedValue){
+        return cachedValue;
+    }
+
     const query = `
     query Documents {
         DotcmsDocumentationCollection(query: "+DotcmsDocumentation.urlTitle_dotraw:table-of-contents") {
@@ -48,6 +58,7 @@ export const getSideNav = async () => {
     if (data.errors) {
         throw new Error(data.errors[0].message)
     }
+    dotCache.set(cacheKey, data.data.DotcmsDocumentationCollection);
 
     return data.data.DotcmsDocumentationCollection
 }
