@@ -1,25 +1,18 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { dotcms } from '@/lib/dotcms';
+import { client } from '@/lib/dotcms';
 import { format } from 'date-fns';
 
-interface BlogPost {
-  title: string;
-  urlTitle: string;
-  publishDate: string;
-  description: string;
-  image: string;
-}
 
 export default function BlogPage() {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchPosts() {
       try {
-        const response = await dotcms.contentType('Blog')
+        const response = await client.contentType('Blog')
           .query()
           .sortBy('publishDate', 'desc')
           .limit(10)
