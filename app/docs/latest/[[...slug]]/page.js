@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
 import { MyGraphQLPage } from "@/components/graphql-page";
 import { getGraphQLPageData, getGraphQLPageQuery } from "@/lib/gql";
-import { client } from "@/lib/dotcms";
+import { client } from "@/lib/dotcmsClient";
 import { getSideNav } from "@/lib/getSideNav"
 
 const getPath = (params) => {
