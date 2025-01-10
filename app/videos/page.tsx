@@ -1,5 +1,9 @@
+import Footer from "@/components/footer";
+import Header from "@/components/header/header";
+
 export default function VideosPage() {
-  return (
+  return (<>
+    <Header />
     <div className="container mx-auto py-8">
       <h1 className="text-4xl font-bold mb-6">Video Tutorials</h1>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -23,5 +27,7 @@ export default function VideosPage() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }

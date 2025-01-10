@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { client } from '@/lib/dotcms';
+import { client } from '@/lib/dotcmsClient';
 import { CLIENT_ACTIONS, isInsideEditor, postMessageToEditor } from '@dotcms/client';
 
 export const usePageAsset = (currentPageAsset) => {

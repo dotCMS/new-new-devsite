@@ -16,19 +16,19 @@ export default function Footer() {
 
         <div className="mb-8 flex items-center space-x-6">
           <Button variant="ghost" size="icon" asChild className="hover:bg-transparent">
-            <Link href="https://github.com/dotcms">
+            <Link href="https://github.com/dotcms" target="_blank" rel="noopener noreferrer">
               <Github className="h-5 w-5" />
               <span className="sr-only">GitHub</span>
             </Link>
           </Button>
           <Button variant="ghost" size="icon" asChild className="hover:bg-transparent">
-            <Link href="https://twitter.com/dotcms">
+            <Link href="https://twitter.com/dotcms" target="_blank" rel="noopener noreferrer">
               <Twitter className="h-5 w-5" />
               <span className="sr-only">Twitter</span>
             </Link>
           </Button>
           <Button variant="ghost" size="icon" asChild className="hover:bg-transparent">
-            <Link href="https://linkedin.com/company/dotcms">
+            <Link href="https://linkedin.com/company/dotcms" target="_blank" rel="noopener noreferrer">
               <Linkedin className="h-5 w-5" />
               <span className="sr-only">LinkedIn</span>
             </Link>
@@ -41,13 +41,13 @@ export default function Footer() {
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
             Home
           </Link>
-          <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground">
+          <Link href="https://www.dotcms.com/company/about-us" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground">
             About
           </Link>
-          <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground">
+          <Link href="https://www.dotcms.com/blog" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground">
             Blog
           </Link>
-          <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground">
+          <Link href="https://www.dotcms.com/contact-us" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground">
             Contact
           </Link>
         </nav>

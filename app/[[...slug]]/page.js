@@ -2,7 +2,7 @@ import { MyPage } from "@/components/my-page";
 import { ErrorPage } from "@/components/error";
 
 import { handleVanityUrlRedirect } from "@/lib/vanityUrlHandler";
-import { client } from "@/lib/dotcms";
+import { client } from "@/lib/dotcmsClient";
 import { getPageRequestParams } from "@dotcms/client";
 import { fetchNavData, fetchPageData } from "@/lib/page.utils";
 

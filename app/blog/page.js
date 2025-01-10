@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { client } from '@/lib/dotcms';
+import { client } from '@/lib/dotcmsClient';
 import { format } from 'date-fns';
 
 
