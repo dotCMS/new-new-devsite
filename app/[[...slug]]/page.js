@@ -1,4 +1,5 @@
-import { MyPage } from "@/components/my-page";
+import { headers } from 'next/headers';
+import { PageAsset } from "@/components/page-asset";
 import { ErrorPage } from "@/components/error";
 
 import { handleVanityUrlRedirect } from "@/lib/vanityUrlHandler";
@@ -35,7 +36,10 @@ export async function generateMetadata({ params, searchParams }) {
     }
 }
 
-export default async function Home({ searchParams, params }) {
+export default async function Page({ params, searchParams }) {
+    const headersList = headers();
+    const pathname = headersList.get("x-invoke-path") || "";
+
     const getPageData = async () => {
         const path = params?.slug?.join("/") || "/";
         const pageParams = getPageRequestParams({
@@ -63,5 +67,11 @@ export default async function Home({ searchParams, params }) {
         handleVanityUrlRedirect(pageAsset?.vanityUrl);
     }
 
-    return <MyPage nav={nav?.entity.children} pageAsset={pageAsset} />;
+    return (
+        <PageAsset 
+            pageAsset={pageAsset} 
+            nav={nav} 
+            serverPath={pathname}
+        />
+    );
 }

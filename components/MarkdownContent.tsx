@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Components } from 'react-markdown'
 import { remarkRemoveAnchorLinks } from '@/lib/remarkRemoveAnchorLinks'
 import { smoothScroll } from '@/lib/smoothScroll'
+import Video from '@/components/mdx/Video'
 
 
 interface MarkdownContentProps {
@@ -121,6 +122,42 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
     },
     td({ children }) {
       return <TableCell>{children}</TableCell>
+    },
+    video: ({children, ...props }: any) => {
+        // Ensure children is an array and handle rehype-raw parsed elements
+        const childrenArray = React.Children.toArray(children);
+        
+        const sources = childrenArray.some((child: any) => 
+          child.type === 'source' || 
+          (typeof child === 'object' && child?.props?.originalType === 'source')
+        )
+        ? childrenArray
+            .filter((child: any) => 
+              child.type === 'source' || 
+              (typeof child === 'object' && child?.props?.originalType === 'source')
+            )
+            .map((source: any) => ({
+              src: source.props?.src || source.props?.originalProps?.src,
+              type: source.props?.type || source.props?.originalProps?.type
+            }))
+        : undefined;
+        
+        const src = sources?.[0]?.src || props.src;
+
+        // Handle DotCMS URL format
+        const isDotCMSVideo = src && (!src.startsWith('http') || !src.startsWith('/'));
+        
+        const videoSrc = isDotCMSVideo 
+          ? `${process.env.NEXT_PUBLIC_DOTCMS_HOST}${src}`
+          : src;
+
+        const videoProps = {
+          src: videoSrc,
+          className: "w-full mb-4",
+          ...props
+        };
+
+        return <Video {...videoProps} />;
     }
   }
 

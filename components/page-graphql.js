@@ -1,24 +1,23 @@
 "use client";
 
-import React, { useEffect } from "react";
 import Header from "./header/header";
 import Footer from "./footer";
 import { usePathname } from "next/navigation";
-import Doc from "./content-types/doc";
+import Doc from "./content-types/Documentation";
 import { initEditor, isInsideEditor, postMessageToEditor } from '@dotcms/client';
+import { useEffect } from 'react';
 
-
-export function MyGraphQLPage({ pageAsset, nav, query, sideNav, params }) {
-    const pathname = usePathname();
+export function PageGraphQL({ pageAsset, nav, query, sideNav, params, pathname }) {
+    const clientPathname = usePathname();
 
     useEffect(() => {
         if (!isInsideEditor()) {
             return;
         }
 
-        initEditor({ pathname });
+        initEditor({ pathname: clientPathname });
         postMessageToEditor({ action: "client-ready" });
-    }, [pathname]);
+    }, [clientPathname]);
 
     const { urlContentMap } = pageAsset || {};
 

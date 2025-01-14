@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
+import { headers } from 'next/headers';
 
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
-import { MyGraphQLPage } from "@/components/graphql-page";
+import { PageGraphQL } from "@/components/page-graphql";
 import { getGraphQLPageData, getGraphQLPageQuery } from "@/lib/gql";
 import { client } from "@/lib/dotcmsClient";
 import { getSideNav } from "@/lib/getSideNav"
@@ -52,8 +53,11 @@ export async function generateMetadata({ params, searchParams }) {
 }
 
 export default async function Home({ searchParams, params }) {
+    const headersList = headers();
+    const pathname = headersList.get("x-invoke-path") || "";
+
     const path = getPath(params);
     const { pageAsset, nav, sideNav, query } = await fetchPageData(path, searchParams);
 
-    return <MyGraphQLPage nav={nav} pageAsset={pageAsset} query={query} sideNav={sideNav} params={params} />;
+    return <PageGraphQL nav={nav} pageAsset={pageAsset} query={query} sideNav={sideNav} params={params} pathname={pathname} />;
 }
