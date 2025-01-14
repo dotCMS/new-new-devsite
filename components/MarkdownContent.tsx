@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import rehypeSlug from 'rehype-slug'
@@ -32,7 +32,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
     ),
     h2: ({ children, ...props }) => (
       <>
-        <h2 className="text-3xl font-semibold text-[#111827] mt-12 mb-1 group flex items-center" {...props}>
+        <h2 className="text-3xl font-semibold text-foreground mt-12 mb-1 group flex items-center" {...props}>
           {children}
           <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
             #
@@ -43,7 +43,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
     ),
     h3: ({ children, ...props }) => (
       <>
-        <h3 className="text-2xl font-semibold text-[#111827] mt-8 mb-4 group flex items-center" {...props}>
+        <h3 className="text-2xl font-semibold text-foreground mt-8 mb-4 group flex items-center" {...props}>
           {children}
           <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
             #
@@ -52,7 +52,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       </>
     ),
     h4: ({ children, ...props }) => (
-      <h4 className="text-xl font-semibold text-[#111827] mt-6 mb-4 group flex items-center" {...props}>
+      <h4 className="text-xl font-semibold text-foreground mt-6 mb-4 group flex items-center" {...props}>
         {children}
         <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
           #
@@ -60,7 +60,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       </h4>
     ),
     h5: ({ children, ...props }) => (
-      <h5 className="text-lg font-semibold text-[#111827] mt-4 mb-2 group flex items-center" {...props}>
+      <h5 className="text-lg font-semibold text-foreground mt-4 mb-2 group flex items-center" {...props}>
         {children}
         <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
           #
@@ -75,10 +75,10 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
         </a>
       </h6>
     ),
-    p: ({ children }) => <p className="text-[15px] leading-7 text-[#374151] mb-6">{children}</p>,
+    p: ({ children }) => <p className="text-[15px] leading-7 text-foreground mb-6">{children}</p>,
     ul: ({ children }) => <ul className="list-disc pl-6 mb-6">{children}</ul>,
     ol: ({ children }) => <ol className="list-decimal list-inside mb-4">{children}</ol>,
-    li: ({ children }) => <li className="text-[15px] leading-7 text-[#374151] mb-1">
+    li: ({ children }) => <li className="text-[15px] leading-7 text-foreground mb-1">
       {children}
     </li>,
     a: ({ href, children, ...props }) => {
@@ -87,29 +87,46 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       return (
         <a
           href={href}
-          className={isInHeading ? `text-[#111827]` : `text-blue-600 underline hover:no-underline`}
+          className={isInHeading ? `text-primary` : `text-blue-600 underline hover:no-underline`}
           onClick={(e) => isInHeading ? smoothScroll(e) : undefined}
         >
           {children}
         </a>
       )
     },
-    code({ node, inline, className, children, ...props }: any) {
+    code: ({ node, inline, className, children, ...props }: any) => {
       const match = /language-(\w+)/.exec(className || '')
       return !inline && match ? (
         <SyntaxHighlighter
           style={vscDarkPlus}
           language={match[1]}
           PreTag="div"
+          className="rounded-md mb-6"
           {...props}
         >
           {String(children).replace(/\n$/, '')}
         </SyntaxHighlighter>
       ) : (
-        <code className={`${className} bg-gray-100 dark:bg-gray-800 rounded-md px-1 py-0.5`} {...props}>
+        <code className="bg-[#F6F6F7] text-[#000000] text-sm font-mono px-1 py-0.5 rounded whitespace-normal" {...props}>
           {children}
         </code>
       )
+    },
+    pre({ node, children, ...props }: any) {
+      const childNode = node?.children[0]
+      const isCodeBlock = childNode?.tagName === 'code' && /language-(\w+)/.test(childNode.properties.className?.[0] || '')
+
+      if (isCodeBlock) {
+        // This is a code block, so we'll let the `code` component handle it
+        return <>{children}</>
+      } else {
+        // This is a regular <pre> tag, likely containing HTML
+        return (
+          <pre className="bg-[#F6F6F7] text-[#000000] rounded-md p-4 mb-6 overflow-x-auto" {...props}>
+            {children}
+          </pre>
+        )
+      }
     },
     table({ children }) {
       return (
@@ -126,12 +143,12 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       return <TableRow>{children}</TableRow>
     },
     th({ children }) {
-      return <TableHead className="text-[14px] font-semibold bg-[#F9FAFB] h-[40px] px-4 border-[#E5E7EB] border-r last:border-r-0">
+      return <TableHead className="text-[15px] font-semibold bg-[#F9FAFB] px-4 border-[#E5E7EB] border-r last:border-r-0">
       {children}
     </TableHead>
     },
     td({ children }) {
-      return <TableCell className="text-[14px] h-[40px] px-4 border-[#E5E7EB] border-r last:border-r-0">
+      return <TableCell className="text-[15px] leading-7 px-4 border-[#E5E7EB] border-r last:border-r-0">
       {children}
     </TableCell>
     }
