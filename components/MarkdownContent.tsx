@@ -31,23 +31,28 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       </h1>
     ),
     h2: ({ children, ...props }) => (
-      <h2 className="text-3xl font-semibold mt-5 mb-3 group flex items-center" {...props}>
-        {children}
-        <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          #
-        </a>
-      </h2>
+      <>
+        <h2 className="text-3xl font-semibold text-[#111827] mt-12 mb-1 group flex items-center" {...props}>
+          {children}
+          <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            #
+          </a>
+        </h2>
+        <hr className="border-t border-[#E5E7EB] mb-6" />
+      </>
     ),
     h3: ({ children, ...props }) => (
-      <h3 className="text-2xl font-medium mt-4 mb-2 group flex items-center" {...props}>
-        {children}
-        <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          #
-        </a>
-      </h3>
+      <>
+        <h3 className="text-2xl font-semibold text-[#111827] mt-8 mb-4 group flex items-center" {...props}>
+          {children}
+          <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            #
+          </a>
+        </h3>
+      </>
     ),
     h4: ({ children, ...props }) => (
-      <h4 className="text-xl font-medium mt-3 mb-2 group flex items-center" {...props}>
+      <h4 className="text-xl font-semibold text-[#111827] mt-6 mb-4 group flex items-center" {...props}>
         {children}
         <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
           #
@@ -55,7 +60,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       </h4>
     ),
     h5: ({ children, ...props }) => (
-      <h5 className="text-lg font-medium mt-2 mb-1 group flex items-center" {...props}>
+      <h5 className="text-lg font-semibold text-[#111827] mt-4 mb-2 group flex items-center" {...props}>
         {children}
         <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
           #
@@ -70,19 +75,25 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
         </a>
       </h6>
     ),
-    p: ({ children }) => <p className="mb-4">{children}</p>,
-    ul: ({ children }) => <ul className="list-disc list-inside mb-4">{children}</ul>,
+    p: ({ children }) => <p className="text-[15px] leading-7 text-[#374151] mb-6">{children}</p>,
+    ul: ({ children }) => <ul className="list-disc pl-6 mb-6">{children}</ul>,
     ol: ({ children }) => <ol className="list-decimal list-inside mb-4">{children}</ol>,
-    li: ({ children }) => <li className="mb-1">{children}</li>,
-    a: ({ href, children }) => (
-      <a 
-        href={href} 
-        className="text-blue-600 hover:underline"
-        onClick={(e) => href?.startsWith('#') ? smoothScroll(e) : undefined}
-      >
-        {children}
-      </a>
-    ),
+    li: ({ children }) => <li className="text-[15px] leading-7 text-[#374151] mb-1">
+      {children}
+    </li>,
+    a: ({ href, children, ...props }) => {
+      const isInHeading = href?.startsWith('#');
+
+      return (
+        <a
+          href={href}
+          className={isInHeading ? `text-[#111827]` : `text-blue-600 underline hover:no-underline`}
+          onClick={(e) => isInHeading ? smoothScroll(e) : undefined}
+        >
+          {children}
+        </a>
+      )
+    },
     code({ node, inline, className, children, ...props }: any) {
       const match = /language-(\w+)/.exec(className || '')
       return !inline && match ? (
@@ -102,9 +113,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
     },
     table({ children }) {
       return (
-        <Table className="mb-4">
-          {children}
-        </Table>
+        <Table className="border-[#E5E7EB] border border-collapse">{children}</Table>
       )
     },
     thead({ children }) {
@@ -117,10 +126,14 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       return <TableRow>{children}</TableRow>
     },
     th({ children }) {
-      return <TableHead className="font-bold">{children}</TableHead>
+      return <TableHead className="text-[14px] font-semibold bg-[#F9FAFB] h-[40px] px-4 border-[#E5E7EB] border-r last:border-r-0">
+      {children}
+    </TableHead>
     },
     td({ children }) {
-      return <TableCell>{children}</TableCell>
+      return <TableCell className="text-[14px] h-[40px] px-4 border-[#E5E7EB] border-r last:border-r-0">
+      {children}
+    </TableCell>
     }
   }
 
