@@ -24,8 +24,17 @@ export function ChatComponent() {
   const [input, setInput] = useState("")
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState("")
 
-  // Add ref for the messages container
+  // Add refs for the messages container and form
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+
+  // Helper function to handle example question clicks
+  const handleExampleClick = (question: string) => {
+    setInput(question);
+    setTimeout(() => {
+      formRef.current?.requestSubmit();
+    }, 100);
+  }
 
   useEffect(() => {
     const savedMessages = localStorage.getItem(STORAGE_KEY)
@@ -59,7 +68,7 @@ export function ChatComponent() {
     }
     setMessages(prev => [...prev, userMessage])
     setLoading(true)
-    setInput("")
+    //setInput("")
 
     try {
       const response = await fetch(`${API_ENDPOINT}/api/v1/ai/completions`, {
@@ -118,7 +127,7 @@ export function ChatComponent() {
         }
       }
       
-      console.log("setting message:" + finalMessage);
+      //console.log("setting message:" + finalMessage);
       // After streaming is complete, add the full message to the messages array
       setMessages(prev => [...prev, {
         role: "assistant",
@@ -146,12 +155,36 @@ export function ChatComponent() {
 
   const clearHistory = () => {
     setMessages([])
+    setInput("")
     localStorage.removeItem(STORAGE_KEY)
   }
 
   return (
     <div className="flex flex-col h-full min-h-[600px] relative">
       <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-[140px]">
+        {messages.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-full space-y-4 text-center px-4">
+            <Bot className="w-16 h-16 text-primary" />
+            <h2 className="text-2xl font-semibold">Welcome to dotAI Assistant</h2>
+            <p className="text-muted-foreground max-w-md">
+              I can answer your questions about the dotCMS platform. Here are some example questions:
+            </p>
+            <div className="space-y-2 text-left w-full max-w-md">
+              <div className="p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70" 
+                   onClick={() => handleExampleClick("What are the system requirements for dotCMS?")}>
+                &quot;What are the system requirements for dotCMS?&quot;
+              </div>
+              <div className="p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70"
+                   onClick={() => handleExampleClick("How do I create a new content type in dotCMS?")}>
+                &quot;How do I create a new content type in dotCMS?&quot;
+              </div>
+              <div className="p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70"
+                   onClick={() => handleExampleClick("How do I search content using rest api??")}>
+                &quot;How do I search content using the rest api?&quot;
+              </div>
+            </div>
+          </div>
+        )}
         {messages.map((message, index) => (
           <div
             key={index}
@@ -277,10 +310,11 @@ export function ChatComponent() {
 
       <div className="absolute bottom-0 left-0 right-0 bg-background border-t">
         <div className="p-4 space-y-4">
-          <form onSubmit={sendMessage} className="flex gap-2">
+          <form ref={formRef} onSubmit={sendMessage} className="flex gap-2">
             <input
               type="text"
               value={input}
+              id="dotAIChatInput"
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask a question..."
               className="flex-1 px-3 py-2 border rounded-md"
