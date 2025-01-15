@@ -1,10 +1,10 @@
 "use client"
 
 import React from 'react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import NavTree from '@/components/navigation/NavTree';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
+import OnThisPage from '@/components/navigation/OnThisPage';
 import MarkdownContent from '@/components/MarkdownContent';
 
 const TableOfContents = ({ items }) => {
@@ -41,13 +41,8 @@ function cleanMarkdown(markdownString, identifierString) {
     .replaceAll("</br>", "<br/>");
 }
 
-const Doc = ({ contentlet, sideNav }) => {
+const Documentation = ({ contentlet, sideNav }) => {
   const currentPath = usePathname();
-
-  const tocItems = [
-    { id: 'overview', title: 'Overview' },
-    { id: 'features', title: 'Features' },
-  ];
 
   if (!contentlet || !sideNav) {
     return <div>Loading...</div>;
@@ -75,16 +70,18 @@ const Doc = ({ contentlet, sideNav }) => {
           currentPath={currentPath}
         />
         <h1 className="text-4xl font-bold mb-6">{contentlet.title}</h1>
-        <MarkdownContent content={documentation} />
+        <div className="markdown-content">
+          <MarkdownContent content={documentation} />
+        </div>
       </div>
 
       {/* Right Sidebar - Table of Contents */}
       <div className="w-48 shrink-0">
-        <TableOfContents items={tocItems} />
+        <OnThisPage />
       </div>
     </div>
   );
 };
 
-export default Doc;
+export default Documentation;
 

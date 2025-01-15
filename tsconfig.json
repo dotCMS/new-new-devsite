@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES6",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "hooks/usePageAsset.js", "lib/page.utils.js", "components/my-page.js", "app/[[...slug]]/page.js", "lib/gql.js", "components/content-types/doc.js", "app/blog/page.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "hooks/usePageAsset.js", "lib/page.utils.js", "components/page-asset.js", "app/[[...slug]]/page.js", "lib/gql.js", "components/content-types/Documentation.js", "app/blog/page.js"],
   "exclude": ["node_modules"]
 }
