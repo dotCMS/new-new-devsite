@@ -1,6 +1,6 @@
 "use client";
 
-import { Code2, MessagesSquare } from "lucide-react";
+import { Code2, MessagesSquare, Search } from "lucide-react";
 import { ThemeToggle } from "../theme-toggle";
 import {
   NavigationMenu,
@@ -20,6 +20,7 @@ import DiscordLink from "./DiscordLink";
 import GithubLink from "./GithubLink";
 import Logo from "./Logo/Logo";
 import { useTheme } from "next-themes"
+import { SearchModal } from "../SearchModal";
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -66,6 +67,7 @@ export default function Header() {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const { systemTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -139,12 +141,24 @@ export default function Header() {
         </NavigationMenu>
 
         <div className="flex items-center space-x-2 ml-auto">
+          <button
+            onClick={() => setIsSearchOpen(true)}
+            className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent"
+          >
+            <span className="hidden md:inline">Search...</span>
+            <Search className="h-5 w-5" />
+          </button>
 
           <GithubLink />
           <DiscordLink />
           <ThemeToggle />
         </div>
       </div>
+
+      <SearchModal 
+        isOpen={isSearchOpen} 
+        onClose={() => setIsSearchOpen(false)} 
+      />
     </header>
   );
 }
