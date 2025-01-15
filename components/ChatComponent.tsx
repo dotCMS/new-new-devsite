@@ -152,6 +152,29 @@ export function ChatComponent() {
   return (
     <div className="flex flex-col h-full min-h-[600px] relative">
       <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-[140px]">
+        {messages.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-full space-y-4 text-center px-4">
+            <Bot className="w-16 h-16 text-primary" />
+            <h2 className="text-2xl font-semibold">Welcome to dotAI Assistant</h2>
+            <p className="text-muted-foreground max-w-md">
+              I can answer your questions about the dotCMS platform. Here are some example questions:
+            </p>
+            <div className="space-y-2 text-left w-full max-w-md">
+              <div className="p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70" 
+                   onClick={() => setInput("What are the system requirements for dotCMS?")}>
+                "What are the system requirements for dotCMS?"
+              </div>
+              <div className="p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70"
+                   onClick={() => setInput("How do I create a new content type in dotCMS?")}>
+                "How do I create a new content type in dotCMS?"
+              </div>
+              <div className="p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70"
+                   onClick={() => setInput("Can you explain how dotCMS's push publishing works?")}>
+                "Can you explain how dotCMS's push publishing works?"
+              </div>
+            </div>
+          </div>
+        )}
         {messages.map((message, index) => (
           <div
             key={index}
