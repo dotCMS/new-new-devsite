@@ -28,7 +28,7 @@ const TableOfContents = ({ items }) => {
 
 function cleanMarkdown(markdownString, identifierString) {
   return markdownString
-    .replaceAll("${docImage}","https://www.dotcms.com/dA/" + identifierString + "/diagram")
+    .replaceAll("${docImage}","/dA/" + identifierString + "/diagram")
     .replaceAll('src="/contentAsset','src="https://www.dotcms.com/contentAsset')
     .replaceAll("(/dA/", "(https://www.dotcms.com/dA/")
     .replaceAll("( /dA/", "(https://www.dotcms.com/dA/")
