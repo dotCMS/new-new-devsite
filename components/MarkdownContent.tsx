@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import rehypeSlug from 'rehype-slug'
@@ -19,7 +19,6 @@ interface MarkdownContentProps {
   content: string
 }
 
-
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
 
   const components: Components = {
@@ -32,23 +31,28 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       </h1>
     ),
     h2: ({ children, ...props }) => (
-      <h2 className="text-3xl font-semibold mt-5 mb-3 group flex items-center" {...props}>
-        {children}
-        <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          #
-        </a>
-      </h2>
+      <>
+        <h2 className="text-3xl font-semibold text-foreground mt-12 mb-1 group flex items-center" {...props}>
+          {children}
+          <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            #
+          </a>
+        </h2>
+        <hr className="border-t border-[#E5E7EB] mb-6" />
+      </>
     ),
     h3: ({ children, ...props }) => (
-      <h3 className="text-2xl font-medium mt-4 mb-2 group flex items-center" {...props}>
-        {children}
-        <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          #
-        </a>
-      </h3>
+      <>
+        <h3 className="text-2xl font-semibold text-foreground mt-8 mb-4 group flex items-center" {...props}>
+          {children}
+          <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            #
+          </a>
+        </h3>
+      </>
     ),
     h4: ({ children, ...props }) => (
-      <h4 className="text-xl font-medium mt-3 mb-2 group flex items-center" {...props}>
+      <h4 className="text-xl font-semibold text-foreground mt-6 mb-4 group flex items-center" {...props}>
         {children}
         <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
           #
@@ -56,7 +60,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       </h4>
     ),
     h5: ({ children, ...props }) => (
-      <h5 className="text-lg font-medium mt-2 mb-1 group flex items-center" {...props}>
+      <h5 className="text-lg font-semibold text-foreground mt-4 mb-2 group flex items-center" {...props}>
         {children}
         <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
           #
@@ -71,41 +75,62 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
         </a>
       </h6>
     ),
-    p: ({ children }) => <p className="mb-4">{children}</p>,
-    ul: ({ children }) => <ul className="list-disc list-inside mb-4">{children}</ul>,
+    p: ({ children }) => <p className="text-[15px] leading-7 text-foreground mb-6">{children}</p>,
+    ul: ({ children }) => <ul className="list-disc pl-6 mb-6">{children}</ul>,
     ol: ({ children }) => <ol className="list-decimal list-inside mb-4">{children}</ol>,
-    li: ({ children }) => <li className="mb-1">{children}</li>,
-    a: ({ href, children }) => (
-      <a 
-        href={href} 
-        className="text-blue-600 hover:underline"
-        onClick={(e) => href?.startsWith('#') ? smoothScroll(e) : undefined}
-      >
-        {children}
-      </a>
-    ),
-    code({ node, inline, className, children, ...props }: any) {
+    li: ({ children }) => <li className="text-[15px] leading-7 text-foreground mb-1">
+      {children}
+    </li>,
+    a: ({ href, children, ...props }) => {
+      const isInHeading = href?.startsWith('#');
+
+      return (
+        <a
+          href={href}
+          className={isInHeading ? `text-primary` : `text-blue-600 underline hover:no-underline`}
+          onClick={(e) => isInHeading ? smoothScroll(e) : undefined}
+        >
+          {children}
+        </a>
+      )
+    },
+    code: ({ node, inline, className, children, ...props }: any) => {
       const match = /language-(\w+)/.exec(className || '')
       return !inline && match ? (
         <SyntaxHighlighter
           style={vscDarkPlus}
           language={match[1]}
           PreTag="div"
+          className="rounded-md mb-6"
           {...props}
         >
           {String(children).replace(/\n$/, '')}
         </SyntaxHighlighter>
       ) : (
-        <code className={`${className} bg-gray-100 dark:bg-gray-800 rounded-md px-1 py-0.5`} {...props}>
+        <code className="bg-[#F6F6F7] text-[#000000] text-sm font-mono px-1 py-0.5 rounded whitespace-normal" {...props}>
           {children}
         </code>
       )
     },
+    pre({ node, children, ...props }: any) {
+      const childNode = node?.children[0]
+      const isCodeBlock = childNode?.tagName === 'code' && /language-(\w+)/.test(childNode.properties.className?.[0] || '')
+
+      if (isCodeBlock) {
+        // This is a code block, so we'll let the `code` component handle it
+        return <>{children}</>
+      } else {
+        // This is a regular <pre> tag, likely containing HTML
+        return (
+          <pre className="bg-[#F6F6F7] text-[#000000] rounded-md p-4 mb-6 overflow-x-auto" {...props}>
+            {children}
+          </pre>
+        )
+      }
+    },
     table({ children }) {
       return (
-        <Table className="mb-4">
-          {children}
-        </Table>
+        <Table className="border-[#E5E7EB] border border-collapse">{children}</Table>
       )
     },
     thead({ children }) {
@@ -118,46 +143,50 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       return <TableRow>{children}</TableRow>
     },
     th({ children }) {
-      return <TableHead className="font-bold">{children}</TableHead>
+      return <TableHead className="text-[15px] font-semibold bg-[#F9FAFB] px-4 border-[#E5E7EB] border-r last:border-r-0">
+        {children}
+      </TableHead>
     },
     td({ children }) {
-      return <TableCell>{children}</TableCell>
+      return <TableCell className="text-[15px] leading-7 px-4 border-[#E5E7EB] border-r last:border-r-0">
+        {children}
+      </TableCell>
     },
-    video: ({children, ...props }: any) => {
-        // Ensure children is an array and handle rehype-raw parsed elements
-        const childrenArray = React.Children.toArray(children);
-        
-        const sources = childrenArray.some((child: any) => 
-          child.type === 'source' || 
-          (typeof child === 'object' && child?.props?.originalType === 'source')
-        )
+    video: ({ children, ...props }: any) => {
+      // Ensure children is an array and handle rehype-raw parsed elements
+      const childrenArray = React.Children.toArray(children);
+
+      const sources = childrenArray.some((child: any) =>
+        child.type === 'source' ||
+        (typeof child === 'object' && child?.props?.originalType === 'source')
+      )
         ? childrenArray
-            .filter((child: any) => 
-              child.type === 'source' || 
-              (typeof child === 'object' && child?.props?.originalType === 'source')
-            )
-            .map((source: any) => ({
-              src: source.props?.src || source.props?.originalProps?.src,
-              type: source.props?.type || source.props?.originalProps?.type
-            }))
+          .filter((child: any) =>
+            child.type === 'source' ||
+            (typeof child === 'object' && child?.props?.originalType === 'source')
+          )
+          .map((source: any) => ({
+            src: source.props?.src || source.props?.originalProps?.src,
+            type: source.props?.type || source.props?.originalProps?.type
+          }))
         : undefined;
-        
-        const src = sources?.[0]?.src || props.src;
 
-        // Handle DotCMS URL format
-        const isDotCMSVideo = src && (!src.startsWith('http') || !src.startsWith('/'));
-        
-        const videoSrc = isDotCMSVideo 
-          ? `${process.env.NEXT_PUBLIC_DOTCMS_HOST}${src}`
-          : src;
+      const src = sources?.[0]?.src || props.src;
 
-        const videoProps = {
-          src: videoSrc,
-          className: "w-full mb-4",
-          ...props
-        };
+      // Handle DotCMS URL format
+      const isDotCMSVideo = src && (!src.startsWith('http') || !src.startsWith('/'));
 
-        return <Video {...videoProps} />;
+      const videoSrc = isDotCMSVideo
+        ? `${process.env.NEXT_PUBLIC_DOTCMS_HOST}${src}`
+        : src;
+
+      const videoProps = {
+        src: videoSrc,
+        className: "w-full mb-4",
+        ...props
+      };
+
+      return <Video {...videoProps} />;
     }
   }
 
