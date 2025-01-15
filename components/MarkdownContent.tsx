@@ -18,7 +18,6 @@ interface MarkdownContentProps {
   content: string
 }
 
-
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
 
   const components: Components = {
