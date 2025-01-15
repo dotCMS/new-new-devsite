@@ -16,7 +16,7 @@ export function SearchModal({
       <DialogContent className="sm:max-w-[800px] h-[80vh] flex flex-col">
         <DialogTitle className="flex items-center gap-2">
           <Search className="h-5 w-5" />
-          AI Assistant
+          dotAI Assistant
         </DialogTitle>
         <div className="flex-1 overflow-hidden">
           <ChatComponent />

@@ -279,11 +279,12 @@ export function ChatComponent() {
             </Button>
           </form>
           
-          {messages.length > 0 && (
+
             <div className="flex justify-end">
               <Button
                 variant="ghost"
                 size="sm"
+                disabled={loading || messages.length === 0}
                 onClick={clearHistory}
                 className="text-muted-foreground hover:text-destructive"
               >
@@ -291,7 +292,7 @@ export function ChatComponent() {
                 Clear History
               </Button>
             </div>
-          )}
+     
         </div>
       </div>
     </div>
