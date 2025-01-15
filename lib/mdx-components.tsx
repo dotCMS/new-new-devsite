@@ -1,38 +1,41 @@
-import type { MDXComponents } from '@mdx-js/mdx';
+import type { MDXComponents } from 'mdx/types';
 import Video from '@/components/mdx/Video';
 import Link from 'next/link';
 import Image from 'next/image';
+import { DetailedHTMLProps, ImgHTMLAttributes } from 'react';
 
-interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
-  src?: string;
-  alt?: string;
-  width?: number;
-  height?: number;
-}
+type MDXImageProps = DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement>;
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
-    // Default components
-    a: ({ href, ...props }: { href: string }) => (
-      <Link href={href || ''} {...props} />
+    a: ({ href = '', ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+      <Link href={href} {...props} />
     ),
-    img: ({ src, alt, ...props }: ImageProps) => {
-        const thisHeight = props?.height ? Number(props?.height) : 400;
-        const thisWidth = props?.width ? Number(props?.width) : 800;
-        return (
-            <Image 
-                src={src || ''} 
-                alt={alt || ''} 
-                width={thisWidth}
-                height={thisHeight}
-                className="rounded-lg" 
-                {...props} 
-            />
-        );
+    img: (props: MDXImageProps) => {
+      let finalWidth = 800;
+      let finalHeight = 400;
+
+      if (props.width) {
+        finalWidth = typeof props.width === 'string' ? parseInt(props.width, 10) : props.width;
+      }
+      if (props.height) {
+        finalHeight = typeof props.height === 'string' ? parseInt(props.height, 10) : props.height;
+      }
+
+      const { width, height, ...restProps } = props;
+
+      return (
+        <Image 
+          src={props.src || ''} 
+          alt={props.alt || ''} 
+          width={finalWidth}
+          height={finalHeight}
+          className="rounded-lg" 
+          {...restProps} 
+        />
+      );
     },
-    // Video component
     video: Video,
-    // Any custom overrides passed in
     ...components,
   };
 } 
