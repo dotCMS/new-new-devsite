@@ -24,19 +24,16 @@ export function ChatComponent() {
   const [input, setInput] = useState("")
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState("")
 
-  // Add ref for the messages container
+  // Add refs for the messages container and form
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const formRef = useRef<HTMLFormElement>(null)
 
   // Helper function to handle example question clicks
   const handleExampleClick = (question: string) => {
-
     setInput(question);
-    setTimeout(() => {  
-      document.getElementById("dotAIChatInput")?.form?.requestSubmit();
+    setTimeout(() => {
+      formRef.current?.requestSubmit();
     }, 100);
-    // Create a synthetic form submission event
-    //const event = new Event('submit', { bubbles: true, cancelable: true }) as unknown as React.FormEvent
-    //sendMessage(event)
   }
 
   useEffect(() => {
@@ -313,7 +310,7 @@ export function ChatComponent() {
 
       <div className="absolute bottom-0 left-0 right-0 bg-background border-t">
         <div className="p-4 space-y-4">
-          <form onSubmit={sendMessage} className="flex gap-2">
+          <form ref={formRef} onSubmit={sendMessage} className="flex gap-2">
             <input
               type="text"
               value={input}
