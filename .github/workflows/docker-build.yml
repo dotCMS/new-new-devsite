@@ -1,0 +1,36 @@
+name: Docker Build and Push
+
+on:
+  pull_request:
+    branches: [ testing, main ]
+  push:
+    branches: [ main,testing ]
+  workflow_dispatch:
+
+jobs:
+  sanity-build-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: "21"
+        cache: ${{ steps.detect-package-manager.outputs.manager }}
+
+    - name: Create .env file
+      run: |
+        echo "NEXT_PUBLIC_DOTCMS_HOST=${{ secrets.NEXT_PUBLIC_DOTCMS_HOST }}" > .env
+        echo "NEXT_PUBLIC_DOTCMS_AUTH_TOKEN=${{ secrets.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN }}" >> .env
+      env:
+        NEXT_PUBLIC_DOTCMS_HOST: ${{ secrets.NEXT_PUBLIC_DOTCMS_HOST }}
+        NEXT_PUBLIC_AUTH_TOKEN: ${{ secrets.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN }}
+
+    - name: Check build status
+      run: |
+        cat .env
+        npm i && npm run build && exit 0 || exit 1
+
