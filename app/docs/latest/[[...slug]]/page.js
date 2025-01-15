@@ -8,6 +8,7 @@ import { client } from "@/lib/dotcmsClient";
 import { getSideNav } from "@/lib/getSideNav"
 
 const getPath = (params) => {
+
     const defaultPath = "getting-started";
     const path = "/docs/latest/" + (params?.slug?.join("/") || defaultPath);
 
@@ -15,14 +16,16 @@ const getPath = (params) => {
 };
 
 async function fetchPageData(path, searchParams) {
-    const pageRequestParams = getPageRequestParams({ path, params: searchParams });
+    const finalPath = await path;
+    const finalSearchParams = await searchParams;
+    const pageRequestParams = getPageRequestParams({ path: finalPath, params: finalSearchParams });
     const query = getGraphQLPageQuery(pageRequestParams);
     const [pageData, nav, sideNav] = await Promise.all([
         getGraphQLPageData(query),
         client.nav.get({
             path: "/",
             depth: 0,
-            languageId: searchParams.language_id,
+            languageId: finalSearchParams.language_id,
         }),
         getSideNav()
     ]);
@@ -44,7 +47,8 @@ async function fetchPageData(path, searchParams) {
  * @return {*}
  */
 export async function generateMetadata({ params, searchParams }) {
-    const path = getPath(params);
+    const finalParams = await params;
+    const path = getPath(finalParams);
     const { pageAsset } = await fetchPageData(path, searchParams);
 
     return {
@@ -53,11 +57,13 @@ export async function generateMetadata({ params, searchParams }) {
 }
 
 export default async function Home({ searchParams, params }) {
-    const headersList = headers();
+    const finalParams = await params;
+    const finalSearchParams = await searchParams;
+    const headersList = await headers();
     const pathname = headersList.get("x-invoke-path") || "";
 
-    const path = getPath(params);
-    const { pageAsset, nav, sideNav, query } = await fetchPageData(path, searchParams);
+    const path = getPath(finalParams);
+    const { pageAsset, nav, sideNav, query } = await fetchPageData(path, finalSearchParams);
 
     return <PageGraphQL nav={nav} pageAsset={pageAsset} query={query} sideNav={sideNav} params={params} pathname={pathname} />;
 }

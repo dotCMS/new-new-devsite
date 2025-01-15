@@ -15,10 +15,12 @@ import { fetchNavData, fetchPageData } from "@/lib/page.utils";
  * @return {*}
  */
 export async function generateMetadata({ params, searchParams }) {
-    const path = params?.slug?.join("/") || "/";
+    const finalParams = await params;
+    const finalSearchParams = await searchParams;
+    const path = finalParams?.slug?.join("/") || "/";
     const pageRequestParams = getPageRequestParams({
         path,
-        params: searchParams,
+        params: finalSearchParams,
     });
 
     try {
@@ -37,7 +39,7 @@ export async function generateMetadata({ params, searchParams }) {
 }
 
 export default async function Page({ params, searchParams }) {
-    const headersList = headers();
+    const headersList = await headers();
     const pathname = headersList.get("x-invoke-path") || "";
 
     const getPageData = async () => {
