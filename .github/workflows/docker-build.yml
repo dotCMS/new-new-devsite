@@ -31,5 +31,6 @@ jobs:
 
     - name: Check build status
       run: |
-        npm i &&npm run build && exit 0 || exit 1
+        cat .env
+        npm i && npm run build && exit 0 || exit 1
 
