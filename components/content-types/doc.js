@@ -26,6 +26,21 @@ const TableOfContents = ({ items }) => {
   );
 };
 
+function cleanMarkdown(markdownString, identifierString) {
+  return markdownString
+    .replaceAll("${docImage}","https://www.dotcms.com/dA/" + identifierString + "/diagram")
+    .replaceAll('src="/contentAsset','src="https://www.dotcms.com/contentAsset')
+    .replaceAll("(/dA/", "(https://www.dotcms.com/dA/")
+    .replaceAll("( /dA/", "(https://www.dotcms.com/dA/")
+    .replaceAll('src="/dA/', 'src="https://www.dotcms.com/dA/')
+    .replaceAll("(/contentAsset", "(https://www.dotcms.com/contentAsset")
+    .replaceAll("( /contentAsset", "(https://www.dotcms.com/contentAsset")
+    .replaceAll(/\{#[A-Za-z0-1]*\}/g, "")
+    .replaceAll("<br>", "<br/>")
+    .replaceAll("()", "")
+    .replaceAll("</br>", "<br/>");
+}
+
 const Doc = ({ contentlet, sideNav }) => {
   const currentPath = usePathname();
 
@@ -37,6 +52,8 @@ const Doc = ({ contentlet, sideNav }) => {
   if (!contentlet || !sideNav) {
     return <div>Loading...</div>;
   }
+
+  const documentation = cleanMarkdown(contentlet.documentation, contentlet.identifier);
 
   return (
     <div className="container mx-auto flex min-h-screen gap-8 py-8">
@@ -58,7 +75,7 @@ const Doc = ({ contentlet, sideNav }) => {
           currentPath={currentPath}
         />
         <h1 className="text-4xl font-bold mb-6">{contentlet.title}</h1>
-        <MarkdownContent content={contentlet.documentation} />
+        <MarkdownContent content={documentation} />
       </div>
 
       {/* Right Sidebar - Table of Contents */}

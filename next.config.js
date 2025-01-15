@@ -1,15 +1,20 @@
 /** @type {import('next').NextConfig} */
+
+const url = new URL(process.env.NEXT_PUBLIC_DOTCMS_HOST);
+
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        pathname: '/**',
+        protocol: url.protocol.replace(":", ""),
+        hostname: url.hostname,
+        port: url.port || "",
       },
     ],
+    loader: "custom",
+    loaderFile: "./lib/imageLoader.ts",
   },
 }
 
