@@ -27,6 +27,18 @@ export function ChatComponent() {
   // Add ref for the messages container
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  // Helper function to handle example question clicks
+  const handleExampleClick = (question: string) => {
+
+    setInput(question);
+    setTimeout(() => {  
+      document.getElementById("dotAIChatInput")?.form?.requestSubmit();
+    }, 100);
+    // Create a synthetic form submission event
+    //const event = new Event('submit', { bubbles: true, cancelable: true }) as unknown as React.FormEvent
+    //sendMessage(event)
+  }
+
   useEffect(() => {
     const savedMessages = localStorage.getItem(STORAGE_KEY)
     if (savedMessages) {
@@ -59,7 +71,7 @@ export function ChatComponent() {
     }
     setMessages(prev => [...prev, userMessage])
     setLoading(true)
-    setInput("")
+    //setInput("")
 
     try {
       const response = await fetch(`${API_ENDPOINT}/api/v1/ai/completions`, {
@@ -118,7 +130,7 @@ export function ChatComponent() {
         }
       }
       
-      console.log("setting message:" + finalMessage);
+      //console.log("setting message:" + finalMessage);
       // After streaming is complete, add the full message to the messages array
       setMessages(prev => [...prev, {
         role: "assistant",
@@ -146,6 +158,7 @@ export function ChatComponent() {
 
   const clearHistory = () => {
     setMessages([])
+    setInput("")
     localStorage.removeItem(STORAGE_KEY)
   }
 
@@ -161,16 +174,16 @@ export function ChatComponent() {
             </p>
             <div className="space-y-2 text-left w-full max-w-md">
               <div className="p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70" 
-                   onClick={() => setInput("What are the system requirements for dotCMS?")}>
+                   onClick={() => handleExampleClick("What are the system requirements for dotCMS?")}>
                 &quot;What are the system requirements for dotCMS?&quot;
               </div>
               <div className="p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70"
-                   onClick={() => setInput("How do I create a new content type in dotCMS?")}>
+                   onClick={() => handleExampleClick("How do I create a new content type in dotCMS?")}>
                 &quot;How do I create a new content type in dotCMS?&quot;
               </div>
               <div className="p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70"
-                   onClick={() => setInput("Can you explain how dotCMS's push publishing works?")}>
-                &quot;Can you explain how dotCMS's push publishing works?&quot;
+                   onClick={() => handleExampleClick("How do I search content using rest api??")}>
+                &quot;How do I search content using the rest api?&quot;
               </div>
             </div>
           </div>
@@ -304,6 +317,7 @@ export function ChatComponent() {
             <input
               type="text"
               value={input}
+              id="dotAIChatInput"
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask a question..."
               className="flex-1 px-3 py-2 border rounded-md"
