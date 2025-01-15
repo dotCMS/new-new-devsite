@@ -7,25 +7,6 @@ import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 import OnThisPage from '@/components/navigation/OnThisPage';
 import MarkdownContent from '@/components/MarkdownContent';
 
-const TableOfContents = ({ items }) => {
-  return (
-    <div className="sticky top-8">
-      <h3 className="mb-4 text-sm font-semibold">On This Page</h3>
-      <nav className="text-sm">
-        <ul className="space-y-2 text-muted-foreground">
-          {items.map((item) => (
-            <li key={item.id}>
-              <Link href={`#${item.id}`} className="hover:text-foreground">
-                {item.title}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </div>
-  );
-};
-
 function cleanMarkdown(markdownString, identifierString) {
   return markdownString
     .replaceAll("${docImage}","/dA/" + identifierString + "/diagram")
