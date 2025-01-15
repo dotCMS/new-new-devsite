@@ -31,5 +31,5 @@ jobs:
 
     - name: Check build status
       run: |
-        npm run build && exit 0 || exit 1
+        npm i &&npm run build && exit 0 || exit 1
 
