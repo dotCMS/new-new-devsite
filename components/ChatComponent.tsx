@@ -162,15 +162,15 @@ export function ChatComponent() {
             <div className="space-y-2 text-left w-full max-w-md">
               <div className="p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70" 
                    onClick={() => setInput("What are the system requirements for dotCMS?")}>
-                "What are the system requirements for dotCMS?"
+                &quot;What are the system requirements for dotCMS?&quot;
               </div>
               <div className="p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70"
                    onClick={() => setInput("How do I create a new content type in dotCMS?")}>
-                "How do I create a new content type in dotCMS?"
+                &quot;How do I create a new content type in dotCMS?&quot;
               </div>
               <div className="p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70"
                    onClick={() => setInput("Can you explain how dotCMS's push publishing works?")}>
-                "Can you explain how dotCMS's push publishing works?"
+                &quot;Can you explain how dotCMS's push publishing works?&quot;
               </div>
             </div>
           </div>
