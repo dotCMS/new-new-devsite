@@ -4,7 +4,6 @@ import React, { useState, useCallback, useEffect } from 'react';
 import SubNavTree from '@/components/navigation/SubNavTree';
 
 const NavTree = React.memo(({ items, currentPath, level = 0 }) => {
-    console.log(currentPath)
 
   return (
     <div className="space-y-2 w-72">

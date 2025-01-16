@@ -13,6 +13,10 @@ import {
 const STORAGE_KEY = 'subnav-open-sections';
 
 const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
+    const relevantPath = currentPath.replace(/^\/docs\/latest\//, '');
+    if(relevantPath === 'table-of-contents') {
+        localStorage.removeItem(STORAGE_KEY);
+    }
   const [openSections, setOpenSections] = useState(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -20,7 +24,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
     }
     return [];
   });
-  const relevantPath = currentPath.replace(/^\/docs\/latest\//, '');
+
 
   const toggleSection = useCallback((urlTitle) => {
     setOpenSections((prev) => {
