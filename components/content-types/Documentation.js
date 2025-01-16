@@ -34,7 +34,7 @@ const Documentation = ({ contentlet, sideNav }) => {
   return (
     <div className="container mx-auto flex min-h-screen gap-12 py-8">
       {/* Left Navigation */}
-      <div className="w-72 border-r pr-8">
+      <div className="w-64 border-r pr-8">
         <nav className="sticky top-8">
           <h2 className="mb-4 text-lg font-semibold">Documentation</h2>
           <NavTree 
@@ -45,7 +45,7 @@ const Documentation = ({ contentlet, sideNav }) => {
       </div>
 
       {/* Main Content */}
-      <div className="pl-8 flex-1 min-w-0 overflow-x-hidden" >
+      <div className="pl-4 flex-1 min-w-0 overflow-x-hidden" >
         <Breadcrumbs 
           items={sideNav[0]?.dotcmsdocumentationchildren || []} 
           currentPath={currentPath}
@@ -57,7 +57,7 @@ const Documentation = ({ contentlet, sideNav }) => {
       </div>
 
       {/* Right Sidebar - Table of Contents */}
-      <div className="max-w-8">
+      <div className="max-w-8 pl-4 flex min-w-16">
         <OnThisPage />
       </div>
     </div>
