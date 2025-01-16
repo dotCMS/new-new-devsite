@@ -54,7 +54,7 @@ export const OnThisPage = () => {
   }
 
   return (
-    <div className="sticky top-8">
+    <div className="sticky top-8 w-64">
       <h3 className="mb-4 text-sm font-semibold">On This Page</h3>
       <nav className="text-sm">
         <ul className="space-y-2 text-muted-foreground">

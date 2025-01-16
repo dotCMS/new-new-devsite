@@ -32,11 +32,10 @@ const Documentation = ({ contentlet, sideNav }) => {
   const documentation = cleanMarkdown(contentlet.documentation, contentlet.identifier);
 
   return (
-    <div className="container mx-auto flex min-h-screen gap-12 py-8">
+    <div className="container flex min-h-svh py-4">
       {/* Left Navigation */}
-      <div className="w-72 border-r pr-8">
-        <nav className="sticky top-8">
-          <h2 className="mb-4 text-lg font-semibold">Documentation</h2>
+      <div className="w-96 border-r pr-8">
+        <nav >
           <NavTree 
             items={sideNav[0]?.dotcmsdocumentationchildren || []} 
             currentPath={currentPath}
@@ -45,7 +44,7 @@ const Documentation = ({ contentlet, sideNav }) => {
       </div>
 
       {/* Main Content */}
-      <div className="pl-8 flex-1 min-w-0 overflow-x-hidden" >
+      <div className="px-8 overflow-x-hidden" >
         <Breadcrumbs 
           items={sideNav[0]?.dotcmsdocumentationchildren || []} 
           currentPath={currentPath}
@@ -57,9 +56,9 @@ const Documentation = ({ contentlet, sideNav }) => {
       </div>
 
       {/* Right Sidebar - Table of Contents */}
-      <div className="max-w-8">
+      <aside className="w-64" >
         <OnThisPage />
-      </div>
+      </aside>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-"use client"
+
 import React, { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
@@ -9,7 +9,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
-const NavTree = React.memo(({ items, currentPath }) => {
+const NavTree = React.memo(({ items, currentPath, level = 0 }) => {
   const [openSections, setOpenSections] = useState([]);
   const relevantPath = currentPath.replace(/^\/docs\/latest\//, '');
 
@@ -45,6 +45,7 @@ const NavTree = React.memo(({ items, currentPath }) => {
   const renderNavItem = useCallback((item) => {
     const isCurrentPage = item.urlTitle === relevantPath;
     const hasChildren = item.dotcmsdocumentationchildren && item.dotcmsdocumentationchildren.length > 0;
+    const paddingY = level === 0 ? 'py-3' : level === 1 ? 'py-2' : 'py-1';
 
     if (hasChildren) {
       return (
@@ -54,7 +55,7 @@ const NavTree = React.memo(({ items, currentPath }) => {
         >
           <div className="flex flex-col">
             <div className={cn(
-                "flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-medium hover:bg-muted",
+                `flex w-full items-center justify-between rounded-lg px-4 ${paddingY} text-sm font-medium hover:bg-muted`,
                 isCurrentPage ? "bg-muted font-medium text-foreground" : "text-muted-foreground"
                 )}>
               <Link
@@ -66,7 +67,7 @@ const NavTree = React.memo(({ items, currentPath }) => {
               >
                 {item.title}
               </Link>
-              <CollapsibleTrigger className="p-1">
+              <CollapsibleTrigger className="p-0">
                 <ChevronRight
                   className={cn(
                     "h-4 w-4 transition-transform duration-200",
@@ -76,7 +77,7 @@ const NavTree = React.memo(({ items, currentPath }) => {
               </CollapsibleTrigger>
             </div>
             <CollapsibleContent className="pl-4">
-              <NavTree items={item.dotcmsdocumentationchildren} currentPath={currentPath} />
+              <NavTree items={item.dotcmsdocumentationchildren} currentPath={currentPath} level={level + 1}/>
             </CollapsibleContent>
           </div>
         </Collapsible>
@@ -86,7 +87,7 @@ const NavTree = React.memo(({ items, currentPath }) => {
         <Link
           href={`/docs/latest/${item.urlTitle}`}
           className={cn(
-            "block rounded-lg px-4 py-2 text-sm hover:bg-muted hover:text-foreground",
+            `block rounded-lg px-4 ${paddingY} text-sm hover:bg-muted hover:text-foreground`,
             isCurrentPage ? "bg-muted font-medium text-foreground" : "text-muted-foreground"
           )}
         >
@@ -97,7 +98,7 @@ const NavTree = React.memo(({ items, currentPath }) => {
   }, [relevantPath, openSections, toggleSection]);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 w-72">
       {items.map((item) => (
         <div key={item.title}>
           {renderNavItem(item)}
