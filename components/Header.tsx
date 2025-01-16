@@ -1,8 +1,6 @@
-"use client"
-
 import { Search } from "lucide-react"
 import { useState } from "react"
-import { SearchModal } from "./SearchModal"
+import { SearchModal } from "./header/SearchModal"
 
 export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)

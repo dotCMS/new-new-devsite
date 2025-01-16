@@ -1,7 +1,7 @@
 "use client";
 
 import { Code2, MessagesSquare, Search } from "lucide-react";
-import { ThemeToggle } from "../theme-toggle";
+import { ThemeToggle } from "./theme-toggle";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -20,7 +20,7 @@ import DiscordLink from "./DiscordLink";
 import GithubLink from "./GithubLink";
 import Logo from "./Logo/Logo";
 import { useTheme } from "next-themes"
-import { SearchModal } from "../SearchModal";
+import { SearchModal } from "../chat/SearchModal";
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -91,33 +91,33 @@ export default function Header() {
                   <li className="row-span-3">
                     <NavigationMenuLink asChild>
                       <a
-                        className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
+                        className="flex h-full w-full select-none flex-col  rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
                         href="/"
                       >
-                        <Code2 className="h-6 w-6" />
+                        
                         <div className="mb-2 mt-4 text-lg font-medium">
-                          DevHub
+                          dotDev <Code2 className="h-6 w-6 inline-block" />
                         </div>
                         <p className="text-sm leading-tight text-muted-foreground">
-                          Your one-stop platform for development resources and tools.
+                          Your one-stop site for learning dotCMS, including documentation, resources and tools.
                         </p>
                       </a>
                     </NavigationMenuLink>
                   </li>
-                  <ListItem href="/docs" title="Introduction">
-                    Learn about the core concepts and architecture.
+                  <ListItem href="/docs/latest/table-of-contents" title="Introduction">
+                    Learn about dotCMS's core concepts and architecture.
                   </ListItem>
-                  <ListItem href="/docs/quickstart" title="Quick Start">
+                  <ListItem href="/docs/latest/quick-start-guide" title="Headless Quick Start">
                     Get up and running in less than 5 minutes.
                   </ListItem>
-                  <ListItem href="/docs/features" title="Features">
+                  <ListItem href="/docs/latest/features" title="Features">
                     Explore our comprehensive feature set.
                   </ListItem>
                 </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link href="/docs/latest/quick-start-guide" legacyBehavior passHref>
+              <Link href="/docs/latest/table-of-contents" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   Documentation
                 </NavigationMenuLink>

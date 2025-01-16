@@ -39,14 +39,16 @@ export async function generateMetadata({ params, searchParams }) {
 }
 
 export default async function Page({ params, searchParams }) {
+    const finalParams = await params;
+    const finalSearchParams = await searchParams;
     const headersList = await headers();
     const pathname = headersList.get("x-invoke-path") || "";
 
     const getPageData = async () => {
-        const path = params?.slug?.join("/") || "/";
+        const path = finalParams?.slug?.join("/") || "/";
         const pageParams = getPageRequestParams({
             path,
-            params: searchParams,
+            params: finalSearchParams,
         });
 
         const { pageAsset, error: pageError } = await fetchPageData(pageParams);
