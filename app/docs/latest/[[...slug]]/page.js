@@ -50,9 +50,16 @@ export async function generateMetadata({ params, searchParams }) {
     const finalParams = await params;
     const path = getPath(finalParams);
     const { pageAsset } = await fetchPageData(path, searchParams);
-
+    console.log(pageAsset.urlContentMap._map.title)
     return {
-        title: pageAsset.friendlyName || pageAsset.title,
+        title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title) + " | dotCMS Documentation",
+        description: pageAsset.urlContentMap._map.seoDescription,
+        keywords: pageAsset.urlContentMap._map.tag,
+        openGraph: {
+            title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title) + " | dotCMS Documentation",
+            description: pageAsset.urlContentMap._map.seoDescription,
+            keywords: pageAsset.urlContentMap._map.tag,
+        }
     };
 }
 
