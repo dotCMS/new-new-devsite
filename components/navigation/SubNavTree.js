@@ -27,7 +27,13 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
       const newSections = prev.includes(urlTitle)
         ? prev.filter((t) => t !== urlTitle)
         : [...prev, urlTitle];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newSections));
+      
+      if (newSections.length > 0) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newSections));
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+      
       return newSections;
     });
   }, []);
@@ -58,9 +64,10 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
   }, [items, relevantPath]);
 
   const renderNavItem = useCallback((item) => {
+
     const isCurrentPage = item.urlTitle === relevantPath;
     const hasChildren = item.dotcmsdocumentationchildren && item.dotcmsdocumentationchildren.length > 0;
-    const paddingY = level === 0 ? 'py-3' : level === 1 ? 'py-2' : 'py-1';
+    const paddingY =  'py-2' ;
 
     if (hasChildren) {
       return (
@@ -70,8 +77,8 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
         >
           <div className="flex flex-col">
             <div className={cn(
-                `flex w-full items-center justify-between rounded-lg px-4 ${paddingY} text-sm font-medium hover:bg-muted`,
-                isCurrentPage ? "bg-muted font-medium text-foreground" : "text-muted-foreground"
+                `flex px-1 w-full items-center justify-between rounded-lg ${paddingY} text-sm hover:bg-muted`,
+                isCurrentPage ? "bg-muted text-foreground" : "text-muted-foreground"
                 )}>
               <Link
                 href={`/docs/latest/${item.urlTitle}`}
@@ -91,7 +98,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
                 />
               </CollapsibleTrigger>
             </div>
-            <CollapsibleContent className="pl-4">
+            <CollapsibleContent className="pl-3">
               <SubNavTree items={item.dotcmsdocumentationchildren} currentPath={currentPath} level={level + 1}/>
             </CollapsibleContent>
           </div>
@@ -102,8 +109,8 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
         <Link
           href={`/docs/latest/${item.urlTitle}`}
           className={cn(
-            `block rounded-lg px-4 ${paddingY} text-sm hover:bg-muted hover:text-foreground`,
-            isCurrentPage ? "bg-muted font-medium text-foreground" : "text-muted-foreground"
+            `block rounded-lg px-1 ${paddingY} text-sm hover:bg-muted hover:text-foreground`,
+            isCurrentPage ? "bg-muted  text-foreground" : "text-muted-foreground"
           )}
         >
           {item.title}
@@ -113,7 +120,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
   }, [relevantPath, openSections, toggleSection]);
 
   return (
-    <div className="space-y-2 w-72">
+    <div>
       {items.map((item) => (
         <div key={item.title}>
           {renderNavItem(item)}
