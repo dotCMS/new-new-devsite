@@ -7,7 +7,7 @@ import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"
 import { cn } from "@/lib/utils"
-import { CopyButton } from "@/components/CopyButton"
+import { CopyButton } from "@/components/chat/CopyButton"
 
 interface Message {
   role: "user" | "assistant"
@@ -160,10 +160,10 @@ export function ChatComponent() {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-[600px] relative">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-[140px]">
+    <div className="flex flex-col h-full relative">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 h-full">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full space-y-4 text-center px-4">
+          <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <Bot className="w-16 h-16 text-primary" />
             <h2 className="text-2xl font-semibold">Welcome to dotAI Assistant</h2>
             <p className="text-muted-foreground max-w-md">
@@ -218,7 +218,6 @@ export function ChatComponent() {
                       const codeContent = String(children).replace(/\n$/, '')
                       
                       return !inline && match ? (
-           
                             <div className="relative">
                             <CopyButton />
                             <SyntaxHighlighter
@@ -238,7 +237,6 @@ export function ChatComponent() {
                                 {codeContent}
                             </SyntaxHighlighter>
                             </div>
- 
                       ) : (
                         <code {...props} className={className}>
                           {children}
@@ -277,19 +275,25 @@ export function ChatComponent() {
                     }) {
                       const match = /language-(\w+)/.exec(className || '')
                       return !inline && match ? (
-                        <SyntaxHighlighter
-                          {...props}
-                          style={vscDarkPlus}
-                          language={match[1]}
-                          PreTag="div"
-                          customStyle={{
-                            margin: 0,
-                            maxWidth: '100%',
-                            overflowX: 'auto'
-                          }}
-                        >
-                          {String(children).replace(/\n$/, '')}
-                        </SyntaxHighlighter>
+                        <div className="relative">
+                          <CopyButton />
+                          <SyntaxHighlighter
+                            {...props}
+                            style={vscDarkPlus}
+                            language={match[1]}
+                            PreTag="div"
+                            customStyle={{
+                              margin: 0,
+                              maxWidth: '100%',
+                              overflowX: 'auto',
+                              backgroundColor: 'rgb(30, 41, 59)',
+                              borderRadius: '0.5rem',
+                              padding: '1rem'
+                            }}
+                          >
+                            {String(children).replace(/\n$/, '')}
+                          </SyntaxHighlighter>
+                        </div>
                       ) : (
                         <code {...props} className={className}>
                           {children}

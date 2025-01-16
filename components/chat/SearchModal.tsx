@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Search } from "lucide-react"
-import { ChatComponent } from "./ChatComponent"
+import { ChatComponent } from "../chat/ChatComponent"
 
 export function SearchModal({
   isOpen,
