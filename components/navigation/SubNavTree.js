@@ -14,7 +14,7 @@ const STORAGE_KEY = 'subnav-open-sections';
 
 const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
     const relevantPath = currentPath.replace(/^\/docs\/latest\//, '');
-    if(relevantPath === 'table-of-contents') {
+    if(relevantPath === 'table-of-contents' && localStorage) {
         localStorage.removeItem(STORAGE_KEY);
     }
   const [openSections, setOpenSections] = useState(() => {
