@@ -34,7 +34,7 @@ const Documentation = ({ contentlet, sideNav }) => {
   return (
     <div className="container flex min-h-screen p-0">
       {/* Left Navigation */}
-      <div className="w-96 shrink-0">
+      <div className="w-72 shrink-0">
         <nav className="h-[calc(100vh-4rem)] overflow-y-auto sticky top-16 p-4 pt-8 
           [&::-webkit-scrollbar]:w-1.5
           [&::-webkit-scrollbar-track]:bg-transparent

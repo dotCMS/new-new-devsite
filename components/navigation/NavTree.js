@@ -6,7 +6,7 @@ const NavTree = React.memo(({ items, currentPath, level = 0 }) => {
 
   return (
     <div className="h-dvh">
-      <div className="space-y-2 min-w-72 pb-12">
+      <div className="space-y-2 min-w-64 pb-12">
         {items.map((item) => (
           <div key={item.title}>
             <div className="py-1 font-semibold">{item.title}</div>
