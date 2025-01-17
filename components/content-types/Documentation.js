@@ -32,7 +32,7 @@ const Documentation = ({ contentlet, sideNav }) => {
   const documentation = cleanMarkdown(contentlet.documentation, contentlet.identifier);
 
   return (
-    <div className="container flex h-svh">
+    <div className="container flex">
       {/* Left Navigation */}
       <div className="w-96 pr-8 py-8">
         <nav >
