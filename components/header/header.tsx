@@ -40,7 +40,7 @@ export default function Header() {
   };
 
   return (
-    <header className="border-b">
+    <header className="sticky top-0 z-50 w-full border-b bg-background">
       <div className="flex h-16 items-center px-4 container mx-auto">
         <Logo/>
         

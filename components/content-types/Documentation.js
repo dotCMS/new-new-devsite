@@ -32,10 +32,15 @@ const Documentation = ({ contentlet, sideNav }) => {
   const documentation = cleanMarkdown(contentlet.documentation, contentlet.identifier);
 
   return (
-    <div className="container flex">
+    <div className="container flex min-h-screen p-0">
       {/* Left Navigation */}
-      <div className="w-96 pr-8 py-8">
-        <nav >
+      <div className="w-96 shrink-0">
+        <nav className="h-[calc(100vh-4rem)] overflow-y-auto sticky top-16 p-4 pt-8 
+          [&::-webkit-scrollbar]:w-1.5
+          [&::-webkit-scrollbar-track]:bg-transparent
+          [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
+          [&::-webkit-scrollbar-thumb]:rounded-full
+          hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20">
           <NavTree 
             items={sideNav[0]?.dotcmsdocumentationchildren || []} 
             currentPath={currentPath}
@@ -43,26 +48,35 @@ const Documentation = ({ contentlet, sideNav }) => {
         </nav>
       </div>
 
-      {/* Main Content */}
-      <div className="px-4 py-8" >
-        <Breadcrumbs 
-          items={sideNav[0]?.dotcmsdocumentationchildren || []} 
-          currentPath={currentPath}
-        />
-        
-        <div className="flex gap-4">
+      {/* Main Content Container */}
+      <div className="flex-1 min-w-0"> 
+        <div className="max-w-[1400px] mx-auto flex">
+          {/* Main Content Area */}
+          <main className="flex-1 min-w-0 pt-8 px-12
+            [&::-webkit-scrollbar]:w-1.5
+            [&::-webkit-scrollbar-track]:bg-transparent
+            [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
+            [&::-webkit-scrollbar-thumb]:rounded-full
+            hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20">
+            <Breadcrumbs 
+              items={sideNav[0]?.dotcmsdocumentationchildren || []} 
+              currentPath={currentPath}
+            />
+            
             <div className="markdown-content">
-                <h1 className="text-4xl font-bold mb-6">{contentlet.title}</h1>
-                <MarkdownContent content={documentation} />
+              <h1 className="text-4xl font-bold mb-6">{contentlet.title}</h1>
+              <MarkdownContent content={documentation} />
             </div>
-            <aside className="w-64" >
-                <OnThisPage />
-            </aside>
+          </main>
+
+          {/* Right Sidebar - On This Page */}
+          <div className="w-64 shrink-0 hidden xl:block">
+            <div className="sticky top-16 pt-8 pl-8">
+              <OnThisPage />
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Right Sidebar - Table of Contents */}
-
     </div>
   );
 };
