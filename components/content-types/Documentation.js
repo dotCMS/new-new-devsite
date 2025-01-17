@@ -1,11 +1,13 @@
 "use client"
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import NavTree from '@/components/navigation/NavTree';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 import OnThisPage from '@/components/navigation/OnThisPage';
 import MarkdownContent from '@/components/MarkdownContent';
+
+const SCROLL_STORAGE_KEY = 'docs-nav-scroll';
 
 function cleanMarkdown(markdownString, identifierString) {
   return markdownString
@@ -24,6 +26,27 @@ function cleanMarkdown(markdownString, identifierString) {
 
 const Documentation = ({ contentlet, sideNav }) => {
   const currentPath = usePathname();
+  const navRef = useRef(null);
+
+  // Save scroll position before unload
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+
+    // Restore scroll position on mount
+    const savedScroll = localStorage.getItem(SCROLL_STORAGE_KEY);
+    if (savedScroll) {
+      nav.scrollTop = parseInt(savedScroll, 10);
+    }
+
+    // Save scroll position on scroll
+    const handleScroll = () => {
+      localStorage.setItem(SCROLL_STORAGE_KEY, Math.round(nav.scrollTop).toString());
+    };
+
+    nav.addEventListener('scroll', handleScroll);
+    return () => nav.removeEventListener('scroll', handleScroll);
+  }, []);
 
   if (!contentlet || !sideNav) {
     return <div>Loading...</div>;
@@ -35,12 +58,15 @@ const Documentation = ({ contentlet, sideNav }) => {
     <div className="container flex min-h-screen p-0">
       {/* Left Navigation */}
       <div className="w-72 shrink-0">
-        <nav className="h-[calc(100vh-4rem)] overflow-y-auto sticky top-16 p-4 pt-8 
-          [&::-webkit-scrollbar]:w-1.5
-          [&::-webkit-scrollbar-track]:bg-transparent
-          [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
-          [&::-webkit-scrollbar-thumb]:rounded-full
-          hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20">
+        <nav 
+          ref={navRef}
+          className="h-[calc(100vh-4rem)] overflow-y-auto sticky top-16 p-4 pt-8 
+            [&::-webkit-scrollbar]:w-1.5
+            [&::-webkit-scrollbar-track]:bg-transparent
+            [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
+            [&::-webkit-scrollbar-thumb]:rounded-full
+            hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20"
+        >
           <NavTree 
             items={sideNav[0]?.dotcmsdocumentationchildren || []} 
             currentPath={currentPath}
