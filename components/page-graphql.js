@@ -28,7 +28,7 @@ export function PageGraphQL({ pageAsset, nav, query, sideNav, params, pathname }
             )}
 
             <div className="flex flex-1">
-                <main className="flex-1 p-4">
+                <main className="flex-1">
                     <Doc contentlet={urlContentMap._map} sideNav={sideNav} currentPath={params.slug} />
                 </main>
             </div>

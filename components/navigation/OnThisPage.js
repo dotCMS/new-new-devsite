@@ -8,7 +8,7 @@ export const OnThisPage = () => {
 
   useEffect(() => {
     const generateTOC = () => {
-      const headers = document.querySelectorAll('.markdown-content h1, .markdown-content h2, .markdown-content h3');
+      const headers = document.querySelectorAll('.markdown-content h2, .markdown-content h3, .markdown-content h4');
       
       const toc = Array.from(headers).map((header) => {
         // Generate an ID if one doesn't exist

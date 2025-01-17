@@ -13,6 +13,10 @@ import {
 const STORAGE_KEY = 'subnav-open-sections';
 
 const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
+    const relevantPath = currentPath.replace(/^\/docs\/latest\//, '');
+    if(relevantPath === 'table-of-contents') {
+        localStorage.removeItem(STORAGE_KEY);
+    }
   const [openSections, setOpenSections] = useState(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -20,7 +24,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
     }
     return [];
   });
-  const relevantPath = currentPath.replace(/^\/docs\/latest\//, '');
+
 
   const toggleSection = useCallback((urlTitle) => {
     setOpenSections((prev) => {
@@ -77,7 +81,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
         >
           <div className="flex flex-col">
             <div className={cn(
-                `flex px-1 w-full items-center justify-between rounded-lg ${paddingY} text-sm hover:bg-muted`,
+                ` text-slate-400 flex px-1 w-full items-center justify-between rounded-lg ${paddingY} text-sm hover:bg-muted`,
                 isCurrentPage ? "bg-muted text-foreground" : "text-muted-foreground"
                 )}>
               <Link
@@ -109,7 +113,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
         <Link
           href={`/docs/latest/${item.urlTitle}`}
           className={cn(
-            `block rounded-lg px-1 ${paddingY} text-sm hover:bg-muted hover:text-foreground`,
+            ` text-slate-400 block rounded-lg px-1 ${paddingY} text-sm hover:bg-muted hover:text-foreground`,
             isCurrentPage ? "bg-muted  text-foreground" : "text-muted-foreground"
           )}
         >
