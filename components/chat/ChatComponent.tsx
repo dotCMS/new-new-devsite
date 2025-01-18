@@ -161,7 +161,7 @@ export function ChatComponent() {
 
   return (
     <div className="flex flex-col h-full relative">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 h-full">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 h-full pb-8">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <Bot className="w-16 h-16 text-primary" />
@@ -312,7 +312,7 @@ export function ChatComponent() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 bg-background border-t">
+      <div className="sticky bottom-0 left-0 right-0 bg-background border-t">
         <div className="p-4 space-y-4">
           <form ref={formRef} onSubmit={sendMessage} className="flex gap-2">
             <input
