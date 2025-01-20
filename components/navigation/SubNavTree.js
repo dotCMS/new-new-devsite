@@ -68,10 +68,9 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
   }, [items, relevantPath]);
 
   const renderNavItem = useCallback((item) => {
-
     const isCurrentPage = item.urlTitle === relevantPath;
     const hasChildren = item.dotcmsdocumentationchildren && item.dotcmsdocumentationchildren.length > 0;
-    const paddingY =  'py-2' ;
+    const paddingY = 'py-1.5';
 
     if (hasChildren) {
       return (
@@ -81,7 +80,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
         >
           <div className="flex flex-col">
             <div className={cn(
-                ` text-slate-400 flex px-1 w-full items-center justify-between rounded-lg ${paddingY} text-sm hover:bg-muted`,
+                `text-slate-400 flex px-2 w-full items-center justify-between rounded-lg ${paddingY} text-sm hover:bg-muted`,
                 isCurrentPage ? "bg-muted text-foreground" : "text-muted-foreground"
                 )}>
               <Link
@@ -102,7 +101,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
                 />
               </CollapsibleTrigger>
             </div>
-            <CollapsibleContent className="pl-3">
+            <CollapsibleContent className="pl-3 border-l border-muted ml-2">
               <SubNavTree items={item.dotcmsdocumentationchildren} currentPath={currentPath} level={level + 1}/>
             </CollapsibleContent>
           </div>
@@ -113,8 +112,8 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
         <Link
           href={`/docs/latest/${item.urlTitle}`}
           className={cn(
-            ` text-slate-400 block rounded-lg px-1 ${paddingY} text-sm hover:bg-muted hover:text-foreground`,
-            isCurrentPage ? "bg-muted  text-foreground" : "text-muted-foreground"
+            `text-slate-400 block rounded-lg px-2 ${paddingY} text-sm hover:bg-muted hover:text-foreground`,
+            isCurrentPage ? "bg-muted text-foreground" : "text-muted-foreground"
           )}
         >
           {item.title}
@@ -124,7 +123,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
   }, [relevantPath, openSections, toggleSection]);
 
   return (
-    <div>
+    <div className="space-y-1 pt-1">
       {items.map((item) => (
         <div key={item.title}>
           {renderNavItem(item)}

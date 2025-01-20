@@ -60,7 +60,7 @@ const Documentation = ({ contentlet, sideNav }) => {
       <div className="w-72 shrink-0">
         <nav 
           ref={navRef}
-          className="h-[calc(100vh-4rem)] overflow-y-auto sticky top-16 p-4 pt-8 
+          className="h-[calc(100vh-4rem)] overflow-y-auto sticky top-16 p-4 pt-8 px-2
             [&::-webkit-scrollbar]:w-1.5
             [&::-webkit-scrollbar-track]:bg-transparent
             [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
