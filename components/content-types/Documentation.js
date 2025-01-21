@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useRef } from 'react';
-import { usePathname } from 'next/navigation';
+
 import NavTree from '@/components/navigation/NavTree';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 import OnThisPage from '@/components/navigation/OnThisPage';
@@ -24,8 +24,8 @@ function cleanMarkdown(markdownString, identifierString) {
     .replaceAll("</br>", "<br/>");
 }
 
-const Documentation = ({ contentlet, sideNav }) => {
-  const currentPath = usePathname();
+const Documentation = ({ contentlet, sideNav, currentPath }) => {
+    const myPath = currentPath instanceof Array ? currentPath.join('/') : currentPath;
   const navRef = useRef(null);
 
   // Save scroll position before unload
@@ -69,7 +69,7 @@ const Documentation = ({ contentlet, sideNav }) => {
         >
           <NavTree 
             items={sideNav[0]?.dotcmsdocumentationchildren || []} 
-            currentPath={currentPath}
+            currentPath={myPath}
           />
         </nav>
       </div>
@@ -86,7 +86,7 @@ const Documentation = ({ contentlet, sideNav }) => {
             hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20">
             <Breadcrumbs 
               items={sideNav[0]?.dotcmsdocumentationchildren || []} 
-              currentPath={currentPath}
+              currentPath={myPath}
             />
             
             <div className="markdown-content">
