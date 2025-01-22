@@ -54,8 +54,8 @@ export default async function PageBlog({ pageAsset }) {
                         key={index}
                         className="flex flex-col rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-lg transition-shadow"
                     >
-                        <Link
-                            
+                        <a
+
                             href={`/blog/${post.urlTitle}`}
                             className="text-primary hover:text-primary/80 transition-colors font-medium"
                         >
@@ -87,7 +87,7 @@ export default async function PageBlog({ pageAsset }) {
                                 Read more →
 
                             </div>
-                        </Link>
+                        </a>
                     </article>
                 ))}
             </div>
