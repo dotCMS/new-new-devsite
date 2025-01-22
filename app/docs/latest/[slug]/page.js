@@ -9,13 +9,6 @@ import { getSideNav } from "@/lib/getSideNav"
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import Documentation from "../../../../components/content-types/Documentation";
-const getPath = (params) => {
-
-    const defaultPath = "getting-started";
-    const path = "/docs/latest/" + (params?.slug?.join("/") || defaultPath);
-
-    return path;
-};
 
 async function fetchPageData(path, searchParams) {
     const finalPath = await path;
@@ -50,7 +43,8 @@ async function fetchPageData(path, searchParams) {
  */
 export async function generateMetadata({ params, searchParams }) {
     const finalParams = await params;
-    const path = getPath(finalParams);
+    const slug = finalParams.slug;
+    const path = "/docs/latest/" + (slug || "getting-started");
     const { pageAsset } = await fetchPageData(path, searchParams);
 
     return {
@@ -71,7 +65,8 @@ export default async function Home({ searchParams, params }) {
     const headersList = await headers();
     const pathname = headersList.get("x-invoke-path") || "";
 
-    const path = getPath(finalParams);
+    const slug = finalParams.slug;
+    const path = "/docs/latest/" + (slug || "getting-started");
     const { pageAsset, nav, sideNav, query } = await fetchPageData(path, finalSearchParams);
     const { urlContentMap } = pageAsset || {};
     return (
@@ -82,7 +77,7 @@ export default async function Home({ searchParams, params }) {
 
             <div className="flex flex-1">
                 <main className="flex-1">
-                    <Documentation contentlet={urlContentMap._map} sideNav={sideNav} currentPath={params.slug} />
+                    <Documentation contentlet={urlContentMap._map} sideNav={sideNav} currentPath={slug} />
                 </main>
             </div>
 
