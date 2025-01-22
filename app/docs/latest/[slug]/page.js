@@ -8,20 +8,16 @@ import { client } from "@/lib/dotcmsClient";
 import { getSideNav } from "@/lib/getSideNav"
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
-import Documentation from "../../../../components/content-types/Documentation";
+import Documentation from "@/components/content-types/Documentation";
 
 async function fetchPageData(path, searchParams) {
     const finalPath = await path;
     const finalSearchParams = await searchParams;
     const pageRequestParams = getPageRequestParams({ path: finalPath, params: finalSearchParams });
     const query = getGraphQLPageQuery(pageRequestParams);
-    const [pageData, nav, sideNav] = await Promise.all([
+    const [pageData, sideNav] = await Promise.all([
         getGraphqlResults(query),
-        client.nav.get({
-            path: "/",
-            depth: 0,
-            languageId: finalSearchParams.language_id,
-        }),
+
         getSideNav()
     ]);
 
@@ -31,7 +27,7 @@ async function fetchPageData(path, searchParams) {
         notFound();
     }
 
-    return { pageAsset, nav: nav.entity.children || [], sideNav, query, currentPath:finalPath };
+    return { pageAsset,  sideNav, query, currentPath:finalPath };
 }
 
 /**
@@ -67,7 +63,7 @@ export default async function Home({ searchParams, params }) {
 
     const slug = finalParams.slug;
     const path = "/docs/latest/" + (slug || "getting-started");
-    const { pageAsset, nav, sideNav, query } = await fetchPageData(path, finalSearchParams);
+    const { pageAsset, sideNav, query } = await fetchPageData(path, finalSearchParams);
     const { urlContentMap } = pageAsset || {};
     return (
         <div className="flex flex-col min-h-screen">
