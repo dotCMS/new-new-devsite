@@ -2,11 +2,13 @@ import { notFound } from "next/navigation";
 import { headers } from 'next/headers';
 
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
-import { PageGraphQL } from "@/components/page-graphql";
-import { getGraphQLPageData, getGraphQLPageQuery } from "@/lib/gql";
+
+import { getGraphqlResults, getGraphQLPageQuery } from "@/lib/gql";
 import { client } from "@/lib/dotcmsClient";
 import { getSideNav } from "@/lib/getSideNav"
-
+import Header from "@/components/header/header";
+import Footer from "@/components/footer";
+import Documentation from "../../../../components/content-types/Documentation";
 const getPath = (params) => {
 
     const defaultPath = "getting-started";
@@ -21,7 +23,7 @@ async function fetchPageData(path, searchParams) {
     const pageRequestParams = getPageRequestParams({ path: finalPath, params: finalSearchParams });
     const query = getGraphQLPageQuery(pageRequestParams);
     const [pageData, nav, sideNav] = await Promise.all([
-        getGraphQLPageData(query),
+        getGraphqlResults(query),
         client.nav.get({
             path: "/",
             depth: 0,
@@ -36,7 +38,7 @@ async function fetchPageData(path, searchParams) {
         notFound();
     }
 
-    return { pageAsset, nav: nav.entity.children || [], sideNav, query };
+    return { pageAsset, nav: nav.entity.children || [], sideNav, query, currentPath:finalPath };
 }
 
 /**
@@ -50,7 +52,7 @@ export async function generateMetadata({ params, searchParams }) {
     const finalParams = await params;
     const path = getPath(finalParams);
     const { pageAsset } = await fetchPageData(path, searchParams);
-    console.log(pageAsset.urlContentMap._map.title)
+
     return {
         title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title) + " | dotCMS Documentation",
         description: pageAsset.urlContentMap._map.seoDescription,
@@ -71,6 +73,21 @@ export default async function Home({ searchParams, params }) {
 
     const path = getPath(finalParams);
     const { pageAsset, nav, sideNav, query } = await fetchPageData(path, finalSearchParams);
+    const { urlContentMap } = pageAsset || {};
+    return (
+        <div className="flex flex-col min-h-screen">
+            {pageAsset.layout.header && (
+                <Header />
+            )}
 
-    return <PageGraphQL nav={nav} pageAsset={pageAsset} query={query} sideNav={sideNav} params={params} pathname={pathname} />;
+            <div className="flex flex-1">
+                <main className="flex-1">
+                    <Documentation contentlet={urlContentMap._map} sideNav={sideNav} currentPath={params.slug} />
+                </main>
+            </div>
+
+            {pageAsset.layout.footer && <Footer />}
+        </div>
+    );
+
 }
