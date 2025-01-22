@@ -5,7 +5,6 @@ import { headers } from 'next/headers';
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
 import { getGraphqlResults, getGraphQLPageQuery } from "@/lib/gql";
 import BlogListing from './blog-listing';
-import BlogDetail from './blog-detail';
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 
@@ -72,11 +71,11 @@ export async function generateMetadata({ params, searchParams }) {
     }
 }
 
-export default async function BlogPage({ searchParams, params }) {
+export default async function BlogListingPage({ searchParams, params }) {
+
     const finalParams = await params;
     const finalSearchParams = await searchParams;
     const headersList = await headers();
-    const pathname = headersList.get("x-invoke-path") || "";
 
     const path = await getPath(finalParams);
     const pageAsset = await fetchPage(path, finalSearchParams);
@@ -95,7 +94,7 @@ export default async function BlogPage({ searchParams, params }) {
 
             <div className="flex flex-1">
                 <main className="flex-1">
-                    {urlContentMap ? <BlogDetail pageAsset={pageAsset} urlContentMap={pageAsset.urlContentMap._map} /> : <BlogListing pageAsset={pageAsset} />}
+                    <BlogListing pageAsset={pageAsset} />
                 </main>
             </div>
 

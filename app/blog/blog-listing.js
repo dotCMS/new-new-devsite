@@ -1,6 +1,6 @@
 
 
-import { initEditor, isInsideEditor, postMessageToEditor } from '@dotcms/client';
+
 import { format } from "date-fns";
 import { getGraphqlResults } from "@/lib/gql";
 import Link from 'next/link';
@@ -81,7 +81,7 @@ export default async function PageBlog({ pageAsset }) {
                                     </div>
                                 </h2>
                                 <p className="text-muted-foreground line-clamp-2 mb-4">
-                                    {post.description}
+                                    {post.teaser}
                                 </p>
 
                                 Read more →

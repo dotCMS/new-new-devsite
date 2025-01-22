@@ -1,66 +1,25 @@
-"use client"
+"use client";
 
+import { initEditor, isInsideEditor, postMessageToEditor } from '@dotcms/client';
 import { format } from "date-fns";
-import { getGraphqlResults } from "@/lib/gql";
 import Link from 'next/link';
-import { Calendar, Clock, Tag, User } from 'lucide-react';
+import { Calendar, Tag } from 'lucide-react';
 import { DotBlockEditor } from '@/components/shared/dotBlockEditor';
-import { Heading, Paragraph } from '@/components/shared/dotBlockEditor';
-
-async function getBlogDetailQuery (urlTitle) {
-
-    const query =`query ContentAPI {
-        BlogCollection(
-        query: "+blog.urlTitle_dotraw:${urlTitle} +live:true +(conhost:SYSTEM_HOST conhost:173aff42881a55a562cec436180999cf)"
-        limit: 10
-        offset: 0
-        sortBy: "blog.postingDate"
-        ) {
-        title
-        postingDate
-        urlTitle
-        body{
-            json
-        }
-        categories {
-            name
-            key
-        }
-        identifier
-        inode
-        teaser
-    
-        thumbnailAlt
-        tags
-        image {
-            fileAsset{
-            versionPath
-            }
-            description
-        }
-        }
-    }
-  `
-
-
-  return getGraphqlResults(query).then(data => data.BlogCollection[0]);
-}
-
-export default async function BlogDetail({ pageAsset, urlContentMap }) {
-
-    const post = await  getBlogDetailQuery(urlContentMap.urlTitle);
+import { client } from '@/lib/dotcmsClient';
+export default function BlogDetailComponent({ post }) {
 
     const imageUrl = post.image?.fileAsset?.versionPath;
     const formattedDate = format(new Date(post.postingDate), 'MMMM dd, yyyy');
     const customRenderers = {};
     return (
+
         <article className="container mx-auto px-4 py-8 max-w-4xl">
             {/* Header Section */}
             <header className="mb-8">
-                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                    {post.title} : Detail
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+                    {post.title}
                 </h1>
-                
+
                 {/* Meta Information */}
                 <div className="flex flex-wrap gap-4 text-gray-600 mb-6">
                     <div className="flex items-center gap-2">
@@ -95,12 +54,7 @@ export default async function BlogDetail({ pageAsset, urlContentMap }) {
                 </figure>
             )}
 
-            {/* Teaser */}
-            <div className="prose prose-lg max-w-none mb-8">
-                <h1 className="text-xl text-gray-700 leading-relaxed">
-                    {post.teaser}
-                </h1>
-            </div>
+
 
             {/* Tags */}
             {post.tags && (
@@ -120,18 +74,14 @@ export default async function BlogDetail({ pageAsset, urlContentMap }) {
             )}
 
             <div className="prose prose-lg max-w-none mb-8">
-                <h1 className="text-xl text-gray-700 leading-relaxed">
+
                 <DotBlockEditor
-                blocks={post.body.json}
-                    className="prose max-w-none"
-                    customRenderers={{
-                        ...{customRenderers},
-                        heading: Heading,
-                        paragraph: Paragraph
-                    }}
+                    blocks={post.body.json}
+
+
                 />
-                    
-                </h1>
+
+
             </div>
 
 
@@ -142,11 +92,10 @@ export default async function BlogDetail({ pageAsset, urlContentMap }) {
                         href="/blog"
                         className="text-blue-600 hover:text-blue-800 transition-colors"
                     >
-                        ← Back to Blog
+                        ← Back to Blogs
                     </Link>
                 </div>
             </div>
         </article>
     );
-}
-
+}   
