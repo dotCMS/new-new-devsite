@@ -10,8 +10,8 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Components } from 'react-markdown'
-import { remarkRemoveAnchorLinks } from '@/lib/remarkRemoveAnchorLinks'
-import { smoothScroll } from '@/lib/smoothScroll'
+import { remarkRemoveAnchorLinks } from '@/util/remarkRemoveAnchorLinks'
+import { smoothScroll } from '@/util/smoothScroll'
 import Video from '@/components/mdx/Video'
 
 

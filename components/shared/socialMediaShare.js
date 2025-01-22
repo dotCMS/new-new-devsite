@@ -24,14 +24,14 @@ function SocialMediaShare({ url }) {
             {socialMediaArray.map(({ socialMedia, url }) => (
                 <a key={socialMedia} href={url} target="_blank">
                     <Image
-                        src={`/assets/icons/social-media/${socialMedia}-icon.svg`}
+                        src={`https://www.dotcms.com/assets/icons/social-media/${socialMedia}-icon.svg`}
                         alt={socialMedia}
                         width={32}
                         height={32}
                         className="dark:hidden"
                     />
                     <Image
-                        src={`/assets/icons/social-media/${socialMedia}-dark-icon.svg`}
+                        src={`https://www.dotcms.com/assets/icons/social-media/${socialMedia}-dark-icon.svg`}
                         alt={socialMedia}
                         width={32}
                         height={32}

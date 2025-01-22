@@ -2,10 +2,10 @@
 
 
 import { format } from "date-fns";
-import { getGraphqlResults } from "@/lib/gql";
+import { getGraphqlResults } from "@/util/gql";
 import Link from 'next/link';
 
-const query =`query ContentAPI {
+function getQuery() { return `query ContentAPI {
   BlogCollection(
     query: "+live:true +(conhost:SYSTEM_HOST conhost:173aff42881a55a562cec436180999cf)"
     limit: 10
@@ -34,13 +34,13 @@ const query =`query ContentAPI {
     }
   }
 }
-`
+`}
 
 
 
 export default async function PageBlog({ pageAsset }) {
 
-    const posts = await getGraphqlResults(query);
+    const posts = await getGraphqlResults(getQuery());
 
     if (!posts || !posts.BlogCollection) {
         return <div>No posts</div>
