@@ -12,6 +12,10 @@ const nextConfig = {
                 hostname: url.hostname,
                 port: url.port || "",
             },
+            {
+                protocol: 'https',
+                hostname: '*.public.blob.vercel-storage.com', // temporary solution to allow images to be served from vercel
+            }
         ],
 
     },
