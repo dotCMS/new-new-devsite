@@ -3,6 +3,7 @@
 import WebPageContent from "./content-types/webPageContent";
 import Header from "./header/header";
 import Footer from "./footer";
+import Hero from "./content-types/hero";
 import { usePathname, useRouter } from "next/navigation";
 import { DotcmsLayout } from "@dotcms/react";
 import { usePageAsset } from "../hooks/usePageAsset";
@@ -10,6 +11,7 @@ import NotFound from "@/app/not-found";
 
 const componentsMap = {
     webPageContent: WebPageContent,
+    DocumentationHero: Hero,
 };
 
 export function PageAsset({ pageAsset, nav, serverPath }) {
