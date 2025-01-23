@@ -2,10 +2,10 @@ import { headers } from 'next/headers';
 import { PageAsset } from "@/components/page-asset";
 import { ErrorPage } from "@/components/error";
 
-import { handleVanityUrlRedirect } from "@/lib/vanityUrlHandler";
-import { client } from "@/lib/dotcmsClient";
+import { handleVanityUrlRedirect } from "@/util/vanityUrlHandler";
+import { client } from "@/util/dotcmsClient";
 import { getPageRequestParams } from "@dotcms/client";
-import { fetchNavData, fetchPageData } from "@/lib/page.utils";
+import { fetchNavData, fetchPageData } from "@/util/page.utils";
 
 /**
  * Generate metadata

@@ -1,9 +1,9 @@
 
 import { notFound } from "next/navigation";
-import { headers } from 'next/headers';
+
 
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
-import { getGraphqlResults, getGraphQLPageQuery } from "@/lib/gql";
+import { getGraphqlResults, getGraphQLPageQuery } from "@/util/gql";
 import BlogListing from './blog-listing';
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
@@ -75,7 +75,7 @@ export default async function BlogListingPage({ searchParams, params }) {
 
     const finalParams = await params;
     const finalSearchParams = await searchParams;
-    const headersList = await headers();
+
 
     const path = await getPath(finalParams);
     const pageAsset = await fetchPage(path, finalSearchParams);

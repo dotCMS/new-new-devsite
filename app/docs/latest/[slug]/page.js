@@ -3,9 +3,9 @@ import { headers } from 'next/headers';
 
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
 
-import { getGraphqlResults, getGraphQLPageQuery } from "@/lib/gql";
-import { client } from "@/lib/dotcmsClient";
-import { getSideNav } from "@/lib/getSideNav"
+import { getGraphqlResults, getGraphQLPageQuery } from "@/util/gql";
+import { client } from "@/util/dotcmsClient";
+import { getSideNav } from "@/util/getSideNav"
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import Documentation from "@/components/content-types/Documentation";
