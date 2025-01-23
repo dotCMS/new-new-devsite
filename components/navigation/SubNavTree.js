@@ -91,6 +91,9 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
                   "flex-grow text-left hover:text-foreground",
                   isCurrentPage ? "text-foreground" : "text-muted-foreground"
                 )}
+                onClick={(e) => {
+                  toggleSection(item.urlTitle);
+                }}
               >
                 {item.title}
               </Link>

@@ -1,6 +1,6 @@
 
 import { notFound } from "next/navigation";
-import { headers } from 'next/headers';
+
 
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
 import { getGraphqlResults, getGraphQLPageQuery } from "@/util/gql";
