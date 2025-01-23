@@ -14,7 +14,7 @@ import {
 import Link from "next/link";
 
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/util/utils";
 import { useState, useEffect } from "react"
 import DiscordLink from "./DiscordLink";
 import GithubLink from "./GithubLink";

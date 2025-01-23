@@ -6,7 +6,7 @@ import { Loader2, Trash2, Bot, UserCircle } from "lucide-react"
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"
-import { cn } from "@/lib/utils"
+import { cn } from "@/util/utils"
 import { CopyButton } from "@/components/chat/CopyButton"
 
 interface Message {

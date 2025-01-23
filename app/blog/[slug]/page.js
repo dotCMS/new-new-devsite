@@ -1,8 +1,8 @@
-import { getGraphqlResults } from "@/lib/gql";
+import { getGraphqlResults } from "@/util/gql";
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import { notFound } from "next/navigation";
-import BlogDetailComponent from "./blog-detail";
+import BlogDetailComponent from "../../../components/content-types/blogs/blog-detail";
 
 async function getBlogDetailQuery(urlTitle) {
 
@@ -15,6 +15,7 @@ async function getBlogDetailQuery(urlTitle) {
         ) {
         title
         postingDate
+        imageCredit
         urlTitle
     		author{
           firstName 
