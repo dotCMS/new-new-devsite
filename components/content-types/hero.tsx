@@ -17,27 +17,27 @@ import {
 } from "lucide-react"
 import { DocLink } from "@/components/content-types/doc-link"
 
+interface Card {
+    title: string;
+    description: string;
+    backgroundImageUrl: {
+        identifier: string;
+    };
+}
+
 interface HeroProps {
     title: string;
     description: string;
     image1: string;
     image2: string;
     image3: string;
-    cardDescription1: string;
-    cardDescription2: string;
-    cardDescription3: string;
-    cardTitle1: string;
-    cardTitle2: string;
-    cardTitle3: string;
-    cardLink1: string;
-    cardLink2: string;
-    cardLink3: string;
+    card1: Card;
+    card2: Card;
+    card3: Card;
 }
 
 export default function Hero(props: HeroProps) {
-    const { title, description, image1, image2, image3, cardDescription1, cardDescription2, cardDescription3, cardTitle1, cardTitle2, cardTitle3, cardLink1, cardLink2, cardLink3 } = props;
-
-    console.log('image 1', image1);
+    const { title, description, card1, card2, card3 } = props;
 
     return (
         <section className="container mx-auto px-4 py-16">
@@ -54,14 +54,14 @@ export default function Hero(props: HeroProps) {
                             <CardContent className="p-6 relative z-10 h-full flex flex-col">
                                 <div className="mb-4 flex items-center gap-2">
                                     <Code className="h-6 w-6 transition-colors group-hover:text-[#a21caf]" />
-                                    <h3 className="text-xl font-semibold transition-colors group-hover:text-[#a21caf]">Developer</h3>
+                                    <h3 className="text-xl font-semibold transition-colors group-hover:text-[#a21caf]">{card1.title}</h3>
                                 </div>
                                 <p className="mb-6 text-sm text-muted-foreground">
-                                    Access powerful SDKs and APIs to build custom integrations and extend dotCMS functionality.
+                                    {card1.description}
                                 </p>
                                 <div className="mt-auto flex justify-center w-full">
                                     <Image
-                                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-01-20%20at%2012.31.47%E2%80%AFPM-8aUKjfJNo5lAwgqqggtE3A9eKpbgHW.png"
+                                        src={`${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${card1.backgroundImageUrl.identifier}`}
                                         alt="dotCMS API code example showing client initialization"
                                         width={400}
                                         height={150}
@@ -99,15 +99,15 @@ export default function Hero(props: HeroProps) {
                                 <div className="mb-4 flex items-center gap-2">
                                     <PenTool className="h-6 w-6 transition-colors group-hover:text-[#46ad07]" />
                                     <h3 className="text-xl font-semibold transition-colors group-hover:text-[#46ad07]">
-                                        Author
+                                        {card2.title}
                                     </h3>
                                 </div>
                                 <p className="mb-6 text-sm text-muted-foreground">
-                                    Create and manage content types, draft and publish content, and control the admin panel with ease.
+                                    {card2.description}
                                 </p>
                                 <div className="mt-auto flex justify-center w-full">
                                     <Image
-                                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-01-20%20at%2012.16.40%E2%80%AFPM-nIutcxHQ2BTjuzHhngOFeeioSVFvLP.png"
+                                        src={`${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${card2.backgroundImageUrl.identifier}`}
                                         alt="dotCMS authoring interface showing content creation screen"
                                         width={400}
                                         height={150}
@@ -144,14 +144,14 @@ export default function Hero(props: HeroProps) {
                             <CardContent className="p-6 relative z-10 h-full flex flex-col">
                                 <div className="mb-4 flex items-center gap-2">
                                     <Server className="h-6 w-6 transition-colors group-hover:text-[#de4f00]" />
-                                    <h3 className="text-xl font-semibold transition-colors group-hover:text-[#de4f00]">DevOps</h3>
+                                    <h3 className="text-xl font-semibold transition-colors group-hover:text-[#de4f00]">{card3.title}</h3>
                                 </div>
                                 <p className="mb-6 text-sm text-muted-foreground">
-                                    Optimize performance, enhance security, and leverage CDN capabilities for seamless content delivery.
+                                    {card3.description}
                                 </p>
                                 <div className="mt-auto flex justify-center w-full">
                                     <Image
-                                        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/devops-AdyIqtUuGbwt1CzH0IeFlSlBVWeBv2.svg"
+                                        src={`${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${card3.backgroundImageUrl.identifier}`}
                                         alt="dotCMS DevOps infrastructure diagram"
                                         width={400}
                                         height={150}
