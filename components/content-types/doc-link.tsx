@@ -12,10 +12,25 @@ export function DocLink({ href, icon: Icon, title, color }: DocLinkProps) {
   return (
     <Link
       href={href}
-      className={`group flex items-center gap-3 py-1.5 px-2 text-sm transition-colors hover:bg-${color}/5 rounded-lg`}
+      className={`group flex items-center gap-3 py-1.5 px-2 text-sm transition-colors rounded-lg ${
+        color === '[#a21caf]' ? 'hover:bg-[#a21caf]/5' :
+        color === '[#46ad07]' ? 'hover:bg-[#46ad07]/5' :
+        color === '[#de4f00]' ? 'hover:bg-[#de4f00]/5' :
+        'hover:bg-gray-500/5'
+      }`}
     >
-      <div className={`rounded-lg p-1 transition-colors group-hover:bg-${color}/10`}>
-        <Icon className={`h-5 w-5 text-muted-foreground transition-colors group-hover:text-${color}`} />
+      <div className={`rounded-lg p-1 transition-colors ${
+        color === '[#a21caf]' ? 'group-hover:bg-[#a21caf]/10' :
+        color === '[#46ad07]' ? 'group-hover:bg-[#46ad07]/10' :
+        color === '[#de4f00]' ? 'group-hover:bg-[#de4f00]/10' :
+        'group-hover:bg-gray-500/10'
+      }`}>
+        <Icon className={`h-5 w-5 text-muted-foreground transition-colors ${
+          color === '[#a21caf]' ? 'group-hover:text-[#a21caf]' :
+          color === '[#46ad07]' ? 'group-hover:text-[#46ad07]' :
+          color === '[#de4f00]' ? 'group-hover:text-[#de4f00]' :
+          'group-hover:text-gray-500'
+        }`} />
       </div>
       <span className="font-medium text-muted-foreground transition-colors group-hover:text-foreground flex items-center gap-1">
         {title}
