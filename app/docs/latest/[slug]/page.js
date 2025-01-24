@@ -8,7 +8,9 @@ import { client } from "@/util/dotcmsClient";
 import { getSideNav } from "@/util/getSideNav"
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
-import Documentation from "@/components/content-types/Documentation";
+import Documentation from "@/components/documentation/Documentation";
+import ChangeLogList from "@/components/documentation/ChangeLogList";
+import { getChangelog } from "@/services/content/getChangelog/getChangelog";
 
 async function fetchPageData(path, searchParams) {
     const finalPath = await path;
@@ -55,6 +57,7 @@ export async function generateMetadata({ params, searchParams }) {
     };
 }
 
+
 export default async function Home({ searchParams, params }) {
     const finalParams = await params;
     const finalSearchParams = await searchParams;
@@ -64,7 +67,23 @@ export default async function Home({ searchParams, params }) {
     const slug = finalParams.slug;
     const path = "/docs/latest/" + (slug || "getting-started");
     const { pageAsset, sideNav, query } = await fetchPageData(path, finalSearchParams);
-    const { urlContentMap } = pageAsset || {};
+    const data = {
+        contentlet: pageAsset.urlContentMap._map,
+        sideNav: sideNav,
+        currentPath: slug,
+        
+    }
+    
+    const componentMap = {
+        "changelogs": (data) => <ChangeLogList {...data} changelogData={getChangelog({ page: 1, isLts: false, limit: 10 })}/>,
+        default: (data) => <Documentation {...data} />   
+
+        // Add more path-component mappings here as needed:
+        // "path-name": (contentlet) => <ComponentName contentlet={contentlet} />,
+        
+      };
+
+
     return (
         <div className="flex flex-col min-h-screen">
             {pageAsset.layout.header && (
@@ -73,7 +92,7 @@ export default async function Home({ searchParams, params }) {
 
             <div className="flex flex-1">
                 <main className="flex-1">
-                    <Documentation contentlet={urlContentMap._map} sideNav={sideNav} currentPath={slug} />
+                    {(componentMap[slug] || componentMap.default)(data)}
                 </main>
             </div>
 

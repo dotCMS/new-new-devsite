@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useCallback, useEffect } from 'react';
 
 import SubNavTree from '@/components/navigation/SubNavTree';
