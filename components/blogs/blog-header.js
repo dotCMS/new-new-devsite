@@ -5,11 +5,9 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 
-import { ArrowLeft } from 'lucide-react';
-import Author from '@/components/shared/author';
+
 import SocialMediaShare from '@/components/shared/socialMediaShare';
 import { ImagePlacerholder } from '@/components/shared/dotCardImage';
-import TagList from '../../shared/TagList';
 import { cn } from '@/util/utils';
 import { Calendar } from 'lucide-react';
 import Tag from '@/components/shared/tag';
@@ -105,14 +103,11 @@ export const DetailHeader = ({
                 <figure className="mb-8">
                     <img
                         src={imageUrl}
-                        alt={post.teaser || post.title}
+                        alt={post.image?.description || post.title}
                         className="w-full h-[400px] object-cover rounded-lg shadow-lg"
+     
                     />
-                    {post.image?.description && (
-                        <figcaption className="mt-2 text-sm text-gray-600 text-center">
-                            {post.image.description}
-                        </figcaption>
-                    )}
+
                 </figure>
             )}
 

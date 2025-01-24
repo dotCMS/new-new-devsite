@@ -32,7 +32,7 @@ export default async function BlogListing({ blogs, pagination, tagFilter }) {
                                     {post.image?.fileAsset?.versionPath ? (
                                         <Link href={`/blog/${post.urlTitle}`} className="block">
                                             <img
-                                                src={post.image.fileAsset.versionPath}
+                                                src={post.image.fileAsset.versionPath + "/70q/1000maxw"}
                                                 alt={post.teaser || post.title}
                                                 className="w-full h-48 object-cover rounded-t-lg"
                                             />

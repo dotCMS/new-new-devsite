@@ -1,0 +1,1 @@
+export const configGraphql = 'https://demo.dotcms.com/api/v1/'

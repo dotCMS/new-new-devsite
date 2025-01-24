@@ -45,6 +45,7 @@ export async function getBlogListing({tagFilter, page, pageSize}) {
             image {
                 fileAsset {
                     versionPath
+                    name
                 }
                 description
             }

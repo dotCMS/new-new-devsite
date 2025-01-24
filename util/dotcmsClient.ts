@@ -1,8 +1,8 @@
 import { DotCmsClient } from "@dotcms/client";
-
+import { ConfigDict } from "./constants";
 // Check if required environment variables are set
-const dotcmsUrl = process.env.NEXT_PUBLIC_DOTCMS_HOST;
-const authToken = process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN;
+const dotcmsUrl = ConfigDict.DotCMSHost;
+const authToken = ConfigDict.AuthToken;
 
 if (!dotcmsUrl || !authToken) {
   throw new Error("Missing required environment variables for DotCMS client initialization");

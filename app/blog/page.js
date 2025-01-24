@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
 import { getGraphqlResults, getGraphQLPageQuery } from "@/util/gql";
-import BlogListing from '../../components/content-types/blogs/blog-listing';
+import BlogListing from '../../components/blogs/blog-listing';
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import { getBlogListing } from "@/util/getBlogListing";

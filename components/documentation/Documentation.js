@@ -6,7 +6,8 @@ import NavTree from '@/components/navigation/NavTree';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 import OnThisPage from '@/components/navigation/OnThisPage';
 import MarkdownContent from '@/components/MarkdownContent';
-
+import ChangeLogContainer from '@/components/documentation/ChangeLogContainer';
+import GqlWebPageContent from '@/components/content-types/gqlWebPageContent';
 const SCROLL_STORAGE_KEY = 'docs-nav-scroll';
 
 function cleanMarkdown(markdownString, identifierString) {
@@ -52,6 +53,14 @@ const Documentation = ({ contentlet, sideNav, currentPath }) => {
     return <div>Loading...</div>;
   }
 
+const componentMap = {
+  "changelogs": (contentlet) => <ChangeLogContainer contentlet={contentlet} />,
+  "graphql": (contentlet) => <GqlWebPageContent contentlet={contentlet} />,
+  // Add more path-component mappings here as needed:
+  // "path-name": (contentlet) => <ComponentName contentlet={contentlet} />,
+  default: (contentlet, documentation) => <MarkdownContent content={documentation} />
+};
+
   const documentation = cleanMarkdown(contentlet.documentation, contentlet.identifier);
 
   return (
@@ -88,10 +97,9 @@ const Documentation = ({ contentlet, sideNav, currentPath }) => {
               items={sideNav[0]?.dotcmsdocumentationchildren || []} 
               currentPath={myPath}
             />
-            
+            <h1 className="text-4xl font-bold mb-6">{contentlet.title}</h1>
             <div className="markdown-content">
-              <h1 className="text-4xl font-bold mb-6">{contentlet.title}</h1>
-              <MarkdownContent content={documentation} />
+              {(componentMap[myPath] || componentMap.default)(contentlet, documentation)}
             </div>
           </main>
 

@@ -8,7 +8,7 @@ import { client } from "@/util/dotcmsClient";
 import { getSideNav } from "@/util/getSideNav"
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
-import Documentation from "@/components/content-types/Documentation";
+import Documentation from "@/components/documentation/Documentation";
 
 async function fetchPageData(path, searchParams) {
     const finalPath = await path;
