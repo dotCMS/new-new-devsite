@@ -71,8 +71,8 @@ export default async function BlogPage({ searchParams, params }) {
 
     const tagFilter = finalParams["tagFilter"];
     const page = parseInt(finalParams["page"]) || 1;
-    const finalTagFilter = tagFilter ? tagFilter : "";
-    const blogData = await getBlogListing({tagFilter: finalTagFilter, page: page, pageSize: 9});
+    
+    const blogData = await getBlogListing({tagFilter: tagFilter, page: page, pageSize: 9});
 
     return (
         <div className="flex flex-col min-h-screen">
