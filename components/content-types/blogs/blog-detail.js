@@ -6,7 +6,7 @@ import { DotBlockEditor } from '@/components/shared/dotBlockEditor';
 import OnThisPage from '@/components/navigation/OnThisPage';
 import React from 'react';
 import { DetailHeader } from './blog-header';
-import { ArrowLeft } from 'lucide-react';
+
 
 export default function BlogDetailComponent({ post }) {
 
@@ -16,15 +16,7 @@ export default function BlogDetailComponent({ post }) {
         <div className="container mx-auto">
             {/* Main Content Grid */}
             <div className="flex gap-4 py-8 ">
-                {/* Back Button Column */}
-                <div className="w-12 shrink-1  pt-1">
-                    <Link
-                        href="/blog"
-                        className="transition-colors flex items-center text-slate-600"
-                    >
-                        <ArrowLeft className="w-8 h-8" />
-                    </Link>
-                </div>
+
 
                 {/* Main Content */}
                 <article className="flex-1 px-4 max-w-4xl">

@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 
-
+import { ArrowLeft } from 'lucide-react';
 import Author from '@/components/shared/author';
 import SocialMediaShare from '@/components/shared/socialMediaShare';
 import { ImagePlacerholder } from '@/components/shared/dotCardImage';
@@ -68,6 +68,15 @@ export const DetailHeader = ({
 
     return (
         <header className="mb-8">
+                            {/* Back Button Column */}
+                <div>
+                    <Link
+                        href="/blog"
+                        className="transition-colors flex items-center text-slate-600"
+                    >
+                        <ArrowLeft className="w-4 h-4 mr-2 my-2" /> Back to Blogs
+                    </Link>
+                </div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
                 {post.title}
             </h1>
