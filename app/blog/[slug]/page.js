@@ -4,6 +4,24 @@ import Footer from "@/components/footer";
 import { notFound } from "next/navigation";
 import BlogDetailComponent from "../../../components/content-types/blogs/blog-detail";
 
+
+export async function generateMetadata({ params, searchParams }) {
+    const finalParams = await params;
+    const slug = finalParams.slug
+
+    if(!slug) {
+        return notFound();
+    }
+    const post = await getBlogDetailQuery(slug);
+
+    return {
+        title: post.title,
+        canonical: `${post.host.hostname}/blog/${post.urlTitle}`,
+    };
+}
+
+
+
 async function getBlogDetailQuery(urlTitle) {
 
     const query = `query ContentAPI {
@@ -16,6 +34,10 @@ async function getBlogDetailQuery(urlTitle) {
         title
         postingDate
         imageCredit
+        host {
+            hostName
+        }
+            
         urlTitle
     		author{
           firstName 

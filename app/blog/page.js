@@ -1,12 +1,11 @@
-
 import { notFound } from "next/navigation";
-
 
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
 import { getGraphqlResults, getGraphQLPageQuery } from "@/util/gql";
-import BlogListing from './blog-listing';
+import BlogListing from '../../components/content-types/blogs/blog-listing';
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
+import { getBlogListing } from "@/util/getBlogListing";
 
 const getPath = (params) => {
     const defaultPath = "index";
@@ -24,13 +23,8 @@ async function fetchPage(path, searchParams) {
     const pageData = await getGraphqlResults(query);
     const pageAsset = graphqlToPageEntity(pageData);
 
-    const urlContentMap = pageAsset.urlContentMap && pageAsset.urlContentMap._map;
-
     return pageAsset;
 }
-
-
-
 
 /**
  * Generate metadata
@@ -43,9 +37,9 @@ export async function generateMetadata({ params, searchParams }) {
     const finalParams = await params;
     const path = getPath(finalParams);
     const pageAsset = await fetchPage(path, searchParams);
+
     const { urlContentMap } = pageAsset && pageAsset.urlContentMap ? pageAsset.urlContentMap : {};
     if (urlContentMap && urlContentMap._map) {
-
         return {
             title: (urlContentMap._map || pageAsset.urlContentMap._map.title) + " | dotCMS Documentation",
             description: pageAsset.urlContentMap._map.seoDescription,
@@ -56,7 +50,6 @@ export async function generateMetadata({ params, searchParams }) {
                 keywords: pageAsset.urlContentMap._map.tag,
             }
         }
-
     } else {
         return {
             title: pageAsset.title,
@@ -71,40 +64,25 @@ export async function generateMetadata({ params, searchParams }) {
     }
 }
 
-export default async function BlogListingPage({ searchParams, params }) {
-
-    const finalParams = await params;
-    const finalSearchParams = await searchParams;
 
 
-    const path = await getPath(finalParams);
-    const pageAsset = await fetchPage(path, finalSearchParams);
+export default async function BlogPage({ searchParams, params }) {
+    const finalParams = await searchParams;
 
-    if (!pageAsset || !pageAsset.page) {
-        return notFound();
-    }
-    const urlContentMap = pageAsset.urlContentMap && pageAsset.urlContentMap._map;
+    const tagFilter = finalParams["tagFilter"];
+    const page = parseInt(finalParams["page"]) || 1;
 
+    const blogData = await getBlogListing({tagFilter: tagFilter, page: page, pageSize: 9});
 
     return (
         <div className="flex flex-col min-h-screen">
-            {pageAsset.layout.header && (
-                <Header />
-            )}
-
-            <div className="flex flex-1">
-                <main className="flex-1">
-                    <BlogListing pageAsset={pageAsset} />
-                </main>
-            </div>
-
-            {pageAsset.layout.footer && <Footer />}
+            <Header />
+            <main className="flex-1">
+                <BlogListing blogs={blogData.blogs} pagination={blogData.pagination} tagFilter={tagFilter}/>
+            </main>
+            <Footer />
         </div>
-
-
-    )
-
-
+    );
 }
 
 
