@@ -1,22 +1,15 @@
-"use client"
 
 import Link from 'next/link'
-import { RenderMDX } from '../MarkdownContent'
+import MarkdownContent, { RenderMDX } from '../MarkdownContent'
 import { extractDateForTables } from '../../util/formatDate'
-import { getChangelog } from '@/services/content/getChangelog/getChangelog'
+
+export default async function ChangeLogContainer( {data, changelogData} ) {
+
+    console.log("data", await changelogData)
+    const {changelogs, totalPages} = await changelogData
 
 
-
-
-
-
-
-export default async function ChangeLogContainer({ contentlet }) {
-
-    const { changelogs, totalPages } = await getChangelog({ page: 1, sizePage: 10, isLts: false });
-    console.log("changelogs2", changelogs);
-
-  if (!Array.isArray(changelogs) || changelogs.length === 0) return <>No data</>
+  if (!changelogs || changelogs.length === 0) return <div>No data</div>
 
   const parseBodyToLines = (body) => {
     if (body) return body.split('\n')
@@ -25,7 +18,9 @@ export default async function ChangeLogContainer({ contentlet }) {
 
   return (
     <>
-      {(changelogs || []).map((item, index) => (
+
+
+      {changelogs.map((item, index) => (
         <div key={index} className="pb-[2em]">
           {item?.minor && (
             <h2
@@ -54,7 +49,7 @@ export default async function ChangeLogContainer({ contentlet }) {
             </span>
           </span>
           {parseBodyToLines(item?.releaseNotes).map((text, i) =>
-            text ? item?.releaseNotes : null
+            text ? <MarkdownContent content={item?.releaseNotes} /> : null
           )}
         </div>
       ))}

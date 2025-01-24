@@ -3,8 +3,8 @@ import { SIZE_PAGE } from './config';
 import { logRequest } from '@/util/logRequest'; 
 
 
-export const getChangelog = async ({ page = 1, isLts = false }) => {
-  const offset = SIZE_PAGE * (page - 1);
+export const getChangelog = async ({ page = 1, isLts = false,limit = SIZE_PAGE }) => {
+  const offset = limit * (page - 1);
 
   const ltsQuery = '+contentType:Dotcmsbuilds +Dotcmsbuilds.download:1 +Dotcmsbuilds.lts:1';
   const releaseQuery =
@@ -15,7 +15,7 @@ export const getChangelog = async ({ page = 1, isLts = false }) => {
   const query = {
     query: buildQuery,
     sort: 'Dotcmsbuilds.releasedDate desc',
-    limit: SIZE_PAGE,
+    limit: limit,
     offset,
   };
 
@@ -40,7 +40,7 @@ export const getChangelog = async ({ page = 1, isLts = false }) => {
     const totalItems = responseData?.entity?.resultsSize || 0;
     const changelogs = responseData?.entity?.jsonObjectView?.contentlets || [];
     
-    const totalPages = Math.ceil(totalItems / SIZE_PAGE);
+    const totalPages = Math.ceil(totalItems / limit);
 
 
 
