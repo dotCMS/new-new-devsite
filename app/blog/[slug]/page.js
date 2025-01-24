@@ -1,56 +1,26 @@
-import { getGraphqlResults } from "@/util/gql";
+import { getBlogDetailQuery } from "@/util/getBlogDetail";
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import { notFound } from "next/navigation";
 import BlogDetailComponent from "../../../components/content-types/blogs/blog-detail";
 
-async function getBlogDetailQuery(urlTitle) {
 
-    const query = `query ContentAPI {
-        BlogCollection(
-        query: "+blog.urlTitle_dotraw:${urlTitle} +live:true"
-        limit: 1
-        offset: 0
-        sortBy: "blog.postingDate"
-        ) {
-        title
-        postingDate
-        imageCredit
-        urlTitle
-    		author{
-          firstName 
-          lastName
-          company
-          linkedin
-          twitter
-          image{
-            versionPath
-            
-          }
-        }
-        categories {
-            name
-            key
-        }
-        identifier
-        inode
-        teaser
-        body{
-            json
-        }
-        thumbnailAlt
-        tags
-        image {
-            fileAsset{
-            versionPath
-            }
-            description
-        }
-        }
+export async function generateMetadata({ params, searchParams }) {
+    const finalParams = await params;
+    const slug = finalParams.slug
+
+    if(!slug) {
+        return notFound();
     }
-  `
-    return getGraphqlResults(query).then(data => data.BlogCollection[0]);
+    const post = await getBlogDetailQuery(slug);
+
+    return {
+        title: post.title,
+        canonical: `${post.host.hostname}/blog/${post.urlTitle}`,
+    };
 }
+
+
 
 export default async function BlogPage({ searchParams, params }) {
     const finalParams = await params;

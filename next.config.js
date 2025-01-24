@@ -21,6 +21,11 @@ const nextConfig = {
                 hostname: 'auth.dotcms.dev',
                 pathname: '/dA/**',
             },
+            {
+                protocol: 'https',
+                hostname: 'www.dotcms.com',
+                pathname: '**',
+            },
         ],
         dangerouslyAllowSVG: true,
         contentDispositionType: 'attachment',

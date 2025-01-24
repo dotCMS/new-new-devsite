@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 
-
+import { ArrowLeft } from 'lucide-react';
 import Author from '@/components/shared/author';
 import SocialMediaShare from '@/components/shared/socialMediaShare';
 import { ImagePlacerholder } from '@/components/shared/dotCardImage';
@@ -14,6 +14,7 @@ import { cn } from '@/util/utils';
 import { Calendar } from 'lucide-react';
 import Tag from '@/components/shared/tag';
 import { format } from "date-fns";
+import Link from 'next/link';
 const HeaderImage = ({ image, alt, imageUrl }) => {
     const cssClasses = cn('w-auto rounded-lg aspect-video object-cover');
     return (
@@ -61,15 +62,25 @@ export const DetailHeader = ({
     const [url, setUrl] = useState('');
     const imageUrl = post.image?.fileAsset?.versionPath;
     useEffect(() => {
-        const urlString = new URL(pathname, window.location.origin);
+        const urlString = new URL(pathname, `https://${post.host.hostname}`);
         setUrl(urlString);
     }, [pathname]);
 
     return (
         <header className="mb-8">
+                            {/* Back Button Column */}
+                <div>
+                    <Link
+                        href="/blog"
+                        className="transition-colors flex items-center text-slate-600"
+                    >
+                     <svg viewBox="0 0 24 24" width="24" height="24" className="mr-2 my-2" fill="currentColor"><path d="M10.78 19.03a.75.75 0 0 1-1.06 0l-6.25-6.25a.75.75 0 0 1 0-1.06l6.25-6.25a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L5.81 11.5h14.44a.75.75 0 0 1 0 1.5H5.81l4.97 4.97a.75.75 0 0 1 0 1.06Z"></path></svg> Back to Blogs
+                    </Link>
+                </div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
                 {post.title}
             </h1>
+                {/* Article Navigation */}
 
             {/* Meta Information */}
             <div className="flex flex-wrap gap-4 text-gray-600 mb-6">
@@ -128,7 +139,7 @@ export const DetailHeader = ({
                                 { 'mb-6': !!post.imageCredit },
                                 { 'mt-auto': !!post.categories.length || !!post.author }
                             )}>
-                            <p className="flex text-sm text-blue-700">Share this article on:</p>
+
                             {url && <SocialMediaShare url={url} />}
                         </div>
         </header>
