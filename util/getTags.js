@@ -34,7 +34,7 @@ export async function getTagsByLuceneQuery(luceneQuery, limit) {
 
 
     const query = getTagQuery(luceneQuery, limit);
-    console.log("query", query);
+    //console.log("query", query);
 
     const res = await fetch(ES_ENPOINT, {
         method: 'POST',

@@ -74,7 +74,7 @@ export const DetailHeader = ({
                         href="/blog"
                         className="transition-colors flex items-center text-slate-600"
                     >
-                        <ArrowLeft className="w-4 h-4 mr-2 my-2" /> Back to Blogs
+                     <svg viewBox="0 0 24 24" width="24" height="24" className="mr-2 my-2" fill="currentColor"><path d="M10.78 19.03a.75.75 0 0 1-1.06 0l-6.25-6.25a.75.75 0 0 1 0-1.06l6.25-6.25a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L5.81 11.5h14.44a.75.75 0 0 1 0 1.5H5.81l4.97 4.97a.75.75 0 0 1 0 1.06Z"></path></svg> Back to Blogs
                     </Link>
                 </div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
