@@ -5,7 +5,7 @@ import { extractDateForTables } from '../../util/formatDate'
 
 export default async function ChangeLogContainer( {data, changelogData} ) {
 
-    console.log("data", await changelogData)
+    //console.log("data", await changelogData)
     const {changelogs, totalPages} = await changelogData
 
 
