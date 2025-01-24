@@ -1,5 +1,5 @@
-import { ConfigDict } from '@/utils/constants';
-import { logRequest } from '@/utils/logRequest';
+import { ConfigDict } from '@/util/constants';
+import { logRequest } from '@/util/logRequest';
 
 export const getTokenAI = async (): Promise<string | null> => {
   try {

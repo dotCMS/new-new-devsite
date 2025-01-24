@@ -1,12 +1,12 @@
 import { DEFAULT_LIMIT, DEFAULT_DEPTH } from './config';
-import dotClient from '@/services/dotcmsClient';
+import { client } from '@/util/dotcmsClient';
 import { type TBlog } from './types';
-import { logRequest } from '@/utils/logRequest';
+import { logRequest } from '@/util/logRequest';
 
 export const getBlog = async ({ limit }: { limit: number }): Promise<TBlog[] | null> => {
   try {
     const response = await logRequest(async () => {
-      return await dotClient.content
+      return await client.content
         .getCollection('Blog')
         .sortBy([
           {

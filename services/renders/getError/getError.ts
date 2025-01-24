@@ -1,6 +1,6 @@
-import dotClient from '@/services/dotcmsClient';
+import { client } from '@/util/dotcmsClient';
 import type { TErrorObject, TErrorContentlet } from './types';
-import { logRequest } from '@/utils/logRequest';
+import { logRequest } from '@/util/logRequest';
 
 const ERROR_CASES: Record<number | string, string> = {
     404: "7699458ade8f19a03f7513e79fe2c46d",
@@ -15,12 +15,12 @@ export const getError = async (error: TErrorObject): Promise<TErrorContentlet['c
     try {
         const queryId = ERROR_CASES[error.status] ?? ERROR_CASES.default;
 
-        errorContentlet = await logRequest(() =>
-            dotClient.content
+        errorContentlet = (await logRequest(async () =>
+            await client.content
                 .getCollection("PageError")
                 .query(`+identifier:${queryId}`),
             'getError'
-        );
+        )) as TErrorContentlet;
 
         if (!errorContentlet) {
             console.error('Failed to fetch error contentlet.');

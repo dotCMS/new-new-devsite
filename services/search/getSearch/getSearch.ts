@@ -1,9 +1,9 @@
-import { type TSearchResult } from '@/types/search';
-import { type TGetSearch } from './types';
-import { ConfigDict } from '@/utils/constants';
-import { logRequest } from '@/utils/logRequest'; 
 
-export const getSearch = async ({ searchTerm, typeDoc, currentPage }: TGetSearch): Promise<TSearchResult | null> => {
+import { type TGetSearch } from './types';
+import { ConfigDict } from '@/util/constants';
+import { logRequest } from '@/util/logRequest'; 
+
+export const getSearch = async ({ searchTerm, typeDoc, currentPage }: TGetSearch) => {
   const contentType = typeDoc ? 'dotcmsdocumentation' : '';
 
   try {

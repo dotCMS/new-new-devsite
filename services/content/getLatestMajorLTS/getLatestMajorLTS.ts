@@ -1,7 +1,7 @@
-import { ConfigDict } from '@/utils/constants';
+import { ConfigDict } from '@/util/constants';
 import { SIZE_PAGE } from './config';
 import type { TLatestMajorLTS } from './types';
-import { logRequest } from '@/utils/logRequest'; 
+import { logRequest } from '@/util/logRequest'; 
 
 export const getLatestMajorLTS = async (): Promise<TLatestMajorLTS | null> => {
   const buildQuery = '+contentType:Dotcmsbuilds +Dotcmsbuilds.download:1 +Dotcmsbuilds.lts:1';
@@ -22,9 +22,9 @@ export const getLatestMajorLTS = async (): Promise<TLatestMajorLTS | null> => {
       });
     }, 'getLatestMajorLTS');
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`);
+    if (!response?.ok) {
+      const errorText = await response?.text();
+      throw new Error(`HTTP error! status: ${response?.status}, details: ${errorText}`);
     }
 
     const responseData = await response.json();

@@ -1,6 +1,6 @@
-import { ConfigDict } from '@/utils/constants';
+import { ConfigDict } from '@/util/constants';
 import { SIZE } from './config';
-import { logRequest } from '@/utils/logRequest';
+import { logRequest } from '@/util/logRequest';
 
 import type { TGetRecent } from './types';
 
@@ -23,9 +23,9 @@ export const getRecent = async (): Promise<TGetRecent | null> => {
       });
     }, 'getRecent');
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`);
+    if (!response?.ok) {
+      const errorText = await response?.text();
+      throw new Error(`HTTP error! status: ${response?.status}, details: ${errorText}`);
     }
 
     const responseData = await response.json();

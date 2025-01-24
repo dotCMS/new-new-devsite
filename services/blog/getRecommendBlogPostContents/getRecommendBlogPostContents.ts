@@ -1,13 +1,13 @@
-import dotClient from '@/services/dotcmsClient';
+import { client } from '@/util/dotcmsClient';
 import type { TRecommendBlogResponse, TGetRecommendBlogPostContents } from './types';
 import { DEFAULT_LIMIT, DEFAULT_DEPTH, DEFAULT_CATEGORY } from './config';
-import { logRequest } from '@/utils/logRequest';
+import { logRequest } from '@/util/logRequest';
 
 export const getRecommendBlogPostContents = async (
   { categories }: TGetRecommendBlogPostContents = {} 
 ): Promise<TRecommendBlogResponse[] | null> => {
   try {
-    const extractCategories = (categories: Array<{ [key: string]: string }> | null): string[] => {
+    const extractCategories = (categories: Array<{ [key: string]: string }> | null | undefined): string[] => {
       if (!categories || !Array.isArray(categories)) return [];
       return categories.map((categoryObj) => Object.keys(categoryObj)[0]);
     };
@@ -22,7 +22,7 @@ export const getRecommendBlogPostContents = async (
     }
 
     const response = await logRequest(async () => {
-      return await dotClient.content
+      return await client.content
         .getCollection('Blog')
         .sortBy([
           {

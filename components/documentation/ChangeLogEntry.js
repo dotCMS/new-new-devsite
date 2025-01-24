@@ -18,58 +18,7 @@ export default async function ChangeLogContainer( {data, changelogData} ) {
 
   return (
     <>
-    <div className="container flex min-h-screen p-0">
-      {/* Left Navigation */}
-      <div className="w-72 shrink-0">
-        <nav 
-          ref={navRef}
-          className="h-[calc(100vh-4rem)] overflow-y-auto sticky top-16 p-4 pt-8 px-2
-            [&::-webkit-scrollbar]:w-1.5
-            [&::-webkit-scrollbar-track]:bg-transparent
-            [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
-            [&::-webkit-scrollbar-thumb]:rounded-full
-            hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20"
-        >
-          <NavTree 
-            items={sideNav[0]?.dotcmsdocumentationchildren || []} 
-            currentPath={myPath}
-          />
-        </nav>
-      </div>
 
-      {/* Main Content Container */}
-      <div className="flex-1 min-w-0"> 
-        <div className="max-w-[1400px] mx-auto flex">
-          {/* Main Content Area */}
-          <main className="flex-1 min-w-0 pt-8 px-12
-            [&::-webkit-scrollbar]:w-1.5
-            [&::-webkit-scrollbar-track]:bg-transparent
-            [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
-            [&::-webkit-scrollbar-thumb]:rounded-full
-            hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20">
-            <Breadcrumbs 
-              items={sideNav[0]?.dotcmsdocumentationchildren || []} 
-              currentPath={myPath}
-            />
-            
-            <div className="markdown-content">
-              <h1 className="text-4xl font-bold mb-6">{contentlet.title}</h1>
-              <MarkdownContent content={documentation} />
-            </div>
-          </main>
-
-          {/* Right Sidebar - On This Page */}
-          <div className="w-64 shrink-0 hidden xl:block">
-            <div className="sticky top-16 pt-8 pl-8">
-              <OnThisPage />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-      {changelogs.map((item, index) => (
         <div key={index} className="pb-[2em]">
           {item?.minor && (
             <h2
@@ -98,10 +47,10 @@ export default async function ChangeLogContainer( {data, changelogData} ) {
             </span>
           </span>
           {parseBodyToLines(item?.releaseNotes).map((text, i) =>
-            text ? <MarkdownContent content={item?.releaseNotes} /> : null
+            text ? <MarkdownContent content={item?.releaseNotes}  key={"changelogMarkdown"+i}  /> : null
           )}
         </div>
-      ))}
+      
     </>
   )
 }

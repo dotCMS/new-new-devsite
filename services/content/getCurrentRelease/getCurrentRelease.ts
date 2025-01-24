@@ -1,6 +1,6 @@
-import { ConfigDict } from '@/utils/constants';
+import { ConfigDict } from '@/util/constants';
 import { SIZE_PAGE } from './config';
-import { logRequest } from '@/utils/logRequest';
+import { logRequest } from '@/util/logRequest';
 
 export const getCurrentRelease = async () => {
   const buildQuery = '+contentType:Dotcmsbuilds +Dotcmsbuilds.download:1 +Dotcmsbuilds.lts:3';
@@ -21,9 +21,9 @@ export const getCurrentRelease = async () => {
       });
     }, 'getCurrentRelease'); 
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`);
+    if (!response?.ok) {
+      const errorText = await response?.text();
+      throw new Error(`HTTP error! status: ${response?.status}, details: ${errorText}`);
     }
 
     const responseData = await response.json();

@@ -1,10 +1,10 @@
-import dotClient from '@/services/dotcmsClient';
-import { logRequest } from '@/utils/logRequest';
+import { client } from '@/util/dotcmsClient';
+import { logRequest } from '@/util/logRequest';
 
-export const getCardContent = async (identifier) => {
+export const getCardContent = async (identifier: string) => {
   try {
     const response = await logRequest(async () => {
-      return await dotClient.content
+      return await client.content
         .getCollection('CardContent')
         .query(`+identifier:${identifier}`);
     }, `getCardContent identifier ${identifier}`);

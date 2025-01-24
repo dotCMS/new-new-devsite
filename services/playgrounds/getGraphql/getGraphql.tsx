@@ -1,6 +1,6 @@
 import { configGraphql } from './config';
 import { type TGraphQLP } from './types';
-import { logRequest } from '@/utils/logRequest';
+import { logRequest } from '@/util/logRequest';
 
 export const getGraphql = async (graphQLParams: TGraphQLP) => {
   try {

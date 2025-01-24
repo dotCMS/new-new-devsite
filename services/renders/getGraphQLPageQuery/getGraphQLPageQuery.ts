@@ -1,6 +1,6 @@
-import { ConfigDict } from '@/utils/constants';
+import { ConfigDict } from '@/util/constants';
 import type { TGraphQLPageData, TGetGraphQLPageQuery } from './types';
-import { logRequest } from '@/utils/logRequest';
+import { logRequest } from '@/util/logRequest';
 
 export const getGraphQLPageQuery = async ({
   path,

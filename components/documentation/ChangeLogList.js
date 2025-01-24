@@ -49,7 +49,7 @@ export default async function ChangeLogContainer( {data, changelogData} ) {
             </span>
           </span>
           {parseBodyToLines(item?.releaseNotes).map((text, i) =>
-            text ? <MarkdownContent content={item?.releaseNotes} /> : null
+            text ? <MarkdownContent content={item?.releaseNotes} key={"changelogMarkdown"+i} /> : null
           )}
         </div>
       ))}

@@ -1,6 +1,6 @@
 import type { TSearchCompletions, TChatCompletionChunkResponse } from './types';
-import { ConfigDict } from '@/utils/constants';
-import { logRequest } from '@/utils/logRequest';
+import { ConfigDict } from '@/util/constants';
+import { logRequest } from '@/util/logRequest';
 
 export const getSearchCompletions = async ({
   searchTerm,
@@ -53,8 +53,10 @@ export const getSearchCompletions = async ({
               if (content && onDataChunk) {
                 onDataChunk(content);
               }
-            } catch (jsonError) {
-              console.error('Error parsing JSON chunk:', jsonError.message);
+            } catch (jsonError: unknown) {
+              if (jsonError instanceof Error) {
+                console.error('Error parsing JSON chunk:', jsonError.message);
+              }
             }
           }
         });

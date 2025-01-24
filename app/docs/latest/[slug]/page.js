@@ -76,10 +76,11 @@ export default async function Home({ searchParams, params }) {
     
     const componentMap = {
         "changelogs": (data) => <ChangeLogList {...data} changelogData={getChangelog({ page: 1, isLts: false, limit: 10 })}/>,
+        default: (data) => <Documentation {...data} />   
 
         // Add more path-component mappings here as needed:
         // "path-name": (contentlet) => <ComponentName contentlet={contentlet} />,
-        default: (data) => <Documentation {...data} />   
+        
       };
 
 

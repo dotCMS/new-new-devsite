@@ -1,8 +1,8 @@
-import dotClient from '@/services/dotcmsClient';
+import { client } from '@/util/dotcmsClient';
 import type { TGetRecommendVideoPostContents, TRecommendVideoResponse } from './types';
 import { DEFAULT_LIMIT, DEFAULT_DEPTH } from './config';
 import { LANGUAGE_ID } from '@/services/constants';
-import { logRequest } from '@/utils/logRequest'; 
+import { logRequest } from '@/util/logRequest'; 
 
 export const getRecommendVideoPostContents = async (
   { categories }: TGetRecommendVideoPostContents
@@ -21,7 +21,7 @@ export const getRecommendVideoPostContents = async (
     }
 
     const response = await logRequest(async () => {
-      return await dotClient.content
+      return await client.content
         .getCollection('Video')
         .sortBy([
           {
@@ -35,7 +35,7 @@ export const getRecommendVideoPostContents = async (
         .language(LANGUAGE_ID);
     }, `getRecommendVideoPostContents categories: ${extractedCategories[0]}`); 
 
-    return response.contentlets as TRecommendVideoResponse[];
+    return response?.contentlets as TRecommendVideoResponse[];
   } catch (error) {
     console.error(`Error fetching Videos`, error);
     return null;

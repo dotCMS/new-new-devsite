@@ -1,11 +1,11 @@
 import { DEFAULT_LIMIT } from './config';
-import dotClient from '@/services/dotcmsClient';
-import { logRequest } from '@/utils/logRequest'; 
+import { client } from '@/util/dotcmsClient';
+import { logRequest } from '@/util/logRequest'; 
 
-export const getVideo = async ({ limit }) => {
+export const getVideo = async ({ limit }: { limit: number }) => {
   try {
     const response = await logRequest(async () => {
-      return await dotClient.content
+      return await client.content
         .getCollection("Video")
         .query('+Video.show:true +live:true +conhostname:dotcms.dev')
         .limit(limit || DEFAULT_LIMIT)
@@ -17,7 +17,7 @@ export const getVideo = async ({ limit }) => {
         ]);
     }, `getVideo limit: ${limit}`);
 
-    return response.contentlets;
+    return response?.contentlets;
   } catch (error) {
     console.error(`Error fetching Videos`, error);
     return null;

@@ -1,11 +1,11 @@
-import dotClient from '@/services/dotcmsClient';
+import { client } from '@/util/dotcmsClient';
 import { type TBlogBanner } from './types';
-import { logRequest } from '@/utils/logRequest';
+import { logRequest } from '@/util/logRequest';
 
 export const getBlogBanner = async (): Promise<TBlogBanner | null> => {
   try {
     const response = await logRequest(async () => {
-      return await dotClient.content
+      return await client.content
         .getCollection('Banner')
         .query(`+identifier:f943a93113b555cd9a98305206a30b7f`);
     }, 'getBlogBanner identifier f943a93113b555cd9a98305206a30b7f');

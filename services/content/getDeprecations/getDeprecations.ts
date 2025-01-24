@@ -1,10 +1,9 @@
-import { ConfigDict } from '@/utils/constants';
+import { ConfigDict } from '@/util/constants';
 //import { SIZE_PAGE } from './config';
 const SIZE_PAGE = 0;
-import { logRequest } from '@/utils/logRequest'; 
+import { logRequest } from '@/util/logRequest'; 
 
 import type { TDeprecation, TDeprecationCards } from './types';
-import { JsonViewer } from '@textea/json-viewer';
 
 const getDeprecations = async (): Promise<TDeprecation[] | null> => {
   const deprecationQuery = '+contentType:Deprecation';

@@ -1,13 +1,13 @@
-import { ConfigDict } from '@/utils/constants';
+import { ConfigDict } from '@/util/constants';
 import type { TSiteSearh, TSearchResult } from './types';
-import { logRequest } from '@/utils/logRequest'; 
+import { logRequest } from '@/util/logRequest'; 
 
 export const getSiteSearch = async ({
   searchTerm,
   searchPlace = '',
   isAllSourcesSearch = false,
   currentPage = 0
-}: TSiteSearh): Promise<TSearchResult | null> => {
+}: TSiteSearh) => {
   try {
     const requestBody = {
       q: isAllSourcesSearch ? `+uri:/${searchPlace}/* ${searchTerm}` : searchTerm,

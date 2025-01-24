@@ -1,7 +1,7 @@
-import { ConfigDict } from '@/utils/constants'
+import { ConfigDict } from '@/util/constants'
 import { SIZE_PAGE } from './config'
 import type { TContentlet, TApiResponse } from './types'
-import { logRequest } from '@/utils/logRequest'
+import { logRequest } from '@/util/logRequest'
 
 export const getPreviousRelease = async (): Promise<{ previousRelease: TContentlet[]; totalPages: number } | null> => {
   return logRequest(async () => {
