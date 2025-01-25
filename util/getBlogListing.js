@@ -13,9 +13,9 @@ export const BLOG_LISTING_LUCENE_QUERY = `
 
 export async function getBlogListing({tagFilter, page, pageSize}) {
 
-    console.log("tagFilter", tagFilter);
-    console.log("page", page);
-    console.log("pageSize", pageSize);
+    //console.log("tagFilter", tagFilter);
+    //console.log("page", page);
+    //console.log("pageSize", pageSize);
     const finalTagFilter = tagFilter 
     ? `+tags:\\"` 
         + tagFilter
@@ -64,9 +64,9 @@ export async function getBlogListing({tagFilter, page, pageSize}) {
             offset
         }
     }`;
-    console.warn("--------------------------------");
-    console.warn(query);
-    console.warn("--------------------------------");
+    //console.warn("--------------------------------");
+    //console.warn(query);
+    //console.warn("--------------------------------");
     const data = await logRequest(async () => getGraphqlResults(query), 'getBlogListing');
 
     return {blogs: data.BlogCollection, pagination: data.Pagination[0]};
