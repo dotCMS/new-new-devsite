@@ -17,7 +17,7 @@ export async function getBlogListing({tagFilter, page, pageSize}) {
     console.log("page", page);
     console.log("pageSize", pageSize);
     const finalTagFilter = tagFilter 
-    ? `+tags:\\\"` 
+    ? `+tags:\\"` 
         + tagFilter
             .replace("\"", "")
             .replace("+", " ") 
@@ -29,7 +29,7 @@ export async function getBlogListing({tagFilter, page, pageSize}) {
             .replace("?", " ") 
             .replace("|", " ") 
             .replace("\\", " ") 
-        + `\\\"` 
+        + `\\"` 
     : "";
     const query = `query ContentAPI {
         BlogCollection(
