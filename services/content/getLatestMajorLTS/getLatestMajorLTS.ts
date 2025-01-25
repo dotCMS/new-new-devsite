@@ -4,7 +4,7 @@ import type { TLatestMajorLTS } from './types';
 import { logRequest } from '@/util/logRequest'; 
 
 export const getLatestMajorLTS = async (): Promise<TLatestMajorLTS | null> => {
-  const buildQuery = '+contentType:Dotcmsbuilds +Dotcmsbuilds.download:1 +Dotcmsbuilds.lts:1';
+  const buildQuery = '+contentType:Dotcmsbuilds +Dotcmsbuilds.download:1 +Dotcmsbuilds.lts:1 +live:true';
 
   const query = {
     query: buildQuery,

@@ -6,7 +6,7 @@ import { logRequest } from '@/util/logRequest';
 export const getChangelog = async ({ page = 1, isLts = false,limit = SIZE_PAGE }) => {
   const offset = limit * (page - 1);
 
-  const ltsQuery = '+contentType:Dotcmsbuilds +Dotcmsbuilds.download:1 +Dotcmsbuilds.lts:1';
+  const ltsQuery = '+contentType:Dotcmsbuilds +Dotcmsbuilds.download:1 +Dotcmsbuilds.lts:1  +live:true';
   const releaseQuery =
     '+contentType:Dotcmsbuilds +Dotcmsbuilds.released:true +Dotcmsbuilds.showInChangeLog:true +live:true';
 

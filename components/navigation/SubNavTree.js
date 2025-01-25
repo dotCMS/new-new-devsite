@@ -125,7 +125,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
         </Link>
       );
     }
-  }, [relevantPath, openSections, toggleSection]);
+  }, [relevantPath, openSections, toggleSection, currentPath, level]);
 
   return (
     <div className="space-y-1 pt-1">

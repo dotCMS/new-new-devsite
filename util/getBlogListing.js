@@ -1,5 +1,5 @@
 import { getGraphqlResults } from "@/util/gql";
-
+import { logRequest } from "@/util/logRequest";
 
 
 export const BLOG_LISTING_LUCENE_QUERY = `
@@ -65,7 +65,7 @@ export async function getBlogListing({tagFilter, page, pageSize}) {
 
     //console.log(query);
 
-    const data = await getGraphqlResults(query);
+    const data = await logRequest(async () => getGraphqlResults(query), 'getBlogListing');
     return {blogs: data.BlogCollection, pagination: data.Pagination[0]};
 
 }

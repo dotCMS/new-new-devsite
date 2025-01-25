@@ -1,5 +1,5 @@
 import { getGraphqlResults } from "@/util/gql";
-
+import { logRequest } from "@/util/logRequest";
 
 export async function getBlogDetailQuery(urlTitle) {
 
@@ -46,9 +46,9 @@ export async function getBlogDetailQuery(urlTitle) {
             versionPath
             }
             description
-        }
+        }   
         }
     }
   `
-    return getGraphqlResults(query).then(data => data.BlogCollection[0]);
+    return logRequest(async () => getGraphqlResults(query),"blogDetail").then(data => data.BlogCollection[0]);
 }
