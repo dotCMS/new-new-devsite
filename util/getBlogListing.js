@@ -64,9 +64,9 @@ export async function getBlogListing({tagFilter, page, pageSize}) {
             offset
         }
     }`;
-    console.log("--------------------------------");
-    console.log(query);
-    console.log("--------------------------------");
+    console.warn("--------------------------------");
+    console.warn(query);
+    console.warn("--------------------------------");
     const data = await logRequest(async () => getGraphqlResults(query), 'getBlogListing');
 
     return {blogs: data.BlogCollection, pagination: data.Pagination[0]};
