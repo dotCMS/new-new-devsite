@@ -1,3 +1,4 @@
+import { logRequest } from "./logRequest";
 
 
 function getTagQuery(query, limit) {
@@ -36,7 +37,7 @@ export async function getTagsByLuceneQuery(luceneQuery, limit) {
     const query = getTagQuery(luceneQuery, limit);
     //console.log("query", query);
 
-    const res = await fetch(ES_ENPOINT, {
+    const res = await logRequest(async () => await fetch(ES_ENPOINT, {
         method: 'POST',
         headers: {
             "Authorization": `Bearer ${process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN}`,
@@ -45,7 +46,7 @@ export async function getTagsByLuceneQuery(luceneQuery, limit) {
         },
         body:  query ,
         cache: "no-cache",
-    });
+    }), "getTags");
     if (!res.ok) {
         throw new Error('Failed to fetch tags:' + res.status)
     }

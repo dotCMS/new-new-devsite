@@ -6,7 +6,7 @@ import { logRequest } from '@/util/logRequest';
 import type { TDeprecation, TDeprecationCards } from './types';
 
 const getDeprecations = async (): Promise<TDeprecation[] | null> => {
-  const deprecationQuery = '+contentType:Deprecation';
+  const deprecationQuery = '+contentType:Deprecation +live:true';
 
   const query = {
     query: deprecationQuery,

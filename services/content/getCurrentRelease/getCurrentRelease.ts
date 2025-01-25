@@ -3,7 +3,7 @@ import { SIZE_PAGE } from './config';
 import { logRequest } from '@/util/logRequest';
 
 export const getCurrentRelease = async () => {
-  const buildQuery = '+contentType:Dotcmsbuilds +Dotcmsbuilds.download:1 +Dotcmsbuilds.lts:3';
+  const buildQuery = '+contentType:Dotcmsbuilds +Dotcmsbuilds.download:1 +Dotcmsbuilds.lts:3 +live:true';
 
   const query = {
     query: buildQuery,

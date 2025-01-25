@@ -1,4 +1,5 @@
 import {dotCache} from '@/util/cacheService'
+import { logRequest } from './logRequest';
 const GRAPHQL_ENPOINT = `/api/v1/graphql`
 
 
@@ -38,7 +39,7 @@ export const getSideNav = async () => {
 
     const url = new URL(GRAPHQL_ENPOINT, process.env.NEXT_PUBLIC_DOTCMS_HOST);
 
-    const res = await fetch(url, {
+    const res = await logRequest(async () => await fetch(url, {
         method: 'POST',
         headers: {
             "Authorization": `Bearer ${process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN}`,
@@ -47,10 +48,10 @@ export const getSideNav = async () => {
         },
         body: JSON.stringify({ query }),
         cache: "no-cache",
-    })
+    }), "getSideNav");
 
-    if (!res.ok) {
-        throw new Error('Failed to fetch products')
+    if (!res || !res?.ok) {
+        throw new Error('Failed to fetch sideNav')
     }
 
     const data = await res.json()

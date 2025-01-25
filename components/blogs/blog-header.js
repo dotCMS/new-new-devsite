@@ -62,7 +62,7 @@ export const DetailHeader = ({
     useEffect(() => {
         const urlString = new URL(pathname, `https://${post.host.hostname}`);
         setUrl(urlString);
-    }, [pathname]);
+    }, [pathname, post.host.hostname]);
 
     return (
         <header className="mb-8">

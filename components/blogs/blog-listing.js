@@ -13,7 +13,7 @@ import { BLOG_LISTING_LUCENE_QUERY } from '@/util/getBlogListing';
 
 export default async function BlogListing({ blogs, pagination, tagFilter }) {
 
-
+    console.log("tagFilter", tagFilter);
     // Extract all tags from all posts
     const allTags =await getTagsByLuceneQuery(BLOG_LISTING_LUCENE_QUERY, 30);
 
