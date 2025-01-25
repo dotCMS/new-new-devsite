@@ -63,9 +63,10 @@ export async function getBlogListing({tagFilter, page, pageSize}) {
         }
     }`;
 
-    //console.log(query);
+    console.log("query", query);
 
     const data = await logRequest(async () => getGraphqlResults(query), 'getBlogListing');
+    console.log("data", data);
     return {blogs: data.BlogCollection, pagination: data.Pagination[0]};
 
 }
