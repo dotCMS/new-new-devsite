@@ -20,7 +20,7 @@ import { DocLink } from "@/components/content-types/doc-link"
 interface Card {
     title: string;
     description: string;
-    backgroundImageUrl: {
+    backgroundImageUrl?: {
         identifier: string;
     };
 }
@@ -61,7 +61,7 @@ export default function Hero(props: HeroProps) {
                                 </p>
                                 <div className="mt-auto flex justify-center w-full">
                                     <Image
-                                        src={`${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${card1.backgroundImageUrl.identifier}`}
+                                        src={`${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${card1.backgroundImageUrl?.identifier || ''}`}
                                         alt="dotCMS API code example showing client initialization"
                                         width={400}
                                         height={150}
@@ -107,7 +107,7 @@ export default function Hero(props: HeroProps) {
                                 </p>
                                 <div className="mt-auto flex justify-center w-full">
                                     <Image
-                                        src={`${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${card2.backgroundImageUrl.identifier}`}
+                                        src={`${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${card2.backgroundImageUrl?.identifier || ''}`}
                                         alt="dotCMS authoring interface showing content creation screen"
                                         width={400}
                                         height={150}
@@ -151,7 +151,7 @@ export default function Hero(props: HeroProps) {
                                 </p>
                                 <div className="mt-auto flex justify-center w-full">
                                     <Image
-                                        src={`${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${card3.backgroundImageUrl.identifier}`}
+                                        src={`${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${card3.backgroundImageUrl?.identifier || ''}`}
                                         alt="dotCMS DevOps infrastructure diagram"
                                         width={400}
                                         height={150}
