@@ -172,13 +172,11 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
         : undefined;
 
       const src = sources?.[0]?.src || props.src;
-
+          
       // Handle DotCMS URL format
-      const isDotCMSVideo = src && (!src.startsWith('http') || !src.startsWith('/'));
 
-      const videoSrc = isDotCMSVideo
-        ? `${process.env.NEXT_PUBLIC_DOTCMS_HOST}${src}`
-        : src;
+      const hasHost = src && (src.startsWith('http://') || src.startsWith('//') || src.startsWith("https://"))
+      const videoSrc = hasHost ? src : process.env.NEXT_PUBLIC_DOTCMS_HOST + src;
 
       const videoProps = {
         src: videoSrc,
