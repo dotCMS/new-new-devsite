@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import MarkdownContent from '../MarkdownContent'
 import { extractDateForTables } from '../../util/formatDate'
-
+import { smoothScroll } from '@/util/smoothScroll'
 export default function ChangeLogEntry({ item }) {
   const releaseNotes = item?.releaseNotes.replace(/{#[a-zA-Z0-9\.\-]+}/g, '') || ""
   const dockerImage = item?.dockerImage
@@ -13,10 +13,13 @@ export default function ChangeLogEntry({ item }) {
       {item?.minor && (
         <h2
           className="text-3xl font-semibold text-foreground mt-12 pb-2 mb-1 group flex items-center"
-          id={item?.minor}
+          id={"v"+item?.minor}
           key={"h2"+item?.minor}
         >
-          {item?.minor}
+          {item?.minor} 
+          <a href={"#v"+item?.minor} onClick={smoothScroll}  className="ml-2 opacity-0 group-hover:opacity-90 transition-opacity">
+            #
+          </a>
         </h2>
       )}
       

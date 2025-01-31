@@ -39,7 +39,7 @@ export const OnThisPage = ({selectors, showOnThisPage = true}) => {
 
     // Re-generate if content changes
     const observer = new MutationObserver(generateTOC);
-    const markdownContent = document.querySelector('.markdown-content');
+    const markdownContent = document.querySelector(mySelectors);
     
     if (markdownContent) {
       observer.observe(markdownContent, {

@@ -17,12 +17,13 @@ import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 
 export default function ChangeLogContainer() {
     const searchParams = useSearchParams()
+    const isLts = searchParams.get('lts') === 'true'
     var currentPage = Number(searchParams.get('page')) || 1
     if (currentPage < 1) {
         currentPage = 1
     }
 
-    const { data, loading, error, hasNextPage, hasPrevPage } = useChangelog(currentPage)
+    const { data, loading, error, hasNextPage, hasPrevPage } = useChangelog(currentPage, isLts)
 
     if (loading) {
         return (
@@ -70,12 +71,12 @@ export default function ChangeLogContainer() {
             [&::-webkit-scrollbar-thumb]:rounded-full
             hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20"
             >
-                <h1 className="text-4xl font-bold mb-6">Changelogs</h1>
+                <h1 className="text-4xl font-bold mb-6">dotCMS {isLts ? "LTS" : ""} Changelogs</h1>
                 <div className='float-right'>
                     <div className="flex border-0 border-red-500 w-24 pb-4">
                         <div className="flex justify-left border-0 border-green-500">
                             {hasPrevPage && (
-                                <a href={`?page=${currentPage - 1}`}>
+                                <a href={`?page=${currentPage - 1}&lts=${isLts}`}>
                                     <ChevronLeft className="h-5 w-5" />
                                 </a>
                             )}
@@ -88,9 +89,9 @@ export default function ChangeLogContainer() {
                             {currentPage} of {data.pagination.totalPages}
 
                         </div>
-                        <div className="flex justify-right w-5 border-0 border-blue-500 text-right flex-end">
+                        <div claszzsName="flex justify-right w-5 border-0 border-blue-500 text-right flex-end">
                             {hasNextPage && (
-                                <a href={`?page=${currentPage + 1}`}>
+                                <a href={`?page=${currentPage + 1}&lts=${isLts}`}>
                                     <ChevronRight className="h-5 w-5 " />
                                 </a>
                             )}
@@ -113,7 +114,7 @@ export default function ChangeLogContainer() {
                         <PaginationContent>
                             <PaginationItem>
                                 <PaginationPrevious
-                                    href={`?page=${currentPage - 1}`}
+                                    href={`?page=${currentPage - 1}&lts=${isLts}`}
                                     aria-disabled={!data.pagination.hasPreviousPage}
                                     className={!data.pagination.hasPreviousPage ? 'pointer-events-none opacity-50' : ''}
                                 />
@@ -122,7 +123,7 @@ export default function ChangeLogContainer() {
                             {startPage > 1 && (
                                 <>
                                     <PaginationItem>
-                                        <PaginationLink href="?page=1">1</PaginationLink>
+                                        <PaginationLink href="?page=1&lts=${isLts}">1</PaginationLink>
                                     </PaginationItem>
                                     {startPage > 2 && (
                                         <PaginationItem>
@@ -135,7 +136,7 @@ export default function ChangeLogContainer() {
                             {pages.map((page) => (
                                 <PaginationItem key={page}>
                                     <PaginationLink
-                                        href={`?page=${page}`}
+                                        href={`?page=${page}&lts=${isLts}`}
                                         isActive={page === currentPage}
                                     >
                                         {page}
@@ -151,7 +152,7 @@ export default function ChangeLogContainer() {
                                         </PaginationItem>
                                     )}
                                     <PaginationItem>
-                                        <PaginationLink href={`?page=${data.pagination.totalPages}`}>
+                                        <PaginationLink href={`?page=${data.pagination.totalPages}&lts=${isLts}`}>
                                             {data.pagination.totalPages}
                                         </PaginationLink>
                                     </PaginationItem>
@@ -160,7 +161,7 @@ export default function ChangeLogContainer() {
 
                             <PaginationItem>
                                 <PaginationNext
-                                    href={`?page=${currentPage + 1}`}
+                                    href={`?page=${currentPage + 1}&lts=${isLts}`}
                                     aria-disabled={!data.pagination.hasNextPage}
                                     className={!data.pagination.hasNextPage ? 'pointer-events-none opacity-50' : ''}
                                 />
