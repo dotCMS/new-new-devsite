@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { Calendar } from 'lucide-react';
 import TagCloud from '@/components/shared/TagCloud';
-
+import Image from 'next/image';
 
 import { getTagsByLuceneQuery } from "@/util/getTags";
 import { BLOG_LISTING_LUCENE_QUERY } from '@/util/getBlogListing';
@@ -31,9 +31,11 @@ export default async function BlogListing({ blogs, pagination, tagFilter }) {
                                 <div className="relative">
                                     {post.image?.fileAsset?.versionPath ? (
                                         <Link href={`/blog/${post.urlTitle}`} className="block">
-                                            <img
+                                            <Image
                                                 src={post.image.fileAsset.versionPath + "/70q/1000maxw"}
                                                 alt={post.teaser || post.title}
+                                                width={70}
+                                                height={100}
                                                 className="w-full h-48 object-cover rounded-t-lg"
                                             />
                                         </Link>

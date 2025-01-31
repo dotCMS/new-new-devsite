@@ -39,7 +39,7 @@ const Documentation = ({ contentlet, sideNav, slug }) => {
       <div className="max-w-[1400px] mx-auto flex">
         {/* Main Content Area */}
         <main
-          className="flex-1 min-w-0 px-12
+          className="flex-1 min-w-0 pt-8 px-12
             [&::-webkit-scrollbar]:w-1.5
             [&::-webkit-scrollbar-track]:bg-transparent
             [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10

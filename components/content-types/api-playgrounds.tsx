@@ -104,23 +104,12 @@ export default function APIPlaygrounds(props: APIPlaygroundsProps) {
                                     </div>
                                     <pre className="bg-gray-50 p-4 rounded overflow-x-auto">
                                         <code className="text-sm">
-                                            {`{`}
-                                            <span className="text-[#a21caf]">"contentType"</span>
-                                            {`: `}
-                                            <span className="text-[#0f766e]">"Blog"</span>
-                                            {`,`}
-                                            <span className="text-[#a21caf]">"title"</span>
-                                            {`:`}
-                                            <span className="text-[#0f766e]">"Getting Started with dotCMS"</span>
-                                            {`,`}
-                                            <span className="text-[#a21caf]">"author"</span>
-                                            {`: `}
-                                            <span className="text-[#0f766e]">"John Doe"</span>
-                                            {`,`}
-                                            <span className="text-[#a21caf]">"status"</span>
-                                            {`: `}
-                                            <span className="text-[#0f766e]">"PUBLISHED"</span>
-                                            {`}`}
+                                            {`{
+                                                "contentType": "Blog",
+                                                "title": "Getting Started with dotCMS",
+                                                "author": "John Doe",
+                                                "status": "PUBLISHED"
+                                            }`}
                                         </code>
                                     </pre>
                                 </div>
