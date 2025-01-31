@@ -154,7 +154,7 @@ export default function ChangeLogContainer({sideNav, slug}) {
                     <div className="text-muted-foreground">
                     {hasPrevPage && (
                      
-                            <a  title="Previous Page" className="block border-0 border-red-500 pl-8 pb-4" href={`?page=${currentPage - 1}&lts=${isLts}`}>
+                            <a  title="Newer Releases" className="block border-0 border-red-500 pl-8 pb-4" href={`?page=${currentPage - 1}&lts=${isLts}`}>
                                 &uarr;
                             </a>
                        
@@ -164,7 +164,7 @@ export default function ChangeLogContainer({sideNav, slug}) {
 
                         {hasNextPage && (
                            
-                                <a title="Next Page" className="block border-0 border-red-500 pl-8 pt-4" href={`?page=${currentPage + 1}&lts=${isLts}`}>
+                                <a title="Older Releases" className="block border-0 border-red-500 pl-8 pt-4" href={`?page=${currentPage + 1}&lts=${isLts}`}>
                                     &darr;
                                 </a>
                              
