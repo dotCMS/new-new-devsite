@@ -9,11 +9,9 @@ import { getSideNav } from "@/util/getSideNav"
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import Documentation from "@/components/documentation/Documentation";
-import ChangeLogList from "@/components/documentation/ChangeLogList";
+import ChangeLogList from "@/components/changelogs/ChangeLogList";
 import { getChangelog } from "@/services/content/getChangelog/getChangelog";
 import NavTree from "@/components/navigation/NavTree";
-
-import OnThisPage from "@/components/navigation/OnThisPage";
 
 async function fetchPageData(path, searchParams) {
     const finalPath = await path;

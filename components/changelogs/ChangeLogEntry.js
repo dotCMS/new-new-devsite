@@ -6,10 +6,15 @@ import { extractDateForTables } from '../../util/formatDate'
 import { smoothScroll } from '@/util/smoothScroll'
 import { ExternalLink, Copy, Check } from 'lucide-react'
 import { useState } from "react";
+import { isMarkdown, isMarkdownStrict } from '@/util/isMarkdown'
+import DangerousHtmlComponent from '../DangerousHtmlComponent'
+export default function ChangeLogEntry({ item, index }) {
+  var releaseNotes = item?.releaseNotes.replace(/{#[a-zA-Z0-9\.\-]+}/g, '') || ""
 
-export default function ChangeLogEntry({ item }) {
-  const releaseNotes = item?.releaseNotes.replace(/{#[a-zA-Z0-9\.\-]+}/g, '') || ""
-  const dockerImage = item?.dockerImage
+  releaseNotes = releaseNotes.replaceAll("\$!{version}", item?.minor)
+  const useMarkdown = isMarkdownStrict(releaseNotes,2)
+
+
   const [copied, setCopied] = useState(false);
 
   return (
@@ -59,8 +64,9 @@ export default function ChangeLogEntry({ item }) {
 
         </div>
       </div>
+
       <div className="pl-1">
-        <MarkdownContent content={releaseNotes} />
+        {useMarkdown ? <MarkdownContent content={releaseNotes} /> : <DangerousHtmlComponent content={releaseNotes}/>}
       </div>
     </div>
   )
