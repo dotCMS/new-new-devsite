@@ -1,40 +1,48 @@
-import { ConfigDict } from '@/util/constants';
-import { SIZE_PAGE } from './config';
+
 import { logRequest } from '@/util/logRequest';
+import { getGraphqlResults } from '@/util/gql';
 
-export const getCurrentRelease = async () => {
-  const buildQuery = '+contentType:Dotcmsbuilds +Dotcmsbuilds.download:1 +Dotcmsbuilds.lts:3 +live:true';
+export const getCurrentRelease = async ({page = 1}) => {
 
-  const query = {
-    query: buildQuery,
-    sort: 'Dotcmsbuilds.releasedDate desc',
-    limit: SIZE_PAGE,
-    offset: 0
-  };
+  const buildQuery =
+  '+contentType:Dotcmsbuilds +Dotcmsbuilds.released:true +Dotcmsbuilds.showInChangeLog:true +live:true';
 
-  try {
-    const response = await logRequest(async () => {
-      return await fetch(`${ConfigDict.DotCMSHost}/api/content/_search`, {
-        method: 'POST',
-        headers: ConfigDict.Headers,
-        body: JSON.stringify(query)
-      });
-    }, 'getCurrentRelease'); 
 
-    if (!response?.ok) {
-      const errorText = await response?.text();
-      throw new Error(`HTTP error! status: ${response?.status}, details: ${errorText}`);
-    }
+const query = `query ContentAPI {
+  DotcmsbuildsCollection(
+      query: "${buildQuery} "
+      limit: 50
+      page: ${page}
+      sortBy: "Dotcmsbuilds.releasedDate desc"
+  ) {
+      title
+      minor
+      releaseNotes
+      releasedDate
+      dockerImage
+      showInChangeLog
+      released
+      lts
+      download
+      showInChangeLog
+      live
 
-    const responseData = await response.json();
-
-    const totalItems = responseData?.entity?.resultsSize || 0;
-    const currentRelease = responseData?.entity?.jsonObjectView?.contentlets || [];
-    const totalPages = Math.ceil(totalItems / SIZE_PAGE);
-
-    return { currentRelease, totalPages };
-  } catch (error) {
-    console.error(`Error fetching DotCMS builds: ${error}`);
-    return null;
   }
+  Pagination {
+      fieldName
+      totalPages
+      totalRecords
+      pageRecords
+      hasNextPage
+      hasPreviousPage
+      pageSize
+      page
+      offset
+  }
+}`;
+const data = await logRequest(async () => getGraphqlResults(query), 'getCurrentRelease');
+
+
+
+return {currentRelease: data.DotcmsbuildsCollection, pagination: data.Pagination[0]};
 };
