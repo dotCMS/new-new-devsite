@@ -97,7 +97,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
         </div>
 
         {data.changelogs.map((item, index) => (
-          <ChangeLogEntry key={item?.identifier || index} item={item} />
+          <ChangeLogEntry key={item?.identifier || index} item={item} index={index} />
         ))}
 
         <div className="mt-8 mb-12">
