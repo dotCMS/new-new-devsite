@@ -96,9 +96,7 @@ export default async function Home({ searchParams, params }) {
             )}
 
             <div className="flex flex-1">
-                <main className="flex-1 pt-8 px-12">
-
-
+                <main className="flex-1 px-12">
                     <div className="container flex min-h-screen p-0">
                         {/* Left Navigation */}
                         <div className="w-72 shrink-0">

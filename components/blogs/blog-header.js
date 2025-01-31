@@ -71,8 +71,9 @@ export const DetailHeader = ({
                     <img
                         src={imageUrl + "/70q/1000maxw"}
                         alt={post.image?.description || post.title}
+                        width={1000}
+                        height={400}
                         className="w-full h-[400px] object-cover rounded-lg shadow-lg"
-
                     />
 
                 </figure>
