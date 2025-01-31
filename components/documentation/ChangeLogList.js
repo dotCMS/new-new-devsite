@@ -14,8 +14,9 @@ import {
 } from "@/components/ui/pagination"
 import { useChangelog } from '@/hooks/useChangelog'
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import Breadcrumbs from '../navigation/Breadcrumbs'
 
-export default function ChangeLogContainer() {
+export default function ChangeLogContainer({sideNav, slug}) {
     const searchParams = useSearchParams()
     const isLts = searchParams.get('lts') === 'true'
     var currentPage = Number(searchParams.get('page')) || 1
@@ -70,38 +71,15 @@ export default function ChangeLogContainer() {
             [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
             [&::-webkit-scrollbar-thumb]:rounded-full
             hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20"
-            >
-                <h1 className="text-4xl font-bold mb-6">dotCMS {isLts ? "LTS" : ""} Changelogs</h1>
-                <div className='float-right'>
-                    <div className="flex border-0 border-red-500 w-24 pb-4">
-                        <div className="flex justify-left border-0 border-green-500">
-                            {hasPrevPage && (
-                                <a href={`?page=${currentPage - 1}&lts=${isLts}`}>
-                                    <ChevronLeft className="h-5 w-5" />
-                                </a>
-                            )}
-                            {!hasPrevPage && (
-                                <div className="w-5"></div>
-
-                            )}
-                        </div>
-                        <div className="flex-grow text-center text-sm">
-                            {currentPage} of {data.pagination.totalPages}
-
-                        </div>
-                        <div claszzsName="flex justify-right w-5 border-0 border-blue-500 text-right flex-end">
-                            {hasNextPage && (
-                                <a href={`?page=${currentPage + 1}&lts=${isLts}`}>
-                                    <ChevronRight className="h-5 w-5 " />
-                                </a>
-                            )}
-                            {!hasNextPage && (
-                                <div className="w-5"></div>
-
-                            )}
-                        </div>
-                    </div>
-                </div>
+            ><a id="top" className="text-4xsm opacity-0"></a>
+            <Breadcrumbs
+            items={sideNav[0]?.dotcmsdocumentationchildren || []}
+            slug={slug}
+          />
+                <h1 className="text-4xl font-bold mb-6">
+                    dotCMS {isLts ? "LTS" : ""} Changelogs
+                </h1>
+               
 
 
 
@@ -172,11 +150,28 @@ export default function ChangeLogContainer() {
             </main>
             <div className="w-64 shrink-0 hidden xl:block">
                 <div className="sticky top-16 pt-8 pl-8">
+      
+                    <div className="text-muted-foreground">
+                    {hasPrevPage && (
+                     
+                            <a  title="Previous Page" className="block border-0 border-red-500 pl-8 pb-4" href={`?page=${currentPage - 1}&lts=${isLts}`}>
+                                &uarr;
+                            </a>
+                       
+                            )}
 
-                    <div >
-                        <OnThisPage selectors={"main h2"} showOnThisPage={false} />
+                        <OnThisPage selectors={"main h2"} showOnThisPage={false} className="border-2 border-red-500" />
+
+                        {hasNextPage && (
+                           
+                                <a title="Next Page" className="block border-0 border-red-500 pl-8 pt-4" href={`?page=${currentPage + 1}&lts=${isLts}`}>
+                                    &darr;
+                                </a>
+                             
+                            )}
+
                     </div>
-
+     
                 </div>
             </div>
         </div>
