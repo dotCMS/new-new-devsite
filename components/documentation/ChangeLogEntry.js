@@ -4,9 +4,13 @@ import Link from 'next/link'
 import MarkdownContent from '../MarkdownContent'
 import { extractDateForTables } from '../../util/formatDate'
 import { smoothScroll } from '@/util/smoothScroll'
+import { ExternalLink, Copy, Check } from 'lucide-react'
+import { useState } from "react";
+
 export default function ChangeLogEntry({ item }) {
   const releaseNotes = item?.releaseNotes.replace(/{#[a-zA-Z0-9\.\-]+}/g, '') || ""
   const dockerImage = item?.dockerImage
+  const [copied, setCopied] = useState(false);
 
   return (
     <div className="pb-[2em] border-b border-gray-200">
@@ -28,19 +32,31 @@ export default function ChangeLogEntry({ item }) {
           Available: {extractDateForTables(item?.releasedDate)}
         </div>
         <div className="text-sm text-muted-foreground">
-          <Link
-            className="text-ceruleanBlue"
-            href={
-              item?.dockerImage
-                ? `https://hub.docker.com/r/dotcms/dotcms/tags?name=${item.dockerImage.split(':')[1]}`
-                : 'https://hub.docker.com/r/dotcms/dotcms/tags'
-            }
-            target="_blank"
-            rel="noopener noreferrer"
-            key={"link"+item?.dockerImage}
-          >
-            image: {item?.dockerImage.split('/')[1]}
-          </Link>
+
+            <div className="flex items-center whitespace-nowrap min-w-0">
+              <span className="flex-shrink-0">docker tag : {item?.dockerImage.split(':')[1]}</span>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(item?.dockerImage);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="inline-flex items-center ml-1 p-1 hover:bg-gray-100 rounded-md"
+              >
+                {copied ? (
+                  <Check className="w-4 h-4 text-green-500" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+              </button>
+
+              <div className="flex items-center whitespace-nowrap min-w-0 gap-2">
+
+            </div>
+
+
+            </div>
+
         </div>
       </div>
       <div className="pl-1">
