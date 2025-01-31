@@ -44,9 +44,10 @@ async function fetchPageData(path, searchParams) {
  */
 export async function generateMetadata({ params, searchParams }) {
     const finalParams = await params;
+    const finalSearchParams = await searchParams;
     const slug = finalParams.slug;
     const path = "/docs/latest/" + (slug || "getting-started");
-    const { pageAsset } = await fetchPageData(path, searchParams);
+    const { pageAsset } = await fetchPageData(path, finalSearchParams);
 
     return {
         title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title) + " | dotCMS Documentation",
@@ -82,8 +83,8 @@ export default async function Home({ searchParams, params }) {
     // "path-name": (contentlet) => <ComponentName contentlet={contentlet} />,
     const componentMap = {
         "changelogs": (data) => <ChangeLogList {...data} slug={slug} changelogData={getChangelog({ 
-            page: searchParams?.page ? searchParams.page : 1, 
-            isLts: searchParams?.lts?true:false, limit: 10 })} />,
+            page: finalSearchParams?.page ? finalSearchParams.page : 1, 
+            isLts: finalSearchParams?.lts?true:false, limit: 10 })} />,
         default: (data) => <Documentation {...data} slug={slug} />
     };
 

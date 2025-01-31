@@ -43,7 +43,7 @@ const NavTree = React.memo(({ items, currentPath, level = 0 }) => {
             {items.map((item) => (
             <div key={item.title} className="mb-5">
                 <div className="py-1 px-2 font-semibold">{item.title}</div>
-                <SubNavTree items={item.dotcmsdocumentationchildren} currentPath={currentPath} level="0"/>
+                <SubNavTree items={item.dotcmsdocumentationchildren} currentPath={currentPath} level={level+1}/>
             </div>
             ))}
         </div>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-export const OnThisPage = ({selectors}) => {
+export const OnThisPage = ({selectors, showOnThisPage = true}) => {
   const [items, setItems] = useState([]);
   const mySelectors = selectors || 'main h2, main h3, main h4, main h1, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4';
   
@@ -56,8 +56,10 @@ export const OnThisPage = ({selectors}) => {
   }
 
   return (
-    <div className="sticky top-8 w-64">
+    <div className="sticky top-8">
+        {showOnThisPage && (
       <h3 className="mb-4 text-sm font-semibold">On This Page</h3>
+        )}
       <nav className="text-sm">
         <ul className="space-y-2 text-muted-foreground">
           {items.map((item) => (
