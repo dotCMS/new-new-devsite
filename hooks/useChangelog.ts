@@ -4,7 +4,11 @@ import { getChangelog } from '@/services/content/getChangelog/getChangelog';
 
 interface ChangelogData {
   changelogs: any[];
-  totalPages: number;
+  pagination: {
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
 }
 
 export function useChangelog(currentPage: number = 1, isLts: boolean = false) {
@@ -43,7 +47,7 @@ export function useChangelog(currentPage: number = 1, isLts: boolean = false) {
     page,
     handleNextPage,
     handlePrevPage,
-    hasNextPage: data?.totalPages ? page < data.totalPages : false,
-    hasPrevPage: page > 1
+    hasNextPage: data?.pagination?.hasNextPage || false,
+    hasPrevPage: data?.pagination?.hasPreviousPage || false
   };
 } 

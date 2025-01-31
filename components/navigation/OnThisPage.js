@@ -3,13 +3,15 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-export const OnThisPage = () => {
+export const OnThisPage = ({selectors, showOnThisPage = true}) => {
   const [items, setItems] = useState([]);
-
+  const mySelectors = selectors || 'main h2, main h3, main h4, main h1, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4';
+  
+  console.log("mySelectors", mySelectors)
+  
   useEffect(() => {
     const generateTOC = () => {
-      const headers = document.querySelectorAll('.markdown-content h2, .markdown-content h3, .markdown-content h4, article h1, article h2, article h3, article h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4');
-      
+      const headers = document.querySelectorAll(mySelectors);
       const toc = Array.from(headers).map((header) => {
         // Generate an ID if one doesn't exist
         if (!header.id) {
@@ -37,7 +39,7 @@ export const OnThisPage = () => {
 
     // Re-generate if content changes
     const observer = new MutationObserver(generateTOC);
-    const markdownContent = document.querySelector('.markdown-content');
+    const markdownContent = document.querySelector(mySelectors);
     
     if (markdownContent) {
       observer.observe(markdownContent, {
@@ -54,8 +56,10 @@ export const OnThisPage = () => {
   }
 
   return (
-    <div className="sticky top-8 w-64">
+    <div className="sticky top-8">
+        {showOnThisPage && (
       <h3 className="mb-4 text-sm font-semibold">On This Page</h3>
+        )}
       <nav className="text-sm">
         <ul className="space-y-2 text-muted-foreground">
           {items.map((item) => (
