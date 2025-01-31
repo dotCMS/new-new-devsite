@@ -1,7 +1,7 @@
 'use client'
 
 import OnThisPage from '../navigation/OnThisPage'
-import ChangeLogEntry from './ChangeLogEntry'
+import ChangeLogEntry from '../changelogs/ChangeLogEntry'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import {

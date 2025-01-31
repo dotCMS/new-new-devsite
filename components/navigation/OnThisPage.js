@@ -7,8 +7,7 @@ export const OnThisPage = ({selectors, showOnThisPage = true}) => {
   const [items, setItems] = useState([]);
   const mySelectors = selectors || 'main h2, main h3, main h4, main h1, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4';
   
-  console.log("mySelectors", mySelectors)
-  
+
   useEffect(() => {
     const generateTOC = () => {
       const headers = document.querySelectorAll(mySelectors);

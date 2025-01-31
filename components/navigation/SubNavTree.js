@@ -17,7 +17,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
     
     const relevantPath = currentPath.replace(/^\/docs\/latest\//, '');
     if(relevantPath === 'table-of-contents' && localStorage) {
-        localStorage.removeItem(STORAGE_KEY);
+        //localStorage.removeItem(STORAGE_KEY);
     }
   const [openSections, setOpenSections] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -35,6 +35,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
         : [...prev, urlTitle];
       
       if (newSections.length > 0) {
+        console.log('newSections', newSections);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(newSections));
       } else {
         localStorage.removeItem(STORAGE_KEY);
