@@ -3,13 +3,15 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-export const OnThisPage = () => {
+export const OnThisPage = ({selectors}) => {
   const [items, setItems] = useState([]);
-
+  const mySelectors = selectors || 'main h2, main h3, main h4, main h1, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4';
+  
+  console.log("mySelectors", mySelectors)
+  
   useEffect(() => {
     const generateTOC = () => {
-      const headers = document.querySelectorAll('.markdown-content h2, .markdown-content h3, .markdown-content h4, article h1, article h2, article h3, article h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4');
-      
+      const headers = document.querySelectorAll(mySelectors);
       const toc = Array.from(headers).map((header) => {
         // Generate an ID if one doesn't exist
         if (!header.id) {

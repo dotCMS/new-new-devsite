@@ -5,14 +5,14 @@ import Link from 'next/link';
 import { ChevronRight, Home } from 'lucide-react';
 import { cn } from "@/util/utils";
 
-const Breadcrumbs = React.memo(({ items, currentPath }) => {
+const Breadcrumbs = React.memo(({ items, slug }) => {
   const [breadcrumbs, setBreadcrumbs] = useState([]);
-  const relevantPath = currentPath.replace(/^\/docs\/latest\//, '');
+  const relevantPath = slug.replace(/^\/docs\/latest\//, '');
 
   useEffect(() => {
-    const findPath = (items, target, currentPath = []) => {
+    const findPath = (items, target, slug = []) => {
       for (const item of items) {
-        const newPath = [...currentPath, item];
+        const newPath = [...slug, item];
         
         if (item.urlTitle === target) {
           setBreadcrumbs(newPath);

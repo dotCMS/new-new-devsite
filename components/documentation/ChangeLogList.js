@@ -1,58 +1,36 @@
 
-import Link from 'next/link'
-import MarkdownContent, { RenderMDX } from '../MarkdownContent'
-import { extractDateForTables } from '../../util/formatDate'
-
-export default async function ChangeLogContainer( {data, changelogData} ) {
+import OnThisPage from '../navigation/OnThisPage'
+import ChangeLogEntry from './ChangeLogEntry'
+export default async function ChangeLogContainer({ changelogData }) {
 
     //console.log("data", await changelogData)
-    const {changelogs, totalPages} = await changelogData
+    const { changelogs, pagination } = await changelogData
+
+    console.log("pagination", pagination)
+    if (!changelogs || changelogs.length === 0) return <div>No data</div>
 
 
-  if (!changelogs || changelogs.length === 0) return <div>No data</div>
 
-  const parseBodyToLines = (body) => {
-    if (body) return body.split('\n')
-    return []
-  }
-
-  return (
-    <>
-
-
-      {changelogs.map((item, index) => (
-        <div key={index} className="pb-[2em]">
-          {item?.minor && (
-            <h2
-              className="nx-font-semibold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100 nx-mt-10 nx-border-b nx-pb-1 nx-text-3xl nx-border-neutral-200/70 contrast-more:nx-border-neutral-400 dark:nx-border-primary-100/10 contrast-more:dark:nx-border-neutral-400 group mb-[0.2em] pb-[0.2em]"
-              id={item?.minor}
+    return (
+        <div className="max-w-[1400px] mx-auto flex">
+            <main
+                className="flex-1 px-12
+            [&::-webkit-scrollbar]:w-1.5
+            [&::-webkit-scrollbar-track]:bg-transparent
+            [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
+            [&::-webkit-scrollbar-thumb]:rounded-full
+            hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20"
             >
-              {item?.minor}
-              <Link href={`#${item?.minor}`} id={`${item?.minor}`} className="subheading-anchor" />
-            </h2>
-          )}
-          <span className="flex justify-between">
-            <span className="font-bold">Available: {extractDateForTables(item?.publishDate)}</span>
-            <span className="font-bold">
-              <Link
-                className="text-ceruleanBlue"
-                href={
-                  item?.dockerImage
-                    ? `https://hub.docker.com/r/dotcms/dotcms/tags?name=${item.dockerImage.split(':')[1]}`
-                    : 'https://hub.docker.com/r/dotcms/dotcms/tags'
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {item?.starter || 0}
-              </Link>
-            </span>
-          </span>
-          {parseBodyToLines(item?.releaseNotes).map((text, i) =>
-            text ? <MarkdownContent content={item?.releaseNotes} key={"changelogMarkdown"+i} /> : null
-          )}
+                <h1 className="text-4xl font-bold mb-6">Changelogs</h1>
+                {changelogs.map((item, index) => (
+                    <ChangeLogEntry key={index} item={item} />
+                ))}
+            </main>
+            <div className="w-64 shrink-0 hidden xl:block">
+                <div className="sticky top-16 pt-8 pl-8">
+                    <OnThisPage selectors={"main h2"} />
+                </div>
+            </div>
         </div>
-      ))}
-    </>
-  )
+    )
 }
