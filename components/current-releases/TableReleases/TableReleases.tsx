@@ -60,103 +60,101 @@ export const TableReleases: FC<{}> = () => {
   if (!Array.isArray(releases) || releases.length === 0) return <>No data</>;
   return (
     <div className="w-full">
-      <p className="m-6  text-gray-500">
+      <p className="m-6 text-gray-500 dark:text-gray-400">
         The latest Current and LTS releases are available as supported docker
         images. Click to copy the Docker image tag (will include the entire
         docker image name).
       </p>
-      <div className="min-w-[50%] overflow-hidden rounded-lg border border-gray-200 bg-white shadow">
-        <table className="w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="min-w-[50%] overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow">
+        <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-900">
             <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Release Type
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Version
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Docker Tag
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Released
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
                 EOL Date
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            <tr className="hover:bg-gray-50 transition-colors">
-              <td className="px-6 py-4 text-sm text-gray-900">Current</td>
-              <td className="px-6 py-4 text-sm text-gray-900">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+            <tr className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">Current</td>
+              <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
                 <Link href={`changelogs?lts=true#v${latestReleases?.minor}`}>
                   {latestReleases?.minor}
                 </Link>
               </td>
-              <td className="px-6 py-4 text-sm text-gray-500">
+              <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                 <div className="flex items-center space-x-2">
-                  <code className={`font-mono`}>
+                  <code className="font-mono">
                     {latestReleases?.dockerImage}
                   </code>
                   <button
-                    onClick={() =>
-                      handleCopy(
-                        latestReleases?.dockerImage.split(":").pop() || "",
-                        "current"
-                      )
-                    }
-                    className="p-1 hover:bg-gray-100 rounded-md transition-colors"
+                    onClick={() => handleCopy(latestReleases?.dockerImage || '', "current")}
+                    className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                     aria-label="Copy docker image"
                   >
                     {copiedStates["current"] ? (
                       <Check className="w-4 h-4 text-green-500" />
                     ) : (
-                      <Copy className="w-4 h-4 text-gray-500" />
+                      <Copy className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     )}
                   </button>
                 </div>
               </td>
-              <td className="px-6 py-4 text-sm text-gray-500 font-mono">
+              <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 font-mono">
                 {extractDateForTables(latestReleases?.releasedDate)}
               </td>
-              <td className="px-6 py-4 text-sm text-gray-500 font-mono">
+              <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 font-mono">
                 {extractDateForTables(latestReleases?.eolDate)}
               </td>
             </tr>
             {ltses?.map((latestLts, index) => (
-              <tr key={`lts-${index}-${latestLts.minor}`} className="hover:bg-gray-50 transition-colors">
-                <td className={`px-6 py-4 text-sm text-gray-900 ${isEolPassed(latestLts?.eolDate) ? 'line-through' : ''}`}>LTS</td>
-                <td className="px-6 py-4 text-sm text-gray-900">
-                  <Link href={`changelogs?lts=true#v${latestLts?.minor}`} className={`${isEolPassed(latestLts?.eolDate) ? 'line-through' : ''}`}>
+              <tr key={`lts-${index}-${latestLts.minor}`} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <td className={`px-6 py-4 text-sm text-gray-900 dark:text-gray-100 ${isEolPassed(latestLts?.eolDate) ? 'line-through' : ''}`}>
+                  LTS
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
+                  <Link 
+                    href={`changelogs?lts=true#v${latestLts?.minor}`}
+                    className={`${isEolPassed(latestLts?.eolDate) ? 'line-through' : ''}`}
+                  >
                     {latestLts?.minor}
                   </Link>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-500">
+                <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                   <div className="flex items-center space-x-2">
                     <code className={`font-mono ${isEolPassed(latestLts?.eolDate) ? 'line-through' : ''}`}>
                       {latestLts?.dockerImage}
                     </code>
                     <button
                       onClick={() => handleCopy(latestLts?.dockerImage || '', `lts${index + 1}`)}
-                      className="p-1 hover:bg-gray-100 rounded-md transition-colors"
+                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                       aria-label="Copy docker image"
                     >
                       {copiedStates[`lts${index + 1}`] ? (
                         <Check className="w-4 h-4 text-green-500" />
                       ) : (
-                        <Copy className="w-4 h-4 text-gray-500" />
+                        <Copy className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                       )}
                     </button>
                   </div>
                 </td>
-                <td className={`px-6 py-4 text-sm text-gray-500 font-mono ${isEolPassed(latestLts?.eolDate) ? 'line-through' : ''}`}>
+                <td className={`px-6 py-4 text-sm text-gray-500 dark:text-gray-400 font-mono ${isEolPassed(latestLts?.eolDate) ? 'line-through' : ''}`}>
                   {extractDateForTables(latestLts?.releasedDate)}
                 </td>
-                <td className={`px-6 py-4 text-sm text-gray-500 font-mono ${isEolPassed(latestLts?.eolDate) ? 'line-through' : ''}`}>
-                  {extractDateForTables(
-                    latestLts?.parent?.eolDate || latestLts?.eolDate
-                  )}
+                <td className={`px-6 py-4 text-sm text-gray-500 dark:text-gray-400 font-mono ${isEolPassed(latestLts?.eolDate) ? 'line-through' : ''}`}>
+                  {extractDateForTables(latestLts?.eolDate)}
                 </td>
               </tr>
             ))}
