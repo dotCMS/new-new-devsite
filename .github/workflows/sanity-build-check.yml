@@ -1,10 +1,11 @@
 name: Sanity Build Check
 
 on:
-  pull_request:
-    branches: [ testing, main ]
-  push:
-    branches: [ main,testing ]
+  # Disabled because Vercel suppies this
+  #pull_request:
+    #branches: [ testing, main ]
+  #push:
+    #branches: [ main,testing ]
   workflow_dispatch:
 
 jobs:

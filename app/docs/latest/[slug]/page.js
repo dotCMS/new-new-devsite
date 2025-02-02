@@ -10,8 +10,8 @@ import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import Documentation from "@/components/documentation/Documentation";
 import ChangeLogList from "@/components/changelogs/ChangeLogList";
-import { getChangelog } from "@/services/content/getChangelog/getChangelog";
 import NavTree from "@/components/navigation/NavTree";
+import CurrentReleases from "@/components/current-releases/CurrentReleases";
 
 async function fetchPageData(path, searchParams) {
     const finalPath = await path;
@@ -80,9 +80,8 @@ export default async function Home({ searchParams, params }) {
     // Add more path-component mappings here as needed:
     // "path-name": (contentlet) => <ComponentName contentlet={contentlet} />,
     const componentMap = {
-        "changelogs": (data) => <ChangeLogList {...data} slug={slug} changelogData={getChangelog({ 
-            page: finalSearchParams?.page ? finalSearchParams.page : 1, 
-            isLts: finalSearchParams?.lts?true:false, limit: 10 })} />,
+        "changelogs": (data) => <ChangeLogList {...data} slug={slug}     />,
+        "current-releases": (data) => <CurrentReleases  {...data} slug={slug} />,
         default: (data) => <Documentation {...data} slug={slug} />
     };
 
