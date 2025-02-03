@@ -97,15 +97,17 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
     code: ({ node, inline, className, children, ...props }: any) => {
       const match = /language-(\w+)/.exec(className || '')
       return !inline && match ? (
-        <SyntaxHighlighter
-          style={vscDarkPlus}
-          language={match[1]}
-          PreTag="div"
-          className="rounded-md mb-6"
-          {...props}
-        >
-          {String(children).replace(/\n$/, '')}
-        </SyntaxHighlighter>
+        <div className="mb-6">
+          <SyntaxHighlighter
+            style={vscDarkPlus}
+            language={match[1]}
+            PreTag="div"
+            className="rounded-md [&>pre]:!m-0"
+            {...props}
+          >
+            {String(children).replace(/\n$/, '')}
+          </SyntaxHighlighter>
+        </div>
       ) : (
         <code className="bg-[#F6F6F7] text-[#000000] text-sm font-mono px-1 py-0.5 rounded whitespace-normal" {...props}>
           {children}
@@ -130,7 +132,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
     },
     table({ children }) {
       return (
-        <Table className="border-[#E5E7EB] border border-collapse">{children}</Table>
+        <Table className="border-[#E5E7EB] border border-collapse mb-6">{children}</Table>
       )
     },
     thead({ children }) {
