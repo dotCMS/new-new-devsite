@@ -1,18 +1,29 @@
 import { ConfigDict } from '@/util/constants';
-import { SIZE_PAGE } from './config';
+
 import { logRequest } from '@/util/logRequest';
 import { getGraphqlResults } from '@/util/gql';
+import { FilterReleases } from './types';
+export const getReleases = async (limit: number = 50, page: number = 1, filter: FilterReleases = FilterReleases.ALL, log: boolean = false, version: string = "") => {
+  var buildQuery = '+contentType:Dotcmsbuilds +Dotcmsbuilds.download:1 +Dotcmsbuilds.released:true +live:true';
 
-export const getCurrentRelease = async () => {
-  const buildQuery = '+contentType:Dotcmsbuilds +Dotcmsbuilds.download:1 +Dotcmsbuilds.released:true +live:true';
+  if (version) {
+    buildQuery += ` +Dotcmsbuilds.minor:*${version}*`;
+  }
+  console.log("filter",filter);
+  if (filter === FilterReleases.LTS) {
+    buildQuery += ' -Dotcmsbuilds.lts:3';
+  }else if (filter === FilterReleases.CURRENT) {
+    buildQuery += ' +Dotcmsbuilds.lts:3';
+  }
+
 
 
 
   const query = `query ContentAPI {
     DotcmsbuildsCollection(
         query: "${buildQuery} "
-    limit: 50
-    page: 1
+    limit: ${limit}
+    page: ${page}
     sortBy: "Dotcmsbuilds.releasedDate desc"
   ) {
     title
@@ -48,6 +59,9 @@ export const getCurrentRelease = async () => {
   }
 }`;
 
+if (log) {
+  console.log("query",query);
+}
 const data = await logRequest(async () => getGraphqlResults(query), 'getCurrentRelease');
 
 return {releases: data.DotcmsbuildsCollection, pagination: data.Pagination[0]};

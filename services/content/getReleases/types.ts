@@ -43,3 +43,10 @@ export type TReleaseNotes = {
   contentTypeIcon: string
   variant: string
 }
+
+
+export enum FilterReleases {
+    ALL,
+    CURRENT,
+    LTS
+  }
