@@ -32,7 +32,7 @@ const Breadcrumbs = React.memo(({ items, slug }) => {
   }, [items, relevantPath]);
 
   if (breadcrumbs.length === 0) {
-    return (<nav className="flex items-center space-x-1 text-sm text-muted-foreground mb-6 min-h-5"></nav>);
+    return (<></>)
   }
 
   return (
