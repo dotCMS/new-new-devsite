@@ -11,8 +11,8 @@ import Footer from "@/components/footer";
 import Documentation from "@/components/documentation/Documentation";
 import ChangeLogList from "@/components/changelogs/ChangeLogList";
 import NavTree from "@/components/navigation/NavTree";
-import CurrentReleases from "@/components/current-releases/CurrentReleases";
-
+import CurrentReleases from "@/components/releases/CurrentReleases";
+import AllReleases from "@/components/releases/AllReleases";
 async function fetchPageData(path, searchParams) {
     const finalPath = await path;
     const finalSearchParams = await searchParams;
@@ -82,6 +82,8 @@ export default async function Home({ searchParams, params }) {
     const componentMap = {
         "changelogs": (data) => <ChangeLogList {...data} slug={slug}     />,
         "current-releases": (data) => <CurrentReleases  {...data} slug={slug} />,
+        "all-releases": (data) => <AllReleases  {...data} slug={slug} />,
+        "previous-releases": (data) => <AllReleases  {...data} slug={slug} />,
         default: (data) => <Documentation {...data} slug={slug} />
     };
 
