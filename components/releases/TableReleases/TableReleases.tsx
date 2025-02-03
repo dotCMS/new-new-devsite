@@ -175,7 +175,7 @@ export const TableReleases: FC<{showCurrent: boolean, limit?: number, page?: num
                 </td>
                 {showLtsColumn && (   
                 <td className={`px-6 py-4 text-sm text-gray-500 dark:text-gray-400 text-center text-nowrap font-mono ${isEolPassed(release.eolDate) ? 'line-through' : ''}`}>
-                  {extractDateForTables(release.eolDate)}
+                  {release.lts === "3" ? "-" : extractDateForTables(release.eolDate)}
                 </td>
                 )}
               </tr>
