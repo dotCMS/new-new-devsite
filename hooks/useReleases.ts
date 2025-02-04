@@ -14,7 +14,7 @@ interface ReleaseData {
 const filterCurrentReleases = (releases: any[]) => {
 
     const latestCurrent = releases.filter((release) => release.lts === "3")[0];
-    const latestLtses = releases.filter((release) => release.lts === "1");
+    const latestLtses = releases.filter((release) => release.lts === "1" && new Date(release.eolDate) > new Date());
     const versions: typeof latestLtses = [];
 
     const ltsesMap = new Map();

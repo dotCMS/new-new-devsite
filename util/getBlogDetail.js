@@ -26,6 +26,8 @@ export async function getBlogDetailQuery(urlTitle) {
           twitter
           image{
             versionPath
+            idPath
+            name
             
           }
         }

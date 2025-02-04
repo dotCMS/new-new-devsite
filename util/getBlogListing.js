@@ -48,6 +48,7 @@ export async function getBlogListing({tagFilter, page, pageSize}) {
                 fileAsset {
                     versionPath
                     name
+                    idPath
                 }
                 description
             }
