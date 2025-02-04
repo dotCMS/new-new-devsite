@@ -57,29 +57,37 @@ export const OnThisPage = ({selectors, showOnThisPage = true}) => {
 
   return (
     <div className="sticky top-8">
-        {showOnThisPage && (
-      <h3 className="mb-4 text-sm font-semibold">On This Page</h3>
-        )}
+      {showOnThisPage && (
+        <h3 className="mb-4 text-sm font-semibold">On This Page</h3>
+      )}
       <nav className="text-sm">
         <ul className="space-y-2 text-muted-foreground">
-          {items.map((item) => (
-            <li 
-              key={item.id}
-              className={`
-                ${item.level === 1 ? 'ml-0' : ''}
-                ${item.level === 2 ? 'ml-3' : ''}
-                ${item.level === 3 ? 'ml-6' : ''}
-              `}
-            >
-              <Link 
-                href={`#${item.id}`} 
-                className="hover:text-foreground transition-colors"
-                onClick={smoothScroll}
+          {items.map((item, index) => {
+            // Check if this item has any children
+            const hasChildren = items.some((otherItem, otherIndex) => 
+              otherIndex > index && otherItem.level > item.level
+            );
+            
+            return (
+              <li 
+                key={item.id}
+                className={`
+                  ${item.level === 1 ? 'ml-0' : ''}
+                  ${item.level === 2 ? 'ml-3' : ''}
+                  ${item.level === 3 ? 'ml-6' : ''}
+                  ${hasChildren ? 'font-semibold' : 'font-normal text-muted-foreground'}
+                `}
               >
-                {item.title}
-              </Link>
-            </li>
-          ))}
+                <Link 
+                  href={`#${item.id}`} 
+                  className="hover:text-foreground transition-colors block"
+                  onClick={smoothScroll}
+                >
+                  {item.title}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </nav>
     </div>
