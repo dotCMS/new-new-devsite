@@ -30,6 +30,7 @@ const NavTree = React.memo(({ items, currentPath, level = 0 }) => {
     <nav 
         ref={navRef}
         className="h-[calc(100vh-4rem)] overflow-y-auto sticky top-16 p-4 pt-8 px-2
+        lg:block
         [&::-webkit-scrollbar]:w-1.5
         [&::-webkit-scrollbar-track]:bg-transparent
         [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
