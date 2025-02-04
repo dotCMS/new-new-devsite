@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { smoothScroll } from '@/util/smoothScroll';
 
 export const OnThisPage = ({selectors, showOnThisPage = true}) => {
   const [items, setItems] = useState([]);
-  const mySelectors = selectors || 'main h2, main h3, main h4, main h1, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4';
+  const mySelectors = selectors || 'main h2, main h3, main h4, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4';
   
 
   useEffect(() => {
@@ -55,31 +56,25 @@ export const OnThisPage = ({selectors, showOnThisPage = true}) => {
   }
 
   return (
-    <div className="sticky top-8">
-        {showOnThisPage && (
-      <h3 className="mb-4 text-sm font-semibold">On This Page</h3>
-        )}
+    <div className="sticky top-8 pb-12">
+      {showOnThisPage && (
+        <h3 className="mb-4 text-sm font-semibold">On This Page</h3>
+      )}
       <nav className="text-sm">
         <ul className="space-y-2 text-muted-foreground">
           {items.map((item) => (
             <li 
               key={item.id}
               className={`
-                ${item.level === 1 ? 'ml-0' : ''}
-                ${item.level === 2 ? 'ml-3' : ''}
-                ${item.level === 3 ? 'ml-6' : ''}
+                ${item.level === 1 ? 'ml-0 font-semibold' : ''}
+                ${item.level === 2 ? 'ml-0 font-semibold' : ''}
+                ${(item.level === 3 || item.level === 4) ? 'ml-3 font-normal text-muted-foreground' : ''}
               `}
             >
               <Link 
                 href={`#${item.id}`} 
-                className="hover:text-foreground transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById(item.id)?.scrollIntoView({ 
-                    behavior: 'smooth',
-                    block: 'start'
-                  });
-                }}
+                className="hover:text-foreground transition-colors block"
+                onClick={smoothScroll}
               >
                 {item.title}
               </Link>

@@ -19,9 +19,19 @@ Table.displayName = "Table"
 const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
->(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
-))
+>(({ className, ...props }, ref) => {
+  // Check if the thead has any content
+  const children = React.Children.toArray(props.children);
+  const hasContent = children.length > 0 && children.some((child: any) => 
+    React.Children.count(child.props?.children) > 0
+  );
+
+  if (!hasContent) return null;
+
+  return (
+    <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
+  );
+})
 TableHeader.displayName = "TableHeader"
 
 const TableBody = React.forwardRef<
