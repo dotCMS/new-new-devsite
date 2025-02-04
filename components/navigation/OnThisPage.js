@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { smoothScroll } from '@/util/smoothScroll';
 
 export const OnThisPage = ({selectors, showOnThisPage = true}) => {
   const [items, setItems] = useState([]);
@@ -73,13 +74,7 @@ export const OnThisPage = ({selectors, showOnThisPage = true}) => {
               <Link 
                 href={`#${item.id}`} 
                 className="hover:text-foreground transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById(item.id)?.scrollIntoView({ 
-                    behavior: 'smooth',
-                    block: 'start'
-                  });
-                }}
+                onClick={smoothScroll}
               >
                 {item.title}
               </Link>
