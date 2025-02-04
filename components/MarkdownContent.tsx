@@ -136,7 +136,16 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       )
     },
     thead({ children }) {
-      return <TableHeader>{children}</TableHeader>
+      // Check if thead has any content
+      const hasContent = React.Children.toArray(children).some((child: any) => {
+        if (!child.props?.children) return false;
+        // Check if there's any text content in the th cells
+        return React.Children.toArray(child.props.children).some((th: any) => 
+          th.props?.children && th.props.children.length > 0
+        );
+      });
+
+      return hasContent ? <TableHeader>{children}</TableHeader> : null;
     },
     tbody({ children }) {
       return <TableBody>{children}</TableBody>
