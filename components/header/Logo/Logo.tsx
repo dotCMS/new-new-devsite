@@ -6,12 +6,12 @@ import Link from 'next/link';
 import { LOGO_DEFAULT, LOGO_WIDTH, LOGO_HEIGHT, LOGO_ALT, LOGO_DEFAULT_DARK } from './config';
 import { useTheme } from "next-themes";
 
-function Logo() {
+export default function Logo() {
   const { theme } = useTheme();
 
   
   return (
-    <Link href="/" passHref className="flex items-center">
+    <Link href="/" className="max-w-[100px] flex items-center">
       <Image
         width={LOGO_WIDTH}
         height={LOGO_HEIGHT}
@@ -23,5 +23,3 @@ function Logo() {
     </Link>
   );
 };
-
-export default Logo;
