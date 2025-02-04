@@ -1,13 +1,20 @@
 "use client"
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-
 import SubNavTree from '@/components/navigation/SubNavTree';
+
 const SCROLL_STORAGE_KEY = 'docs-nav-scroll';
-const NavTree = React.memo(({ items, currentPath, level = 0, isMobile = false }) => {
+
+type NavTreeProps = {
+  items: any[];
+  currentPath: string;
+  level?: number;
+  isMobile?: boolean;
+}
+
+const NavTree = React.memo(({ items, currentPath, level = 0, isMobile = false }: NavTreeProps) => {
     const navRef = useRef(null);
 
-    // Save scroll position before unload
     useEffect(() => {
         if (isMobile) return; // Don't manage scroll for mobile view
         
