@@ -1,19 +1,19 @@
 "use client"
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import SubNavTree from '@/components/navigation/SubNavTree';
+import SubNavTree from './SubNavTree';
 
 const SCROLL_STORAGE_KEY = 'docs-nav-scroll';
 
 type NavTreeProps = {
   items: any[];
-  currentPath: string;
+  currentPath?: string;
   level?: number;
   isMobile?: boolean;
 }
 
-const NavTree = React.memo(({ items, currentPath, level = 0, isMobile = false }: NavTreeProps) => {
-    const navRef = useRef(null);
+const NavTree = React.memo(({ items, currentPath = "", level = 0, isMobile = false }: NavTreeProps) => {
+    const navRef = useRef<HTMLElement | null>(null);
 
     useEffect(() => {
         if (isMobile) return; // Don't manage scroll for mobile view
@@ -29,7 +29,9 @@ const NavTree = React.memo(({ items, currentPath, level = 0, isMobile = false }:
 
         // Save scroll position on scroll
         const handleScroll = () => {
-            localStorage.setItem(SCROLL_STORAGE_KEY, Math.round(nav.scrollTop).toString());
+            if (nav) {
+                localStorage.setItem(SCROLL_STORAGE_KEY, Math.round(nav.scrollTop).toString());
+            }
         };
 
         nav.addEventListener('scroll', handleScroll);

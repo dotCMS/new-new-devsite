@@ -30,7 +30,12 @@ import { SearchModal } from "../chat/SearchModal";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import NavTree from "@/components/navigation/NavTree";
 
-export default function Header({ sideNavItems, currentPath }) {
+type HeaderProps = {
+  sideNavItems?: any[];
+  currentPath?: string;
+}
+
+export default function Header({ sideNavItems, currentPath }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
@@ -230,7 +235,7 @@ export default function Header({ sideNavItems, currentPath }) {
       </div>
 
       {/* Mobile Navigation Menu */}
-      {isMobileMenuOpen && (
+      {isMobileMenuOpen && sideNavItems && (
         <div className="lg:hidden border-b bg-background overflow-y-auto h-[calc(100vh-4rem)]
           [&::-webkit-scrollbar]:w-1.5
           [&::-webkit-scrollbar-track]:bg-transparent
