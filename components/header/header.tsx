@@ -28,8 +28,9 @@ import GithubLink from "./GithubLink";
 import Logo from "./Logo/Logo";
 import { SearchModal } from "../chat/SearchModal";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import NavTree from "@/components/navigation/NavTree";
 
-export default function Header() {
+export default function Header({ sideNavItems, currentPath }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
@@ -53,22 +54,22 @@ export default function Header() {
   const NavItems = ({ isMobile }: { isMobile?: boolean }) => {
     if (isMobile) {
       return (
-        <nav className="flex flex-col space-y-4">
+        <nav className="flex flex-col pb-6">
           <Link 
             href="/docs/latest/table-of-contents" 
-            className={cn(navigationMenuTriggerStyle(), "w-full justify-start")}
+            className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2")}
           >
             Documentation
           </Link>
           <Link 
             href="/blog" 
-            className={cn(navigationMenuTriggerStyle(), "w-full justify-start")}
+            className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2 mt-1")}
           >
             Blog
           </Link>
           <Link 
             href="/videos" 
-            className={cn(navigationMenuTriggerStyle(), "w-full justify-start")}
+            className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2 mt-1")}
           >
             Videos
           </Link>
@@ -205,13 +206,31 @@ export default function Header() {
                 <Menu className="h-6 w-6" />
               </button>
             </SheetTrigger>
-            <SheetContent side="right">
-              <VisuallyHidden asChild>
-                <SheetTitle>Navigation Menu</SheetTitle>
-              </VisuallyHidden>
-              <div className="flex flex-col h-full py-6">
-                <div className="flex flex-col space-y-2">
-                  <NavItems isMobile />
+            <SheetContent 
+              side="right" 
+              className="w-full sm:w-[540px] sm:max-w-full p-0"
+            >
+              <div className="h-full overflow-y-auto">
+                <div className="p-6 flex flex-col h-full">
+                  <VisuallyHidden asChild>
+                    <SheetTitle>Navigation Menu</SheetTitle>
+                  </VisuallyHidden>
+                  
+                  {/* Side Navigation Tree */}
+                  <div className="flex-1">
+                    {sideNavItems && (
+                      <NavTree
+                        items={sideNavItems}
+                        currentPath={currentPath}
+                        isMobile={true}
+                      />
+                    )}
+                  </div>
+
+                  {/* Main Navigation Links at Bottom */}
+                  <div className="border-t pt-6">
+                    <NavItems isMobile />
+                  </div>
                 </div>
               </div>
             </SheetContent>

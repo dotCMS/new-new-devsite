@@ -90,7 +90,7 @@ export default async function Home({ searchParams, params }) {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
+            <Header sideNavItems={sideNav[0]?.dotcmsdocumentationchildren || []} currentPath={slug} />
             
             <div className="flex-1">
                 <div className="flex flex-col lg:flex-row container mx-auto px-0">
