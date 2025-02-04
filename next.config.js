@@ -42,9 +42,29 @@ const nextConfig = {
                     source: "/contentAsset/image/:path*",
                     destination: `${url.origin}/contentAsset/image/:path*`,
                 },
+                {
+                    source: '/sitemap.xml',
+                    destination: '/api/sitemap'
+                }
             ],
+            afterFiles: [
+ 
+            ]
         };
     },
+    async headers() {
+        return [
+          {
+            source: '/:path*',
+            headers: [
+              {
+                key: 'X-Robots-Tag',
+                value: 'noindex, nofollow'
+              }
+            ]
+          }
+        ]
+      },
 };
 
 module.exports = nextConfig;
