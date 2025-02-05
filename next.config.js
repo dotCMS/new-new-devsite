@@ -24,7 +24,6 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: '*.public.blob.vercel-storage.com', // temporary solution to allow images to be served from vercel
             },
-        },
             {
                 protocol: 'https',
                 hostname: 'auth.dotcms.dev',
