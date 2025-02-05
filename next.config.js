@@ -4,7 +4,15 @@ const url = new URL(process.env.NEXT_PUBLIC_DOTCMS_HOST);
 
 const nextConfig = {
     reactStrictMode: true,
-
+    async redirects() {
+        return [
+          {
+            source: '/security/:path',
+            destination: '/docs/latest/known-security-issues?issueNumber=:path',
+            permanent: true,
+          },
+        ]
+      },
     images: {
         remotePatterns: [
             {
@@ -16,6 +24,7 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: '*.public.blob.vercel-storage.com', // temporary solution to allow images to be served from vercel
             },
+        },
             {
                 protocol: 'https',
                 hostname: 'auth.dotcms.dev',

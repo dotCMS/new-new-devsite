@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ChevronRight, Home } from 'lucide-react';
 import { cn } from "@/util/utils";
 
-const Breadcrumbs = React.memo(({ items, slug }) => {
+const Breadcrumbs = React.memo(({ items, slug, appendItems = [] }) => {
   const [breadcrumbs, setBreadcrumbs] = useState([]);
   const relevantPath = slug.replace(/^\/docs\/latest\//, '');
 
@@ -50,13 +50,22 @@ const Breadcrumbs = React.memo(({ items, slug }) => {
             href={`/docs/latest/${item.urlTitle}`}
             className={cn(
               "hover:text-foreground",
-              index === breadcrumbs.length - 1 ? "text-foreground font-medium" : ""
+              index === breadcrumbs.length - 1 && appendItems.length == 0 ? "text-foreground font-medium" : ""
             )}
           >
             {item.title}
           </Link>
         </React.Fragment>
       ))}
+
+      {appendItems.map((item, index) => (
+        <React.Fragment key={item.title}>
+          <ChevronRight className="h-4 w-4" />
+          <span className="text-foreground font-medium">{item.title}</span>
+          
+           
+        </React.Fragment>
+      ))}   
     </nav>
   );
 });

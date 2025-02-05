@@ -13,6 +13,7 @@ import ChangeLogList from "@/components/changelogs/ChangeLogList";
 import NavTree from "@/components/navigation/NavTree";
 import CurrentReleases from "@/components/releases/CurrentReleases";
 import AllReleases from "@/components/releases/AllReleases";
+import AllSecurityIssues from "../../../../components/security-issues/AllSecurityIssues";
 async function fetchPageData(path, searchParams) {
     const finalPath = await path;
     const finalSearchParams = await searchParams;
@@ -46,7 +47,7 @@ export async function generateMetadata({ params, searchParams }) {
     const slug = finalParams.slug;
     const path = "/docs/latest/" + (slug || "getting-started");
     const { pageAsset } = await fetchPageData(path, finalSearchParams);
-
+    console.log("gotpage",pageAsset.title);
     return {
         title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title) + " | dotCMS Documentation",
         description: pageAsset.urlContentMap._map.seoDescription,
@@ -64,7 +65,7 @@ export default async function Home({ searchParams, params }) {
     const finalParams = await params;
     const finalSearchParams = await searchParams;
     const headersList = await headers();
-    const pathname = headersList.get("x-invoke-path") || "";
+
 
     const slug = finalParams.slug;
     const path = "/docs/latest/" + (slug || "getting-started");
@@ -84,6 +85,8 @@ export default async function Home({ searchParams, params }) {
         "current-releases": (data) => <CurrentReleases  {...data} slug={slug} />,
         "all-releases": (data) => <AllReleases  {...data} slug={slug} />,
         "previous-releases": (data) => <AllReleases  {...data} slug={slug} />,
+        "known-security-issues": (data) => <AllSecurityIssues  {...data} slug={slug} />,
+        
         default: (data) => <Documentation {...data} slug={slug} />
     };
 
