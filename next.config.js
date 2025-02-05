@@ -4,7 +4,15 @@ const url = new URL(process.env.NEXT_PUBLIC_DOTCMS_HOST);
 
 const nextConfig = {
     reactStrictMode: true,
-
+    async redirects() {
+        return [
+          {
+            source: '/security/:path',
+            destination: '/docs/latest/known-security-issues?issueNumber=:path',
+            permanent: true,
+          },
+        ]
+      },
     images: {
         remotePatterns: [
             {
