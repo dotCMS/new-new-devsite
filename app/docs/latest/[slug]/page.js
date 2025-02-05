@@ -3,9 +3,9 @@ import { headers } from 'next/headers';
 
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
 
-import { getGraphqlResults, getGraphQLPageQuery } from "@/util/gql";
+import { getGraphqlResults, getGraphQLPageQuery } from "@/services/gql";
 
-import { getSideNav } from "@/util/getSideNav"
+import { getSideNav } from "@/services/docs/getSideNav"
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import Documentation from "@/components/documentation/Documentation";
@@ -13,7 +13,8 @@ import ChangeLogList from "@/components/changelogs/ChangeLogList";
 import NavTree from "@/components/navigation/NavTree";
 import CurrentReleases from "@/components/releases/CurrentReleases";
 import AllReleases from "@/components/releases/AllReleases";
-import AllSecurityIssues from "../../../../components/security-issues/AllSecurityIssues";
+import AllSecurityIssues from "@/components/security-issues/AllSecurityIssues";
+
 async function fetchPageData(path, searchParams) {
     const finalPath = await path;
     const finalSearchParams = await searchParams;

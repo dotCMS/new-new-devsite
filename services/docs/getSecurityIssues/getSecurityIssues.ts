@@ -1,6 +1,6 @@
 
 import { logRequest } from '@/util/logRequest';
-import { getGraphqlResults } from '@/util/gql';
+import { getGraphqlResults } from '@/services/gql';
 import { SecurityOrderBy } from './types';
 export const getSecurityIssues = async (
     limit: number = 50, 

@@ -1,4 +1,4 @@
-import { ConfigDict } from '@/util/constants';
+import { Config } from '@/util/config';
 import { SIZE } from './config';
 import { logRequest } from '@/util/logRequest';
 
@@ -16,9 +16,9 @@ export const getRecent = async (): Promise<TGetRecent | null> => {
     };
 
     const response = await logRequest(async () => {
-      return await fetch(`${ConfigDict.DotCMSHost}/api/content/_search`, {
+      return await fetch(`${Config.DotCMSHost}/api/content/_search`, {
         method: 'POST',
-        headers: ConfigDict.Headers,
+        headers: Config.Headers,
         body: JSON.stringify(query),
       });
     }, 'getRecent');

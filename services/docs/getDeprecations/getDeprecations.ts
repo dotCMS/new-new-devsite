@@ -1,4 +1,4 @@
-import { ConfigDict } from '@/util/constants';
+import { Config } from '@/util/config';
 //import { SIZE_PAGE } from './config';
 const SIZE_PAGE = 0;
 import { logRequest } from '@/util/logRequest'; 
@@ -17,9 +17,9 @@ const getDeprecations = async (): Promise<TDeprecation[] | null> => {
 
   try {
     const response = await logRequest(async () => {
-      return await fetch(`${ConfigDict.DotCMSHost}/api/content/_search`, {
+      return await fetch(`${Config.DotCMSHost}/api/content/_search`, {
         method: 'POST',
-        headers: ConfigDict.Headers,
+        headers: Config.Headers,
         body: JSON.stringify(query),
       });
     }, 'getDeprecations');

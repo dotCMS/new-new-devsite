@@ -14,10 +14,10 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
-import PaginationBar from "@/components/changelogs/PaginationBar";
+import PaginationBar from "@/components/PaginationBar";
 import { useSearchParams } from "next/navigation";
 
-import { SecurityOrderBy } from "@/services/content/getSecurityIssues/types";
+import { SecurityOrderBy } from "@/services/docs/getSecurityIssues/types";
 import { useRouter } from "next/navigation";
 
 export const SecurityIssuesTable: FC<{

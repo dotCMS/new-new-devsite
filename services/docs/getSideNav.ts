@@ -1,5 +1,5 @@
 import {dotCache} from '@/util/cacheService'
-import { logRequest } from './logRequest';
+import { logRequest } from '@/util/logRequest';
 const GRAPHQL_ENPOINT = `/api/v1/graphql`
 
 

@@ -1,10 +1,10 @@
-import { ConfigDict } from './constants'
+import { Config } from './config'
 
 export const logRequest = async <T>(
     request: () => Promise<T>,
     requestName: string
   ): Promise<T | null> => {
-    if (!ConfigDict.LogRequestEnabled) return request();
+    if (!Config.LogRequestEnabled) return request();
   
     const startTime = performance.now();
     try {

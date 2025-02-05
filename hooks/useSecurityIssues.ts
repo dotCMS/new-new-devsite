@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from 'react';
 
-import { TSecurityIssue, SecurityOrderBy } from '@/services/content/getSecurityIssues/types';
-import { getSecurityIssues } from '@/services/content/getSecurityIssues/getSecurityIssues';
+import { TSecurityIssue, SecurityOrderBy } from '@/services/docs/getSecurityIssues/types';
+import { getSecurityIssues } from '@/services/docs/getSecurityIssues/getSecurityIssues';
 
 
 function mapSecurityIssues(securityIssueData: any[]) {

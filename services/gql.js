@@ -1,3 +1,5 @@
+import { Config } from '@/util/config';
+
 const GRAPHQL_ENPOINT = `/api/v1/graphql`;
 
 /**
@@ -105,15 +107,12 @@ export function getGraphQLPageQuery({ path, mode}) {
  * @return {*}
  */
 export const getGraphqlResults = async (query) => {
-    const url = new URL(GRAPHQL_ENPOINT, process.env.NEXT_PUBLIC_DOTCMS_HOST);
+    const url = new URL(GRAPHQL_ENPOINT, Config.DotCMSHost);
 
     try {
         const res = await fetch(url, {
             method: "POST",
-            headers: {
-                "Authorization": `Bearer ${process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN}`,
-                "Content-Type": "application/json",
-            },
+            headers: Config.Headers,
             body: JSON.stringify({ query }),
             cache: "no-cache", // Invalidate cache for Next.js
         });

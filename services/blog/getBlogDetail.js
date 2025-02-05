@@ -1,4 +1,4 @@
-import { getGraphqlResults } from "@/util/gql";
+import { getGraphqlResults } from "@/services/gql";
 import { logRequest } from "@/util/logRequest";
 
 export async function getBlogDetailQuery(urlTitle) {

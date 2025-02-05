@@ -5,9 +5,9 @@ import { extractDateForTables } from "@/util/formatDate";
 import { Copy, Check, Loader2, Link2Off, Link2, ExternalLink, Medal,Trophy } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
-import PaginationBar from "@/components/changelogs/PaginationBar";
+import PaginationBar from "@/components/PaginationBar";
 import { useSearchParams } from "next/navigation";
-import { FilterReleases } from '@/services/content/getReleases/types';
+import { FilterReleases } from '@/services/docs/getReleases/types';
 
 export const TableReleases: FC<{showCurrent: boolean, limit?: number, page?: number, filter?: FilterReleases, version?: string}> = ({
   showCurrent=true,

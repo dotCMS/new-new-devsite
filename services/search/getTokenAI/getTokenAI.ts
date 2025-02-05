@@ -1,15 +1,15 @@
-import { ConfigDict } from '@/util/constants';
+import { Config } from '@/util/config';
 import { logRequest } from '@/util/logRequest';
 
 export const getTokenAI = async (): Promise<string | null> => {
   try {
     const options = {
       method: 'GET',
-      headers: ConfigDict.Headers,
+      headers: Config.Headers,
     };
 
     const token = await logRequest(async () => {
-      const response = await fetch(`${ConfigDict.DotCMSHost}/api/vtl/ai`, options);
+      const response = await fetch(`${Config.DotCMSHost}/api/vtl/ai`, options);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);

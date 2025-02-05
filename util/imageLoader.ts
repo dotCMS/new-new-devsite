@@ -1,12 +1,12 @@
 import { useDotcmsPageContext } from "@dotcms/react";
-
+import { Config } from "./config";
 interface ImageLoaderProps {
   src: string;
   width: number;
 }
 
 const ImageLoader = ({ src, width }: ImageLoaderProps): string => {
-  const dotcmsURL = new URL(process.env.NEXT_PUBLIC_DOTCMS_HOST || '').origin;
+  const dotcmsURL = new URL(Config.MediaHost || '').origin;
 
   const context = useDotcmsPageContext();
 
