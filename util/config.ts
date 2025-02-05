@@ -19,5 +19,6 @@ export const Config = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
     Authorization: `Bearer ${process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN}`
-  }
+  },
+  AIModel: "gpt-4o-mini"
 } as const

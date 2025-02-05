@@ -8,6 +8,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"
 import { cn } from "@/util/utils"
 import { CopyButton } from "@/components/chat/CopyButton"
+import { Config } from "@/util/config"
 
 interface Message {
   role: "user" | "assistant"
@@ -16,8 +17,8 @@ interface Message {
 }
 
 const STORAGE_KEY = "ai-chat-history"
-const API_KEY = process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN;
-const API_ENDPOINT = process.env.NEXT_PUBLIC_DOTCMS_HOST;
+const API_KEY = Config.AuthToken;
+const API_ENDPOINT = Config.DotCMSHost;
 export function ChatComponent() {
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(false)
@@ -80,7 +81,7 @@ export function ChatComponent() {
         body: JSON.stringify({
           indexName: "default",
           prompt: inputTrimmed,
-          model: "gpt-4o-mini",
+          model: Config.AIModel,
           temperature: "1",
           responseLengthTokens: "1500",
           operator: "cosine",
