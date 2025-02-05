@@ -61,60 +61,24 @@ export async function generateMetadata({ params, searchParams }) {
     };
 }
 
-
-export default async function Home({ searchParams, params }) {
+export default async function DocsPage({ params, searchParams }) {
     const finalParams = await params;
     const finalSearchParams = await searchParams;
-    const headersList = await headers();
-
-
     const slug = finalParams.slug;
     const path = "/docs/latest/" + (slug || "getting-started");
-    const { pageAsset, sideNav, query } = await fetchPageData(path, finalSearchParams);
-    const data = {
-        contentlet: pageAsset.urlContentMap._map,
-        sideNav: sideNav,
-        currentPath: slug,
-        searchParams: finalSearchParams
-    }
-
-
-    // Add more path-component mappings here as needed:
-    // "path-name": (contentlet) => <ComponentName contentlet={contentlet} />,
+    
+    const { pageAsset, sideNav } = await fetchPageData(path, finalSearchParams);
+    
+    // Component mapping for different page types
     const componentMap = {
-        "changelogs": (data) => <ChangeLogList {...data} slug={slug}     />,
-        "current-releases": (data) => <CurrentReleases  {...data} slug={slug} />,
-        "all-releases": (data) => <AllReleases  {...data} slug={slug} />,
-        "previous-releases": (data) => <AllReleases  {...data} slug={slug} />,
-        "known-security-issues": (data) => <AllSecurityIssues  {...data} slug={slug} />,
-        
-        default: (data) => <Documentation {...data} slug={slug} />
+        "changelogs": (data, nav) => <ChangeLogList contentlet={data} sideNav={nav} slug={slug} />,
+        "current-releases": (data, nav) => <CurrentReleases contentlet={data} sideNav={nav} slug={slug} />,
+        "all-releases": (data, nav) => <AllReleases contentlet={data} sideNav={nav} slug={slug} />,
+        "previous-releases": (data, nav) => <AllReleases contentlet={data} sideNav={nav} slug={slug} />,
+        "known-security-issues": (data, nav) => <AllSecurityIssues contentlet={data} sideNav={nav} slug={slug} />,
+        default: (data, nav) => <Documentation contentlet={data} sideNav={nav} slug={slug} />
     };
 
-
-    return (
-        <div className="flex flex-col min-h-screen">
-            <Header sideNavItems={sideNav[0]?.dotcmsdocumentationchildren || []} currentPath={slug} />
-            
-            <div className="flex-1">
-                <div className="flex flex-col lg:flex-row container mx-auto px-0">
-                    {/* Left Navigation - Hide on mobile */}
-                    <div className="hidden lg:block w-72 shrink-0">
-                        <NavTree
-                            items={sideNav[0]?.dotcmsdocumentationchildren || []}
-                            currentPath={slug}
-                        />
-                    </div>
-
-                    {/* Main Content - Full width on mobile */}
-                    <main className="flex-1 min-w-0 px-6 sm:px-6 lg:px-8">
-                        {(componentMap[slug] || componentMap.default)(data)}
-                    </main>
-                </div>
-            </div>
-
-            {pageAsset.layout.footer && <Footer />}
-        </div>
-    );
-
+    const Component = componentMap[slug] || componentMap.default;
+    return Component(pageAsset.urlContentMap._map, sideNav);
 }

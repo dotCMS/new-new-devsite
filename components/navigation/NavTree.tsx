@@ -1,9 +1,7 @@
 "use client"
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import SubNavTree from './SubNavTree';
-
-const SCROLL_STORAGE_KEY = 'docs-nav-scroll';
 
 type NavTreeProps = {
   items: any[];
@@ -14,29 +12,44 @@ type NavTreeProps = {
 
 const NavTree = React.memo(({ items, currentPath = "", level = 0, isMobile = false }: NavTreeProps) => {
     const navRef = useRef<HTMLElement | null>(null);
+    const isFirstMount = useRef(true);
 
     useEffect(() => {
-        if (isMobile) return; // Don't manage scroll for mobile view
-        
         const nav = navRef.current;
         if (!nav) return;
 
-        // Restore scroll position on mount
-        const savedScroll = localStorage.getItem(SCROLL_STORAGE_KEY);
-        if (savedScroll) {
-            nav.scrollTop = parseInt(savedScroll, 10);
-        }
+        if (isFirstMount.current) {
+            // On first mount, clear any saved position and scroll to active item
+            sessionStorage.removeItem('nav-scroll');
+            
+            // Wait for SubNavTree to expand sections
+            setTimeout(() => {
+                const activeItem = nav.querySelector(`[href="/docs/latest/${currentPath}"]`);
+                if (activeItem) {
+                    // Calculate scroll position manually instead of using scrollIntoView
+                    const itemRect = activeItem.getBoundingClientRect();
+                    const navRect = nav.getBoundingClientRect();
+                    const relativeTop = itemRect.top - navRect.top;
+                    const centerOffset = (navRect.height - itemRect.height) / 2;
+                    nav.scrollTop = nav.scrollTop + relativeTop - centerOffset;
+                }
+                isFirstMount.current = false;
+            }, 100);
+        } else {
+            // For subsequent updates, use saved position
+            const handleScroll = () => {
+                sessionStorage.setItem('nav-scroll', nav.scrollTop.toString());
+            };
 
-        // Save scroll position on scroll
-        const handleScroll = () => {
-            if (nav) {
-                localStorage.setItem(SCROLL_STORAGE_KEY, Math.round(nav.scrollTop).toString());
+            const savedPosition = sessionStorage.getItem('nav-scroll');
+            if (savedPosition) {
+                nav.scrollTop = parseInt(savedPosition, 10);
             }
-        };
 
-        nav.addEventListener('scroll', handleScroll);
-        return () => nav.removeEventListener('scroll', handleScroll);
-    }, [isMobile]);
+            nav.addEventListener('scroll', handleScroll);
+            return () => nav.removeEventListener('scroll', handleScroll);
+        }
+    }, [currentPath]);
 
     const mobileStyles = isMobile 
         ? "pt-4"
