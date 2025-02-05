@@ -163,6 +163,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
         {children}
       </TableCell>
     },
+    hr: () => <hr className="border-t border-[#E5E7EB] mb-6" />,
     video: ({ children, ...props }: any) => {
       // Ensure children is an array and handle rehype-raw parsed elements
       const childrenArray = React.Children.toArray(children);
