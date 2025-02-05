@@ -1,6 +1,6 @@
 
 import { type TGetSearch } from './types';
-import { ConfigDict } from '@/util/constants';
+import { Config } from '@/util/config';
 import { logRequest } from '@/util/logRequest'; 
 
 export const getSearch = async ({ searchTerm, typeDoc, currentPage }: TGetSearch) => {
@@ -9,9 +9,9 @@ export const getSearch = async ({ searchTerm, typeDoc, currentPage }: TGetSearch
   try {
 
     const data = await logRequest(async () => {
-      const response = await fetch(`${ConfigDict.DotCMSHost}/api/v1/ai/search`, {
+      const response = await fetch(`${Config.DotCMSHost}/api/v1/ai/search`, {
         method: 'POST',
-        headers: ConfigDict.Headers,
+        headers: Config.Headers,
         body: JSON.stringify({
           contentType,
           prompt: searchTerm,

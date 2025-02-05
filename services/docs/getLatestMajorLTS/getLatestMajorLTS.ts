@@ -1,4 +1,4 @@
-import { ConfigDict } from '@/util/constants';
+import { Config } from '@/util/config';
 import { SIZE_PAGE } from './config';
 import type { TLatestMajorLTS } from './types';
 import { logRequest } from '@/util/logRequest'; 
@@ -15,9 +15,9 @@ export const getLatestMajorLTS = async (): Promise<TLatestMajorLTS | null> => {
 
   try {
     const response = await logRequest(async () => {
-      return await fetch(`${ConfigDict.DotCMSHost}/api/content/_search`, {
+      return await fetch(`${Config.DotCMSHost}/api/content/_search`, {
         method: 'POST',
-        headers: ConfigDict.Headers,
+        headers: Config.Headers,
         body: JSON.stringify(query)
       });
     }, 'getLatestMajorLTS');

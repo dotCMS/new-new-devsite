@@ -6,7 +6,7 @@ import { TableReleases } from "./TableReleases/TableReleases";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useState, useEffect } from "react";
-import { FilterReleases } from "@/services/content/getReleases/types";
+import { FilterReleases } from "@/services/docs/getReleases/types";
 
 export default function AllReleases({ sideNav, slug }) {
     const router = useRouter();

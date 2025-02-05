@@ -1,4 +1,4 @@
-import { ConfigDict } from '@/util/constants'
+import { Config } from '@/util/config'
 import { SIZE_PAGE } from './config'
 import type { TContentlet, TApiResponse } from './types'
 import { logRequest } from '@/util/logRequest'
@@ -14,9 +14,9 @@ export const getPreviousRelease = async (): Promise<{ previousRelease: TContentl
       offset: 0,
     };
 
-    const response = await fetch(`${ConfigDict.DotCMSHost}/api/content/_search`, {
+    const response = await fetch(`${Config.DotCMSHost}/api/content/_search`, {
       method: 'POST',
-      headers: ConfigDict.Headers,
+      headers: Config.Headers,
       body: JSON.stringify(query),
     });
 

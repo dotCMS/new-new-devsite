@@ -1,8 +1,8 @@
-import { getBlogDetailQuery } from "@/util/getBlogDetail";
+import { getBlogDetailQuery } from "@/services/blog/getBlogDetail";
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import { notFound } from "next/navigation";
-import BlogDetailComponent from "../../../components/blogs/blog-detail";
+import BlogDetailComponent from "@/components/blogs/blog-detail";
 
 
 export async function generateMetadata({ params, searchParams }) {

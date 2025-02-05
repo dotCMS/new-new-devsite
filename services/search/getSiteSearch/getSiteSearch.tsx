@@ -1,4 +1,4 @@
-import { ConfigDict } from '@/util/constants';
+import { Config } from '@/util/config';
 import type { TSiteSearh, TSearchResult } from './types';
 import { logRequest } from '@/util/logRequest'; 
 
@@ -15,9 +15,9 @@ export const getSiteSearch = async ({
     };
 
     await logRequest(async () => {
-      const response = await fetch(`${ConfigDict.DotCMSHost}/api/vtl/sitesearch`, {
+      const response = await fetch(`${Config.DotCMSHost}/api/vtl/sitesearch`, {
         method: 'POST',
-        headers: ConfigDict.Headers,
+        headers: Config.Headers,
         body: JSON.stringify(requestBody)
       });
 

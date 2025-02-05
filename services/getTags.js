@@ -1,4 +1,4 @@
-import { logRequest } from "./logRequest";
+import { logRequest } from "../util/logRequest";
 
 
 function getTagQuery(query, limit) {

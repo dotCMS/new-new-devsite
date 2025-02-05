@@ -1,7 +1,7 @@
 import { client } from '@/util/dotcmsClient';
 import type { TGetRecommendVideoPostContents, TRecommendVideoResponse } from './types';
 import { DEFAULT_LIMIT, DEFAULT_DEPTH } from './config';
-import { LANGUAGE_ID } from '@/services/constants';
+import { Config } from '@/util/config';
 import { logRequest } from '@/util/logRequest'; 
 
 export const getRecommendVideoPostContents = async (
@@ -32,7 +32,7 @@ export const getRecommendVideoPostContents = async (
         .limit(DEFAULT_LIMIT)
         .query(`+Video.show:true +live:true +conhostname:dotcms.dev${categoryQuery}`)
         .depth(DEFAULT_DEPTH)
-        .language(LANGUAGE_ID);
+        .language(Config.LanguageId);
     }, `getRecommendVideoPostContents categories: ${extractedCategories[0]}`); 
 
     return response?.contentlets as TRecommendVideoResponse[];

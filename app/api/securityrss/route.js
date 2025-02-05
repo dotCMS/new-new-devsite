@@ -1,8 +1,9 @@
-import { getSideNav } from '@/services/docs/getSideNav'
+
 import {Config} from '@/util/config'
-import { getBlogListing } from '@/services/blog/getBlogListing'
+import { getSecurityIssues } from '@/services/docs/getSecurityIssues/getSecurityIssues';
+
 const extractHrefs = (obj) => {
-  const baseURL = `${ConfigDict.MediaHost}/docs/latest/`
+  const baseURL = `${Config.MediaHost}/docs/latest/`
   let hrefs = []
 
   if (obj && typeof obj === 'object') {
@@ -29,11 +30,11 @@ const extractHrefs = (obj) => {
 }
 
 const getBlogs = async () => {
-    var finalBlogs = [];
+    var finalSecurityIssues = [];
 
-    const {blogs,pagination} = await getBlogListing({tagFilter: "", page: 1, pageSize: 50});
-    blogs.map(blog => {
-        finalBlogs.push({href: `${ConfigDict.MediaHost}/blog/${blog.urlTitle}`, modDate: blog.modDate});
+    const {securutyIssues,pagination} = await getSecurityIssues();
+    securutyIssues.map(issue => {
+        finalSecurityIssues.push({href: `${ConfigDict.MediaHost}/security/${issue.issueNumber}`, modDate: blog.modDate});
     });
     for(var j = 2; j <= pagination.totalPages; j++) {
         const {blogs} = await getBlogListing({tagFilter: "", page: j, pageSize: 50});

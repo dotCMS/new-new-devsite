@@ -8,7 +8,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useChangelog } from "@/hooks/useChangelog";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import Breadcrumbs from "../navigation/Breadcrumbs";
-import PaginationBar from "./PaginationBar";
+import PaginationBar from "../PaginationBar";
 
 export default function ChangeLogContainer({ sideNav, slug }) {
   const router = useRouter();

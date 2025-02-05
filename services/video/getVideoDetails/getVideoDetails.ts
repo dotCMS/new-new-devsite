@@ -1,7 +1,7 @@
 import { client } from '@/util/dotcmsClient';
 import { DEFAULT_LIMIT, DEFAULT_DEPTH } from './config';
 import type { TGetVideoDetails, TVideoDetailsResponse } from './types';
-import { LANGUAGE_ID } from '@/services/constants';
+import { Config } from '@/util/config';
 import { logRequest } from '@/util/logRequest'; 
 
 export const getVideoDetails = async ({ identifier }: TGetVideoDetails): Promise<TVideoDetailsResponse | null> => {
@@ -12,7 +12,7 @@ export const getVideoDetails = async ({ identifier }: TGetVideoDetails): Promise
         .query(`+identifier:${identifier.replace('/', '')}`)
         .limit(DEFAULT_LIMIT)
         .depth(DEFAULT_DEPTH)
-        .language(LANGUAGE_ID);
+        .language(Config.LanguageId);
     }, `getVideoDetails identifier: ${identifier}`); 
 
     const contentlet = response?.contentlets[0];

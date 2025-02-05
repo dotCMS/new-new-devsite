@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { getChangelog } from '@/services/content/getChangelog/getChangelog';
+import { getChangelog } from '@/services/docs/getChangelog/getChangelog';
 
 interface ChangelogData {
   changelogs: any[];

@@ -3,7 +3,7 @@
 
 import { SIZE_PAGE } from './config';
 import { logRequest } from '@/util/logRequest'; 
-import { getGraphqlResults } from '@/util/gql';
+import { getGraphqlResults } from '@/services/gql';
 
 
 export const getChangelog = async ({ page = 1, isLts = false,limit = SIZE_PAGE, lts=false }) => {

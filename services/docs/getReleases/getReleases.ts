@@ -1,7 +1,7 @@
-import { ConfigDict } from '@/util/constants';
+import { Config } from '@/util/config';
 
 import { logRequest } from '@/util/logRequest';
-import { getGraphqlResults } from '@/util/gql';
+import { getGraphqlResults } from '@/services/gql';
 import { FilterReleases } from './types';
 export const getReleases = async (limit: number = 50, page: number = 1, filter: FilterReleases = FilterReleases.ALL, log: boolean = false, version: string = "") => {
   var buildQuery = '+contentType:Dotcmsbuilds +Dotcmsbuilds.download:1 +Dotcmsbuilds.released:true +live:true';

@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
 
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
-import { getGraphqlResults, getGraphQLPageQuery } from "@/util/gql";
-import BlogListing from '../../components/blogs/blog-listing';
+import { getGraphqlResults, getGraphQLPageQuery } from "@/services/gql";
+import BlogListing from '@/components/blogs/blog-listing';
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
-import { getBlogListing } from "@/util/getBlogListing";
+import { getBlogListing } from "@/services/blog/getBlogListing";
 
 const getPath = (params) => {
     const defaultPath = "index";
@@ -72,13 +72,13 @@ export default async function BlogPage({ searchParams, params }) {
     const tagFilter = finalParams["tagFilter"];
     const page = parseInt(finalParams["page"]) || 1;
     
-    const blogData = await getBlogListing({tagFilter: tagFilter, page: page, pageSize: 9});
+    const {blogs,pagination} = await getBlogListing({tagFilter: tagFilter, page: page, pageSize: 9});
 
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
             <main className="flex-1">
-                <BlogListing blogs={blogData.blogs} pagination={blogData.pagination} tagFilter={tagFilter}/>
+                <BlogListing blogs={blogs} pagination={pagination} tagFilter={tagFilter}/>
             </main>
             <Footer />
         </div>

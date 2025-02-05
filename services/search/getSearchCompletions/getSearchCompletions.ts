@@ -1,5 +1,5 @@
 import type { TSearchCompletions, TChatCompletionChunkResponse } from './types';
-import { ConfigDict } from '@/util/constants';
+import { Config } from '@/util/config';
 import { logRequest } from '@/util/logRequest';
 
 export const getSearchCompletions = async ({
@@ -13,7 +13,7 @@ export const getSearchCompletions = async ({
 
   try {
     await logRequest(async () => {
-      const response = await fetch(`${ConfigDict.DotCMSHost}/api/v1/ai/completions`, {
+      const response = await fetch(`${Config.DotCMSHost}/api/v1/ai/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

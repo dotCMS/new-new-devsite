@@ -5,8 +5,9 @@ import { Calendar } from 'lucide-react';
 import TagCloud from '@/components/shared/TagCloud';
 import Image from 'next/image';
 
-import { getTagsByLuceneQuery } from "@/util/getTags";
-import { BLOG_LISTING_LUCENE_QUERY } from '@/util/getBlogListing';
+import { getTagsByLuceneQuery } from "@/services/getTags";
+import { BLOG_LISTING_LUCENE_QUERY } from '@/services/blog/getBlogListing';
+import PaginationBar from '../PaginationBar';
 
 
 
@@ -16,7 +17,6 @@ export default async function BlogListing({ blogs, pagination, tagFilter }) {
     console.log("tagFilter", tagFilter);
     // Extract all tags from all posts
     const allTags =await getTagsByLuceneQuery(BLOG_LISTING_LUCENE_QUERY, 30);
-
 
 
     return (
@@ -73,38 +73,10 @@ export default async function BlogListing({ blogs, pagination, tagFilter }) {
                             </article>
                         ))}
                     </div>
-
-                    {/* Pagination UI */}
-                    <div className="mt-8 flex justify-center items-center gap-2">
-                        <Link
-                            href={`?page=${pagination.page - 1}${tagFilter ? `&tagFilter=${encodeURIComponent(tagFilter)}` : ''}`}
-                            className={`px-4 py-2 rounded-lg ${
-                                pagination.hasPreviousPage
-                                    ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                                    : 'bg-muted cursor-not-allowed'
-                            }`}
-                            aria-disabled={!pagination.hasPreviousPage}
-                            tabIndex={pagination.hasPreviousPage ? 0 : -1}
-                        >
-                            Previous
-                        </Link>
                         
-                        <span className="text-sm text-muted-foreground">
-                            Page {pagination.page} of {pagination.totalPages}
-                        </span>
-
-                        <Link
-                            href={`?page=${pagination.page + 1}${tagFilter ? `&tagFilter=${encodeURIComponent(tagFilter)}` : ''}`}
-                            className={`px-4 py-2 rounded-lg ${
-                                pagination.hasNextPage
-                                    ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                                    : 'bg-muted cursor-not-allowed'
-                            }`}
-                            aria-disabled={!pagination.hasNextPage}
-                            tabIndex={pagination.hasNextPage ? 0 : -1}
-                        >
-                            Next
-                        </Link>
+                    {/* Pagination UI */}
+                    <div className="m-8">
+                    <PaginationBar pagination={pagination} additionalQueryParams={"tagFilter=" + tagFilter}/>
                     </div>
                 </div>
 

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { getReleases } from '@/services/content/getReleases/getReleases';
-import { FilterReleases } from '@/services/content/getReleases/types';
+import { getReleases } from '@/services/docs/getReleases/getReleases';
+import { FilterReleases } from '@/services/docs/getReleases/types';
 interface ReleaseData {
   releases: any[];
   pagination: {

@@ -6,7 +6,7 @@ import { SecurityIssuesTable, TableReleases } from "./SecurityIssuesTable";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useState, useEffect } from "react";
-import { SecurityOrderBy,TSecurityIssue } from '@/services/content/getSecurityIssues/types';
+import { SecurityOrderBy,TSecurityIssue } from '@/services/docs/getSecurityIssues/types';
 import { SecurityIssueDetail } from "./SecurityIssueDetail";
 export default function AllSecurityIssues({ sideNav, slug }) {
     const router = useRouter();

@@ -1,4 +1,4 @@
-import { ConfigDict } from '@/util/constants';
+import { Config } from '@/util/config';
 import type { TGraphQLPageData, TGetGraphQLPageQuery } from './types';
 import { logRequest } from '@/util/logRequest';
 
@@ -90,9 +90,9 @@ export const getGraphQLPageQuery = async ({
   try {
 
     const response = await logRequest(() =>
-      fetch(`${ConfigDict.DotCMSHost}/api/v1/graphql`, {
+      fetch(`${Config.DotCMSHost}/api/v1/graphql`, {
         method: 'POST',
-        headers: ConfigDict.Headers,
+        headers: Config.Headers,
         body: JSON.stringify({ query }),
         cache: 'no-cache'
       }),
