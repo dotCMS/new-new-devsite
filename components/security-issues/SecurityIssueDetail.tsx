@@ -63,7 +63,7 @@ export const SecurityIssueDetail: FC<{
 
   const issue = securityIssues[0];
 
-const thClasses = "px-6 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100 align-top";
+const thClasses = "px-6 py-4 bg-gray-100 text-sm font-semibold text-gray-900 dark:text-gray-100 align-top";
 const tdClasses = "p-4";
 
 
