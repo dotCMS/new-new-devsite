@@ -18,7 +18,7 @@ export default async function BlogListing({ blogs, pagination, tagFilter }) {
     // Extract all tags from all posts
     const allTags =await getTagsByLuceneQuery(BLOG_LISTING_LUCENE_QUERY, 30);
 
-
+    const tagFilterQueryParam = tagFilter && tagFilter.length > 0 ? "tagFilter=" + tagFilter : "";
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="flex flex-col lg:flex-row gap-8">
@@ -76,7 +76,7 @@ export default async function BlogListing({ blogs, pagination, tagFilter }) {
                         
                     {/* Pagination UI */}
                     <div className="m-8">
-                    <PaginationBar pagination={pagination} additionalQueryParams={"tagFilter=" + tagFilter}/>
+                    <PaginationBar pagination={pagination} additionalQueryParams={tagFilterQueryParam}/>
                     </div>
                 </div>
 
