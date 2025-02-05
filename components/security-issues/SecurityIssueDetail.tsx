@@ -62,6 +62,13 @@ export const SecurityIssueDetail: FC<{
   if (!securityIssues || securityIssues.length == 0) return <>No data</>;
 
   const issue = securityIssues[0];
+
+const thClasses = "px-6 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100 align-top";
+const tdClasses = "p-4";
+
+
+
+
   return (
     <div className="w-full">
 
@@ -87,38 +94,38 @@ export const SecurityIssueDetail: FC<{
         </Link>
       </div>
 
-      <div className="min-w-[50%] overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow">
+      <div className="min-w-[50%] overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow mb-8">
         <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
 
             <tr>
-              <th className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100 align-top">
+              <th className={thClasses}>
                 Issue:
               </th>
-              <td>
+              <td className={tdClasses}>
                 {issue.issueNumber}
               </td>
             </tr>
             <tr>    
-              <th className="px-6 py-4  text-sm font-semibold text-gray-900 dark:text-gray-100 align-top">
+              <th className={thClasses}>
                 Published
               </th>
-              <td>
+              <td className={tdClasses}>
                 {extractDateForTables(issue.publishDate)}
               </td>
             </tr>
             <tr>
-              <th className="px-6 py-4 t text-sm font-semibold text-gray-900 dark:text-gray-100 align-top">
+            <th className={thClasses}>
                 Title:
               </th>
-              <td>
+              <td className={tdClasses}>
                 {issue.title}
               </td>
             </tr>
             <tr>
-              <th className="px-6 py-4  text-sm font-semibold text-gray-900 dark:text-gray-100 align-top">
+              <th className={thClasses}>
                 Severity:
               </th> 
-              <td>
+              <td className={tdClasses}>
                 {issue.severity == "4"
                     ? "Critical"
                     : issue.severity == "3"
@@ -129,65 +136,65 @@ export const SecurityIssueDetail: FC<{
               </td>
             </tr>
             <tr>
-              <th className="px-6 py-4  text-sm font-semibold text-gray-900 dark:text-gray-100 align-top text-nowrap">
+              <th className={thClasses}>
                 Requires Admin:
               </th> 
-              <td>
+              <td className={tdClasses}>
                 {issue.requiresAdminAccess ? "Yes" : "No"}
               </td>
             </tr>
 
 
             <tr>
-              <th className="px-6 py-4  text-sm font-semibold text-gray-900 dark:text-gray-100 align-top text-nowrap">
+              <th className={thClasses}>
                 Fix Versions:
               </th>
-              <td>
+              <td className={tdClasses}>
                 {issue.fixVersion}
               </td>
             </tr>
             <tr>
-              <th className="px-6 py-4  text-sm font-semibold text-gray-900 dark:text-gray-100 align-top">
+              <th className={thClasses}>
                 Credit:
               </th>
-              <td>
+              <td className={tdClasses}>
                 {issue.credit}
               </td>
             </tr>
             <tr>
-              <th className="px-6 py-4  text-sm font-semibold text-gray-900 dark:text-gray-100  align-top">
+              <th className={thClasses}>
                 Description
               </th>
-              <td>
+              <td className={tdClasses}>
               <DangerousHtmlComponent  content={issue.description}/>
  
               </td>
             </tr>   
             <tr>
-              <th className="px-6 py-4  text-sm font-semibold text-gray-900 dark:text-gray-100 align-top">
+              <th className={thClasses}>
                 Mitigation:
               </th>
-              <td>
+              <td className={tdClasses}>
                 <DangerousHtmlComponent  content={issue.workaround}/>
            
               </td> 
             </tr>
             {issue.example && (
             <tr>
-              <th className="px-6 py-4  text-sm font-semibold text-gray-900 dark:text-gray-100 align-top">
+              <th className={thClasses}>
                 Example:
               </th>
-              <td>
+              <td className={tdClasses}>
               <DangerousHtmlComponent  content={issue.example}/>
 
                 </td> 
             </tr>
             )}
             <tr>
-              <th className="px-6 py-4  text-sm font-semibold text-gray-900 dark:text-gray-100 align-top">
+              <th className={thClasses}>
                 Issue Links:
               </th>
-              <td>
+              <td className={tdClasses}>
               <DangerousHtmlComponent  content={issue.issueLinks}/>
    
                 </td>
