@@ -87,7 +87,7 @@ export const SecurityIssuesTable: FC<{
                 className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer "
                 onClick={() => {
                   router.push(
-                    `/docs/latest/known-security-issues?issueNumber=${issue.issueNumber}`
+                    `/docs/known-security-issues?issueNumber=${issue.issueNumber}`
                   );
                 }}
               >

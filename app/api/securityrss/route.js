@@ -3,7 +3,7 @@ import {Config} from '@/util/config'
 import { getSecurityIssues } from '@/services/docs/getSecurityIssues/getSecurityIssues';
 
 const extractHrefs = (obj) => {
-  const baseURL = `${Config.MediaHost}/docs/latest/`
+  const baseURL = `${Config.MediaHost}/docs/`
   let hrefs = []
 
   if (obj && typeof obj === 'object') {

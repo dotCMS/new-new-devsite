@@ -4,11 +4,12 @@ const url = new URL(process.env.NEXT_PUBLIC_DOTCMS_HOST);
 
 const nextConfig = {
     reactStrictMode: true,
+    cacheMaxMemorySize: 0, 
     async redirects() {
         return [
           {
             source: '/security/:path',
-            destination: '/docs/latest/known-security-issues?issueNumber=:path',
+            destination: '/docs/known-security-issues?issueNumber=:path',
             permanent: true,
           },
         ]
@@ -73,6 +74,10 @@ const nextConfig = {
           }
         ]
       },
+      experimental: {
+        largePageDataBytes: 128 * 100000,
+    
+      }
 };
 
 module.exports = nextConfig;

@@ -19,7 +19,7 @@ export function getGraphQLPageQuery({ path, mode}) {
 
     return `
     {
-        page(url: "${path}"${paramsString}) {
+        page(url: "${path}"${paramsString}, site:"173aff42881a55a562cec436180999cf") {
             _map
             urlContentMap {
                 identifier

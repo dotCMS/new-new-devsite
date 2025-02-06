@@ -73,7 +73,7 @@ const SubNavTree = React.memo(({ items=[], currentPath, level = 0, openSections,
                   : "text-muted-foreground hover:text-foreground"
                 )}>
               <Link
-                href={`/docs/latest/${item.urlTitle}`}
+                href={`${item.urlTitle}`}
                 className={cn(
                   "flex-grow text-left",
                   isCurrentPage 
@@ -110,7 +110,7 @@ const SubNavTree = React.memo(({ items=[], currentPath, level = 0, openSections,
     } else {
       return (
         <Link
-          href={`/docs/latest/${item.urlTitle}`}
+          href={`${item.urlTitle}`}
           className={cn(
             `block rounded-lg px-2 ${paddingY} text-sm hover:bg-muted`,
             isCurrentPage 

@@ -38,7 +38,7 @@ const Breadcrumbs = React.memo(({ items, slug, appendItems = [] }) => {
   return (
     <nav className="flex items-center space-x-1 text-sm text-muted-foreground mb-6">
       <Link 
-        href="/docs/latest/table-of-contents" 
+        href="/docs/table-of-contents" 
         className="flex items-center hover:text-foreground"
       >
         <Home className="h-4 w-4" />
@@ -47,7 +47,7 @@ const Breadcrumbs = React.memo(({ items, slug, appendItems = [] }) => {
         <React.Fragment key={item.urlTitle}>
           <ChevronRight className="h-4 w-4" />
           <Link
-            href={`/docs/latest/${item.urlTitle}`}
+            href={`/docs/${item.urlTitle}`}
             className={cn(
               "hover:text-foreground",
               index === breadcrumbs.length - 1 && appendItems.length == 0 ? "text-foreground font-medium" : ""

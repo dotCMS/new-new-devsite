@@ -26,6 +26,7 @@ async function fetchPageData(path, searchParams) {
         getSideNav()
     ]);
 
+
     const pageAsset = graphqlToPageEntity(pageData);
 
     if (!pageAsset) {
@@ -46,9 +47,10 @@ export async function generateMetadata({ params, searchParams }) {
     const finalParams = await params;
     const finalSearchParams = await searchParams;
     const slug = finalParams.slug;
-    const path = "/docs/latest/" + (slug || "getting-started");
+    const path = "/docs/" + (slug || "table-of-contents");
+
     const { pageAsset } = await fetchPageData(path, finalSearchParams);
-    console.log("gotpage",pageAsset.title);
+
     return {
         title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title) + " | dotCMS Documentation",
         description: pageAsset.urlContentMap._map.seoDescription,
@@ -69,7 +71,7 @@ export default async function Home({ searchParams, params }) {
 
 
     const slug = finalParams.slug;
-    const path = "/docs/latest/" + (slug || "getting-started");
+    const path = "/docs/" + (slug || "table-of-contents");
     const { pageAsset, sideNav, query } = await fetchPageData(path, finalSearchParams);
     const data = {
         contentlet: pageAsset.urlContentMap._map,
