@@ -69,7 +69,7 @@ export default async function Home({ searchParams, params }) {
     const finalSearchParams = await searchParams;
     const headersList = await headers();
 
-
+    const resetNav = finalSearchParams.n === "0";
     const slug = finalParams.slug;
     const path = "/docs/" + (slug || "table-of-contents");
     const { pageAsset, sideNav, query } = await fetchPageData(path, finalSearchParams);
@@ -105,6 +105,7 @@ export default async function Home({ searchParams, params }) {
                         <NavTree
                             items={sideNav[0]?.dotcmsdocumentationchildren || []}
                             currentPath={slug}
+                            resetNav={resetNav}
                         />
                     </div>
 

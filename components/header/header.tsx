@@ -76,7 +76,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
         <nav className="flex flex-col pb-6">
           <Link 
             prefetch={false}
-            href="/docs/table-of-contents" 
+            href="/docs/table-of-contents?n=0" 
             className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2")}
           >
             Documentation
@@ -103,7 +103,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
       <NavigationMenu>
         <NavigationMenuList className="flex items-center space-x-6">
           <NavigationMenuItem>
-            <Link prefetch={false} href="/docs/table-of-contents" legacyBehavior passHref>
+            <Link prefetch={false} href="/docs/table-of-contents?n=0" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 Documentation
               </NavigationMenuLink>
@@ -175,7 +175,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="/docs/table-of-contents" legacyBehavior passHref>
+                  <Link href="/docs/table-of-contents?n=0" legacyBehavior passHref>
                     <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "px-3")}>
                       Documentation
                     </NavigationMenuLink>
