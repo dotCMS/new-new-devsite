@@ -50,7 +50,7 @@ export default function Hero(props: HeroProps) {
                 {/* Developer Section */}
                 <div className="space-y-4">
                     <Link href="/docs/developer" className="block">
-                        <Card className="overflow-hidden transition-all duration-300 group border border-gray-200 hover:border-[#a21caf] relative h-[300px]">
+                        <Card className="overflow-hidden transition-all duration-300 group border border-border hover:border-brand-purple relative h-[300px]">
                             <CardContent className="p-6 relative z-10 h-full flex flex-col">
                                 <div className="mb-4 flex items-center gap-2">
                                     <Code className="h-6 w-6 transition-colors group-hover:text-[#a21caf]" />
@@ -94,7 +94,7 @@ export default function Hero(props: HeroProps) {
                 {/* Authoring Guide Section */}
                 <div className="space-y-4">
                     <Link href="/docs/authoring" className="block">
-                        <Card className="overflow-hidden transition-all duration-300 group border border-gray-200 hover:border-[#46ad07] relative h-[300px]">
+                        <Card className="overflow-hidden transition-all duration-300 group border border-border hover:border-brand-green relative h-[300px]">
                             <CardContent className="p-6 relative z-10 h-full flex flex-col">
                                 <div className="mb-4 flex items-center gap-2">
                                     <PenTool className="h-6 w-6 transition-colors group-hover:text-[#46ad07]" />
@@ -140,7 +140,7 @@ export default function Hero(props: HeroProps) {
                 {/* DevOps Section */}
                 <div className="space-y-4">
                     <Link href="/docs/devops" className="block">
-                        <Card className="overflow-hidden transition-all duration-300 group border border-gray-200 hover:border-[#de4f00] relative h-[300px]">
+                        <Card className="overflow-hidden transition-all duration-300 group border border-border hover:border-brand-orange relative h-[300px]">
                             <CardContent className="p-6 relative z-10 h-full flex flex-col">
                                 <div className="mb-4 flex items-center gap-2">
                                     <Server className="h-6 w-6 transition-colors group-hover:text-[#de4f00]" />

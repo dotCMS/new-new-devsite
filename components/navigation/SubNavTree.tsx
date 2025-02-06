@@ -67,17 +67,17 @@ const SubNavTree = React.memo(({ items=[], currentPath, level = 0, openSections,
         >
           <div className="flex flex-col">
             <div className={cn(
-                `flex px-2 w-full items-center justify-between rounded-lg ${paddingY} text-sm hover:bg-muted`,
+                `flex px-2 w-full items-center justify-between rounded-lg ${paddingY} text-sm`,
                 isCurrentPage 
-                  ? "bg-muted text-foreground" 
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-primary-purple/10 text-primary-purple font-semibold" 
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}>
               <Link
                 href={`${item.urlTitle}`}
                 className={cn(
                   "flex-grow text-left",
                   isCurrentPage 
-                    ? "text-foreground" 
+                    ? "text-primary-purple font-semibold" 
                     : "text-muted-foreground hover:text-foreground"
                 )}
                 onMouseDown={(e) => {
@@ -89,7 +89,10 @@ const SubNavTree = React.memo(({ items=[], currentPath, level = 0, openSections,
               <CollapsibleTrigger className="p-0">
                 <ChevronRight
                   className={cn(
-                    "h-4 w-4 transition-transform duration-200 text-muted-foreground",
+                    "h-4 w-4 transition-transform duration-200",
+                    isCurrentPage 
+                      ? "text-primary-purple"
+                      : "text-muted-foreground",
                     openSections.includes(item.urlTitle) && "rotate-90"
                   )}
                 />
@@ -112,10 +115,10 @@ const SubNavTree = React.memo(({ items=[], currentPath, level = 0, openSections,
         <Link
           href={`${item.urlTitle}`}
           className={cn(
-            `block rounded-lg px-2 ${paddingY} text-sm hover:bg-muted`,
+            `block rounded-lg px-2 ${paddingY} text-sm`,
             isCurrentPage 
-              ? "bg-muted text-foreground" 
-              : "text-muted-foreground hover:text-foreground"
+              ? "bg-primary-purple/10 text-primary-purple font-semibold" 
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
           )}
         >
           {item.title}
