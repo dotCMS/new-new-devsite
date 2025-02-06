@@ -3,29 +3,36 @@
 import { Copy } from "lucide-react"
 import { Button } from "../ui/button"
 import { useState } from "react"
+import { cn } from "@/util/utils"
 
-export function CopyButton() {
+interface CopyButtonProps {
+  text?: string
+  className?: string
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
+}
+
+export function CopyButton({ text, className, variant = "ghost" }: CopyButtonProps) {
   const [copied, setCopied] = useState(false)
 
-  const copy = (e: React.MouseEvent) => {
-    const button = e.currentTarget;
-    const codeBlock = button.closest('.relative')?.querySelector('code');
-    const text = codeBlock?.textContent || '';
-    setCopied(true);
-    navigator.clipboard.writeText(text);
-
-    setTimeout(() => setCopied(false), 2000);
+  const copy = () => {
+    if (!text) return
+    setCopied(true)
+    navigator.clipboard.writeText(text)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
-    <Button 
-      variant="ghost" 
-      size="icon" 
-      className="absolute -top-1 -right-2 h-8 w-8 hover:bg-muted/50 rounded-md opacity-70 hover:opacity-100 transition-opacity"
-      onClick={copy}
+    <div 
+        className="cursor-pointer"
+        onClick={copy}
     >
-      <Copy className={`h-4 w-4 ${copied ? 'text-green-500' : ''}`} />
-    </Button>
+      <Copy 
+        className={cn(
+          "h-4 w-4",
+          copied ? "text-green-500" : "text-slate-500 dark:text-slate-500"
+        )} 
+      />
+    </div>
   )
 } 
 

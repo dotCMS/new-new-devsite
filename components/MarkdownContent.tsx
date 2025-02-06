@@ -6,13 +6,15 @@ import rehypeRaw from 'rehype-raw'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import remarkGfm from 'remark-gfm'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import SyntaxHighlighter from 'react-syntax-highlighter';
+//import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Components } from 'react-markdown'
 import { remarkRemoveAnchorLinks } from '@/util/remarkRemoveAnchorLinks'
 import { smoothScroll } from '@/util/smoothScroll'
 import Video from '@/components/mdx/Video'
+import { CopyButton } from './chat/CopyButton'
+import { a11yLight, dark, docco, a11yDark,vs } from 'react-syntax-highlighter/dist/esm/styles/hljs'
 
 
 interface MarkdownContentProps {
@@ -94,42 +96,39 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
         </a>
       )
     },
-    code: ({ node, inline, className, children, ...props }: any) => {
+    code: ({ node,  className, children, ...props }: any) => {
       const match = /language-(\w+)/.exec(className || '')
-      return !inline && match ? (
-        <div className="mb-6">
-          <SyntaxHighlighter
-            style={vscDarkPlus}
-            language={match[1]}
-            PreTag="div"
-            className="rounded-md [&>pre]:!m-0"
-            {...props}
-          >
-            {String(children).replace(/\n$/, '')}
-          </SyntaxHighlighter>
-        </div>
-      ) : (
-        <code className="bg-[#F6F6F7] text-[#000000] text-sm font-mono px-1 py-0.5 rounded whitespace-normal" {...props}>
-          {children}
-        </code>
-      )
-    },
-    pre({ node, children, ...props }: any) {
-      const childNode = node?.children[0]
-      const isCodeBlock = childNode?.tagName === 'code' && /language-(\w+)/.test(childNode.properties.className?.[0] || '')
+      const inline = !String(children).includes("\n");
+    const highlight = match ? match[1] : "html";
 
-      if (isCodeBlock) {
-        // This is a code block, so we'll let the `code` component handle it
-        return <>{children}</>
-      } else {
-        // This is a regular <pre> tag, likely containing HTML
-        return (
-          <pre className="bg-[#F6F6F7] text-[#000000] rounded-md p-4 mb-6 overflow-x-auto" {...props}>
-            {children}
-          </pre>
-        )
-      }
+      if (inline) {
+        return <code className="bg-[#F6F6F7] text-[#000000] text-sm font-mono px-1 py-0.5 rounded whitespace-normal" {...props}>{children}</code>
+      } 
+      return  (
+        <div className="mb-6 relative">
+          <div className="absolute right-3 top-3 z-10">
+            <CopyButton 
+              text={String(children)} 
+              variant="secondary" 
+              className="bg-slate-200 hover:bg-slate-300 text-slate-900 border border-slate-300" 
+            />
+          </div>
+          <SyntaxHighlighter
+            language={highlight}
+            PreTag="div"
+            style={a11yDark}
+            className=" rounded-lg py-2 [&>pre]:!m-0"
+            customStyle={{
+                padding: '1rem',
+                paddingTop: '2rem',
+                fontSize: '14px',
+            }}
+            {...props}
+          >{String(children).replace(/\n$/, '')}</SyntaxHighlighter>
+        </div>
+      ) ;
     },
+
     table({ children }) {
       return (
         <Table className="border-[#E5E7EB] border border-collapse mb-6">{children}</Table>
