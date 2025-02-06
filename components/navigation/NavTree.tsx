@@ -10,6 +10,7 @@ type NavTreeProps = {
   currentPath?: string;
   level?: number;
   isMobile?: boolean;
+  resetNav?: boolean;
 };
 
 function useStickyState(defaultValue: any, name: string) {
@@ -31,11 +32,21 @@ function useStickyState(defaultValue: any, name: string) {
 }
 
 const NavTree = React.memo(
-  ({ items, currentPath = "", level = 0, isMobile = false }: NavTreeProps) => {
+  ({ items, currentPath = "", level = 0, isMobile = false,resetNav = false }: NavTreeProps) => {
+
+    if(resetNav) {  
+        window.localStorage.setItem(NAV_STORAGE_KEY, JSON.stringify([]));
+        window.localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(0)); 
+      }
+
+
 
     const [openSections, setOpenSections] = useStickyState([], NAV_STORAGE_KEY);
 
     const [savedScroll, setSavedScroll] = useStickyState(0, SCROLL_STORAGE_KEY);
+
+
+
 
     const navRef = useRef<HTMLElement | null>(null);
 
