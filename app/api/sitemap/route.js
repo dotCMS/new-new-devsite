@@ -2,7 +2,7 @@ import { getSideNav } from '@/services/docs/getSideNav'
 import {Config} from '@/util/config'
 import { getBlogListing } from '@/services/blog/getBlogListing'
 const extractHrefs = (obj) => {
-  const baseURL = `${ConfigDict.MediaHost}/docs/latest/`
+  const baseURL = `${ConfigDict.MediaHost}/docs/`
   let hrefs = []
 
   if (obj && typeof obj === 'object') {

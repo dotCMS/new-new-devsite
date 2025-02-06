@@ -3,14 +3,7 @@ import { type FC } from "react";
 import { useSecurityIssues } from "@/hooks/useSecurityIssues";
 import { extractDateForTables } from "@/util/formatDate";
 import {
-  Copy,
-  Check,
   Loader2,
-  Link2Off,
-  Link2,
-  ExternalLink,
-  Medal,
-  Trophy,
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
@@ -94,7 +87,7 @@ export const SecurityIssuesTable: FC<{
                 className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer "
                 onClick={() => {
                   router.push(
-                    `/docs/latest/known-security-issues?issueNumber=${issue.issueNumber}`
+                    `/docs/known-security-issues?issueNumber=${issue.issueNumber}`
                   );
                 }}
               >

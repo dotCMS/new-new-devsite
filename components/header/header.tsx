@@ -75,7 +75,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
       return (
         <nav className="flex flex-col pb-6">
           <Link 
-            href="/docs/latest/table-of-contents" 
+            href="/docs/table-of-contents" 
             className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2")}
           >
             Documentation
@@ -100,7 +100,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
       <NavigationMenu>
         <NavigationMenuList className="flex items-center space-x-6">
           <NavigationMenuItem>
-            <Link href="/docs/latest/table-of-contents" legacyBehavior passHref>
+            <Link href="/docs/table-of-contents" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 Documentation
               </NavigationMenuLink>
@@ -159,20 +159,20 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
                           </a>
                         </NavigationMenuLink>
                       </li>
-                      <ListItem href="/docs/latest/table-of-contents" title="Introduction">
+                      <ListItem href="/docs/table-of-contents" title="Introduction">
                         Learn about dotCMS&apos;s core concepts and architecture.
                       </ListItem>
-                      <ListItem href="/docs/latest/quick-start-guide" title="Headless Quick Start">
+                      <ListItem href="/docs/quick-start-guide" title="Headless Quick Start">
                         Get up and running in less than 5 minutes.
                       </ListItem>
-                      <ListItem href="/docs/latest/features" title="Features">
+                      <ListItem href="/docs/features" title="Features">
                         Explore our comprehensive feature set.
                       </ListItem>
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="/docs/latest/table-of-contents" legacyBehavior passHref>
+                  <Link href="/docs/table-of-contents" legacyBehavior passHref>
                     <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "px-3")}>
                       Documentation
                     </NavigationMenuLink>
