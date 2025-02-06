@@ -38,9 +38,11 @@ const NavTree = React.memo(
     const [savedScroll, setSavedScroll] = useStickyState(0, SCROLL_STORAGE_KEY);
 
     const navRef = useRef<HTMLElement | null>(null);
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
       if (isMobile) return; // Don't manage scroll for mobile view
+      setIsClient(true); // identifies hook user as client
 
       const nav = navRef.current;
       if (!nav) return;
@@ -93,8 +95,8 @@ const NavTree = React.memo(
                   items={item.dotcmsdocumentationchildren}
                   currentPath={currentPath}
                   level={level + 1}
-                  openSections={openSections}
-                  setOpenSections={setOpenSections}
+                  openSections={isClient ? openSections : "" /* no ssr */ }
+                  setOpenSections={isClient ? setOpenSections : "" /* no ssr */ }
                 />
               </div>
             ))}
