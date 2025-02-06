@@ -15,7 +15,9 @@ import { smoothScroll } from '@/util/smoothScroll'
 import Video from '@/components/mdx/Video'
 import { CopyButton } from './chat/CopyButton'
 import { a11yLight, dark, docco, a11yDark,vs } from 'react-syntax-highlighter/dist/esm/styles/hljs'
+
 import { useTheme } from "next-themes"
+
 
 
 interface MarkdownContentProps {
@@ -102,6 +104,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
         </a>
       )
     },
+
     code: ({ node, className, children, ...props }: any) => {
       const match = /language-(\w+)/.exec(className || '')
       const inline = !String(children).includes("\n");
@@ -123,6 +126,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
           <div className="absolute right-3 top-3 z-10">
             <CopyButton 
               text={String(children)} 
+
               variant="outline"
               className="bg-background hover:bg-accent text-foreground hover:text-accent-foreground" 
             />
@@ -130,6 +134,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
           <SyntaxHighlighter
             language={highlight}
             PreTag="div"
+
             style={theme === 'dark' ? a11yDark : a11yLight}
             className="rounded-lg py-2 [&>pre]:!m-0 border border-border"
             customStyle={{
@@ -138,13 +143,14 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
               paddingBottom: '2rem',
               fontSize: '14px',
               backgroundColor: theme === 'dark' ? 'hsl(var(--muted))' : 'white',
+
             }}
             {...props}
-          >
-            {String(children).replace(/\n$/, '')}
-          </SyntaxHighlighter>
+          >{String(children).replace(/\n$/, '')}</SyntaxHighlighter>
         </div>
+
       );
+
     },
 
     table({ children }) {
