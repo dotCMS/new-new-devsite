@@ -4,7 +4,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import SubNavTree from './SubNavTree';
 
 const SCROLL_STORAGE_KEY = 'docs-nav-scroll';
-
+export const NAV_STORAGE_KEY = 'subnav-open-sections';
 type NavTreeProps = {
   items: any[];
   currentPath?: string;
@@ -12,7 +12,34 @@ type NavTreeProps = {
   isMobile?: boolean;
 }
 
+function useStickyState(defaultValue: any, name: string) {
+    const [value, setValue] = React.useState(() => {
+      if (typeof window === "undefined" || !window.localStorage) {
+        return defaultValue;
+      }
+  
+      const persistedValue = window.localStorage.getItem(name);
+  
+      return persistedValue !== null ? JSON.parse(persistedValue) : defaultValue;
+    });
+  
+    useEffect(() => {
+      window.localStorage.setItem(name, JSON.stringify(value));
+  
+    }, [name, value]);
+  
+    return [value, setValue];
+  }
+
+
 const NavTree = React.memo(({ items, currentPath = "", level = 0, isMobile = false }: NavTreeProps) => {
+
+
+    const [openSections, setOpenSections] = useStickyState([], NAV_STORAGE_KEY);
+
+    const [savedScroll, setSavedScroll] = useStickyState(0, SCROLL_STORAGE_KEY);
+
+
     const navRef = useRef<HTMLElement | null>(null);
 
     useEffect(() => {
@@ -22,7 +49,7 @@ const NavTree = React.memo(({ items, currentPath = "", level = 0, isMobile = fal
         if (!nav) return;
 
         // Restore scroll position on mount
-        const savedScroll = localStorage.getItem(SCROLL_STORAGE_KEY);
+
         if (savedScroll) {
             nav.scrollTop = parseInt(savedScroll, 10);
         }
@@ -34,9 +61,11 @@ const NavTree = React.memo(({ items, currentPath = "", level = 0, isMobile = fal
             }
         };
 
-        nav.addEventListener('scroll', handleScroll);
+        nav.addEventListener('scroll', ()=>{
+            setSavedScroll(Math.round(nav.scrollTop));
+        });
         return () => nav.removeEventListener('scroll', handleScroll);
-    }, [isMobile]);
+    }, [savedScroll,setSavedScroll,isMobile]);
 
     const mobileStyles = isMobile 
         ? "pt-4"
@@ -64,6 +93,8 @@ const NavTree = React.memo(({ items, currentPath = "", level = 0, isMobile = fal
                                 items={item.dotcmsdocumentationchildren} 
                                 currentPath={currentPath} 
                                 level={level+1}
+                                openSections={openSections}
+                                setOpenSections={setOpenSections}
                             />
                         </div>
                     ))}

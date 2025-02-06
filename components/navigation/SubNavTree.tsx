@@ -4,55 +4,40 @@ import React, { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { cn } from "@/util/utils";
+import { NAV_STORAGE_KEY } from './NavTree';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
-const STORAGE_KEY = 'subnav-open-sections';
+type SubNavTreeProps = {
+  items: any[];
+  currentPath: string;
+  level?: number;
+  openSections: string[];
+  setOpenSections: (value: any) => void;
+}
 
-const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
+const SubNavTree = React.memo(({ items=[], currentPath, level = 0, openSections, setOpenSections }: SubNavTreeProps) => {
+  const relevantPath = currentPath.replace(/^\/docs\/latest\//, '');
 
-    
-    const relevantPath = currentPath.replace(/^\/docs\/latest\//, '');
-    if(relevantPath === 'table-of-contents' && localStorage) {
-        //localStorage.removeItem(STORAGE_KEY);
-    }
-  const [openSections, setOpenSections] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    }
-    return [];
-  });
-
-
-  const toggleSection = useCallback((urlTitle) => {
-    setOpenSections((prev) => {
+  const toggleSection = useCallback((urlTitle: string) => {
+    setOpenSections((prev: string[]) => {
       const newSections = prev.includes(urlTitle)
         ? prev.filter((t) => t !== urlTitle)
         : [...prev, urlTitle];
-      
-      if (newSections.length > 0) {
-        console.log('newSections', newSections);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newSections));
-      } else {
-        localStorage.removeItem(STORAGE_KEY);
-      }
-      
       return newSections;
     });
-  }, []);
+  }, [setOpenSections]);
 
   useEffect(() => {
-    const expandCurrentSection = (items, path) => {
+    const expandCurrentSection = (items: any[], path: string[]) => {
       for (const item of items) {
         if (item.urlTitle === relevantPath) {
           path.forEach(section => {
-            setOpenSections(prev => {
+            setOpenSections((prev: string[]) => {
               const newSections = prev.includes(section) ? prev : [...prev, section];
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(newSections));
               return newSections;
             });
           });
@@ -68,9 +53,9 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
     };
 
     expandCurrentSection(items, []);
-  }, [items, relevantPath]);
+  }, [items, relevantPath, setOpenSections]);
 
-  const renderNavItem = useCallback((item) => {
+  const renderNavItem = useCallback((item: { urlTitle: string; title: string; dotcmsdocumentationchildren?: any[] }) => {
     const isCurrentPage = item.urlTitle === relevantPath;
     const hasChildren = item.dotcmsdocumentationchildren && item.dotcmsdocumentationchildren.length > 0;
     const paddingY = 'py-1.5';
@@ -108,7 +93,13 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
               </CollapsibleTrigger>
             </div>
             <CollapsibleContent className="pl-3 border-l border-muted ml-2">
-              <SubNavTree items={item.dotcmsdocumentationchildren} currentPath={currentPath} level={level + 1}/>
+              <SubNavTree 
+                items={item.dotcmsdocumentationchildren || []} 
+                currentPath={currentPath} 
+                level={level + 1}
+                openSections={openSections}
+                setOpenSections={setOpenSections}
+              />
             </CollapsibleContent>
           </div>
         </Collapsible>
@@ -126,7 +117,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
         </Link>
       );
     }
-  }, [relevantPath, openSections, toggleSection, currentPath, level]);
+  }, [relevantPath, openSections, setOpenSections, toggleSection, currentPath, level]);
 
   return (
     <div className="space-y-1 pt-1">
