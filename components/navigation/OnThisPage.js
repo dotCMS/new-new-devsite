@@ -72,6 +72,7 @@ export const OnThisPage = ({selectors, showOnThisPage = true}) => {
               `}
             >
               <Link 
+                prefetch={false}
                 href={`#${item.id}`} 
                 className="hover:text-foreground transition-colors block"
                 onClick={smoothScroll}
