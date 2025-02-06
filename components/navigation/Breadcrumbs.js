@@ -47,6 +47,7 @@ const Breadcrumbs = React.memo(({ items, slug, appendItems = [] }) => {
         <React.Fragment key={item.urlTitle}>
           <ChevronRight className="h-4 w-4" />
           <Link
+            prefetch={false}
             href={`/docs/${item.urlTitle}`}
             className={cn(
               "hover:text-foreground",

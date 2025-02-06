@@ -74,6 +74,7 @@ const SubNavTree = React.memo(({ items=[], currentPath, level = 0, openSections,
                 )}>
               <Link
                 href={`${item.urlTitle}`}
+                prefetch={false}
                 className={cn(
                   "flex-grow text-left",
                   isCurrentPage 
@@ -114,6 +115,7 @@ const SubNavTree = React.memo(({ items=[], currentPath, level = 0, openSections,
       return (
         <Link
           href={`${item.urlTitle}`}
+          prefetch={false}
           className={cn(
             `block rounded-lg px-2 ${paddingY} text-sm`,
             isCurrentPage 

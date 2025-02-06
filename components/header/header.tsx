@@ -75,18 +75,21 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
       return (
         <nav className="flex flex-col pb-6">
           <Link 
+            prefetch={false}
             href="/docs/table-of-contents" 
             className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2")}
           >
             Documentation
           </Link>
           <Link 
+            prefetch={false}
             href="/blog" 
             className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2 mt-1")}
           >
             Blog
           </Link>
           <Link 
+            prefetch={false}
             href="/videos" 
             className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2 mt-1")}
           >
@@ -100,21 +103,21 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
       <NavigationMenu>
         <NavigationMenuList className="flex items-center space-x-6">
           <NavigationMenuItem>
-            <Link href="/docs/table-of-contents" legacyBehavior passHref>
+            <Link prefetch={false} href="/docs/table-of-contents" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 Documentation
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/blog" legacyBehavior passHref>
+            <Link prefetch={false} href="/blog" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 Blog
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/videos" legacyBehavior passHref>
+            <Link prefetch={false} href="/videos" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 Videos
               </NavigationMenuLink>
