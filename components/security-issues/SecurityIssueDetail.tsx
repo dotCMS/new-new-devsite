@@ -63,8 +63,8 @@ export const SecurityIssueDetail: FC<{
 
   const issue = securityIssues[0];
 
-const thClasses = "px-6 py-4 bg-gray-100 text-sm font-semibold text-gray-900 dark:text-gray-100 align-top";
-const tdClasses = "p-4";
+const thClasses = "px-6 py-4 bg-background text-sm font-semibold text-foreground align-top border-r border-border";
+const tdClasses = "p-4 text-foreground";
 
 
 
@@ -72,14 +72,14 @@ const tdClasses = "p-4";
   return (
     <div className="w-full">
 
-      <h2 className="text-3xl ">
+      <h2 className="text-3xl text-foreground">
          {issue.title}
       </h2>
 
       <div>
         <Link
           href="known-security-issues"
-          className="transition-colors flex items-center text-slate-600 py-4"
+          className="transition-colors flex items-center text-muted-foreground hover:text-foreground py-4"
         >
           <svg
             viewBox="0 0 24 24"
@@ -94,9 +94,9 @@ const tdClasses = "p-4";
         </Link>
       </div>
 
-      <div className="min-w-[50%] overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow mb-8">
-        <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
-
+      <div className="min-w-[50%] overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow mb-8">
+        <table className="w-full divide-y divide-border">
+            <tbody>
             <tr>
               <th className={thClasses}>
                 Issue:
@@ -199,7 +199,7 @@ const tdClasses = "p-4";
    
                 </td>
             </tr>
-       
+            </tbody>
         </table>
 
       </div>

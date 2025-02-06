@@ -4,7 +4,6 @@ import React, { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { cn } from "@/util/utils";
-import { NAV_STORAGE_KEY } from './NavTree';
 import {
   Collapsible,
   CollapsibleContent,
@@ -68,14 +67,18 @@ const SubNavTree = React.memo(({ items=[], currentPath, level = 0, openSections,
         >
           <div className="flex flex-col">
             <div className={cn(
-                `text-slate-400 flex px-2 w-full items-center justify-between rounded-lg ${paddingY} text-sm hover:bg-muted`,
-                isCurrentPage ? "bg-muted text-foreground" : "text-muted-foreground"
+                `flex px-2 w-full items-center justify-between rounded-lg ${paddingY} text-sm hover:bg-muted`,
+                isCurrentPage 
+                  ? "bg-muted text-foreground" 
+                  : "text-muted-foreground hover:text-foreground"
                 )}>
               <Link
                 href={`/docs/latest/${item.urlTitle}`}
                 className={cn(
-                  "flex-grow text-left hover:text-foreground",
-                  isCurrentPage ? "text-foreground" : "text-muted-foreground"
+                  "flex-grow text-left",
+                  isCurrentPage 
+                    ? "text-foreground" 
+                    : "text-muted-foreground hover:text-foreground"
                 )}
                 onMouseDown={(e) => {
                   toggleSection(item.urlTitle);
@@ -86,13 +89,13 @@ const SubNavTree = React.memo(({ items=[], currentPath, level = 0, openSections,
               <CollapsibleTrigger className="p-0">
                 <ChevronRight
                   className={cn(
-                    "h-4 w-4 transition-transform duration-200",
+                    "h-4 w-4 transition-transform duration-200 text-muted-foreground",
                     openSections.includes(item.urlTitle) && "rotate-90"
                   )}
                 />
               </CollapsibleTrigger>
             </div>
-            <CollapsibleContent className="pl-3 border-l border-muted ml-2">
+            <CollapsibleContent className="pl-3 border-l border-border ml-2">
               <SubNavTree 
                 items={item.dotcmsdocumentationchildren || []} 
                 currentPath={currentPath} 
@@ -109,8 +112,10 @@ const SubNavTree = React.memo(({ items=[], currentPath, level = 0, openSections,
         <Link
           href={`/docs/latest/${item.urlTitle}`}
           className={cn(
-            `text-slate-400 block rounded-lg px-2 ${paddingY} text-sm hover:bg-muted hover:text-foreground`,
-            isCurrentPage ? "bg-muted text-foreground" : "text-muted-foreground"
+            `block rounded-lg px-2 ${paddingY} text-sm hover:bg-muted`,
+            isCurrentPage 
+              ? "bg-muted text-foreground" 
+              : "text-muted-foreground hover:text-foreground"
           )}
         >
           {item.title}

@@ -32,6 +32,7 @@ function useStickyState(defaultValue: any, name: string) {
 
 const NavTree = React.memo(
   ({ items, currentPath = "", level = 0, isMobile = false }: NavTreeProps) => {
+
     const [openSections, setOpenSections] = useStickyState([], NAV_STORAGE_KEY);
 
     const [savedScroll, setSavedScroll] = useStickyState(0, SCROLL_STORAGE_KEY);
@@ -87,7 +88,7 @@ const NavTree = React.memo(
           <div className={`space-t-2 min-w-64 ${isMobile ? "pb-2" : "pb-12"}`}>
             {items.map((item) => (
               <div key={item.title} className="mb-5">
-                <div className="py-1 px-2 font-semibold">{item.title}</div>
+                <div className="py-1 px-2 font-semibold text-foreground">{item.title}</div>
                 <SubNavTree
                   items={item.dotcmsdocumentationchildren}
                   currentPath={currentPath}
