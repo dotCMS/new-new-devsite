@@ -12,6 +12,11 @@ const nextConfig = {
             destination: '/docs/known-security-issues?issueNumber=:path',
             permanent: true,
           },
+          {
+            source: '/docs/latest/:path',
+            destination: '/docs/:path',
+            permanent: true,
+          },
         ]
       },
     images: {
