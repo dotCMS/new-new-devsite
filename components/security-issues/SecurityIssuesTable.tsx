@@ -91,7 +91,7 @@ export const SecurityIssuesTable: FC<{
                   );
                 }}
               >
-                <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
+                <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 text-nowrap">
                   {issue.issueNumber}
                 </td>
 
