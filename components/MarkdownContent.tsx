@@ -14,7 +14,7 @@ import { remarkRemoveAnchorLinks } from '@/util/remarkRemoveAnchorLinks'
 import { smoothScroll } from '@/util/smoothScroll'
 import Video from '@/components/mdx/Video'
 import { CopyButton } from './chat/CopyButton'
-import { a11yLight, dark, docco, a11yDark } from 'react-syntax-highlighter/dist/esm/styles/hljs'
+import { a11yLight, dark, docco, a11yDark,vs } from 'react-syntax-highlighter/dist/esm/styles/hljs'
 
 
 interface MarkdownContentProps {
@@ -100,7 +100,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       const match = /language-(\w+)/.exec(className || '')
       const inline = !String(children).includes("\n");
     const highlight = match ? match[1] : "html";
-        console.log("inline",inline)
+
       if (inline) {
         return <code className="bg-[#F6F6F7] text-[#000000] text-sm font-mono px-1 py-0.5 rounded whitespace-normal" {...props}>{children}</code>
       } 
@@ -116,7 +116,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
           <SyntaxHighlighter
             language={highlight}
             PreTag="div"
-            style={docco}
+            style={a11yDark}
             className=" rounded-lg py-2 [&>pre]:!m-0"
             customStyle={{
                 padding: '1rem',
