@@ -16,12 +16,16 @@ import Video from '@/components/mdx/Video'
 import { CopyButton } from './chat/CopyButton'
 import { a11yLight, dark, docco, a11yDark,vs } from 'react-syntax-highlighter/dist/esm/styles/hljs'
 
+import { useTheme } from "next-themes"
+
+
 
 interface MarkdownContentProps {
   content: string
 }
 
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
+  const { theme } = useTheme();
 
   const components: Components = {
     h1: ({ children, ...props }) => (
@@ -40,7 +44,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
             #
           </a>
         </h2>
-        <hr className="border-t border-[#E5E7EB] mb-6" />
+        <hr className="border-t border-border mb-6" />
       </>
     ),
     h3: ({ children, ...props }) => (
@@ -77,61 +81,81 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
         </a>
       </h6>
     ),
-    p: ({ children }) => <p className="text-[15px] leading-7 text-foreground mb-6">{children}</p>,
+    p: ({ children }) => (
+      <p className="text-base leading-7 text-foreground mb-6">{children}</p>
+    ),
     ul: ({ children }) => <ul className="list-disc pl-6 mb-6">{children}</ul>,
     ol: ({ children }) => <ol className="list-decimal list-inside mb-4">{children}</ol>,
-    li: ({ children }) => <li className="text-[15px] leading-7 text-foreground mb-1">
-      {children}
-    </li>,
+    li: ({ children }) => (
+      <li className="text-base leading-7 text-foreground mb-1">{children}</li>
+    ),
     a: ({ href, children, ...props }) => {
       const isInHeading = href?.startsWith('#');
 
       return (
         <a
           href={href}
-          className={isInHeading ? `text-primary` : `text-blue-600 underline hover:no-underline`}
+          className={isInHeading 
+            ? `text-foreground` 
+            : `text-primary-purple hover:opacity-80 underline hover:no-underline`}
           onClick={(e) => isInHeading ? smoothScroll(e) : undefined}
         >
           {children}
         </a>
       )
     },
-    code: ({ node,  className, children, ...props }: any) => {
+
+    code: ({ node, className, children, ...props }: any) => {
       const match = /language-(\w+)/.exec(className || '')
       const inline = !String(children).includes("\n");
-    const highlight = match ? match[1] : "html";
+      const highlight = match ? match[1] : "html";
 
       if (inline) {
-        return <code className="bg-[#F6F6F7] text-[#000000] text-sm font-mono px-1 py-0.5 rounded whitespace-normal" {...props}>{children}</code>
+        return (
+          <code 
+            className="bg-muted text-foreground text-sm font-mono px-1 py-0.5 rounded whitespace-normal" 
+            {...props}
+          >
+            {children}
+          </code>
+        )
       } 
-      return  (
+
+      return (
         <div className="mb-6 relative">
           <div className="absolute right-3 top-3 z-10">
             <CopyButton 
               text={String(children)} 
-              variant="secondary" 
-              className="bg-slate-200 hover:bg-slate-300 text-slate-900 border border-slate-300" 
+
+              variant="outline"
+              className="bg-background hover:bg-accent text-foreground hover:text-accent-foreground" 
             />
           </div>
           <SyntaxHighlighter
             language={highlight}
             PreTag="div"
-            style={a11yDark}
-            className=" rounded-lg py-2 [&>pre]:!m-0"
+
+            style={theme === 'dark' ? a11yDark : a11yLight}
+            className="rounded-lg py-2 [&>pre]:!m-0 border border-border"
             customStyle={{
-                padding: '1rem',
-                paddingTop: '2rem',
-                fontSize: '14px',
+              padding: '1rem',
+              paddingTop: '2rem',
+              paddingBottom: '2rem',
+              fontSize: '14px',
+              backgroundColor: theme === 'dark' ? 'hsl(var(--muted))' : 'white',
+
             }}
             {...props}
           >{String(children).replace(/\n$/, '')}</SyntaxHighlighter>
         </div>
-      ) ;
+
+      );
+
     },
 
     table({ children }) {
       return (
-        <Table className="border-[#E5E7EB] border border-collapse mb-6">{children}</Table>
+        <Table className="border-border border border-collapse mb-6">{children}</Table>
       )
     },
     thead({ children }) {
@@ -153,16 +177,16 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       return <TableRow>{children}</TableRow>
     },
     th({ children }) {
-      return <TableHead className="text-[15px] font-semibold bg-[#F9FAFB] px-4 border-[#E5E7EB] border-r last:border-r-0">
+      return <TableHead className="text-[15px] font-semibold bg-muted px-4 border-border border-r last:border-r-0">
         {children}
       </TableHead>
     },
     td({ children }) {
-      return <TableCell className="text-[15px] leading-7 px-4 border-[#E5E7EB] border-r last:border-r-0">
+      return <TableCell className="text-base leading-7 text-foreground px-4 border-border border-r last:border-r-0">
         {children}
       </TableCell>
     },
-    hr: () => <hr className="border-t border-[#E5E7EB] mb-6" />,
+    hr: () => <hr className="border-t border-border mb-6" />,
     video: ({ children, ...props }: any) => {
       // Ensure children is an array and handle rehype-raw parsed elements
       const childrenArray = React.Children.toArray(children);

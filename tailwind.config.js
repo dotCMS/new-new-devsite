@@ -50,6 +50,13 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        'primary-purple': '#b626e8',
+        'primary-purple-light': '#f9e9fd',
+        'brand': {
+          'purple': '#a21caf',
+          'green': '#46ad07',
+          'orange': '#de4f00',
+        }
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -69,6 +76,19 @@ module.exports = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      typography: {
+        DEFAULT: {
+          css: {
+            a: {
+              color: 'var(--primary-purple)',
+              '&:hover': {
+                color: 'var(--primary-purple)',
+                opacity: 0.8,
+              },
+            },
+          },
+        },
       },
     },
   },
