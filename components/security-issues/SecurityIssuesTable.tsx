@@ -3,14 +3,7 @@ import { type FC } from "react";
 import { useSecurityIssues } from "@/hooks/useSecurityIssues";
 import { extractDateForTables } from "@/util/formatDate";
 import {
-  Copy,
-  Check,
   Loader2,
-  Link2Off,
-  Link2,
-  ExternalLink,
-  Medal,
-  Trophy,
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
