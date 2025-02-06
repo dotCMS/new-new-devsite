@@ -22,12 +22,34 @@ interface MarkdownContentProps {
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
 
   const components: Components = {
-    h1: ({ node, ...props }) => <h1 className="text-4xl font-bold mb-4" {...props} />,
-    h2: ({ node, ...props }) => (
-      <h2 className="text-3xl font-bold mt-8 mb-4" id={node.properties?.id} {...props} />
+    h1: ({ children, ...props }) => (
+      <h1 className="text-4xl font-bold mt-6 mb-4 group flex items-center" {...props}>
+        {children}
+        <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          #
+        </a>
+      </h1>
     ),
-    h3: ({ node, ...props }) => (
-      <h3 className="text-2xl font-bold mt-6 mb-3" id={node.properties?.id} {...props} />
+    h2: ({ children, ...props }) => (
+      <>
+        <h2 className="text-3xl font-semibold text-foreground mt-12 mb-1 group flex items-center" {...props}>
+          {children}
+          <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            #
+          </a>
+        </h2>
+        <hr className="border-t border-[#E5E7EB] mb-6" />
+      </>
+    ),
+    h3: ({ children, ...props }) => (
+      <>
+        <h3 className="text-2xl font-semibold text-foreground mt-8 mb-4 group flex items-center" {...props}>
+          {children}
+          <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            #
+          </a>
+        </h3>
+      </>
     ),
     h4: ({ children, ...props }) => (
       <h4 className="text-xl font-semibold text-foreground mt-6 mb-4 group flex items-center" {...props}>
@@ -59,19 +81,18 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
     li: ({ children }) => <li className="text-[15px] leading-7 text-foreground mb-1">
       {children}
     </li>,
-    a: ({ node, children, href, ...props }) => {
-      if (href?.startsWith('#')) {
-        return <span className="anchor-wrapper">{children}</span>;
-      }
+    a: ({ href, children, ...props }) => {
+      const isInHeading = href?.startsWith('#');
+
       return (
         <a
           href={href}
-          className="text-blue-600 underline hover:no-underline"
-          {...props}
+          className={isInHeading ? `text-primary` : `text-blue-600 underline hover:no-underline`}
+          onClick={(e) => isInHeading ? smoothScroll(e) : undefined}
         >
           {children}
         </a>
-      );
+      )
     },
     code: ({ node, inline, className, children, ...props }: any) => {
       const match = /language-(\w+)/.exec(className || '')
@@ -195,4 +216,3 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
 }
 
 export default MarkdownContent
-

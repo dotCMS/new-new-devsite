@@ -1,10 +1,10 @@
 "use client"
 
 import React, { useRef, useEffect } from 'react';
-import SubNavTree from './SubNavTree';
+import SubNavTree, { NavItem } from './SubNavTree';
 
-type NavTreeProps = {
-  items: any[];
+interface NavTreeProps {
+  items: NavItem[];
   currentPath?: string;
   level?: number;
   isMobile?: boolean;
@@ -73,11 +73,13 @@ const NavTree = React.memo(({ items, currentPath = "", level = 0, isMobile = fal
                     {items.map((item) => (
                         <div key={item.title} className="mb-5">
                             <div className="py-1 px-2 font-semibold">{item.title}</div>
-                            <SubNavTree 
-                                items={item.dotcmsdocumentationchildren} 
-                                currentPath={currentPath} 
-                                level={level+1}
-                            />
+                            {item.dotcmsdocumentationchildren && (
+                                <SubNavTree 
+                                    items={item.dotcmsdocumentationchildren} 
+                                    currentPath={currentPath} 
+                                    level={level+1}
+                                />
+                            )}
                         </div>
                     ))}
                 </div>

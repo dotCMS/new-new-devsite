@@ -12,11 +12,23 @@ import {
 
 const STORAGE_KEY = 'subnav-open-sections';
 
-const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
-    const relevantPath = currentPath.replace(/^\/docs\/latest\//, '');
-    const [openSections, setOpenSections] = useState([]);
+export interface NavItem {
+  title: string;
+  urlTitle?: string;
+  url?: string;
+  dotcmsdocumentationchildren?: NavItem[];
+}
 
-    // Move localStorage initialization to useEffect
+export interface SubNavTreeProps {
+  items: NavItem[];
+  currentPath: string;
+  level: number;
+}
+
+const SubNavTree = React.memo(({ items, currentPath, level = 0 }: SubNavTreeProps) => {
+    const relevantPath = currentPath.replace(/^\/docs\/latest\//, '');
+    const [openSections, setOpenSections] = useState<string[]>([]);
+
     useEffect(() => {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
@@ -24,7 +36,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
         }
     }, []);
 
-    const toggleSection = useCallback((urlTitle) => {
+    const toggleSection = useCallback((urlTitle: string) => {
         setOpenSections((prev) => {
             const newSections = prev.includes(urlTitle)
                 ? prev.filter((t) => t !== urlTitle)
@@ -41,7 +53,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
     }, []);
 
     useEffect(() => {
-        const expandCurrentSection = (items, path) => {
+        const expandCurrentSection = (items: NavItem[], path: string[]) => {
             for (const item of items) {
                 if (item.urlTitle === relevantPath) {
                     path.forEach(section => {
@@ -54,7 +66,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
                     return true;
                 }
                 if (item.dotcmsdocumentationchildren) {
-                    if (expandCurrentSection(item.dotcmsdocumentationchildren, [...path, item.urlTitle])) {
+                    if (expandCurrentSection(item.dotcmsdocumentationchildren, [...path, item.urlTitle!])) {
                         return true;
                     }
                 }
@@ -65,7 +77,7 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
         expandCurrentSection(items, []);
     }, [items, relevantPath]);
 
-    const renderNavItem = useCallback((item) => {
+    const renderNavItem = useCallback((item: NavItem) => {
         const isCurrentPage = item.urlTitle === relevantPath;
         const hasChildren = item.dotcmsdocumentationchildren && item.dotcmsdocumentationchildren.length > 0;
         const paddingY = 'py-1.5';
@@ -73,8 +85,8 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
         if (hasChildren) {
             return (
                 <Collapsible
-                    open={openSections.includes(item.urlTitle)}
-                    onOpenChange={() => toggleSection(item.urlTitle)}
+                    open={openSections.includes(item.urlTitle!)}
+                    onOpenChange={() => toggleSection(item.urlTitle!)}
                 >
                     <div className="flex flex-col">
                         <div 
@@ -98,13 +110,17 @@ const SubNavTree = React.memo(({ items, currentPath, level = 0 }) => {
                                 <ChevronRight
                                     className={cn(
                                         "h-4 w-4 transition-transform duration-200",
-                                        openSections.includes(item.urlTitle) && "rotate-90"
+                                        openSections.includes(item.urlTitle!) && "rotate-90"
                                     )}
                                 />
                             </CollapsibleTrigger>
                         </div>
                         <CollapsibleContent className="pl-3 border-l border-muted ml-2">
-                            <SubNavTree items={item.dotcmsdocumentationchildren} currentPath={currentPath} level={level + 1}/>
+                            <SubNavTree 
+                                items={item.dotcmsdocumentationchildren!} 
+                                currentPath={currentPath} 
+                                level={level + 1}
+                            />
                         </CollapsibleContent>
                     </div>
                 </Collapsible>
