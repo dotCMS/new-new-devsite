@@ -79,7 +79,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
             href="/docs/table-of-contents?n=0" 
             className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2")}
           >
-            Documentation
+            Docs
           </Link>
           <Link 
             prefetch={false}
@@ -93,7 +93,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
             href="/videos" 
             className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2 mt-1")}
           >
-            Videos
+            Learning
           </Link>
         </nav>
       );
@@ -105,7 +105,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
           <NavigationMenuItem>
             <Link prefetch={false} href="/docs/table-of-contents?n=0" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Documentation
+                Docs
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
@@ -119,7 +119,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
           <NavigationMenuItem>
             <Link prefetch={false} href="/videos" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Videos
+              Learning
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
@@ -157,7 +157,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
                               dotDev <Code2 className="h-6 w-6 inline-block" />
                             </div>
                             <p className="text-sm leading-tight text-muted-foreground">
-                              Your one-stop site for learning dotCMS, including documentation, resources and tools.
+                              Your one-stop site for learning dotCMS, including Docs, resources and tools.
                             </p>
                           </a>
                         </NavigationMenuLink>
@@ -177,7 +177,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
                 <NavigationMenuItem>
                   <Link href="/docs/table-of-contents?n=0" legacyBehavior passHref>
                     <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "px-3")}>
-                      Documentation
+                      Docs
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
@@ -191,7 +191,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
                 <NavigationMenuItem>
                   <Link href="/videos" legacyBehavior passHref>
                     <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "px-3")}>
-                      Videos
+                    Learning
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
@@ -208,7 +208,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
               <Search className="h-4 w-4" />
               <span>
                 <span className="sm:hidden">Search...</span>
-                <span className="hidden sm:inline">Search documentation...</span>
+                <span className="hidden sm:inline">Search Docs...</span>
               </span>
               <kbd className="hidden sm:flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
                 <span className="text-xs">⌘</span>
