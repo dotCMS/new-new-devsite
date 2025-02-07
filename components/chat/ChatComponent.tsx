@@ -68,10 +68,14 @@ export function ChatComponent() {
       timestamp: Date.now()
     }
     setMessages(prev => [...prev, userMessage])
+    setInput("")
     setLoading(true)
-    //setInput("")
 
     try {
+      // Format chat history for context
+      const chatHistory = messages.map(msg => `${msg.role === 'user' ? 'Human' : 'Assistant'}: ${msg.content}`).join('\n');
+      const fullPrompt = `${chatHistory}\nHuman: ${inputTrimmed}`;
+
       const response = await fetch(`${API_ENDPOINT}/api/v1/ai/completions`, {
         method: "POST",
         headers: {
@@ -80,7 +84,7 @@ export function ChatComponent() {
         },
         body: JSON.stringify({
           indexName: "default",
-          prompt: inputTrimmed,
+          prompt: fullPrompt,
           model: Config.AIModel,
           temperature: "1",
           responseLengthTokens: "1500",
@@ -157,6 +161,7 @@ export function ChatComponent() {
   const clearHistory = () => {
     setMessages([])
     setInput("")
+    setCurrentStreamingMessage("")
     localStorage.removeItem(STORAGE_KEY)
   }
 
@@ -321,7 +326,7 @@ export function ChatComponent() {
               value={input}
               id="dotAIChatInput"
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask a question..."
+              placeholder="Chat with dotAI..."
               className="flex-1 px-3 py-2 border rounded-md"
             />
             <Button type="submit" disabled={loading}>
