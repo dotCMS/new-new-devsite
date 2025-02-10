@@ -1,14 +1,17 @@
 import React from 'react';
 import Link from 'next/link';
+import { cn } from "@/util/utils";
 
 function Tag({
-    fontColor = 'text-fuschia-800',
-    bgColor = 'bg-fuschia-100',
+    fontColor = 'text-primary',
+    bgColor = 'bg-muted',
     children,
     hrefMode,
-    text
+    text,
+    className
 }) {
-    const style = `${fontColor} ${bgColor} flex w-fit items-center justify-center rounded-full`;
+    const baseStyle = "flex w-fit items-center justify-center rounded-full transition-colors hover:bg-muted/80";
+    const style = cn(baseStyle, fontColor, bgColor, className);
     const TagContent = <div className={style}>{children}</div>;
 
     return hrefMode ? (

@@ -5,8 +5,10 @@ const TagList = ({ tags, hrefMode }) => {
     return (
         <div className="flex gap-2">
             {tags.map(({ text, ...rest }) => (
-                <Tag {...rest} text={text} hrefMode={hrefMode} key={"taglist-" +text}>
-                    <span className="px-4 py-1 text-xs font-semibold uppercase">{text}</span>
+                <Tag {...rest} text={text} hrefMode={hrefMode} key={"taglist-" + text}>
+                    <span className="px-4 py-1 text-xs font-semibold uppercase text-muted-foreground hover:text-foreground transition-colors">
+                        {text}
+                    </span>
                 </Tag>
             ))}
         </div>

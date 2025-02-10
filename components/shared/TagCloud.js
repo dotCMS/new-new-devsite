@@ -13,7 +13,6 @@ const TagCloud = (tags) => {
 
     // Calculate size classes based on frequency
     const getTagSize = (frequency, maxFrequency) => {
-
         const ratio = frequency / maxFrequency;
         
         if (ratio > 0.8) return 'text-lg font-semibold';
@@ -23,7 +22,7 @@ const TagCloud = (tags) => {
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="bg-card text-card-foreground rounded-lg shadow-sm p-6 border border-border">
             <h3 className="text-lg font-semibold mb-4">Popular Tags</h3>
             <div className="flex flex-wrap gap-2">
                 {tags.tags.map((tag) => {
