@@ -90,7 +90,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
           </Link>
           <Link 
             prefetch={false}
-            href="/videos" 
+            href="/learning" 
             className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2 mt-1")}
           >
             Learning
@@ -117,7 +117,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link prefetch={false} href="/videos" legacyBehavior passHref>
+            <Link prefetch={false} href="/learning" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
               Learning
               </NavigationMenuLink>
@@ -189,7 +189,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="/videos" legacyBehavior passHref>
+                  <Link href="/learning" legacyBehavior passHref>
                     <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "px-3")}>
                     Learning
                     </NavigationMenuLink>

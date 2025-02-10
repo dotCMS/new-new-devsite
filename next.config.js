@@ -43,6 +43,7 @@ const nextConfig = {
         ],
         dangerouslyAllowSVG: true,
         contentDispositionType: 'attachment',
+        domains: ['images.unsplash.com'],
     },
 
     async rewrites() {
