@@ -9,9 +9,10 @@ interface ChangelogData {
     hasNextPage: boolean;
     hasPreviousPage: boolean;
   };
+  ltsMajors: any[];
 }
 
-export function useChangelog(currentPage: number = 1, isLts: boolean = false) {
+export function useChangelog(currentPage: number = 1, vLts: string = "false", singleVersion: string = "") {
   const [data, setData] = useState<ChangelogData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -24,7 +25,7 @@ export function useChangelog(currentPage: number = 1, isLts: boolean = false) {
     async function fetchChangelog() {
       try {
         setLoading(true);
-        const result = await getChangelog({ page, isLts });
+        const result = await getChangelog({ page, vLts, singleVersion });
         if (result) {
           setData(result);
         } else {
@@ -38,7 +39,7 @@ export function useChangelog(currentPage: number = 1, isLts: boolean = false) {
     }
 
     fetchChangelog();
-  }, [page, isLts]);
+  }, [page, vLts]);
 
   return { 
     data, 
