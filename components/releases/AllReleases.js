@@ -50,7 +50,6 @@ export default function AllReleases({ sideNav, slug }) {
     };
 
     return (
-        <>
             <div className="max-w-[1400px] mx-auto flex">
                 <main className="flex-1 min-w-0 pt-8 px-12
                     [&::-webkit-scrollbar]:w-1.5
@@ -86,7 +85,7 @@ export default function AllReleases({ sideNav, slug }) {
                                             : "bg-muted hover:bg-muted/80"
                                     }`}
                                 >
-                                    Agile
+                                    Current
                                 </button>
                                 <button
                                     onClick={() => handleVersionToggle(FilterReleases.LTS)}
@@ -119,6 +118,5 @@ export default function AllReleases({ sideNav, slug }) {
                     </div>
                 </main>
             </div>
-        </>
     );
 }
