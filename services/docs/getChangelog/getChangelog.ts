@@ -58,7 +58,7 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
   if(singleVersion){
     for(const item of ltsMajorData.DotcmsbuildsCollection){
       for (const vTag of item.tags){
-        if(singleVersion.includes(vTag) && singleVersion === item.minor){
+        if(singleVersion.startsWith(vTag) && singleVersion !== vTag){
           vLts = vTag;
           ltsPatchVersion = vTag;
           break;
@@ -69,8 +69,6 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
       }
     }
   }
-  console.log("singleVersion:", singleVersion);
-  console.log("ltsPatchVersion:", ltsPatchVersion);
 
   //Build query components to grab requested changelogs
   const ltsQuery = (vLts && vLts !== "false") ? '+(Dotcmsbuilds.lts:1 Dotcmsbuilds.lts:2)' : '+Dotcmsbuilds.lts:3';
