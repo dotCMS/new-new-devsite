@@ -1,12 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
-import { LucideIcon } from "lucide-react"
+import { LucideIcon, Code } from "lucide-react"
 import { DocLink } from "@/components/content-types/doc-link"
 
 interface DocLinkType {
-    href: string;
-    icon: LucideIcon;
+    url: string;
+    icon: any;
     title: string;
     color: string;
 }
@@ -29,12 +29,12 @@ export default function FeatureCard({
     description,
     imageIdentifier,
     color,
-    count= 0,
+    count = 0,
     links = []
 }: FeatureCardProps) {
 
-const imageUrl = imageIdentifier && (imageIdentifier.startsWith('http') || imageIdentifier.startsWith('/dA/')) ? imageIdentifier : `${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${imageIdentifier}/1024maxw/80q/`;
-const myHref= count<0 ? "#" : href;
+    const imageUrl = imageIdentifier && (imageIdentifier.startsWith('http') || imageIdentifier.startsWith('/dA/')) ? imageIdentifier : `${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${imageIdentifier}/1024maxw/80q/`;
+    const myHref = count < 0 ? "#" : href;
 
     return (
         <div className="space-y-4">
@@ -79,11 +79,11 @@ const myHref= count<0 ? "#" : href;
             <div className="space-y-1">
                 {links.map((link) => (
                     <DocLink
-                        key={link.href}
-                        href={link.href}
-                        icon={link.icon}
+                        key={`${link.url}-${link.title}`}
+                        href={link.url}
+                        icon={Icon} // we'll need to change this to the actual icon
                         title={link.title}
-                        color={link.color}
+                        color={color}
                     />
                 ))}
             </div>
