@@ -24,11 +24,14 @@ interface Message {
   isSearchResult?: boolean
 }
 
-const STORAGE_KEY = "ai-chat-history"
+const CHAT_STORAGE_KEY = "ai-chat-history"
+const SEARCH_STORAGE_KEY = "search-history"
 const API_KEY = Config.AuthToken;
 const API_ENDPOINT = Config.DotCMSHost;
+
 export function ChatComponent() {
-  const [messages, setMessages] = useState<Message[]>([])
+  const [chatMessages, setChatMessages] = useState<Message[]>([])
+  const [searchMessages, setSearchMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(false)
   const [input, setInput] = useState("")
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState("")
@@ -39,6 +42,7 @@ export function ChatComponent() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const lastUserMessageRef = useRef<HTMLDivElement>(null)
 
   // Focus input when modal opens
   useEffect(() => {
@@ -53,16 +57,36 @@ export function ChatComponent() {
     }, 100);
   }
 
+  // Load saved messages
   useEffect(() => {
-    const savedMessages = localStorage.getItem(STORAGE_KEY)
-    if (savedMessages) {
-      setMessages(JSON.parse(savedMessages))
+    const savedChatMessages = localStorage.getItem(CHAT_STORAGE_KEY)
+    const savedSearchMessages = localStorage.getItem(SEARCH_STORAGE_KEY)
+    if (savedChatMessages) {
+      setChatMessages(JSON.parse(savedChatMessages))
+    }
+    if (savedSearchMessages) {
+      setSearchMessages(JSON.parse(savedSearchMessages))
     }
   }, [])
 
+  // Save messages
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages))
-  }, [messages])
+    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chatMessages))
+  }, [chatMessages])
+
+  useEffect(() => {
+    localStorage.setItem(SEARCH_STORAGE_KEY, JSON.stringify(searchMessages))
+  }, [searchMessages])
+
+  // Scroll for new AI chat messages, but not search results
+  useEffect(() => {
+    if (chatMessages.length > 0 && mode === "ai") {
+      scrollToBottom()
+    }
+  }, [chatMessages, mode])
+
+  const messages = mode === "search" ? searchMessages : chatMessages
+  const setMessages = mode === "search" ? setSearchMessages : setChatMessages
 
   // Scroll to bottom function
   const scrollToBottom = () => {
@@ -76,13 +100,6 @@ export function ChatComponent() {
     }
   }, [currentStreamingMessage])
 
-  // Scroll for new AI chat messages, but not search results
-  useEffect(() => {
-    if (messages.length > 0 && !messages[messages.length - 1].isSearchResult) {
-      scrollToBottom()
-    }
-  }, [messages])
-
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault()
     if (!input.trim()) return
@@ -92,7 +109,7 @@ export function ChatComponent() {
       content: inputTrimmed,
       timestamp: Date.now()
     }
-    setMessages(prev => [...prev, userMessage])
+    setChatMessages(prev => [...prev, userMessage])
     setLoading(true)
 
     // Create new AbortController for this request
@@ -162,7 +179,7 @@ export function ChatComponent() {
       
       //console.log("setting message:" + finalMessage);
       // After streaming is complete, add the full message to the messages array
-      setMessages(prev => [...prev, {
+      setChatMessages(prev => [...prev, {
         role: "assistant",
         content: finalMessage,
         timestamp: Date.now()
@@ -182,7 +199,7 @@ export function ChatComponent() {
           content: "Sorry, there was an error processing your request.",
           timestamp: Date.now()
         }
-        setMessages(prev => [...prev, errorMessage])
+        setChatMessages(prev => [...prev, errorMessage])
       }
     } finally {
       setLoading(false)
@@ -197,9 +214,14 @@ export function ChatComponent() {
       abortControllerRef.current = null
     }
     setCurrentStreamingMessage("")
-    setMessages([])
+    if (mode === "search") {
+      setSearchMessages([])
+      localStorage.removeItem(SEARCH_STORAGE_KEY)
+    } else {
+      setChatMessages([])
+      localStorage.removeItem(CHAT_STORAGE_KEY)
+    }
     setInput("")
-    localStorage.removeItem(STORAGE_KEY)
   }
 
   async function handleSearch(query: string) {
@@ -240,23 +262,26 @@ export function ChatComponent() {
           score: parseFloat(result.matches[0].distance),
           contentType: result.contentType || 'documentation',
           modDate: result.modDate,
-
         }),
         timestamp: Date.now(),
         isSearchResult: true
       }))
-      console.log("searchResults:" + JSON.stringify(searchResults))
 
-      // Add user query and search results to messages
-      setMessages(prev => [
+      // Update search messages instead of all messages
+      setSearchMessages(prev => [
         ...prev,
         { role: "user", content: query, timestamp: Date.now() },
         ...searchResults
       ])
 
+      // Scroll to the last user message after adding search results
+      setTimeout(() => {
+        lastUserMessageRef.current?.scrollIntoView({ behavior: "smooth" })
+      }, 100)
+
     } catch (error) {
       console.error('Error:', error)
-      setMessages(prev => [...prev, {
+      setSearchMessages(prev => [...prev, {
         role: "assistant",
         content: "Sorry, there was an error processing your search request.",
         timestamp: Date.now()
@@ -292,7 +317,6 @@ export function ChatComponent() {
     
     const newMode = pressed ? "search" : "ai"
     setMode(newMode)
-    setMessages([]) // Clear messages when switching modes
     
     // If switching to search mode and there's input, trigger search
     if (newMode === "search" && input.trim()) {
@@ -351,7 +375,7 @@ export function ChatComponent() {
                 <Bot className="w-16 h-16 text-primary" />
                 <h2 className="text-2xl font-semibold">Welcome to dotAI Assistant</h2>
                 <p className="text-muted-foreground max-w-md">
-                  I can answer your questions about the dotCMS platform. Here are some example questions:
+                  I can answer your questions or help you find information about the dotCMS platform. Here are some example questions:
                 </p>
                 <div className="space-y-2 text-left w-full max-w-md">
                   <div className="p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70 text-center" 
@@ -374,6 +398,7 @@ export function ChatComponent() {
         {messages.map((message, index) => (
           <div
             key={index}
+            ref={message.role === "user" ? lastUserMessageRef : undefined}
             className={cn(
               "flex items-start gap-4 rounded-lg p-4",
               message.role === "user" 
