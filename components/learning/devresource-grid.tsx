@@ -1,9 +1,6 @@
-"use client"
 
-import { Card } from "@/components/ui/card"
+
 import Link from "next/link"
-import { BookOpen, BookText, PlayCircle, FileCode, HelpCircle } from "lucide-react" 
-import Image from "next/image"
 import { resources } from "@/components/learning/resources"
 import FeatureCard from "../content-types/feature-card"
 
@@ -17,7 +14,7 @@ export function DevResourceGrid(count: any) {
       Find your Happy Path
     </h1>
     <p className="max-w-[750px] text-center text-lg text-muted-foreground sm:text-xl">
-      Your hub for mastering dotCMS. Explore our resources designed to help you succeed.
+      Your hub for mastering dotCMS. Explore resources designed to help you succeed.
     </p>
   </div>
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 pb-16">
