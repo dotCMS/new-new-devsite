@@ -42,7 +42,7 @@ export default async function DevResourceListing({ devResources, pagination, tag
                                     dotCMS : {myResource.title}
                                 </h1>
                             </div>
-                            <p className="text-xl text-white/90  px-3">
+                            <p className="text-xl text-white/90  px-2">
                                 {myResource.description}
                             </p>
                         </div>
@@ -65,7 +65,7 @@ export default async function DevResourceListing({ devResources, pagination, tag
                 <div className="flex flex-col lg:flex-row gap-8">
                     <div className="flex-1">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {devResources.map((resource) => (
+                            {devResources.map((resource: any) => (
                                 <article key={resource.identifier} className="bg-card text-card-foreground rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border border-border">
                                     <div className="relative">
                                         {resource.image?.modDate ? (
@@ -97,7 +97,7 @@ export default async function DevResourceListing({ devResources, pagination, tag
                                         <p className="text-muted-foreground mb-4 line-clamp-3">{resource.teaser}</p>
                                         {resource.tags && resource.tags.length > 0 && (
                                             <div className="flex flex-wrap gap-2">
-                                                {resource.tags.map((tag) => (
+                                                {resource.tags.map((tag: string) => (
                                                     <Link
                                                         key={"resourceTags-" + tag}
                                                         href={`?tagFilter=${encodeURIComponent(tag)}`}

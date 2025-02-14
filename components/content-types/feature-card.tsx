@@ -29,7 +29,7 @@ export default function FeatureCard({
     description,
     imageIdentifier,
     color,
-    count= 0    ,
+    count= 0,
     links = []
 }: FeatureCardProps) {
 

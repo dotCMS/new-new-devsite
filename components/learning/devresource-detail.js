@@ -20,7 +20,9 @@ export default function DevResourceDetailComponent({ devResource }) {
 
                 {/* Main Content */}
                 <article className="flex-1 px-4 max-w-4xl">
-
+                <h1 className="text-center text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+                    {devResource.title}
+                    </h1>
 
                     
                     

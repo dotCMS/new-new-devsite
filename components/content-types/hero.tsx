@@ -75,6 +75,7 @@ export default function Hero(props: HeroProps) {
                     description={card1.description}
                     imageIdentifier={card1.backgroundImageUrl?.identifier}
                     color="[#a21caf]"
+                    count={0}
                     links={developerLinks}
                 />
 
@@ -85,6 +86,7 @@ export default function Hero(props: HeroProps) {
                     description={card2.description}
                     imageIdentifier={card2.backgroundImageUrl?.identifier}
                     color="[#46ad07]"
+                    count={0}
                     links={authoringLinks}
                 />
 
@@ -94,7 +96,8 @@ export default function Hero(props: HeroProps) {
                     title={card3.title}
                     description={card3.description}
                     imageIdentifier={card3.backgroundImageUrl?.identifier}
-                    color="[#de4f00]"
+                    color="[#de4f00]"   
+                    count={0}
                     links={devopsLinks}
                 />
             </div>

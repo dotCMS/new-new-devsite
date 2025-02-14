@@ -25,7 +25,7 @@ export function useResources(limit: number = 50, page: number = 1, tagFilter: st
     async function fetchCurrentRelease() {
       try {
         setLoading(true);
-        const result = await getDevResources(tagFilter, page, limit, type, slug);
+        const result = await getDevResources({tagFilter, page, limit, type, slug});
         if (result) {
 
           setData(result);
