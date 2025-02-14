@@ -19,6 +19,7 @@ interface FeatureCardProps {
     imageIdentifier?: string;
     color: string;
     links: DocLinkType[];
+    count: number;
 }
 
 export default function FeatureCard({
@@ -28,20 +29,28 @@ export default function FeatureCard({
     description,
     imageIdentifier,
     color,
+    count= 0    ,
     links = []
 }: FeatureCardProps) {
 
-const imageUrl = imageIdentifier && imageIdentifier.startsWith('http') ? imageIdentifier : `${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${imageIdentifier}/1024maxw/80q/`;
+const imageUrl = imageIdentifier && (imageIdentifier.startsWith('http') || imageIdentifier.startsWith('/dA/')) ? imageIdentifier : `${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${imageIdentifier}/1024maxw/80q/`;
+const myHref= count<0 ? "#" : href;
 
-console.log(imageUrl);
     return (
         <div className="space-y-4">
-            <Link href={href} className="block">
+            <Link href={myHref} className="block">
                 <Card className={`overflow-hidden transition-all duration-300 group border border-border hover:border-${color} relative h-[300px]`}>
                     <CardContent className="p-6 relative z-10 h-full flex flex-col">
                         <div className="mb-4 flex items-center gap-2">
                             <Icon className={`h-6 w-6 transition-colors group-hover:text-${color}`} />
-                            <h3 className={`text-xl font-semibold transition-colors group-hover:text-${color}`}>{title}</h3>
+                            <div className="flex items-center gap-2">
+                                <h3 className={`text-xl font-semibold transition-colors group-hover:text-${color}`}>{title}</h3>
+                                {count > 0 && (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+                                        {count}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                         <p className="mb-6 text-sm text-muted-foreground">
                             {description}
