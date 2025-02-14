@@ -52,19 +52,22 @@ export default async function Page({ params, searchParams }) {
         });
 
         const { pageAsset, error: pageError } = await fetchPageData(pageParams);
-        const { nav, error: navError } = await fetchNavData(pageParams.language_id);
+
 
         return {
-            nav,
+
             pageAsset,
-            error: pageError || navError,
+            error: pageError ,
         };
     };
-    const { pageAsset, nav, error } = await getPageData();
+    const { pageAsset, error } = await getPageData();
 
     // Move this to MyPage
     if (error) {
         return <ErrorPage error={error} />;
+    }
+    if(!pageAsset) {
+        return <ErrorPage error={{ message: "Page not found", status: 404 }} />;
     }
 
     if (pageAsset?.vanityUrl) {
@@ -74,7 +77,7 @@ export default async function Page({ params, searchParams }) {
     return (
         <PageAsset 
             pageAsset={pageAsset} 
-            nav={nav} 
+
             serverPath={pathname}
         />
     );
