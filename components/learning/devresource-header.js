@@ -23,7 +23,7 @@ export const DevResourceHeader = ({
     const imageUrl = "/dA/" + devResource.identifier + "/70q/1000maxw";
     
     useEffect(() => {
-        const urlString = new URL(pathname, `https://${Config.MediaHost}`);
+        const urlString = new URL(pathname, `https://${Config.CDNHost}`);
         setUrl(urlString);
     }, [pathname, devResource.hostname]);
 

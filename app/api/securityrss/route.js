@@ -3,7 +3,7 @@ import {Config} from '@/util/config'
 import { getSecurityIssues } from '@/services/docs/getSecurityIssues/getSecurityIssues';
 
 const extractHrefs = (obj) => {
-  const baseURL = `${Config.MediaHost}/docs/`
+  const baseURL = `${Config.CDNHost}/docs/`
   let hrefs = []
 
   if (obj && typeof obj === 'object') {
@@ -34,7 +34,7 @@ const getBlogs = async () => {
 
     const {securutyIssues,pagination} = await getSecurityIssues();
     securutyIssues.map(issue => {
-        finalSecurityIssues.push({href: `${ConfigDict.MediaHost}/security/${issue.issueNumber}`, modDate: blog.modDate});
+        finalSecurityIssues.push({href: `${ConfigDict.CDNHost}/security/${issue.issueNumber}`, modDate: blog.modDate});
     });
     for(var j = 2; j <= pagination.totalPages; j++) {
         const {blogs} = await getBlogListing({tagFilter: "", page: j, pageSize: 50});
@@ -42,7 +42,7 @@ const getBlogs = async () => {
             break;
         }
         blogs.map(blog => {
-            finalBlogs.push({href: `${ConfigDict.MediaHost}/blog/${blog.urlTitle}`, modDate: blog.modDate});
+            finalBlogs.push({href: `${ConfigDict.CDNHost}/blog/${blog.urlTitle}`, modDate: blog.modDate});
         });
     }
   

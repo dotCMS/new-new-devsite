@@ -6,7 +6,7 @@ interface ImageLoaderProps {
 }
 
 const ImageLoader = ({ src, width }: ImageLoaderProps): string => {
-  const dotcmsURL = new URL(Config.MediaHost || '').origin;
+  const dotcmsURL = new URL(Config.CDNHost || '').origin;
 
   const context = useDotcmsPageContext();
 
