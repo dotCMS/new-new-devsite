@@ -53,6 +53,7 @@ export default async function DevResourceListing({ devResources, pagination, tag
             <div className="container mx-auto px-4">
                 <Link 
                     prefetch={false}
+
                     href="/learning" 
                     className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 w-fit group transition-colors"
                 >
@@ -71,6 +72,7 @@ export default async function DevResourceListing({ devResources, pagination, tag
                                     <div className="relative">
                                         {resource.image?.modDate ? (
                                         <Link href={`/learning/${resource.slug}`} prefetch={false} className="block">
+
                                                 <Image
                                                     src={"/dA/" + resource.identifier + "/70q/1000maxw"}
                                                     alt={resource.teaser || resource.title}
@@ -91,7 +93,9 @@ export default async function DevResourceListing({ devResources, pagination, tag
                                             </time>
                                         </div>
                                         <h2 className="text-xl font-bold mb-3 line-clamp-2">
+
                                             <Link href={`/learning/${resource.slug}`} prefetch={false} className="hover:text-primary transition-colors">
+
                                                 {resource.title}
                                             </Link>
                                         </h2>

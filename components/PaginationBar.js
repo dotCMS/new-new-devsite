@@ -31,7 +31,7 @@ export default function PaginationBar({ pagination, additionalQueryParams }) {
 
     const pages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i)
 
-    console.log(additionalQueryParams);
+    //console.log(additionalQueryParams);
     const finalAdditionalQueryParams = additionalQueryParams && additionalQueryParams.length > 0 ? additionalQueryParams : "";
 
     return (
@@ -49,7 +49,7 @@ export default function PaginationBar({ pagination, additionalQueryParams }) {
                 {startPage > 1 && (
                     <>
                         <PaginationItem>
-                            <PaginationLink href="?page=1&${finalAdditionalQueryParams}">1</PaginationLink>
+                            <PaginationLink href={`?page=1&${finalAdditionalQueryParams}`}>1</PaginationLink>
                         </PaginationItem>
                         {startPage > 2 && (
                             <PaginationItem>

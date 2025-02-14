@@ -36,7 +36,7 @@ export const TableReleases: FC<{showCurrent: boolean, limit?: number, page?: num
   }, {} as Record<string, {version: string, lts: string, eolDate: string, isLatest: boolean}>);
 
   const latestLts = currentReleases.filter((release) => release.lts !== "3").sort((a, b) => a.minor - b.minor)[0];
-  const latestAgile = currentReleases.filter((release) => release.lts === "3").sort((a, b) => a.minor - b.minor)[0];
+  const latestCurrent = currentReleases.filter((release) => release.lts === "3").sort((a, b) => a.minor - b.minor)[0];
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -117,7 +117,7 @@ export const TableReleases: FC<{showCurrent: boolean, limit?: number, page?: num
               >
 
                 <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                  <Link href={`changelogs?lts=true#v${release.minor}`}>
+                  <Link href={`changelogs?v=${release.minor}`}>
                     {release.minor}
                   </Link>
                 </td>
