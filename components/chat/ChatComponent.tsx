@@ -38,6 +38,12 @@ export function ChatComponent() {
   // Add refs for the messages container and form
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // Focus input when modal opens
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
 
   // Helper function to handle example question clicks
   const handleExampleClick = (question: string) => {
@@ -185,9 +191,14 @@ export function ChatComponent() {
   }
 
   const clearHistory = () => {
+    // Abort any ongoing streaming response
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+      abortControllerRef.current = null
+    }
+    setCurrentStreamingMessage("")
     setMessages([])
     setInput("")
-    setCurrentStreamingMessage("")
     localStorage.removeItem(STORAGE_KEY)
   }
 
@@ -268,7 +279,7 @@ export function ChatComponent() {
 
   const clearInput = () => {
     setInput("")
-    setMessages([])
+
   }
 
   const handleModeChange = async (pressed: boolean) => {
@@ -498,10 +509,15 @@ export function ChatComponent() {
       >
         <div className="flex-1 relative">
           <input
+            ref={inputRef}
             className="w-full p-2 pr-8 bg-background border rounded-md"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={mode === "search" ? "Search the dev site..." : "Ask a question..."}
+            placeholder={mode === "search" 
+                ? "Search the dev site..." 
+                : messages.length > 0 && mode === "ai"
+                    ? "Ask a follow up..." 
+                    : "Ask a question..."}
             disabled={loading}
           />
           {input  && (
