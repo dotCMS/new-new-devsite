@@ -21,6 +21,21 @@ const TagCloud = (tags) => {
         return 'text-xs';
     };
 
+    const buildUrl = (tagKey = null) => {
+        const params = new URLSearchParams();
+        // Preserve all existing params except tagFilter
+        for (const [key, value] of searchParams.entries()) {
+            if (key !== 'tagFilter' && key !== 'page') {
+                params.append(key, value);
+            }
+        }
+        // Add the new tag if provided
+        if (tagKey) {
+            params.append('tagFilter', tagKey);
+        }
+        return `?${params.toString()}`;
+    };
+
     return (
         <div className="bg-card text-card-foreground rounded-lg shadow-sm p-6 border border-border">
             <h3 className="text-lg font-semibold mb-4">Popular Tags</h3>
@@ -31,7 +46,7 @@ const TagCloud = (tags) => {
                     return (
                         <Link
                             key={tag.key}
-                            href={isActive ? '?' : `?tagFilter=${encodeURIComponent(tag.key)}`}
+                            href={isActive ? buildUrl() : buildUrl(tag.key)}
                             className={cn(
                                 getTagSize(tag.doc_count, maxFrequency),
                                 "inline-flex items-center px-3 py-1 rounded-full transition-colors",

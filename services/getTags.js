@@ -33,9 +33,11 @@ export async function getTagsByLuceneQuery(luceneQuery, limit) {
 
     const ES_ENPOINT = process.env.NEXT_PUBLIC_DOTCMS_HOST + "/api/es/raw";
 
-
+    if (luceneQuery.includes("\n")) {
+        luceneQuery = luceneQuery.replace(/\n/g, " ");
+    }
     const query = getTagQuery(luceneQuery, limit);
-    //console.log("query", query);
+    
 
     const res = await logRequest(async () => await fetch(ES_ENPOINT, {
         method: 'POST',
