@@ -21,7 +21,7 @@ export default function APIPlaygrounds(props: APIPlaygroundsProps) {
                                 </p>
                             </div>
                             <Link
-                                href="/docs/rest-api"
+                                href="/docs/rest-apis"
                                 className="text-[#a21caf] hover:text-[#a21caf]/90 inline-flex items-center gap-2 text-lg"
                             >
                                 Get started with dotCMS REST APIs
@@ -42,19 +42,19 @@ export default function APIPlaygrounds(props: APIPlaygroundsProps) {
                             </Link>
                             <div className="space-y-6 mt-8">
                                 <div className="space-y-2">
-                                    <Link href="/playground/graphql" className="text-white font-medium hover:text-gray-200">
+                                    <Link href="https://www.dotcms.com/playgrounds/graphql" className="text-white font-medium hover:text-gray-200">
                                         GraphQL Playground
                                     </Link>
                                     <p className="text-gray-400">Interactive GraphQL query editor and schema explorer</p>
                                 </div>
                                 <div className="space-y-2">
-                                    <Link href="/playground/rest" className="text-white font-medium hover:text-gray-200">
+                                    <Link href="https://www.dotcms.com/playgrounds/rest-api-playground" className="text-white font-medium hover:text-gray-200">
                                         REST API Playground
                                     </Link>
                                     <p className="text-gray-400">Test and explore REST API endpoints in real-time</p>
                                 </div>
                                 <div className="space-y-2">
-                                    <Link href="/playground/image" className="text-white font-medium hover:text-gray-200">
+                                    <Link href="https://www.dotcms.com/playgrounds/image-api" className="text-white font-medium hover:text-gray-200">
                                         Image API Playground
                                     </Link>
                                     <p className="text-gray-400">Experiment with image transformations and optimizations</p>
@@ -104,12 +104,7 @@ export default function APIPlaygrounds(props: APIPlaygroundsProps) {
                                     </div>
                                     <pre className="bg-gray-50 p-4 rounded overflow-x-auto">
                                         <code className="text-sm">
-                                            {`{
-                                                "contentType": "Blog",
-                                                "title": "Getting Started with dotCMS",
-                                                "author": "John Doe",
-                                                "status": "PUBLISHED"
-                                            }`}
+                                            {`{\n  "contentType": "Blog",\n  "title": "Getting Started with dotCMS",\n  "author": "John Doe",\n  "status": "PUBLISHED"\n}`}
                                         </code>
                                     </pre>
                                 </div>
