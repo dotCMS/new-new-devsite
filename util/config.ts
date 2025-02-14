@@ -3,13 +3,15 @@ const normalizedDotCMSHost = process.env.NEXT_PUBLIC_DOTCMS_HOST?.endsWith('/')
   ? process.env.NEXT_PUBLIC_DOTCMS_HOST.slice(0, -1)
   : (process.env.NEXT_PUBLIC_DOTCMS_HOST as string) 
 
-const normalizedMediaHost = process.env.NEXT_PUBLIC_MEDIA_URL?.endsWith('/')
-  ? process.env.NEXT_PUBLIC_MEDIA_URL.slice(0, -1)
+const normalizedCDNHost = process.env.NEXT_PUBLIC_CDN_HOST && process.env.NEXT_PUBLIC_CDN_HOST.length > 0 ?
+  process.env.NEXT_PUBLIC_CDN_HOST?.endsWith('/')
+    ? process.env.NEXT_PUBLIC_CDN_HOST.slice(0, -1)
+    : (process.env.NEXT_PUBLIC_CDN_HOST as string)
   : (normalizedDotCMSHost as string)
 
 export const Config = {
   DotCMSHost: normalizedDotCMSHost as string,
-  MediaHost: normalizedMediaHost as string,
+  CDNHost: normalizedCDNHost as string,
   GraphqlUrl: process.env.NEXT_PUBLIC_API_GRAPH_URL || ((normalizedDotCMSHost + '/api/v1/graphql') as string),
   AuthToken: process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN as string,
   SwaggerUrl: process.env.NEXT_PUBLIC_API_SWAGGER_URL || ((normalizedDotCMSHost + '/api/openapi.json') as string),
