@@ -8,13 +8,22 @@ import Link from "next/link";
 import PaginationBar from "@/components/PaginationBar";
 import { useSearchParams } from "next/navigation";
 import { FilterReleases } from '@/services/docs/getReleases/types';
+import DockerComposeYAML from "../DockerComposeYAML/DockerComposeYAML";
 
-export const TableReleases: FC<{showCurrent: boolean, limit?: number, page?: number, filter?: FilterReleases, version?: string}> = ({
+export const TableReleases: FC<{
+  showCurrent: boolean, 
+  limit?: number, 
+  page?: number, 
+  filter?: FilterReleases, 
+  version?: string,
+  downloadYAML?: boolean,
+}> = ({
   showCurrent=true,
   limit=40,
   page=1,
   filter=FilterReleases.ALL,
-  version=""
+  version="",
+  downloadYAML=false,
 }) => {
   const [copiedStates, setCopiedStates] = useState<{ [key: string]: boolean }>({});
   const currentReleases = useCurrentReleases();
@@ -35,7 +44,7 @@ export const TableReleases: FC<{showCurrent: boolean, limit?: number, page?: num
     return acc;
   }, {} as Record<string, {version: string, lts: string, eolDate: string, isLatest: boolean}>);
 
-  const latestLts = currentReleases.filter((release) => release.lts !== "3").sort((a, b) => a.minor - b.minor)[0];
+  const latestLts = currentReleases.filter((release) => release.lts === "1").sort((a, b) => a.minor - b.minor)[0];
   const latestCurrent = currentReleases.filter((release) => release.lts === "3").sort((a, b) => a.minor - b.minor)[0];
   if (loading) {
     return (
@@ -82,6 +91,11 @@ export const TableReleases: FC<{showCurrent: boolean, limit?: number, page?: num
         <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-900">
             <tr>
+              {downloadYAML && (
+                <th className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                Download
+              </th>
+              )}
               <th className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Version
               </th>
@@ -115,6 +129,39 @@ export const TableReleases: FC<{showCurrent: boolean, limit?: number, page?: num
                     : 'hover:bg-gray-50 dark:hover:bg-gray-700'
                 }`}
               >
+                {downloadYAML && (
+                  <td className="px-6 py-4 text-sm font-semibold text-gray-900 
+                                dark:text-gray-100 flex flex-row gap-2">
+                      <button
+                        onClick={() => { DockerComposeYAML({ 
+                          version: release.minor, 
+                          lts: release.lts !== "3", 
+                          dockerTag: release.dockerImage.replace("dotcms/dotcms:", ""), 
+                          cleanStarter: release.starterEmpty, 
+                          demoStarter: release.starter, 
+                          includeDemo: false 
+                        })}}
+                        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-600 
+                                  rounded-md transition-colors bg-indigo-100 dark:bg-indigo-600"
+                      >
+                        Clean
+                      </button>
+                      <button
+                        onClick={() => { DockerComposeYAML({ 
+                            version: release.minor, 
+                            lts: release.lts !== "3", 
+                            dockerTag: release.dockerImage.replace("dotcms/dotcms:", ""), 
+                            cleanStarter: release.starterEmpty, 
+                            demoStarter: release.starter, 
+                            includeDemo: true 
+                          })}}
+                        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-600 
+                                  rounded-md transition-colors bg-purple-100 dark:bg-purple-600"
+                      >
+                        With Demo Site
+                      </button>
+                  </td>
+                )}
 
                 <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
                   <Link href={`changelogs?v=${release.minor}`}>
@@ -132,7 +179,7 @@ export const TableReleases: FC<{showCurrent: boolean, limit?: number, page?: num
                             </>
                         )
                          
-                        : releaseMap[release.minor] && release.lts !== "3"
+                        : releaseMap[release.minor] && release.lts === "1"
                             ? "Latest LTS"
                             : release.lts !== "3" 
                                 ? "LTS" 
