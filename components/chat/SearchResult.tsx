@@ -87,7 +87,7 @@ export function SearchResult({ title, content, url, score, contentType, inode, m
           </div>
         </div>
         <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-          {content}
+          {content.trim().replace(/^[\s\S]*?(?=\S)/, '')}
         </p>
         <a 
           href={getLinkForContentType(contentType, url)}
