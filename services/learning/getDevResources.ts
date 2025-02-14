@@ -2,7 +2,7 @@ import { getGraphqlResults } from "@/services/gql";
 import { logRequest } from "@/util/logRequest";
 
 const sanitize = (param: string) => {
-    return param !== undefined && param !== null ?
+    return param !== undefined && param !== null && typeof param === "string" ?
         param.replace("\"", "")
             .replace("+", " ")
             .replace("<", " ")
@@ -23,7 +23,15 @@ export const devResourceBaseQuery = (type: string) => {
     return `+contenttype:devresource +(conhost:SYSTEM_HOST  ||  conhost:173aff42881a55a562cec436180999cf ) +live:true ${finalType}`.replace(/\n/g, " ");
 }
 
-export async function getDevResources(tagFilter: string, page: number=1, limit: number=50, type: string, slug: string) {
+export async function getDevResources({
+    tagFilter="", 
+    page=1, 
+    limit=50, 
+    type="", 
+    slug="",
+    needBody=false
+
+}) {
 
     const finalSlug = sanitize(slug) ? "+devresource.slug_dotraw:" + sanitize(slug) : "";
     const finalTagFilter = sanitize(tagFilter) ? "+tags:" + sanitize(tagFilter) : "";
@@ -43,8 +51,9 @@ export async function getDevResources(tagFilter: string, page: number=1, limit: 
             teaser
             inode
             tags
+            ${needBody ? "body {json}" : ""}
             image {
-                modDate
+              modDate
               title
               width
               mime	
