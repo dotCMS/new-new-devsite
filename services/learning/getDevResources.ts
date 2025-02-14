@@ -34,7 +34,20 @@ export async function getDevResources({
 }) {
 
     const finalSlug = sanitize(slug) ? "+devresource.slug_dotraw:" + sanitize(slug) : "";
-    const finalTagFilter = sanitize(tagFilter) ? "+tags:" + sanitize(tagFilter) : "";
+    const finalTagFilter = sanitize(tagFilter) ?  `+tags:\\"` 
+    + sanitize(tagFilter)
+        .replace("\"", "")
+        .replace("+", " ") 
+        .replace("<", " ") 
+        .replace(">", " ") 
+        .replace("(", " ") 
+        .replace(")", " ") 
+        .replace("*", " ") 
+        .replace("?", " ") 
+        .replace("|", " ") 
+        .replace("\\", " ") 
+    + `\\"` 
+: "";
 
     const baseQuery = devResourceBaseQuery(type);
     const query = `query ContentAPI {

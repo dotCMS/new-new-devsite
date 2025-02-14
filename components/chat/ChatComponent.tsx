@@ -414,7 +414,7 @@ export function ChatComponent() {
               <Bot className="w-8 h-8" />
             )}
             <div className="flex-1 space-y-2 overflow-hidden">
-              <p className="text-sm font-medium">
+              <p className={`text-sm ${message.role === "user" ? "font-bold" : "font-medium "}`}>
                 {message.role === "user" ? "You" : message.isSearchResult ? "Search Result" : "dotAI Assistant"}
               </p>
               {message.isSearchResult ? (
