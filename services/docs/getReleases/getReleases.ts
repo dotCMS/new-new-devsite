@@ -9,7 +9,7 @@ export const getReleases = async (limit: number = 50, page: number = 1, filter: 
   if (version) {
     buildQuery += ` +Dotcmsbuilds.minor:*${version}*`;
   }
-  console.log("filter",filter);
+  //console.log("filter",filter);
   if (filter === FilterReleases.LTS) {
     buildQuery += ' -Dotcmsbuilds.lts:3';
   }else if (filter === FilterReleases.CURRENT) {
