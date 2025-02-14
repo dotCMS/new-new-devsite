@@ -12,8 +12,8 @@ export function SearchModal({
   onClose: () => void
 }) {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[800px] h-[80vh] flex flex-col">
+    <Dialog open={isOpen} onOpenChange={onClose} >
+      <DialogContent className="sm:max-w-[1024px] h-[80vh] flex flex-col">
         <DialogTitle className="flex items-center gap-2">
           <Search className="h-5 w-5" />
           dotAI Assistant
