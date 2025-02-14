@@ -6,9 +6,17 @@ import { DotBlockEditor } from '@/components/shared/dotBlockEditor';
 import OnThisPage from '@/components/navigation/OnThisPage';
 import React from 'react';
 
+import { DevResourceHeader } from './devresource-header';
+import { resources } from "./resources";
+import { ErrorPage } from "@/components/error";
 
 
 export default function DevResourceDetailComponent({ devResource }) {
+    const myResources = resources.filter((resource) => resource.type === devResource.type1[0]);
+    if (myResources.length === 0) {
+        return <ErrorPage error={{message:"Resource not found",status:404}} />
+    }
+    const myResource = myResources[0]
 
     const customRenderers = {};
 
@@ -20,10 +28,8 @@ export default function DevResourceDetailComponent({ devResource }) {
 
                 {/* Main Content */}
                 <article className="flex-1 px-4 max-w-4xl">
-                <h1 className="text-center text-2xl font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
-                    {devResource.title}
-                    </h1>
 
+                <DevResourceHeader devResource={devResource} resourceType={myResource}/>
                     
                     
                     <div className="prose prose-lg max-w-none mb-8">
