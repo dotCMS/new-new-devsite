@@ -11,15 +11,18 @@ export const metadata: Metadata = {
 };
 
 export default async function DevResourceDetailPage({
-    params,
-    searchParams,
-  }: {
-    params: Promise<{ slug: string }>
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-  }) {
-    const slug = (await params).slug
-    const finalSlug: string = Array.isArray(slug) ? slug[0] : slug
-  const devResource = await getDevResources({ slug: finalSlug, needBody: true });
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const slug = (await params).slug;
+  const finalSlug: string = Array.isArray(slug) ? slug[0] : slug;
+  const devResource = await getDevResources({
+    slug: finalSlug,
+    needBody: true,
+  });
   if (devResource.devResources.length === 0) {
     return <ErrorPage error={{ message: "Resource not found", status: 404 }} />;
   }

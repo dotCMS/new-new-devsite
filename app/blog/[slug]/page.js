@@ -3,6 +3,7 @@ import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import { notFound } from "next/navigation";
 import BlogDetailComponent from "@/components/blogs/blog-detail";
+import { ErrorPage } from "@/components/error";
 
 
 export async function generateMetadata({ params, searchParams }) {
@@ -31,6 +32,9 @@ export default async function BlogPage({ searchParams, params }) {
     }
     const post = await getBlogDetailQuery(slug);
 
+    if(!post || !post.identifier) {
+        return <ErrorPage error={{ message: "Blog not found", status: 404 }} />;
+    }
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
