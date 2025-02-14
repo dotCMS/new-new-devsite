@@ -29,7 +29,7 @@ export default function DevResourceDetailComponent({ devResource }) {
                 {/* Main Content */}
                 <article className="flex-1 px-4 max-w-4xl">
 
-                <DevResourceHeader devResource={devResource} resourceType={myResource}/>
+                <DevResourceHeader devResource={devResource} myResource={myResource}/>
                     
                     
                     <div className="prose prose-lg max-w-none mb-8">

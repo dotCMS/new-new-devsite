@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="mb-6 text-center">
           <h2 className="mb-2 text-xl font-bold">dotCMS</h2>
           <p className="text-sm text-muted-foreground">
-            Modern content management, made simple.
+            Universal content management, made simple.
           </p>
         </div>
 
@@ -41,13 +41,13 @@ export default function Footer() {
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
             Home
           </Link>
-          <Link href="https://www.dotcms.com/company/about-us" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground">
+          <Link href="https://www.dotcms.com/company/about-us" prefetch={false} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground">
             About
           </Link>
-          <Link href="https://www.dotcms.com/blog" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground">
+          <Link href="/blog" prefetch={false} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground">
             Blog
           </Link>
-          <Link href="https://www.dotcms.com/contact-us" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground">
+          <Link href="https://www.dotcms.com/contact-us" prefetch={false}   target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground">
             Contact
           </Link>
         </nav>
