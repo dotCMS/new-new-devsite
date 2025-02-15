@@ -20,6 +20,7 @@ interface Card {
     backgroundImageUrl?: {
         identifier: string;
     };
+    url?: string;
     callToAction?: {
         url: string;
         icon: any;
@@ -79,29 +80,29 @@ export default function Hero(props: HeroProps) {
 
             <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
                 <FeatureCard
-                    href="/docs/developer"
+                    href={card1.url || "/docs/developer"}
                     icon={Code}
-                    title={card1.title}
-                    description={card1.description}
-                    imageIdentifier={card1.backgroundImageUrl?.identifier}
+                    title={card1?.title}
+                    description={card1?.description}
+                    imageIdentifier={card1?.backgroundImageUrl?.identifier}
                     color="[#a21caf]"
                     count={0}
                     links={developerLinks}
                 />
 
                 <FeatureCard
-                    href="/docs/authoring"
+                    href={card2.url || "/docs/authoring"}
                     icon={PenTool}
-                    title={card2.title}
-                    description={card2.description}
-                    imageIdentifier={card2.backgroundImageUrl?.identifier}
+                    title={card2?.title}
+                    description={card2?.description}
+                    imageIdentifier={card2?.backgroundImageUrl?.identifier}
                     color="[#46ad07]"
                     count={0}
                     links={authorLinks}
                 />
 
                 <FeatureCard
-                    href="/docs/devops"
+                    href={card3.url || "/docs/devops"}
                     icon={Server}
                     title={card3.title}
                     description={card3.description}
