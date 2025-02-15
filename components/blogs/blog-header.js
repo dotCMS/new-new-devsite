@@ -2,15 +2,16 @@
 
 import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
-
 import SocialMediaShare from '@/components/shared/socialMediaShare';
-import { ImagePlacerholder } from '@/components/shared/dotCardImage';
 import { cn } from '@/util/utils';
 import { Calendar, Tag as TagIcon } from 'lucide-react';
-import Tag from '@/components/shared/tag';
 import { format } from "date-fns";
 import Link from 'next/link';
+
+function extractAssetId(uri) {
+    const match = uri.match(/\/dA\/([^/]+)/);
+    return match ? match[1] : null;
+}
 
 export const DetailHeader = ({
     post,
@@ -61,7 +62,7 @@ export const DetailHeader = ({
             {imageUrl && (
                 <figure className="mb-8">
                     <img
-                        src={imageUrl + "/70q/1000maxw"}
+                        src={"/dA/" + extractAssetId(imageUrl) + "/70q/1000maxw"}
                         alt={post.image?.description || post.title}
                         width={1000}
                         height={400}
