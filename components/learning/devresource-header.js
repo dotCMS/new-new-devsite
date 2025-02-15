@@ -21,7 +21,7 @@ export const DevResourceHeader = ({
     const formattedDate = format(new Date(devResource.publishDate), 'MMMM dd, yyyy');
     const pathname = usePathname();
     const [url, setUrl] = useState('');
-    const imageUrl = "/dA/" + devResource.identifier + "/70q/1000maxw";
+    const imageUrl = "/dA/" + devResource.identifier + "/70q/1000maxw/" + devResource.inode;
     
     useEffect(() => {
         const urlString = new URL(pathname, `https://${Config.CDNHost}`);
