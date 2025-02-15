@@ -18,18 +18,17 @@ export default async function DevResourceListing({ devResources, pagination, tag
     const myResource = myResources[0]
     const allTags = await getTagsByLuceneQuery(devResourceBaseQuery(type), 30);
     const tagFilterQueryParam = tagFilter && tagFilter.length > 0 ? "tagFilter=" + tagFilter : "";
-
+    
     return (
         <div>
             {/* Hero Header */}
             <div className="relative h-[200px] my-6 rounded-t-3xl  overflow-hidden">
                 <div className="absolute inset-0">
-                    <Image
+                    <img
                         src={myResource.image}
                         alt={myResource.title}
-                        fill
-                        className="object-cover"
-                        priority
+                        className="object-cover w-full h-full"
+  
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-gray-900/70 to-gray-900/30" />
                 </div>
@@ -73,8 +72,8 @@ export default async function DevResourceListing({ devResources, pagination, tag
                                         {resource.image?.modDate ? (
                                         <Link href={`/learning/${resource.slug}`} prefetch={false} className="block">
 
-                                                <Image
-                                                    src={"/dA/" + resource.identifier + "/70q/1000maxw"}
+                                                <img
+                                                    src={"/dA/" + resource.identifier + "/70q/1000maxw/" + resource.inode}
                                                     alt={resource.teaser || resource.title}
                                                     width={70}
                                                     height={100}
