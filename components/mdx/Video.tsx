@@ -36,6 +36,7 @@ const Video: FC<VideoProps> = ({
   poster,
   identifier,
 }) => {
+    console.log("video identifier", identifier);
   const getVideoUrl = (src?: string) => {
     if (identifier) {
       return `${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${identifier}/video/${src}`;

@@ -187,46 +187,49 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       </TableCell>
     },
     hr: () => <hr className="border-t border-border mb-6" />,
-    video: ({ children, ...props }: any) => {
-      // Ensure children is an array and handle rehype-raw parsed elements
-      const childrenArray = React.Children.toArray(children);
+    video: ({ node, ...props }: any) => {
+      if (!node?.children) return null;
+      
+      const sources = node.children
+        .filter((child: any) => child.tagName === 'source')
+        .map((source: any) => {
+          let src = source.properties?.src;
+          // Handle DotCMS URLs
+          if (src && src.startsWith('/dA/')) {
+            src = `https://www.dotcms.com${src}`;
+          }
+          return {
+            src,
+            type: source.properties?.type?.split('?')[0] || 'video/mp4'
+          };
+        });
 
-      const sources = childrenArray.some((child: any) =>
-        child.type === 'source' ||
-        (typeof child === 'object' && child?.props?.originalType === 'source')
-      )
-        ? childrenArray
-          .filter((child: any) =>
-            child.type === 'source' ||
-            (typeof child === 'object' && child?.props?.originalType === 'source')
-          )
-          .map((source: any) => ({
-            src: source.props?.src || source.props?.originalProps?.src,
-            type: source.props?.type || source.props?.originalProps?.type
-          }))
-        : undefined;
+      if (sources.length === 0) return null;
 
-      const src = sources?.[0]?.src || props.src;
-          
-      // Handle DotCMS URL format
-
-      const hasHost = src && (src.startsWith('http://') || src.startsWith('//') || src.startsWith("https://"))
-      const videoSrc = hasHost ? src : process.env.NEXT_PUBLIC_DOTCMS_HOST + src;
-
-      const videoProps = {
-        src: videoSrc,
-        className: "w-full mb-4",
-        ...props
-      };
-
-      return <Video {...videoProps} />;
+      return (
+        <video
+          className="rounded-lg w-full mb-4"
+          width="100%"
+          height="auto"
+          controls
+          autoPlay
+          loop
+          playsInline
+          muted
+        >
+          {sources.map((source: { src: string; type: string }, index: number) => (
+            <source key={index} src={source.src} type={source.type} />
+          ))}
+          Your browser does not support the video tag.
+        </video>
+      );
     }
   }
 
   return (
     <ReactMarkdown
       rehypePlugins={[
-        rehypeRaw,
+        [rehypeRaw, { passThrough: ['video', 'source'] }],
         rehypeSlug,
         [rehypeAutolinkHeadings, { behavior: 'wrap' }]
       ]}

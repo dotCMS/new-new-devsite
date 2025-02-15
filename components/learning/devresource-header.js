@@ -15,7 +15,8 @@ import Link from 'next/link';
 
 export const DevResourceHeader = ({
     devResource,
-    myResource
+    myResource,
+    showImage = true
 }) => {
     const formattedDate = format(new Date(devResource.publishDate), 'MMMM dd, yyyy');
     const pathname = usePathname();
@@ -53,8 +54,8 @@ export const DevResourceHeader = ({
             </div>
 
             {/* Featured Image */}
-            {imageUrl && (
-                <figure className="mb-8">
+            {imageUrl && showImage && (
+                <figure className="mb-8 max-h-[200px] overflow-hidden">
                     <img
                         src={imageUrl }
                         alt={devResource.image?.description || devResource.title}

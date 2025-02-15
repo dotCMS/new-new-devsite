@@ -1,6 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card"
-import Image from "next/image"
-import Link from "next/link"
+    import Link from "next/link"
 import { LucideIcon, Code } from "lucide-react"
 import { DocLink } from "@/components/content-types/doc-link"
 
@@ -56,7 +55,7 @@ export default function FeatureCard({
                             {description}
                         </p>
                         <div className="mt-auto flex justify-center w-full">
-                            <Image
+                            <img
                                 src={`${imageUrl}`}
                                 alt={`${title} illustration`}
                                 width={400}
