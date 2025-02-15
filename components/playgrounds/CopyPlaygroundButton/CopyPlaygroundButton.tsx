@@ -1,21 +1,3 @@
-/*"use client";
-import { type FC } from "react";
-import { type TCopyPlaygroundButton } from './types';
-
-const CopyPlaygroundButton: FC<TCopyPlaygroundButton> = ({ text, disabled }) => {
-    return (
-        <div>
-            <button disabled={disabled}>
-                Copy
-            </button>
-        </div>
-    );
-};
-
-export default CopyPlaygroundButton;
-*/
-
-
 "use client";
 import { type FC, useState } from "react";
 import { type TCopyPlaygroundButton } from './types'
