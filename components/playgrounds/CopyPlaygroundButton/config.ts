@@ -1,0 +1,1 @@
+export const COPY_TIME = 2000

@@ -14,6 +14,8 @@ import NavTree from "@/components/navigation/NavTree";
 import CurrentReleases from "@/components/releases/CurrentReleases";
 import AllReleases from "@/components/releases/AllReleases";
 import AllSecurityIssues from "@/components/security-issues/AllSecurityIssues";
+import RestApiPlayground from "@/components/playgrounds/RestApiPlayground/RestApiPlayground";
+import SwaggerUIComponent from "@/components/playgrounds/SwaggerUIComponent/SwaggerUIComponent";
 
 async function fetchPageData(path, searchParams) {
     const finalPath = await path;
@@ -84,12 +86,13 @@ export default async function Home({ searchParams, params }) {
     // Add more path-component mappings here as needed:
     // "path-name": (contentlet) => <ComponentName contentlet={contentlet} />,
     const componentMap = {
-        "changelogs": (data) => <ChangeLogList {...data} slug={slug}     />,
+        "changelogs": (data) => <ChangeLogList {...data} slug={slug} />,
         "current-releases": (data) => <CurrentReleases  {...data} slug={slug} />,
         "all-releases": (data) => <AllReleases  {...data} slug={slug} />,
         "previous-releases": (data) => <AllReleases  {...data} slug={slug} />,
         "known-security-issues": (data) => <AllSecurityIssues  {...data} slug={slug} />,
-        
+        "rest-api-sampler": (data) => <RestApiPlayground {...data} slug={slug} />,
+        "all-rest-apis": (data) => <SwaggerUIComponent {...data} slug={slug} />,
         default: (data) => <Documentation {...data} slug={slug} />
     };
 

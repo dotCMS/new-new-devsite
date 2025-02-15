@@ -44,6 +44,10 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    --swagger-inline-code-foreground: #9012fe;
+    --swagger-inline-code-background: rgba(0,0,0,.05);
+    --swagger-input-background: rgba(255, 255, 255, 1);
+    --swagger-input-foreground: #3b4151;
   }
 
   .dark {
@@ -71,6 +75,10 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --swagger-inline-code-foreground: #cf99ff;
+    --swagger-inline-code-background: rgba(255,255,255,.05);
+    --swagger-input-background: rgba(255,255,255,.05);
+    --swagger-input-foreground: hsl(224 71.4% 4.1%);
   }
 
   * {
@@ -94,3 +102,32 @@ main {
   flex: 1;
 }
 
+.swagger-ui :not(pre):not(pre *):not(span.opblock-summary-method):not(code) {
+  color: hsl(var(--foreground)) !important;
+}
+.swagger-ui .renderedMarkdown code {
+  color: var(--swagger-inline-code-foreground) !important;
+  background: var(--swagger-inline-code-background) !important;
+}
+.swagger-ui input, .swagger-ui textarea {
+  background: var(--swagger-input-background) !important;
+}
+.swagger-ui .arrow {
+  fill: hsl(var(--foreground));
+}
+.swagger-ui select {
+  background: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+  -moz-appearance: auto !important; 
+  -webkit-appearance: auto !important;
+  appearance: auto !important;
+}
+.swagger-ui .opblock-section-header {
+  background: hsla(0,0%,100%,.1) !important;
+}
+.swagger-ui .scheme-container {
+  display: none;
+}
+.swagger-ui .model-toggle:after {
+  background: url("data:image/svg+xml;charset=utf-8,<svg xmlns=\"http://www.w3.org/2000/svg\" style=\"fill:gray;\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z\"/></svg>") 50% no-repeat !important;
+}
