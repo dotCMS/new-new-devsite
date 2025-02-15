@@ -1,7 +1,7 @@
 "use client";
 import { type FC, useState } from 'react';
 import Image from 'next/image';
-import CopyPlaygroundButton from '../CopyPlaygroundButton/CopyPlaygroundButton';
+import CopyPlaygroundButton from './CopyPlaygroundButton/CopyPlaygroundButton';
 import { OPTIONS } from './config';
 import { type TFetchFn } from './types'
 import React, { useEffect, useRef } from "react";

@@ -1,9 +1,9 @@
 import { Meta, StoryFn } from '@storybook/react';
-import { CopyPlaygroundButton } from './CopyPlaygroundButton';
+import CopyPlaygroundButton from './CopyPlaygroundButton';
 import { type TCopyPlaygroundButton } from './types';
 
 export default {
-  title: 'Atoms Components/CopyPlaygroundButton',
+  title: 'components/playgrounds/RestApiPlayground/CopyPlaygroundButton',
   component: CopyPlaygroundButton,
   tags: ['autodocs'],
 } as Meta<typeof CopyPlaygroundButton>;
