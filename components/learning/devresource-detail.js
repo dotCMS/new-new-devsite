@@ -28,22 +28,21 @@ export default function DevResourceDetailComponent({ devResource }) {
 
                 {/* Main Content */}
                 <article className="flex-1 px-4 max-w-4xl">
-
-                <DevResourceHeader devResource={devResource} myResource={myResource}/>
-                    
-                    
-                    <div className="prose prose-lg max-w-none mb-8">
-                        <DotBlockEditor
-                            blocks={devResource.body.json}
-                            
-                        />
-                    </div>
+                    <main>
+                        <DevResourceHeader devResource={devResource} myResource={myResource}/>
+                        
+                        <div className="prose prose-lg max-w-none mb-8">
+                            <DotBlockEditor 
+                                blocks={devResource.body.json}
+                            />
+                        </div>
+                    </main>
                 </article>
 
                 {/* Right Sidebar */}
                 <div className="w-64 shrink-0 hidden xl:block">
                     <div className="sticky top-16">
-                        <OnThisPage />
+                        <OnThisPage selectors="main h1, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4" />
                     </div>
                 </div>
             </div>
