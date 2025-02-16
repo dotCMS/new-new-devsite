@@ -48,7 +48,7 @@ export default function DevResourceDetailComponent({ devResource }) {
                     <main>
                         {/**    Dont show image if it is a video */}
                         <DevResourceHeader devResource={devResource} myResource={myResource} showImage={!isVideo}/>
-                        <div className="prose prose-lg max-w-none mb-8">
+                        <div className="prose prose-lg max-w-none mb-8 break-words whitespace-normal overflow-hidden">
                             <DotBlockEditor 
                                 blocks={devResource.body.json}
                             />
@@ -67,4 +67,4 @@ export default function DevResourceDetailComponent({ devResource }) {
             </div>
         </div>
     );
-}   
+}

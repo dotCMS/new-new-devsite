@@ -41,7 +41,7 @@ export default async function DevResourceListing({ devResources, pagination, tag
                                     dotCMS : {myResource.title}
                                 </h1>
                             </div>
-                            <p className="text-xl text-white/90  px-2">
+                            <p className="text-xl text-white/90 px-2 break-words whitespace-normal">
                                 {myResource.description}
                             </p>
                         </div>
@@ -91,14 +91,12 @@ export default async function DevResourceListing({ devResources, pagination, tag
                                                 {format(new Date(resource.publishDate), 'MMMM d, yyyy')}
                                             </time>
                                         </div>
-                                        <h2 className="text-xl font-bold mb-3 line-clamp-2">
-
+                                        <h2 className="text-xl font-bold mb-3 line-clamp-2 break-words">
                                             <Link href={`/learning/${resource.slug}`} prefetch={false} className="hover:text-primary transition-colors">
-
                                                 {resource.title}
                                             </Link>
                                         </h2>
-                                        <p className="text-muted-foreground mb-4 line-clamp-3">{resource.teaser}</p>
+                                        <p className="text-muted-foreground mb-4 line-clamp-3 break-words whitespace-normal">{resource.teaser}</p>
                                         {resource.tags && resource.tags.length > 0 && (
                                             <div className="flex flex-wrap gap-2">
                                                 {resource.tags.map((tag: string) => (
@@ -133,4 +131,3 @@ export default async function DevResourceListing({ devResources, pagination, tag
         </div>
     );
 }
-

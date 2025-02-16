@@ -40,10 +40,13 @@ const nextConfig = {
                 hostname: 'www.dotcms.com',
                 pathname: '**',
             },
+            {
+                protocol: 'https',
+                hostname: 'images.unsplash.com',
+            },
         ],
         dangerouslyAllowSVG: true,
-        contentDispositionType: 'attachment',
-        domains: ['images.unsplash.com'],
+        contentDispositionType: 'attachment'
     },
 
     async rewrites() {

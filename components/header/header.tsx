@@ -73,28 +73,65 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
   const NavItems = ({ isMobile }: { isMobile?: boolean }) => {
     if (isMobile) {
       return (
-        <nav className="flex flex-col pb-6">
-          <Link 
-            prefetch={false}
-            href="/docs/table-of-contents?n=0" 
-            className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2")}
-          >
-            Docs
-          </Link>
-          <Link 
-            prefetch={false}
-            href="/blog" 
-            className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2 mt-1")}
-          >
-            Blog
-          </Link>
-          <Link 
-            prefetch={false}
-            href="/learning" 
-            className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2 mt-1")}
-          >
-            Learning
-          </Link>
+        <nav className="flex flex-col space-y-4">
+          <div className="space-y-1">
+            <div className="text-sm font-medium leading-none text-muted-foreground mb-2 px-2">Getting Started</div>
+            <Link 
+              prefetch={false}
+              href="/" 
+              className="flex flex-col space-y-1 rounded-md p-3 text-sm leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              <div className="font-medium">dotDev</div>
+              <p className="text-sm text-muted-foreground break-words whitespace-normal">
+                Your one-stop site for learning dotCMS, including Docs, resources and tools.
+              </p>
+            </Link>
+            <Link 
+              prefetch={false}
+              href="/docs/table-of-contents" 
+              className="flex flex-col space-y-1 rounded-md p-3 text-sm leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              <div className="font-medium">Introduction</div>
+              <p className="text-sm text-muted-foreground break-words whitespace-normal">
+                Learn about dotCMS's core concepts and architecture.
+              </p>
+            </Link>
+            <Link 
+              prefetch={false}
+              href="/docs/quick-start-guide" 
+              className="flex flex-col space-y-1 rounded-md p-3 text-sm leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              <div className="font-medium">Headless Quick Start</div>
+              <p className="line-clamp-2 text-sm text-muted-foreground">
+                Get up and running in less than 5 minutes.
+              </p>
+            </Link>
+          </div>
+          
+          <div className="space-y-1">
+            <div className="text-sm font-medium leading-none text-muted-foreground mb-2 px-2">Navigation</div>
+            <Link 
+              prefetch={false}
+              href="/docs/table-of-contents?n=0" 
+              className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-4")}
+            >
+              Docs
+            </Link>
+            <Link 
+              prefetch={false}
+              href="/blog" 
+              className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-4")}
+            >
+              Blog
+            </Link>
+            <Link 
+              prefetch={false}
+              href="/learning" 
+              className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-4")}
+            >
+              Learning
+            </Link>
+          </div>
         </nav>
       );
     }
@@ -238,31 +275,25 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
       </div>
 
       {/* Mobile Navigation Menu */}
-      {isMobileMenuOpen && sideNavItems && (
-        <div className="lg:hidden border-b bg-background overflow-y-auto h-[calc(100vh-4rem)]
-          [&::-webkit-scrollbar]:w-1.5
-          [&::-webkit-scrollbar-track]:bg-transparent
-          [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
-          [&::-webkit-scrollbar-thumb]:rounded-full
-          hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20"
-        >
-          <div className="container mx-auto px-4">
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 top-16 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="container h-full mx-auto px-4 py-4 overflow-y-auto">
             <div className="flex flex-col h-full">
-              {/* Side Navigation Tree */}
-              <div className="flex-1">
-                {sideNavItems && (
+              {/* Main Navigation Links */}
+              <div className="py-4">
+                <NavItems isMobile />
+              </div>
+              
+              {/* Side Navigation Tree (if available) */}
+              {sideNavItems && (
+                <div className="flex-1 border-t pt-4">
                   <NavTree
                     items={sideNavItems}
                     currentPath={currentPath}
                     isMobile={true}
                   />
-                )}
-              </div>
-
-              {/* Main Navigation Links at Bottom */}
-              <div className="border-t pt-6">
-                <NavItems isMobile />
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
