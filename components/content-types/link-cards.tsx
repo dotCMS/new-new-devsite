@@ -3,6 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Globe } from "lucide-react"
 import { cn } from "@/util/utils"
+import { Config } from "@/util/config"
 
 interface LinkCardProps {
   title: string;
@@ -48,7 +49,7 @@ export default function LinkCards(props: LinkCardProps) {
                         >
                             {link.disabled && typeof link.icon === 'object' && link.icon?.identifier ? (
                                 <div>
-                                    <Image src={`${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${link.icon?.identifier}` || ''} alt={link.title} width={20} height={20} />
+                                    <Image src={`${Config.CDNHost}/dA/${link.icon?.identifier}` || ''} alt={link.title} width={20} height={20} />
                                     <span className="flex items-center gap-2">
                                         {link.title}
                                         {link.comingSoon && (
@@ -62,7 +63,7 @@ export default function LinkCards(props: LinkCardProps) {
                                 <Link href={link.url}>
                                     {typeof link.icon === 'object' && link.icon?.identifier ? (
                                         <Image 
-                                            src={`${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${link.icon.identifier}`} 
+                                            src={`${Config.CDNHost}/dA/${link.icon.identifier}`} 
                                             alt={link.title} 
                                             width={20} 
                                             height={20} 

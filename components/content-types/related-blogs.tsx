@@ -2,6 +2,7 @@ import { ChevronRight } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
+import { Config } from "@/util/config";
 
 interface Post {
     urlTitle: string;
@@ -40,11 +41,11 @@ export default function RelatedBlogs(props: RelatedBlogsProps) {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {posts.slice(0, 3).map((post, index) => (
                     <Card key={index} className="border border-gray-200">
-                        <Link href={`${process.env.NEXT_PUBLIC_DOTCMS_HOST}/blog/${post.urlTitle}`} className="block">
+                        <Link href={`${Config.CDNHost}/blog/${post.urlTitle}`} className="block">
                             <CardContent className="p-0">
                                 <div className="relative aspect-[16/9] overflow-hidden rounded-t-lg">
                                     <Image
-                                        src={`${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${post.image}` || "/placeholder.svg"}
+                                        src={`${Config.CDNHost}/dA/${post.image}` || "/placeholder.svg"}
                                         alt={post.title}
                                         fill
                                         className="object-cover"

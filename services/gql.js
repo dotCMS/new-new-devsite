@@ -1,6 +1,6 @@
 import { Config } from '@/util/config';
 
-const GRAPHQL_ENPOINT = `/api/v1/graphql`;
+const GRAPHQL_ENPOINT = `${Config.DotCMSHost}/api/v1/graphql`;
 
 /**
  * Get the GraphQL query for a page
