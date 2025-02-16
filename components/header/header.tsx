@@ -73,28 +73,30 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
   const NavItems = ({ isMobile }: { isMobile?: boolean }) => {
     if (isMobile) {
       return (
-        <nav className="flex flex-col pb-6">
-          <Link 
-            prefetch={false}
-            href="/docs/table-of-contents?n=0" 
-            className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2")}
-          >
-            Docs
-          </Link>
-          <Link 
-            prefetch={false}
-            href="/blog" 
-            className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2 mt-1")}
-          >
-            Blog
-          </Link>
-          <Link 
-            prefetch={false}
-            href="/learning" 
-            className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-2 mt-1")}
-          >
-            Learning
-          </Link>
+        <nav className="flex flex-col space-y-4">
+          <div className="space-y-1">
+            <Link 
+              prefetch={false}
+              href="/docs/table-of-contents?n=0" 
+              className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-4")}
+            >
+              Docs
+            </Link>
+            <Link 
+              prefetch={false}
+              href="/blog" 
+              className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-4")}
+            >
+              Blog
+            </Link>
+            <Link 
+              prefetch={false}
+              href="/learning" 
+              className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-4")}
+            >
+              Learning
+            </Link>
+          </div>
         </nav>
       );
     }
@@ -216,7 +218,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
               </kbd>
             </button>
 
-            <div className="flex items-center space-x-2">
+            <div className="hidden lg:flex items-center space-x-2">
               <GithubLink />
               <DiscordLink />
               <ThemeToggle />
@@ -238,31 +240,39 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
       </div>
 
       {/* Mobile Navigation Menu */}
-      {isMobileMenuOpen && sideNavItems && (
-        <div className="lg:hidden border-b bg-background overflow-y-auto h-[calc(100vh-4rem)]
-          [&::-webkit-scrollbar]:w-1.5
-          [&::-webkit-scrollbar-track]:bg-transparent
-          [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
-          [&::-webkit-scrollbar-thumb]:rounded-full
-          hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20"
-        >
-          <div className="container mx-auto px-4">
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 top-16 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+          <div className="container h-full mx-auto px-4 py-4 overflow-y-auto">
             <div className="flex flex-col h-full">
-              {/* Side Navigation Tree */}
-              <div className="flex-1">
-                {sideNavItems && (
+              {/* Main Navigation Links */}
+              <div className="py-4">
+                <NavItems isMobile />
+              </div>
+
+
+              {/* Side Navigation Tree (if available) */}
+              {sideNavItems && (
+                <div className="flex-1 border-t pt-4 mt-4">
+                    <div className="text-sm font-medium leading-none text-muted-foreground mb-4 px-2">Docs</div>
                   <NavTree
                     items={sideNavItems}
                     currentPath={currentPath}
                     isMobile={true}
                   />
-                )}
+                </div>
+              )}
+
+              
+              {/* External Links and Theme Toggle */}
+              <div className="border-t py-4 mt-4">
+                
+                <div className="flex items-center gap-2 px-2">
+                  <GithubLink />
+                  <DiscordLink />
+                  <ThemeToggle />
+                </div>
               </div>
 
-              {/* Main Navigation Links at Bottom */}
-              <div className="border-t pt-6">
-                <NavItems isMobile />
-              </div>
             </div>
           </div>
         </div>

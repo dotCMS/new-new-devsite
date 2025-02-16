@@ -325,8 +325,8 @@ export function ChatComponent() {
   }
 
   return (
-    <div className="flex flex-col h-full relative max-w-4xl mx-auto ">
-      <div className="flex justify-between items-center p-4 border-b">
+    <div className="flex flex-col h-full relative max-w-4xl mx-auto w-full">
+      <div className="flex justify-between items-center p-2 sm:p-4 border-b">
         <div className="flex gap-2">
           <Button
             variant={mode === "ai" ? "default" : "ghost"}
@@ -362,7 +362,7 @@ export function ChatComponent() {
         </div>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4">
         {messages.length === 0 && (
           <>
             {loading ? (
@@ -377,16 +377,16 @@ export function ChatComponent() {
                 <p className="text-muted-foreground max-w-md">
                   I can answer your questions or help you find information about the dotCMS platform. Here are some example questions:
                 </p>
-                <div className="space-y-2 text-left w-full max-w-md">
-                  <div className="p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70 text-center" 
+                <div className="space-y-2 text-left w-full max-w-md px-2 sm:px-0">
+                  <div className="p-2 sm:p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70 text-center text-sm sm:text-base" 
                        onClick={() => handleExampleClick("What are the system requirements for dotCMS?")}>
                     What are the system requirements for dotCMS?
                   </div>
-                  <div className="p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70 text-center"
+                  <div className="p-2 sm:p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70 text-center text-sm sm:text-base"
                        onClick={() => handleExampleClick("How do I create a new content type in dotCMS?")}>
                     How do I create a new content type in dotCMS?
                   </div>
-                  <div className="p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70 text-center"
+                  <div className="p-2 sm:p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70 text-center text-sm sm:text-base"
                        onClick={() => handleExampleClick("How do I search content using rest api??")}>
                     How do I search content using the rest api?
                   </div>
@@ -400,7 +400,7 @@ export function ChatComponent() {
             key={index}
             ref={message.role === "user" ? lastUserMessageRef : undefined}
             className={cn(
-              "flex items-start gap-4 rounded-lg p-4",
+              "flex items-start gap-2 sm:gap-4 rounded-lg p-2 sm:p-4",
               message.role === "user" 
                 ? "bg-muted/50" 
                 : message.isSearchResult
@@ -409,9 +409,9 @@ export function ChatComponent() {
             )}
           >
             {message.role === "user" ? (
-              <UserCircle className="w-8 h-8" />
+              <UserCircle className="w-6 h-6 sm:w-8 sm:h-8" />
             ) : (
-              <Bot className="w-8 h-8" />
+              <Bot className="w-6 h-6 sm:w-8 sm:h-8" />
             )}
             <div className="flex-1 space-y-2 overflow-hidden">
               <p className={`text-sm ${message.role === "user" ? "font-bold" : "font-medium "}`}>
@@ -531,12 +531,12 @@ export function ChatComponent() {
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className="p-4 border-t flex gap-4 items-end"
+        className="p-2 sm:p-4 border-t flex gap-2 sm:gap-4 items-end"
       >
         <div className="flex-1 relative">
           <input
             ref={inputRef}
-            className="w-full p-2 pr-8 bg-background border rounded-md"
+            className="w-full p-2 pr-8 bg-background border rounded-md text-sm sm:text-base"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={mode === "search" 
