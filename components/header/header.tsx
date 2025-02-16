@@ -75,41 +75,6 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
       return (
         <nav className="flex flex-col space-y-4">
           <div className="space-y-1">
-            <div className="text-sm font-medium leading-none text-muted-foreground mb-2 px-2">Getting Started</div>
-            <Link 
-              prefetch={false}
-              href="/" 
-              className="flex flex-col space-y-1 rounded-md p-3 text-sm leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              <div className="font-medium">dotDev</div>
-              <p className="text-sm text-muted-foreground break-words whitespace-normal">
-                Your one-stop site for learning dotCMS, including Docs, resources and tools.
-              </p>
-            </Link>
-            <Link 
-              prefetch={false}
-              href="/docs/table-of-contents" 
-              className="flex flex-col space-y-1 rounded-md p-3 text-sm leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              <div className="font-medium">Introduction</div>
-              <p className="text-sm text-muted-foreground break-words whitespace-normal">
-                Learn about dotCMS's core concepts and architecture.
-              </p>
-            </Link>
-            <Link 
-              prefetch={false}
-              href="/docs/quick-start-guide" 
-              className="flex flex-col space-y-1 rounded-md p-3 text-sm leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              <div className="font-medium">Headless Quick Start</div>
-              <p className="line-clamp-2 text-sm text-muted-foreground">
-                Get up and running in less than 5 minutes.
-              </p>
-            </Link>
-          </div>
-          
-          <div className="space-y-1">
-            <div className="text-sm font-medium leading-none text-muted-foreground mb-2 px-2">Navigation</div>
             <Link 
               prefetch={false}
               href="/docs/table-of-contents?n=0" 
@@ -253,7 +218,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
               </kbd>
             </button>
 
-            <div className="flex items-center space-x-2">
+            <div className="hidden lg:flex items-center space-x-2">
               <GithubLink />
               <DiscordLink />
               <ThemeToggle />
@@ -276,17 +241,19 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
 
       {/* Mobile Navigation Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 top-16 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="lg:hidden fixed inset-0 top-16 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
           <div className="container h-full mx-auto px-4 py-4 overflow-y-auto">
             <div className="flex flex-col h-full">
               {/* Main Navigation Links */}
               <div className="py-4">
                 <NavItems isMobile />
               </div>
-              
+
+
               {/* Side Navigation Tree (if available) */}
               {sideNavItems && (
-                <div className="flex-1 border-t pt-4">
+                <div className="flex-1 border-t pt-4 mt-4">
+                    <div className="text-sm font-medium leading-none text-muted-foreground mb-4 px-2">Docs</div>
                   <NavTree
                     items={sideNavItems}
                     currentPath={currentPath}
@@ -294,6 +261,18 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
                   />
                 </div>
               )}
+
+              
+              {/* External Links and Theme Toggle */}
+              <div className="border-t py-4 mt-4">
+                
+                <div className="flex items-center gap-2 px-2">
+                  <GithubLink />
+                  <DiscordLink />
+                  <ThemeToggle />
+                </div>
+              </div>
+
             </div>
           </div>
         </div>

@@ -40,12 +40,12 @@ export const DevResourceHeader = ({
                     <svg viewBox="0 0 24 24" width="24" height="24" className="mr-2 my-2" fill="currentColor"><path d="M10.78 19.03a.75.75 0 0 1-1.06 0l-6.25-6.25a.75.75 0 0 1 0-1.06l6.25-6.25a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L5.81 11.5h14.44a.75.75 0 0 1 0 1.5H5.81l4.97 4.97a.75.75 0 0 1 0 1.06Z"></path></svg> Back to {myResource.title}
                 </Link>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-3 sm:mb-4">
                 {devResource.title}
             </h1>
 
             {/* Meta Information */}
-            <div className="flex flex-wrap gap-4 text-muted-foreground mb-6">
+            <div className="flex flex-wrap gap-2 sm:gap-4 text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base">
                 <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
                     <time dateTime={devResource.postingDate}>{formattedDate}</time>
@@ -55,26 +55,26 @@ export const DevResourceHeader = ({
 
             {/* Featured Image */}
             {imageUrl && showImage && (
-                <figure className="mb-8 max-h-[200px] overflow-hidden">
+                <figure className="mb-4 sm:mb-8 max-h-[150px] sm:max-h-[200px] overflow-hidden">
                     <img
-                        src={imageUrl }
+                        src={imageUrl}
                         alt={devResource.image?.description || devResource.title}
                         width={1000}
                         height={400}
-                        className="w-full h-[400px] object-cover rounded-lg shadow-lg"
+                        className="w-full h-[200px] sm:h-[400px] object-cover rounded-lg shadow-lg"
                     />
                 </figure>
             )}
 
             {/* Tags */}
             {devResource.tags && (
-                <div className="mb-8">
-                    <div className="flex flex-wrap gap-2">
+                <div className="mb-4 sm:mb-8">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
                         {devResource.tags.map((tag, index) => (
                             <Link
                                 key={index}
                                 href={`/learning/?tagFilter=${encodeURIComponent(tag)}&type=${devResource.type1}`}
-                                className="inline-flex items-center gap-1 px-3 py-1 bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground rounded-full text-sm transition-colors"
+                                className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground rounded-full text-xs sm:text-sm transition-colors"
                             >
                                 <TagIcon className="w-4 h-4" />
                                 {tag}

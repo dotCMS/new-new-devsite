@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import { ImageOff } from 'lucide-react';
 
 function extractAssetId(uri: string) {
@@ -35,13 +34,11 @@ export default function BlogImage({ post }: BlogImageProps) {
 
     return (
         <div className="relative w-full h-48">
-            <Image
+            <img
                 src={`/dA/${assetId}/70q/1000maxw`}
                 alt={post.teaser || post.title}
-                fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-cover rounded-t-lg"
-                priority={true}
+                className="object-cover rounded-t-lg w-full h-full"
                 onError={() => setHasError(true)}
             />
         </div>
