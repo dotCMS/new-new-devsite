@@ -4,7 +4,7 @@ import Footer from "@/components/footer";
 import { notFound } from "next/navigation";
 import BlogDetailComponent from "@/components/blogs/blog-detail";
 import { ErrorPage } from "@/components/error";
-
+import { extractAssetId } from "@/util/utils";
 
 export async function generateMetadata({ params, searchParams }) {
     const finalParams = await params;
@@ -21,20 +21,26 @@ export async function generateMetadata({ params, searchParams }) {
         };
     }
 
-    const imageUrl = post.image?.fileAsset?.idPath 
-        ? `${post.host.hostname}/dA/${post.identifier}/70q/1000maxw/${post.inode}`
-        : `${post.host.hostname}/images/default-blog-image.jpg`;
+    let hostname = post.host?.hostname || 'https://dev.dotcms.com';
+    if(hostname === 'dotcms.com') {
+        hostname = 'https://www.dotcms.com';
+    }else if(hostname === 'dev.dotcms.dev') {
+        hostname = 'https://dev.dotcms.com';
+    }
+    const imageUrl = post.image?.fileAsset?.idPath  
+        ? `${hostname}/dA/${extractAssetId(post.image.fileAsset.idPath)}/70q/1000maxw/${post.inode}`
+        : `${hostname}/images/default-blog-image.jpg`;
 
     return {
         title: post.title,
         description: post.teaser || `Read ${post.title} on dotCMS Developer Blog`,
-        canonical: `${post.host.hostname}/blog/${post.urlTitle}`,
+        canonical: `${hostname}/blog/${post.urlTitle}`,
         
         // OpenGraph
         openGraph: {
             title: post.title,
             description: post.teaser,
-            url: `${post.host.hostname}/blog/${post.urlTitle}`,
+            url: `${hostname}/blog/${post.urlTitle}`,
             siteName: 'dotCMS Developer Blog',
             images: [{
                 url: imageUrl,

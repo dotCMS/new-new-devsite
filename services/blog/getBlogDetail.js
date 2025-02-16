@@ -29,6 +29,7 @@ export async function getBlogDetailQuery(urlTitle) {
             idPath
             name
             
+            
           }
         }
         categories {
@@ -46,6 +47,8 @@ export async function getBlogDetailQuery(urlTitle) {
         image {
             fileAsset{
             versionPath
+            idPath
+            name
             }
             description
         }   
