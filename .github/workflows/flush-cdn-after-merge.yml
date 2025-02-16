@@ -18,12 +18,12 @@ jobs:
         sleep 120 # Wait for the CDN to be updated
         curl --request POST \
             --url https://api.bunny.net/pullzone/${{ secrets.BUNNY_PULLZONE_ID }}/purgeCache \
-            --header 'AccessKey: ${{ secrets.BUNNY_ACCESS_KEY }}' \
+            --header "AccessKey: ${{ secrets.BUNNY_ACCESS_KEY }}" \
             --header 'content-type: application/json'
         sleep 120 # Wait for the CDN to be updated
         curl --request POST \
             --url https://api.bunny.net/pullzone/${{ secrets.BUNNY_PULLZONE_ID }}/purgeCache \
-            --header 'AccessKey: ${{ secrets.BUNNY_ACCESS_KEY }}' \
+            --header "AccessKey: ${{ secrets.BUNNY_ACCESS_KEY }}" \
             --header 'content-type: application/json'
 
 
