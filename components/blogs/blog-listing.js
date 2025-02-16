@@ -19,7 +19,13 @@ const BlogCard = ({ post }) => {
             className="bg-card text-card-foreground rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border border-border h-full flex flex-col"
             aria-labelledby={`blog-title-${post.identifier}`}
         >
-            <BlogImage post={post} />
+            <Link 
+                href={`/blog/${post.urlTitle}`}
+                aria-labelledby={`blog-title-${post.identifier}`}
+                className="hover:opacity-90 transition-opacity"
+            >
+                <BlogImage post={post} />
+            </Link>
             <div className="p-5 flex-1 flex flex-col">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
                     <Calendar className="w-4 h-4" aria-hidden="true" />
