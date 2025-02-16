@@ -32,7 +32,7 @@ const nextConfig = {
             },
             {
                 protocol: 'https',
-                hostname: 'auth.dotcms.dev',
+                hostname: 'dev.dotcms.com',
                 pathname: '/dA/**',
             },
             {

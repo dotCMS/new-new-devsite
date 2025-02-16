@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card"
     import Link from "next/link"
 import { LucideIcon, Code } from "lucide-react"
 import { DocLink } from "@/components/content-types/doc-link"
+import { Config } from "@/util/config";
 
 interface DocLinkType {
     url: string;
@@ -32,7 +33,7 @@ export default function FeatureCard({
     links = []
 }: FeatureCardProps) {
 
-    const imageUrl = imageIdentifier && (imageIdentifier.startsWith('http') || imageIdentifier.startsWith('/dA/')) ? imageIdentifier : `${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${imageIdentifier}/1024maxw/80q/`;
+    const imageUrl = imageIdentifier && (imageIdentifier.startsWith('http') || imageIdentifier.startsWith('/dA/')) ? imageIdentifier : `${Config.CDNHost}/dA/${imageIdentifier}/1024maxw/80q/`;
     const myHref = count < 0 ? "#" : href;
 
     return (

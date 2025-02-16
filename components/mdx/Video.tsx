@@ -1,5 +1,6 @@
 "use client";
 
+import { Config } from '@/util/config';
 import { FC } from 'react';
 
 interface Source {
@@ -39,7 +40,7 @@ const Video: FC<VideoProps> = ({
     console.log("video identifier", identifier);
   const getVideoUrl = (src?: string) => {
     if (identifier) {
-      return `${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${identifier}/video/${src}`;
+      return `${Config.CDNHost}/dA/${identifier}/video/${src}`;
     }
     return src;
   };
@@ -54,7 +55,7 @@ const Video: FC<VideoProps> = ({
       muted={muted}
       className={`rounded-lg ${className}`}
       playsInline
-      poster={poster ? `${process.env.NEXT_PUBLIC_DOTCMS_HOST}/dA/${poster}` : undefined}
+      poster={poster ? `${Config.CDNHost}/dA/${poster}` : undefined}
       title={title}
     >
       {sources?.map((source, index) => (

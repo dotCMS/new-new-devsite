@@ -1,3 +1,4 @@
+import { Config } from "@/util/config";
 import { logRequest } from "../util/logRequest";
 
 
@@ -31,7 +32,7 @@ export async function getTagsSync(luceneQuery, limit) {
 
 export async function getTagsByLuceneQuery(luceneQuery, limit) {
 
-    const ES_ENPOINT = process.env.NEXT_PUBLIC_DOTCMS_HOST + "/api/es/raw";
+    const ES_ENPOINT = `${Config.DotCMSHost}/api/es/raw`;
 
     if (luceneQuery.includes("\n")) {
         luceneQuery = luceneQuery.replace(/\n/g, " ");
@@ -41,11 +42,7 @@ export async function getTagsByLuceneQuery(luceneQuery, limit) {
 
     const res = await logRequest(async () => await fetch(ES_ENPOINT, {
         method: 'POST',
-        headers: {
-            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN}`,
-            "Content-Type": "application/json",
-    
-        },
+        headers: Config.Headers,
         body:  query ,
         cache: "no-cache",
     }), "getTags");

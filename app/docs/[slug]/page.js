@@ -50,18 +50,37 @@ export async function generateMetadata({ params, searchParams }) {
     const finalSearchParams = await searchParams;
     const slug = finalParams.slug;
     const path = "/docs/" + (slug || "table-of-contents");
-
+    const hostname = "https://dev.dotcms.com";
     const { pageAsset } = await fetchPageData(path, finalSearchParams);
 
     return {
-        title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title) + " | dotCMS Documentation",
+        title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title) ,
         description: pageAsset.urlContentMap._map.seoDescription,
         keywords: pageAsset.urlContentMap._map.tag,
         openGraph: {
-            title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title) + " | dotCMS Documentation",
+            title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title) ,
             description: pageAsset.urlContentMap._map.seoDescription,
             keywords: pageAsset.urlContentMap._map.tag,
-        }
+
+            url: `${hostname}${path}`,
+            siteName: 'dotCMS Docs',
+            images: [{
+                url: `${hostname}/dA/4b13a794db115b14ce79d30850712188/1024maxw/80q/}`,
+                width: 1200,
+                height: 630,
+                alt: pageAsset.urlContentMap._map.seoDescription || pageAsset.urlContentMap._map.navTitle,
+            }],
+            locale: 'en_US',
+            type: 'article',
+
+
+        },
+
+        alternates: {
+            canonical: `${hostname}${path}`,
+        },
+        metadataBase: new URL(hostname),
+        
     };
 }
 
@@ -69,12 +88,11 @@ export async function generateMetadata({ params, searchParams }) {
 export default async function Home({ searchParams, params }) {
     const finalParams = await params;
     const finalSearchParams = await searchParams;
-    const headersList = await headers();
 
     const resetNav = finalSearchParams.n === "0";
     const slug = finalParams.slug;
     const path = "/docs/" + (slug || "table-of-contents");
-    const { pageAsset, sideNav, query } = await fetchPageData(path, finalSearchParams);
+    const { pageAsset, sideNav } = await fetchPageData(path, finalSearchParams);
     const data = {
         contentlet: pageAsset.urlContentMap._map,
         sideNav: sideNav,
