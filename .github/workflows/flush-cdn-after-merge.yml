@@ -1,0 +1,38 @@
+name: Flush CDN After Merge
+
+on:
+  push:
+    branches: [ main,testing ]
+
+  workflow_dispatch:
+    
+
+jobs:
+  flush-cdn-after-merge:
+    runs-on: ubuntu-latest
+    
+    steps:
+
+    - name: Flush CDN after merge
+      run: |
+        sleep 120 # Wait for the CDN to be updated
+        curl --request POST \
+            --url https://api.bunny.net/pullzone/${{ secrets.BUNNY_PULLZONE_ID }}/purgeCache \
+            --header 'AccessKey: ${{ secrets.BUNNY_ACCESS_KEY }}' \
+            --header 'content-type: application/json'
+        sleep 120 # Wait for the CDN to be updated
+        curl --request POST \
+            --url https://api.bunny.net/pullzone/${{ secrets.BUNNY_PULLZONE_ID }}/purgeCache \
+            --header 'AccessKey: ${{ secrets.BUNNY_ACCESS_KEY }}' \
+            --header 'content-type: application/json'
+
+
+
+
+
+# Purging the CDN curl command
+# curl --request POST \
+#     --url https://api.bunny.net/pullzone/${{ secrets.BUNNY_PULLZONE_ID }}/purgeCache \
+#     --header 'AccessKey: ${{ secrets.BUNNY_ACCESS_KEY }}' \
+#     --header 'content-type: application/json'
+#
