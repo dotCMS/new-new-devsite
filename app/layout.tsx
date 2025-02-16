@@ -24,11 +24,12 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | DotCMS Documentation',
-    default: 'DotCMS Documentation',
+    template: '%s | dotCMS Dev Site',
+    default: 'dotCMS Dev Site',
   },
-  description: 'DotCMS Documentation and Resources - Learn about dotCMS\'s core concepts, features, and best practices',
-  metadataBase: new URL('https://dotcms.com'),
+  description: 'dotCMS Dev Site and Resources - Learn about dotCMS\'s core concepts, features, and best practices',
+  metadataBase: new URL('https://dev.dotcms.com'),
+  publisher: 'dotCMS',
   icons: {
     icon: '/static/favicon.ico',
     shortcut: '/static/favicon.ico',
@@ -37,11 +38,15 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    siteName: 'DotCMS Documentation',
+    siteName: 'dotCMS Dev Site',
   },
   twitter: {
     card: 'summary_large_image',
     creator: '@dotcms',
+    site: '@dotcms',
+    title: 'dotCMS Dev Site',
+    description: 'dotCMS Dev Site and Resources - Learn about dotCMS\'s core concepts, features, and best practices',
+    images: ['https://dev.dotcms.com/dA/a6e0a89831/70q/1000maxw/dotcms-dev-site.webp'],
   },
   robots: {
     index: true,

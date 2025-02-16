@@ -70,6 +70,8 @@ export async function getDevResources({
               title
               width
               mime	
+              idPath
+              
             }
             altText
             publishDate

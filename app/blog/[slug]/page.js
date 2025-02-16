@@ -21,20 +21,27 @@ export async function generateMetadata({ params, searchParams }) {
         };
     }
 
-    let hostname = post.host?.hostname || 'https://dev.dotcms.com';
-    if(hostname === 'dotcms.com') {
-        hostname = 'https://www.dotcms.com';
-    }else if(hostname === 'dev.dotcms.dev') {
-        hostname = 'https://dev.dotcms.com';
-    }
+
+    const blogHostName = post.host?.hostName || 'dotcms.dev';
+
+    const hostname = (blogHostName === 'dotcms.com')
+        ? 'https://www.dotcms.com' 
+        : `https://dev.dotcms.com`
+
+
     const imageUrl = post.image?.fileAsset?.idPath  
         ? `${hostname}/dA/${extractAssetId(post.image.fileAsset.idPath)}/70q/1000maxw/${post.inode}`
         : `${hostname}/images/default-blog-image.jpg`;
 
     return {
+
+        alternates: {
+            canonical: `${hostname}/blog/${post.urlTitle}`,
+        },
         title: post.title,
         description: post.teaser || `Read ${post.title} on dotCMS Developer Blog`,
         canonical: `${hostname}/blog/${post.urlTitle}`,
+        metadataBase: new URL(hostname),
         
         // OpenGraph
         openGraph: {
