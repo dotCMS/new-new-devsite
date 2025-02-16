@@ -9,6 +9,15 @@ import { getTagsByLuceneQuery } from "@/services/getTags";
 import { BLOG_LISTING_LUCENE_QUERY } from '@/services/blog/getBlogListing';
 import PaginationBar from '../PaginationBar';
 
+
+function extractAssetId(uri) {
+    const match = uri.match(/\/dA\/([^/]+)/);
+    return match ? match[1] : null;
+}
+
+
+
+
 export default async function BlogListing({ blogs, pagination, tagFilter }) {
     const allTags = await getTagsByLuceneQuery(BLOG_LISTING_LUCENE_QUERY, 30);
     const tagFilterQueryParam = tagFilter && tagFilter.length > 0 ? "tagFilter=" + tagFilter : "";
@@ -25,8 +34,8 @@ export default async function BlogListing({ blogs, pagination, tagFilter }) {
                                 <div className="relative">
                                     {post.image?.fileAsset?.versionPath ? (
                                         <Link href={`/blog/${post.urlTitle}`} className="block">
-                                            <Image
-                                                src={post.image.fileAsset.idPath + "/70q/1000maxw"}
+                                            <img
+                                                src={"/dA/" + extractAssetId(post.image.fileAsset.idPath) + "/70q/1000maxw"}
                                                 alt={post.teaser || post.title}
                                                 width={70}
                                                 height={100}

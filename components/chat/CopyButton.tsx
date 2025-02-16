@@ -23,7 +23,7 @@ export function CopyButton({ text, className, variant = "ghost" }: CopyButtonPro
 
   return (
     <div 
-        className="cursor-pointer"
+        className="cursor-pointer absolute right-0 top-0"
         onClick={copy}
     >
       <Copy 
@@ -34,5 +34,4 @@ export function CopyButton({ text, className, variant = "ghost" }: CopyButtonPro
       />
     </div>
   )
-} 
-
+}

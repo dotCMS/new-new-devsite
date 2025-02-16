@@ -435,7 +435,7 @@ export function ChatComponent() {
                         
                         return !inline && match ? (
                               <div className="relative">
-                              <CopyButton />
+                              <CopyButton text={codeContent} />
                               <SyntaxHighlighter
                                   {...props}
                                   style={vscDarkPlus}
@@ -490,9 +490,10 @@ export function ChatComponent() {
                       [key: string]: any;
                     }) {
                       const match = /language-(\w+)/.exec(className || '')
+                      const codeContent = String(children).replace(/\n$/, '')
                       return !inline && match ? (
                         <div className="relative">
-                          <CopyButton />
+                          <CopyButton text={codeContent} />
                           <SyntaxHighlighter
                             {...props}
                             style={vscDarkPlus}
@@ -568,4 +569,4 @@ export function ChatComponent() {
       </form>
     </div>
   )
-} 
+}
