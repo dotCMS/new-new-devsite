@@ -45,7 +45,10 @@ export default class ErrorBoundary extends Component<Props, State> {
             <CardFooter>
               <Button 
                 variant="destructive" 
-                onClick={() => window.location.reload()}
+                onClick={() => {
+                  const timestamp = Date.now();
+                  window.location.href = `${window.location.pathname}?reload=${timestamp}`;
+                }}
               >
                 Refresh Page
               </Button>
