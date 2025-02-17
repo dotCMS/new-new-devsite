@@ -12,14 +12,14 @@ interface ImageLoaderProps {
 const ImageLoader = ({ src, width, height }: ImageLoaderProps): string => {
 
     if (!src.includes("/dA/")) {
-        return src;
+        return src.includes("?") ? src +"&width="+width : src +"?width="+width;
     }
 
     const urlString = src.indexOf("/") === 0 ? Config.CDNHost + src : src;
 
     const url = new URL(urlString).pathname;
     if (url.endsWith(".svg")) {
-        return src;
+        return src.includes("?") ? src +"&width="+width : src +"?width="+width;
     }
 
     const parts = url.substring(4).split("/")

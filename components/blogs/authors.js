@@ -6,7 +6,7 @@ function Authors({ authors }) {
     return (
       <>
         {authors.map((author) => (
-          <div className="relative mt-auto flex flex-row gap-2" key={author.id}>
+          <div className="relative mt-auto flex flex-row gap-2" key={author.identifier}>
             <div className="h-24 w-24 flex items-center justify-center">
               <Image
                 src={author?.image.idPath || author?.image}
