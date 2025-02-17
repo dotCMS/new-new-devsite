@@ -28,8 +28,28 @@ export async function generateMetadata({ params, searchParams }) {
         const page = data.page;
         const title = page?.friendlyName || page?.title;
 
+        const description = page?.description || page?.teaser || page?.seoDescription || "dotCMS Dev Site, Documentation and Resources. Learn how to build with dotCMS";
+        const hostname = "https://dev.dotcms.com";  
+        const keywords = page?.tags ? page?.tags.join(", ") : "dotcms, dotcms documentation, learn dotcms, dotcms api, dotcms dev, dotcms developer, dotcms developer documentation, dotcms developer api, dotcms developer documentation, dotcms developer api";
+        
         return {
-            title,
+            title: title,
+            "description": description,
+            url: `${hostname}${path}`,
+            siteName: 'dotCMS Docs',
+            keywords: keywords,
+            alternates: {
+                canonical: `${hostname}${path}`,
+            },
+            metadataBase: new URL(hostname),
+            images: [{
+                url: `${hostname}/dA/4b13a794db115b14ce79d30850712188/1024maxw/80q/}`,
+                width: 1200,
+                height: 630,
+                alt: description || title,
+            }],
+            locale: 'en_US',
+            type: 'article',
         };
     } catch (e) {
         return {
