@@ -14,6 +14,9 @@ jobs:
     steps:
 
     - name: Flush CDN after merge
+      env:
+        NEXT_PUBLIC_DOTCMS_HOST: ${{ secrets.BUNNY_PULLZONE_ID }}
+        NEXT_PUBLIC_AUTH_TOKEN: ${{ secrets.BUNNY_ACCESS_KEY }}
       run: |
         sleep 90 # Wait for the CDN to be updated
         curl --request POST \
@@ -26,6 +29,7 @@ jobs:
             --header "AccessKey: ${{ secrets.BUNNY_ACCESS_KEY }}" \
             --header 'content-type: application/json'
 
+        
 
 
 
