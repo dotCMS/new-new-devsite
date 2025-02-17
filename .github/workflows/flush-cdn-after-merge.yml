@@ -15,18 +15,18 @@ jobs:
 
     - name: Flush CDN after merge
       env:
-        NEXT_PUBLIC_DOTCMS_HOST: ${{ secrets.BUNNY_PULLZONE_ID }}
-        NEXT_PUBLIC_AUTH_TOKEN: ${{ secrets.BUNNY_ACCESS_KEY }}
+        BUNNY_PULLZONE_ID: ${{ secrets.BUNNY_PULLZONE_ID }}
+        BUNNY_ACCESS_KEY: ${{ secrets.BUNNY_ACCESS_KEY }}
       run: |
         sleep 90 # Wait for the CDN to be updated
-        curl --request POST \
-            --url https://api.bunny.net/pullzone/${{ secrets.BUNNY_PULLZONE_ID }}/purgeCache \
-            --header "AccessKey: ${{ secrets.BUNNY_ACCESS_KEY }}" \
+        curl -v --request POST \
+            --url "https://api.bunny.net/pullzone/$BUNNY_PULLZONE_ID/purgeCache" \
+            --header "AccessKey: $BUNNY_ACCESS_KEY" \
             --header 'content-type: application/json'
         sleep 60 # Wait for the CDN to be updated
-        curl --request POST \
-            --url https://api.bunny.net/pullzone/${{ secrets.BUNNY_PULLZONE_ID }}/purgeCache \
-            --header "AccessKey: ${{ secrets.BUNNY_ACCESS_KEY }}" \
+        curl -v --request POST \
+            --url "https://api.bunny.net/pullzone/$BUNNY_PULLZONE_ID/purgeCache" \
+            --header "AccessKey: $BUNNY_ACCESS_KEY" \
             --header 'content-type: application/json'
 
         
