@@ -1,8 +1,6 @@
-# New New dotCMS Dev site
+# The New New dotCMS Dev site
 
-This version of the dev site was built with NextJs and Bolt.ai/Cursor/Cline using prompts and generic ShadCN components.  
-
-It is intended to be easier to manage and deploy than the original nextra based dev site, which was very diffucult to add new functionality to.
+This version of the dev site is built with NextJs 15 and the blood, sweat, tears and tokens from our AI friends Bolt.ai/Claude/Cursor/Cline.
 
 
 ### Building
