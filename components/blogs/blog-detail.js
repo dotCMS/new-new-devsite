@@ -6,7 +6,7 @@ import { DotBlockEditor } from '@/components/shared/dotBlockEditor';
 import OnThisPage from '@/components/navigation/OnThisPage';
 import React from 'react';
 import { DetailHeader } from './blog-header';
-
+import Authors from './authors';  
 
 export default function BlogDetailComponent({ post }) {
 
@@ -34,6 +34,7 @@ export default function BlogDetailComponent({ post }) {
                 {/* Right Sidebar */}
                 <div className="w-64 shrink-0 hidden xl:block">
                     <div className="sticky top-16">
+                        <Authors authors={post.author} />
                         <OnThisPage />
                     </div>
                 </div>
