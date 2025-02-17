@@ -40,15 +40,15 @@ export default function DevResourceDetailComponent({ devResource }) {
     const isVideo = myResource.type==="video";
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className={`container mx-auto px-4 sm:px-6 lg:px-8 ${!hasHeadings ? 'max-w-screen-2xl' : ''}`}>
             {/* Main Content Grid */}
-            <div className="flex flex-col xl:flex-row gap-6 py-4 sm:py-8">
+            <div className={`flex flex-col xl:flex-row gap-4 py-4 sm:py-8 ${!hasHeadings ? 'items-center' : ''}`}>
                 {/* Main Content */}
-                <article className={`${hasHeadings ? 'xl:flex-1 max-w-4xl' : 'w-full'}`}>
+                <article className={`${hasHeadings ? 'xl:flex-1 max-w-4xl' : 'w-full max-w-none xl:max-w-none'}`}>
                     <main>
                         {/**    Dont show image if it is a video */}
                         <DevResourceHeader devResource={devResource} myResource={myResource} showImage={!isVideo}/>
-                        <div className="prose prose-sm sm:prose lg:prose-lg max-w-none mb-6 sm:mb-8 break-words whitespace-normal overflow-hidden">
+                        <div className="prose dark:prose-invert mb-6 sm:mb-8 break-words whitespace-normal overflow-hidden max-w-none">
                             <DotBlockEditor 
                                 blocks={devResource.body.json}
                             />
@@ -58,8 +58,8 @@ export default function DevResourceDetailComponent({ devResource }) {
 
                 {/* Right Sidebar - Only show if there are headings */}
                 {hasHeadings && (
-                    <div className="w-full xl:w-64 xl:shrink-0">
-                        <div className="sticky top-16 xl:block">
+                    <div className="w-full xl:w-56 xl:shrink-0">
+                        <div className="sticky top-16 xl:block pl-4">
                             <OnThisPage selectors="main h1, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4" />
                         </div>
                     </div>

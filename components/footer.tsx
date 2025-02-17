@@ -38,8 +38,11 @@ export default function Footer() {
         <Separator className="mb-8 w-full max-w-xs" />
 
         <nav className="mb-8 flex flex-wrap justify-center gap-x-8 gap-y-4">
+        <Link href="https://www.dotcms.com" className="text-sm text-muted-foreground hover:text-foreground">
+            Main Site
+          </Link>
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
-            Home
+            dotDev Home
           </Link>
           <Link href="https://www.dotcms.com/company/about-us" prefetch={false} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground">
             About
