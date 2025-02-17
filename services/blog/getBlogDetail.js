@@ -2,8 +2,7 @@ import { getGraphqlResults } from "@/services/gql";
 import { logRequest } from "@/util/logRequest";
 
 export async function getBlogDetailQuery(urlTitle) {
-
-    const query = `query ContentAPI {
+  const query = `query ContentAPI {
         BlogCollection(
         query: "+blog.urlTitle_dotraw:${urlTitle} +live:true"
         limit: 1
@@ -19,18 +18,18 @@ export async function getBlogDetailQuery(urlTitle) {
             
         urlTitle
     		author{
-          firstName 
-          lastName
-          company
-          linkedin
-          twitter
-          image{
-            versionPath
-            idPath
-            name
-            
-            
-          }
+            identifier
+            firstName 
+            lastName
+            company
+            title
+            linkedin
+            twitter
+            image{
+                versionPath
+                idPath
+                name
+            }
         }
         categories {
             name
@@ -54,6 +53,8 @@ export async function getBlogDetailQuery(urlTitle) {
         }   
         }
     }
-  `
-    return logRequest(async () => getGraphqlResults(query),"blogDetail").then(data => data.BlogCollection[0]);
+  `;
+  return logRequest(async () => getGraphqlResults(query), "blogDetail").then(
+    (data) => data.BlogCollection[0]
+  );
 }

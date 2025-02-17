@@ -4,12 +4,13 @@ import { Config } from "./config";
 interface ImageLoaderProps {
     src: string;
     width: number;
+    height: number;
 }
 
 
 
-const ImageLoader = ({ src, width }: ImageLoaderProps): string => {
-    console.log("src", src);
+const ImageLoader = ({ src, width, height }: ImageLoaderProps): string => {
+
     if (!src.includes("/dA/")) {
         return src;
     }
@@ -22,7 +23,6 @@ const ImageLoader = ({ src, width }: ImageLoaderProps): string => {
     }
 
     const parts = url.substring(4).split("/")
-    console.log("parts", parts.join(","));
     const identifier = parts[0];
     const fieldName = parts[1];
     let fileName = "image-file";
@@ -34,9 +34,10 @@ const ImageLoader = ({ src, width }: ImageLoaderProps): string => {
     }
 
     const maxWidth = width && (width > 0 && width <= 1024) ? width : 1024;
+    const maxHeight = height && (height > 0 && height <= 1024) ? height : 1024;
 
-    const finalURL = `${Config.CDNHost}/dA/${identifier}${fieldName? "/" + fieldName:""}/70q/${maxWidth}maxw/${fileName}`; 
-    console.log("finalURL", finalURL);
+    const finalURL = `${Config.CDNHost}/dA/${identifier}${fieldName? "/" + fieldName:""}/70q/${maxWidth}maxw/${maxHeight}maxh/${fileName}`; 
+
     return finalURL;
 };
 
