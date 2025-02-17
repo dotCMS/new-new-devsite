@@ -1,9 +1,13 @@
+import Header from "@/components/header/header";
+import Footer from "@/components/footer";
 import Link from "next/link";
 
 export default function NotFound() {
     return (
-      <div className="bg-slate-100 min-h-dvh w-full flex justify-center items-center">
-        <section>
+        <>
+            <Header />
+            <div className="min-h-90-dvh w-full flex justify-center items-center">
+                <section>
             <div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
                 <div className="mx-auto max-w-screen-sm text-center">
                     <h1 className="mb-4 text-7xl tracking-tight font-extrabold lg:text-9xl text-primary-600">
@@ -21,9 +25,11 @@ export default function NotFound() {
                             Return Home
                         </div>
                     </Link>
-                </div>
+                        </div>
+                    </div>
+                </section>
             </div>
-        </section>
-      </div>
+            <Footer />
+        </>
     );
 }
