@@ -10,14 +10,23 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 //import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Components } from 'react-markdown'
+import type { ComponentPropsWithoutRef } from 'react'
+
+type ExtendedComponents = Components & {
+  info: React.ComponentType<ComponentPropsWithoutRef<'div'>>,
+  warn: React.ComponentType<ComponentPropsWithoutRef<'div'>>,
+  include: React.ComponentType<{ urltoinclude: string }>
+}
 import { remarkRemoveAnchorLinks } from '@/util/remarkRemoveAnchorLinks'
 import { smoothScroll } from '@/util/smoothScroll'
 import Video from '@/components/mdx/Video'
+import Info from '@/components/mdx/Info'
 import { CopyButton } from './chat/CopyButton'
 import { a11yLight, dark, docco, a11yDark,vs } from 'react-syntax-highlighter/dist/esm/styles/hljs'
 
 import { useTheme } from "next-themes"
-
+import Warn from '@/components/mdx/Warn'
+import { Include } from '@/components/mdx/Include'
 
 
 interface MarkdownContentProps {
@@ -27,7 +36,7 @@ interface MarkdownContentProps {
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
   const { theme } = useTheme();
 
-  const components: Components = {
+  const components: ExtendedComponents = {
     h1: ({ children, ...props }) => (
       <h1 className="text-4xl font-bold mt-6 mb-4 group flex items-center" {...props}>
         {children}
@@ -187,6 +196,11 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       </TableCell>
     },
     hr: () => <hr className="border-t border-border mb-6" />,
+    info: Info,
+    warn: Warn,
+    include: ({ urltoinclude }: any) => {
+      return <Include urlToInclude={urltoinclude} />;
+    },
     video: ({ node, ...props }: any) => {
       if (!node?.children) return null;
       
@@ -196,7 +210,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
           let src = source.properties?.src;
           // Handle DotCMS URLs
           if (src && src.startsWith('/dA/')) {
-            src = `https://www.dotcms.com${src}`;
+            src = `https://dev.dotcms.com${src}`;
           }
           return {
             src,
@@ -229,7 +243,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
   return (
     <ReactMarkdown
       rehypePlugins={[
-        [rehypeRaw, { passThrough: ['video', 'source'] }],
+        [rehypeRaw],
         rehypeSlug,
         [rehypeAutolinkHeadings, { behavior: 'wrap' }]
       ]}
@@ -242,4 +256,3 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
 }
 
 export default MarkdownContent
-

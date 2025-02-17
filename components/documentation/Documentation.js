@@ -5,6 +5,7 @@ import React, { useEffect, useRef } from "react";
 import Breadcrumbs from "@/components/navigation/Breadcrumbs";
 import MarkdownContent from "@/components/MarkdownContent";
 import OnThisPage from "../navigation/OnThisPage";
+import Warn from "../mdx/Warn";
 
 function cleanMarkdown(markdownString, identifierString) {
   return markdownString
@@ -52,6 +53,13 @@ const Documentation = ({ contentlet, sideNav, slug }) => {
 
           <div className="markdown-content">
             <h1 className="text-4xl font-bold mb-6">{contentlet.title}</h1>
+            {contentlet.tag.includes("deprecated")  && (
+              <div className="mb-6">
+                <Warn>
+                  This function has been deprecated.
+                </Warn>
+              </div>
+            )}
             <MarkdownContent content={documentation} />
           </div>
         </main>
