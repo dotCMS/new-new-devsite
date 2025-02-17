@@ -24,9 +24,11 @@ export default async function DevResourceListing({ devResources, pagination, tag
             {/* Hero Header */}
             <div className="relative h-[200px] my-6 rounded-t-3xl  overflow-hidden">
                 <div className="absolute inset-0">
-                    <img
+                    <Image
                         src={myResource.image}
                         alt={myResource.title}
+                        width={1000}
+                        height={1000}
                         className="object-cover w-full h-full"
   
                     />
@@ -72,7 +74,7 @@ export default async function DevResourceListing({ devResources, pagination, tag
                                         {resource.image?.modDate ? (
                                         <Link href={`/learning/${resource.slug}`} prefetch={false} className="block">
 
-                                                <img
+                                                <Image
                                                     src={"/dA/" + resource.identifier + "/70q/1000maxw/" + resource.inode}
                                                     alt={resource.teaser || resource.title}
                                                     width={70}

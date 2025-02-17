@@ -6,8 +6,8 @@ import { smoothScroll } from '@/util/smoothScroll';
 
 export const OnThisPage = ({selectors, showOnThisPage = true}) => {
   const [items, setItems] = useState([]);
-  const mySelectors = selectors || 'main h2, main h3, main h4, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4';
-  
+  const [mySelectors, setMySelectors] = useState('main h2, main h3, main h4, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4');
+
 
   useEffect(() => {
     const generateTOC = () => {
@@ -49,7 +49,7 @@ export const OnThisPage = ({selectors, showOnThisPage = true}) => {
     }
 
     return () => observer.disconnect();
-  }, []);
+  }, [mySelectors]);
 
   if (items.length === 0) {
     return null;

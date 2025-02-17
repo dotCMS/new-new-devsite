@@ -7,7 +7,7 @@ import { cn } from '@/util/utils';
 import { Calendar, Tag as TagIcon } from 'lucide-react';
 import { format } from "date-fns";
 import Link from 'next/link';
-
+import Image from 'next/image';
 function extractAssetId(uri) {
     const match = uri.match(/\/dA\/([^/]+)/);
     return match ? match[1] : null;
@@ -61,7 +61,7 @@ export const DetailHeader = ({
             {/* Featured Image */}
             {imageUrl && (
                 <figure className="mb-8">
-                    <img
+                    <Image
                         src={"/dA/" + extractAssetId(imageUrl) + "/70q/1000maxw"}
                         alt={post.image?.description || post.title}
                         width={1000}

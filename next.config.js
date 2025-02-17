@@ -46,7 +46,9 @@ const nextConfig = {
             },
         ],
         dangerouslyAllowSVG: true,
-        contentDispositionType: 'attachment'
+        loader: 'custom',
+        loaderFile: './util/imageLoader.ts',
+        
     },
 
     async rewrites() {

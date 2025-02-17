@@ -10,13 +10,15 @@ import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import Breadcrumbs from "../navigation/Breadcrumbs";
 import PaginationBar from "../PaginationBar";
 import Dropdown from "../shared/dropdown";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function ChangeLogContainer({ sideNav, slug }) {
   //const router = useRouter(); // see removal of router in handleVersionChange
   const searchParams = useSearchParams();
   const paramLts = searchParams.get("lts");
-  const singleVersion = searchParams.get("v");
+
+  const [singleVersion, setSingleVersion] = useState(searchParams.get("v"));
+
   let isLts = paramLts && paramLts !== "false";
   let currentPage = Number(searchParams.get("page")) || 1;
   if (currentPage < 1) {
@@ -66,7 +68,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
         }, 100);
       }
     }
-  }, [loading]); // Re-run when loading state changes
+  }, [loading, singleVersion]); // Re-run when loading state changes
 
   if (loading) {
     return (

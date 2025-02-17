@@ -80,7 +80,7 @@ export default function Hero(props: HeroProps) {
 
             <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
                 <FeatureCard
-                    href={card1.url || "/docs/developer"}
+                    href={card1?.url || "/docs/developer"}
                     icon={Code}
                     title={card1?.title}
                     description={card1?.description}

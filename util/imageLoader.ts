@@ -1,20 +1,43 @@
-import { useDotcmsPageContext } from "@dotcms/react";
+
 import { Config } from "./config";
+
 interface ImageLoaderProps {
-  src: string;
-  width: number;
+    src: string;
+    width: number;
 }
 
+
+
 const ImageLoader = ({ src, width }: ImageLoaderProps): string => {
-  const dotcmsURL = new URL(Config.CDNHost || '').origin;
+    console.log("src", src);
+    if (!src.includes("/dA/")) {
+        return src;
+    }
 
-  const context = useDotcmsPageContext();
+    const urlString = src.indexOf("/") === 0 ? Config.CDNHost + src : src;
 
-  const languageId = context?.pageAsset?.viewAs?.language?.id ?? 1;
+    const url = new URL(urlString).pathname;
+    if (url.endsWith(".svg")) {
+        return src;
+    }
 
-  const imageSRC = src.includes("/dA/") ? src : `/dA/${src}`; // Check if the image is a DotCMS asset or a file asset
+    const parts = url.substring(4).split("/")
+    console.log("parts", parts.join(","));
+    const identifier = parts[0];
+    const fieldName = parts[1];
+    let fileName = "image-file";
+    for (let i = 0; i < parts.length; i++) {
+        if (parts[i].includes(".")) {
+            fileName = parts[i];
+            break;
+        }
+    }
 
-  return `${dotcmsURL}${imageSRC}/${width}?language_id=${languageId}`;
+    const maxWidth = width && (width > 0 && width <= 1024) ? width : 1024;
+
+    const finalURL = `${Config.CDNHost}/dA/${identifier}${fieldName? "/" + fieldName:""}/70q/${maxWidth}maxw/${fileName}`; 
+    console.log("finalURL", finalURL);
+    return finalURL;
 };
 
 export default ImageLoader;

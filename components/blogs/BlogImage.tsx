@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ImageOff } from 'lucide-react';
-
+import Image from 'next/image';
 function extractAssetId(uri: string) {
     const match = uri.match(/\/dA\/([^/]+)/);
     return match ? match[1] : null;
@@ -34,12 +34,13 @@ export default function BlogImage({ post }: BlogImageProps) {
 
     return (
         <div className="relative w-full h-48">
-            <img
+            <Image
                 src={`/dA/${assetId}/70q/1000maxw`}
                 alt={post.teaser || post.title}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                width={1000}
+                height={1000}
                 className="object-cover rounded-t-lg w-full h-full"
-                onError={() => setHasError(true)}
+               
             />
         </div>
     );

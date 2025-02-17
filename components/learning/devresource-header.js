@@ -56,7 +56,7 @@ export const DevResourceHeader = ({
             {/* Featured Image */}
             {imageUrl && showImage && (
                 <figure className="mb-4 sm:mb-8 max-h-[150px] sm:max-h-[200px] overflow-hidden">
-                    <img
+                    <Image
                         src={imageUrl}
                         alt={devResource.image?.description || devResource.title}
                         width={1000}
