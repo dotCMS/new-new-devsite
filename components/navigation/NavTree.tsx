@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import SubNavTree from "./SubNavTree";
-
+import Link from "next/link";
 const SCROLL_STORAGE_KEY = "docs-nav-scroll";
 export const NAV_STORAGE_KEY = "subnav-open-sections";
 type NavTreeProps = {
@@ -99,7 +99,11 @@ const NavTree = React.memo(
           <div className={`space-t-2 min-w-64 ${isMobile ? "pb-2" : "pb-12"}`}>
             {items.map((item) => (
               <div key={item.title} className="mb-5">
-                <div className="py-1 px-2 font-semibold text-foreground">{item.title}</div>
+                <div className="py-1 px-2 font-semibold text-foreground">
+                    <Link href={item.urlTitle} prefetch={false} className="flex items-center gap-2 hover:text-primary-purple">
+                            {item.title}
+                    </Link>
+                </div>
                 <SubNavTree
                   items={item.dotcmsdocumentationchildren}
                   currentPath={currentPath}
