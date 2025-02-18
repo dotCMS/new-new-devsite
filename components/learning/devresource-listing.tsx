@@ -27,8 +27,8 @@ export default async function DevResourceListing({ devResources, pagination, tag
                     <Image
                         src={myResource.image}
                         alt={myResource.title}
-                        width={1000}
-                        height={1000}
+                        width={1024}
+                        height={1024}
                         className="object-cover w-full h-full"
   
                     />
@@ -75,10 +75,10 @@ export default async function DevResourceListing({ devResources, pagination, tag
                                         <Link href={`/learning/${resource.slug}`} prefetch={false} className="block">
 
                                                 <Image
-                                                    src={"/dA/" + resource.identifier + "/70q/1000maxw/" + resource.inode}
+                                                    src={"/dA/" + resource.identifier + "/" + resource.inode}
                                                     alt={resource.teaser || resource.title}
-                                                    width={70}
-                                                    height={100}
+                                                    width={1024}
+                                                    height={1024}
                                                     className="w-full h-48 object-cover rounded-t-lg"
                                                 />
                                             </Link>

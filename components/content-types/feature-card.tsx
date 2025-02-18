@@ -33,7 +33,7 @@ export default function FeatureCard({
     links = []
 }: FeatureCardProps) {
 
-    const imageUrl = imageIdentifier && (imageIdentifier.startsWith('http') || imageIdentifier.startsWith('/dA/')) ? imageIdentifier : `${Config.CDNHost}/dA/${imageIdentifier}/1024maxw/80q/`;
+    const imageUrl = imageIdentifier && (imageIdentifier.startsWith('http') || imageIdentifier.startsWith('/dA/')) ? imageIdentifier : `${Config.CDNHost}/dA/${imageIdentifier}/`;
     const myHref = count < 0 ? "#" : href;
 
     return (

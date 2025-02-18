@@ -44,13 +44,13 @@ const getIconForContentType = (contentType: string = "") => {
 const getLinkForContentType = (contentType: string = "",url: string = "") => {
   switch (contentType.toLowerCase()) {
     case "dotcmsdocumentation":
-    return url
+        return url.startsWith("/docs/") ? url : "/docs/" +     url
     case "devresource":
-      return "/learn/" + url
+      return  url.startsWith("/learning/") ? url : "/learning/" + url
     case "component":
       return url
     case "blog":
-      return "/blog/" + url
+        return url.startsWith("/blog/") ? url : "/blog/" + url
     default:
       return url
   }
@@ -95,7 +95,7 @@ export function SearchResult({ title, content, url, score, contentType, inode, m
           className="flex items-center gap-1 text-xs text-primary hover:underline mt-2"
         >
           <Link2 className="h-3 w-3" />
-          {url}
+          {getLinkForContentType(contentType, url)}
         </a>
       </div>
     </div>
