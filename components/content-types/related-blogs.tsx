@@ -30,7 +30,7 @@ export default function RelatedBlogs(props: RelatedBlogsProps) {
                     <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Want to know more?</h2>
                 </div>
                 <Link
-                    href="/resources"
+                    href="/blog"
                     className="text-[#a21caf] hover:text-[#a21caf]/90 hidden sm:inline-flex items-center gap-2"
                 >
                     All Blogs
@@ -45,7 +45,7 @@ export default function RelatedBlogs(props: RelatedBlogsProps) {
                             <CardContent className="p-0">
                                 <div className="relative aspect-[16/9] overflow-hidden rounded-t-lg">
                                     <Image
-                                        src={`${Config.CDNHost}/dA/${post.image}` || "/placeholder.svg"}
+                                        src={`/dA/${post.image}` || "/placeholder.svg"}
                                         alt={post.title}
                                         fill
                                         className="object-cover"
