@@ -23,7 +23,7 @@ function Authors({ authors }) {
             </div>
             <div className="flex flex-col justify-center">
               {author?.firstName && (
-                <p className="text-sm">
+                <p className="text-sm font-bold">
                   {author?.firstName} {author?.lastName}
                 </p>
               )}
