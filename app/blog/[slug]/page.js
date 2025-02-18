@@ -22,7 +22,7 @@ export async function generateMetadata({ params, searchParams }) {
     }
 
 
-    const blogHostName = post.host?.hostName || 'dotcms.dev';
+    const blogHostName = post.host?.hostName || 'dev.dotcms.com';
 
     const hostname = (blogHostName === 'dotcms.com')
         ? 'https://www.dotcms.com' 

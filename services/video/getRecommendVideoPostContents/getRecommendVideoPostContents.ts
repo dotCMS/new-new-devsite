@@ -30,7 +30,7 @@ export const getRecommendVideoPostContents = async (
           }
         ])
         .limit(DEFAULT_LIMIT)
-        .query(`+Video.show:true +live:true +conhostname:dotcms.dev${categoryQuery}`)
+        .query(`+Video.show:true +live:true +conhostname:dotcms.dev ${categoryQuery}`)
         .depth(DEFAULT_DEPTH)
         .language(Config.LanguageId);
     }, `getRecommendVideoPostContents categories: ${extractedCategories[0]}`); 
