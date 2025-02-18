@@ -71,6 +71,9 @@ export default function Hero(props: HeroProps) {
     //     { href: "/docs/profile-settings", icon: Shield, title: "Profile settings", color: "[#de4f00]" },
     // ];
 
+    if(!card1 || !card2 || !card3) {
+        return <><h1>No cards</h1></>;
+    }
     return (
         <section className="container mx-auto px-4 py-16">
             <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl text-center">{title}</h1>
