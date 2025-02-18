@@ -157,7 +157,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
           >
             <div 
               className={`absolute right-full mr-2 transition-opacity duration-2000 z-[60] ${
-                showBackArrow ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                showBackArrow ? 'opacity-75' : 'opacity-0 pointer-events-none'
               }`}
             >
               <a 
