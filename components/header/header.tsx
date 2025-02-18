@@ -1,6 +1,6 @@
 "use client";
 
-import { Code2, Menu, Search, X } from "lucide-react";
+import { Code2, Menu, Search, X, ArrowLeft } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import {
   NavigationMenu,
@@ -38,6 +38,22 @@ type HeaderProps = {
 export default function Header({ sideNavItems, currentPath }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [showBackArrow, setShowBackArrow] = useState(false);
+  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  const handleLogoMouseEnter = () => {
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+    }
+    setShowBackArrow(true);
+  };
+
+  const handleLogoMouseLeave = () => {
+    const timeout = setTimeout(() => {
+      setShowBackArrow(false);
+    }, 2000);
+    setHoverTimeout(timeout);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -134,8 +150,28 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
     <header className="sticky top-0 z-50 w-full">
       <div className="border-b bg-background">
         <div className="flex h-16 items-center px-4 container mx-auto">
-          <div className="max-w-[100px]">
-            <Logo />
+          <div 
+            className="flex items-center relative group"
+            onMouseEnter={handleLogoMouseEnter}
+            onMouseLeave={handleLogoMouseLeave}
+          >
+            <div 
+              className={`absolute right-full mr-2 transition-opacity duration-2000 z-[60] ${
+                showBackArrow ? 'opacity-75' : 'opacity-0 pointer-events-none'
+              }`}
+            >
+              <a 
+                href="https://www.dotcms.com"
+                className="hover:text-primary p-2 block"
+                aria-label="Back to dotCMS.com"
+                title="Back to dotCMS.com"
+              >
+                <ArrowLeft className="h-6 w-6" />
+              </a>
+            </div>
+            <div className="max-w-[100px]">
+              <Logo />
+            </div>
           </div>
           
           {/* Desktop Navigation */}
