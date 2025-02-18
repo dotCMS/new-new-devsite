@@ -71,10 +71,10 @@ export default async function BlogListing({ blogs, pagination, tagFilter }) {
         <div className="container mx-auto px-4 py-8">
             <div className="flex flex-col lg:flex-row gap-8">
                 <main className="flex-1">
-                    <h1 className="text-4xl font-bold mb-0 text-foreground">
+                    <h1 className="text-4xl font-bold mb-0 text-foreground text-center">
                         dotCMS Developer Blog
                     </h1>
-                    <p className="text-muted-foreground mb-8 px-2">Articles for the dotDeveloper.</p>
+                    <p className="text-muted-foreground mb-8 px-2 text-center">Articles for the dotDeveloper.</p>
                     <div 
                         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                         role="feed"
