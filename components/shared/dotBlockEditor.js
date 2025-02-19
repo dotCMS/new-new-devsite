@@ -76,6 +76,18 @@ const Superscript = ({ children }) => <sup>{children}</sup>;
  */
 const Subscript = ({ children }) => <sub>{children}</sub>;
 
+/**
+ * Renders inline code with monospace font and appropriate styling.
+ * Uses visual styling rather than backticks to indicate code.
+ *
+ * @param children - The content to be rendered as inline code.
+ */
+const InlineCode = ({ children }) => (
+    <code className="rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm before:content-none after:content-none">
+        {children}
+    </code>
+);
+
 const nodeMarks = {
     link: LinkMark,
     bold: Bold,
@@ -83,7 +95,8 @@ const nodeMarks = {
     italic: Italic,
     strike: Strike,
     superscript: Superscript,
-    subscript: Subscript
+    subscript: Subscript,
+    code: InlineCode
 };
 
 /**
