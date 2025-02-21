@@ -22,6 +22,11 @@ const nextConfig = {
             destination: '/blog',
             permanent: true,
           },
+          {
+            source: '/docs/long-term-supported-releases',
+            destination: '/docs/changelogs?lts=true',
+            permanent: false,
+          },
         ]
       },
     images: {
