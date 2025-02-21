@@ -198,7 +198,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
             )}
 
             <OnThisPage
-              selectors={"main h2"}
+              selectors={"main h1, main h2"}
               showOnThisPage={false}
               className="border-2 border-red-500"
             />

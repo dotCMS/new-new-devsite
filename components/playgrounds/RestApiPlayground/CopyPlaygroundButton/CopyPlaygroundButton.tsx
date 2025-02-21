@@ -43,5 +43,3 @@ const CopyPlaygroundButton: FC<TCopyPlaygroundButton> = ({ text, disabled }) => 
 };
 
 export default CopyPlaygroundButton;
-
-/**/
