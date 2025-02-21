@@ -20,16 +20,6 @@ type SubNavTreeProps = {
 
 const SubNavTree = React.memo(({ items=[], currentPath, level = 0, openSections, setOpenSections }: SubNavTreeProps) => {
   const relevantPath = currentPath.replace(/^\/docs\/latest\//, '');
-  const currentItemRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    if (currentItemRef.current) {
-      currentItemRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      });
-    }
-  }, [relevantPath]);
 
   const toggleSection = useCallback((urlTitle: string) => {
     setOpenSections((prev: string[]) => {
@@ -72,7 +62,6 @@ const SubNavTree = React.memo(({ items=[], currentPath, level = 0, openSections,
     if (hasChildren) {
       return (
         <Collapsible
-          ref={isCurrentPage ? currentItemRef : undefined}
           open={openSections.includes(item.urlTitle)}
           onOpenChange={() => toggleSection(item.urlTitle)}
         >
