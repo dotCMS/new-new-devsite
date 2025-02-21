@@ -4,7 +4,11 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { smoothScroll } from '@/util/smoothScroll';
 
-export const OnThisPage = ({selectors = 'main h1, main h2, main h3, main h4, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4', showOnThisPage = true}) => {
+export const OnThisPage = ({
+  selectors = 'main h1, main h2, main h3, main h4, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4', 
+  showOnThisPage = true,
+  titleOverride = undefined
+}) => {
   const [items, setItems] = useState([]);
   const [mySelectors, setMySelectors] = useState(selectors);
 
@@ -84,7 +88,7 @@ export const OnThisPage = ({selectors = 'main h1, main h2, main h3, main h4, mai
                 className="hover:text-foreground transition-colors block"
                 onClick={smoothScroll}
               >
-                {item.title}
+                {item.level === 1 ? (titleOverride || item.title) : item.title}
               </Link>
             </li>
           ))}

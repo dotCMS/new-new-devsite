@@ -20,6 +20,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
   const [singleVersion, setSingleVersion] = useState(searchParams.get("v"));
 
   let isLts = paramLts && paramLts !== "false";
+  let vLts = "";
   let currentPage = Number(searchParams.get("page")) || 1;
   if (currentPage < 1) {
     currentPage = 1;
@@ -148,7 +149,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
                     }
                   }
                 }
-                let vLts = paramLts === "true" ? ltsMajorVersions[0] : paramLts; // set the effective LTS version based on URL param
+                vLts = paramLts === "true" ? ltsMajorVersions[0] : paramLts; // set the effective LTS version based on URL param
                 if(isLts && !vLts){
                   vLts = data.ltsSingleton;
                 }
@@ -200,6 +201,8 @@ export default function ChangeLogContainer({ sideNav, slug }) {
             <OnThisPage
               selectors={"main h1, main h2"}
               showOnThisPage={false}
+              showTitle={false}
+              titleOverride={vLts ? `${vLts} LTS` : "Current"}
               className="border-2 border-red-500"
             />
 
