@@ -1,16 +1,17 @@
 export function smoothScroll(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
     e.preventDefault();
+    e.stopPropagation();
     const href = e.currentTarget.getAttribute('href');
-    if (href && href.startsWith('#')) {
+    if (href?.startsWith('#')) {
       const targetId = href.substring(1);
       const elem = document.getElementById(targetId);
       if (elem) {
-        const headerOffset = 80; // Adjust this value based on your header height
-        const elementPosition = elem.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        const headerOffset = 80;
+        // Get absolute position relative to document
+        const elementTop = elem.getBoundingClientRect().top + window.scrollY;
 
         window.scrollTo({
-          top: offsetPosition,
+          top: elementTop - headerOffset,
           behavior: 'smooth'
         });
         

@@ -5,6 +5,8 @@ import { ThemeProvider } from '@/components/header/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { GoogleAnalytics } from '@next/third-parties/google'
+import { ScrollLock } from '@/components/ScrollLock';
+
 const inter = Inter({ 
   subsets: ['latin'],
   display: 'swap',
@@ -69,6 +71,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <ScrollLock />
             {children}
             <Toaster />
           </ThemeProvider>
