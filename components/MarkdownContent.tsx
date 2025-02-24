@@ -36,6 +36,25 @@ interface MarkdownContentProps {
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
   const { theme } = useTheme();
 
+  const hasDescendantDiv = (children: React.ReactNode): boolean => {
+    const childrenArray = React.Children.toArray(children);
+    
+    return childrenArray.some((child: any) => {
+      // Check if it's a div-producing component
+      if (React.isValidElement(child) && 
+        (child.type === Info || child.type === Warn || child.type === Include)) {
+        return true;
+      }
+      
+      // If the child has children, recursively check them
+      if (React.isValidElement(child) && typeof child.props === 'object' && child.props && 'children' in child.props) {
+        return hasDescendantDiv(child.props.children as React.ReactNode);
+      }
+      
+      return false;
+    });
+  };
+
   const components: ExtendedComponents = {
     h1: ({ children, ...props }) => (
       <h1 className="text-4xl font-bold mt-6 mb-4 group flex items-center" {...props}>
@@ -91,18 +110,10 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       </h6>
     ),
     p: ({ children }) => {
-      // Check if children contains any div-producing components
-      const hasDiv = React.Children.toArray(children).some((child: any) => {
-        return React.isValidElement(child) && 
-          (child.type === Info || child.type === Warn || child.type === Include);
-      });
-
-      // If there's a div-producing component, render children directly without p wrapper
-      if (hasDiv) {
+      // Check if any descendant is a div-producing component
+      if (hasDescendantDiv(children)) {
         return <>{children}</>;
       }
-
-      // Otherwise, wrap in p tag as before
       return <p className="text-base leading-7 text-foreground mb-6">{children}</p>;
     },
     ul: ({ children }) => <ul className="list-disc pl-6 mb-6">{children}</ul>,
