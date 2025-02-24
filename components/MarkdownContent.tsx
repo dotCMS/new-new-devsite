@@ -90,9 +90,21 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
         </a>
       </h6>
     ),
-    p: ({ children }) => (
-      <p className="text-base leading-7 text-foreground mb-6">{children}</p>
-    ),
+    p: ({ children }) => {
+      // Check if children contains any div-producing components
+      const hasDiv = React.Children.toArray(children).some((child: any) => {
+        return React.isValidElement(child) && 
+          (child.type === Info || child.type === Warn || child.type === Include);
+      });
+
+      // If there's a div-producing component, render children directly without p wrapper
+      if (hasDiv) {
+        return <>{children}</>;
+      }
+
+      // Otherwise, wrap in p tag as before
+      return <p className="text-base leading-7 text-foreground mb-6">{children}</p>;
+    },
     ul: ({ children }) => <ul className="list-disc pl-6 mb-6">{children}</ul>,
     ol: ({ children }) => <ol className="list-decimal list-inside mb-4">{children}</ol>,
     li: ({ children }) => (
