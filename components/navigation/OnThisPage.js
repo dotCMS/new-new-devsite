@@ -4,9 +4,13 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { smoothScroll } from '@/util/smoothScroll';
 
-export const OnThisPage = ({selectors, showOnThisPage = true}) => {
+export const OnThisPage = ({
+  selectors = 'main h1, main h2, main h3, main h4, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4', 
+  showOnThisPage = true,
+  titleOverride = undefined
+}) => {
   const [items, setItems] = useState([]);
-  const [mySelectors, setMySelectors] = useState('main h2, main h3, main h4, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4');
+  const [mySelectors, setMySelectors] = useState(selectors);
 
 
   useEffect(() => {
@@ -56,7 +60,14 @@ export const OnThisPage = ({selectors, showOnThisPage = true}) => {
   }
 
   return (
-    <div className="sticky top-8 pb-12">
+    <div className="sticky top-8 pb-12 
+                overflow-y-auto p-4 px-2
+                [&::-webkit-scrollbar]:w-1.5
+                [&::-webkit-scrollbar-track]:bg-transparent
+                [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
+                [&::-webkit-scrollbar-thumb]:rounded-full
+                hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20
+                h-[calc(100vh-4rem)]" >
       {showOnThisPage && (
         <h3 className="mb-4 text-sm font-semibold">On This Page</h3>
       )}
@@ -66,9 +77,9 @@ export const OnThisPage = ({selectors, showOnThisPage = true}) => {
             <li 
               key={item.id}
               className={`
-                ${item.level === 1 ? 'ml-0 font-semibold' : ''}
-                ${item.level === 2 ? 'ml-0 font-semibold' : ''}
-                ${(item.level === 3 || item.level === 4) ? 'ml-3 font-normal text-muted-foreground' : ''}
+                ${item.level === 1 ? 'ml-0 font-bold' : ''}
+                ${item.level === 2 ? 'ml-2 font-semibold' : ''}
+                ${(item.level === 3 || item.level === 4) ? 'ml-4 font-normal text-muted-foreground' : ''}
               `}
             >
               <Link 
@@ -77,7 +88,7 @@ export const OnThisPage = ({selectors, showOnThisPage = true}) => {
                 className="hover:text-foreground transition-colors block"
                 onClick={smoothScroll}
               >
-                {item.title}
+                {item.level === 1 ? (titleOverride || item.title) : item.title}
               </Link>
             </li>
           ))}
