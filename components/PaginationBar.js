@@ -39,7 +39,7 @@ export default function PaginationBar({ pagination, additionalQueryParams }) {
             <PaginationContent>
                 <PaginationItem>
                     <PaginationPrevious
-                        href={`?page=${currentPage - 1}&${finalAdditionalQueryParams}`}
+                        href={`?page=${currentPage - 1}${finalAdditionalQueryParams}`}
                         aria-disabled={!hasPreviousPage}
                         className={!hasPreviousPage ? 'pointer-events-none opacity-50' : ''}
                     />
@@ -48,7 +48,7 @@ export default function PaginationBar({ pagination, additionalQueryParams }) {
                 {startPage > 1 && (
                     <>
                         <PaginationItem>
-                            <PaginationLink href={`?page=1&${finalAdditionalQueryParams}`}>1</PaginationLink>
+                            <PaginationLink href={`?page=1${finalAdditionalQueryParams}`}>1</PaginationLink>
                         </PaginationItem>
                         {startPage > 2 && (
                             <PaginationItem>
@@ -61,7 +61,7 @@ export default function PaginationBar({ pagination, additionalQueryParams }) {
                 {pages.map((page) => (
                     <PaginationItem key={page}>
                         <PaginationLink
-                            href={`?page=${page}&${finalAdditionalQueryParams}`}
+                            href={`?page=${page}${finalAdditionalQueryParams}`}
                             isActive={page === currentPage}
                         >
                             {page}
@@ -77,7 +77,7 @@ export default function PaginationBar({ pagination, additionalQueryParams }) {
                             </PaginationItem>
                         )}
                         <PaginationItem>
-                            <PaginationLink href={`?page=${totalPages}&${finalAdditionalQueryParams}`}>
+                            <PaginationLink href={`?page=${totalPages}${finalAdditionalQueryParams}`}>
                                 {totalPages}
                             </PaginationLink>
                         </PaginationItem>
@@ -86,7 +86,7 @@ export default function PaginationBar({ pagination, additionalQueryParams }) {
 
                 <PaginationItem>
                     <PaginationNext
-                        href={`?page=${currentPage + 1}&${finalAdditionalQueryParams}`}
+                        href={`?page=${currentPage + 1}${finalAdditionalQueryParams}`}
                         aria-disabled={!hasNextPage}
                         className={!hasNextPage ? 'pointer-events-none opacity-50' : ''}
                     />
