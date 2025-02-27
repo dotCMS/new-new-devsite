@@ -231,7 +231,7 @@ export const TableReleases: FC<{
         </table>
         {!showCurrent && (
           <div className="m-6">
-            <PaginationBar pagination={pagination} additionalQueryParams={`filter=${filter}&version=${version}`} />
+            <PaginationBar pagination={pagination} additionalQueryParams={`&filter=${filter}&version=${version}`} />
           </div>
         )}
       </div>

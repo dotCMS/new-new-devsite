@@ -182,7 +182,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
         ))}
 
         <div className="mt-8 mb-12">
-            <PaginationBar pagination={data.pagination} currentPage={data.pagination.page} additionalQueryParams={`lts=${isLts}`} />
+            <PaginationBar pagination={data.pagination} currentPage={data.pagination.page} additionalQueryParams={isLts ? `&lts=${isLts}` : ""} />
         </div>
       </main>
       <div className="w-64 shrink-0 hidden xl:block">
