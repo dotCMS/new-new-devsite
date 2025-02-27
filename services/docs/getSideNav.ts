@@ -3,7 +3,7 @@ import { logRequest } from '@/util/logRequest';
 const GRAPHQL_ENPOINT = `/api/v1/graphql`
 
 
-const cacheKey = "coreNavLeftCacheKey";
+const cacheKey = "coreNavLeftCacheKey_L6";
 export const getSideNav = async () => {
 
     const cachedValue = dotCache.get(cacheKey);
@@ -23,6 +23,10 @@ export const getSideNav = async () => {
                 urlTitle
                 modDate
                 dotcmsdocumentationchildren {
+                    title
+                    urlTitle
+                    modDate
+                    dotcmsdocumentationchildren {
                         title
                         urlTitle
                         modDate
@@ -34,7 +38,13 @@ export const getSideNav = async () => {
                                 title
                                 urlTitle
                                 modDate
+                                dotcmsdocumentationchildren {
+                                    title
+                                    urlTitle
+                                    modDate
+                                }
                             }
+                        }
                     }
                 }
             }
