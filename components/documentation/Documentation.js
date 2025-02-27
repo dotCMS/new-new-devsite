@@ -66,7 +66,14 @@ const Documentation = ({ contentlet, sideNav, slug }) => {
 
         {/* Right Sidebar - Hide on smaller screens */}
         <div className="w-64 shrink-0 hidden xl:block">
-          <div className="sticky top-16 pt-8 pl-8">
+          <div className="sticky top-16 pt-8 pl-8
+                overflow-y-auto p-4 px-2
+                [&::-webkit-scrollbar]:w-1.5
+                [&::-webkit-scrollbar-track]:bg-transparent
+                [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
+                [&::-webkit-scrollbar-thumb]:rounded-full
+                hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20
+                h-[calc(100vh-4rem)]">
             <OnThisPage />
           </div>
         </div>
