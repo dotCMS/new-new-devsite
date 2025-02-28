@@ -1,4 +1,3 @@
-'use client'
 
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
@@ -30,10 +29,11 @@ import { Include } from '@/components/mdx/Include'
 
 
 interface MarkdownContentProps {
-  content: string
+content: string
+  className?: string
 }
 
-const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
+const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className }) => {
   const { theme } = useTheme();
 
   const components: ExtendedComponents = {
@@ -196,11 +196,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       </TableCell>
     },
     hr: () => <hr className="border-t border-border mb-6" />,
-    info: Info,
-    warn: Warn,
-    include: ({ urltoinclude }: any) => {
-      return <Include urlToInclude={urltoinclude} />;
-    },
+
     video: ({ node, ...props }: any) => {
       if (!node?.children) return null;
       
@@ -237,11 +233,16 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
           Your browser does not support the video tag.
         </video>
       );
-    }
+    },
+    info: Info,
+    warn: Warn,
+    include: ({ urltoinclude }: any) => {
+      return <Include urlToInclude={urltoinclude} />;
+    },
   }
 
   return (
-    <ReactMarkdown
+    <ReactMarkdown 
       rehypePlugins={[
         [rehypeRaw],
         rehypeSlug,
@@ -249,6 +250,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
       ]}
       remarkPlugins={[remarkGfm, remarkRemoveAnchorLinks]}
       components={components}
+      className={className}
     >
       {content}
     </ReactMarkdown>
