@@ -9,11 +9,9 @@ import { useState } from "react";
 import { isMarkdown, isMarkdownStrict } from '@/util/isMarkdown'
 import DangerousHtmlComponent from '../DangerousHtmlComponent'
 export default function ChangeLogEntry({ item, index }) {
-  var releaseNotes = item?.releaseNotes.replace(/{#[a-zA-Z0-9\.\-]+}/g, '') || ""
 
-  releaseNotes = releaseNotes.replaceAll("\$!{version}", item?.minor)
+  const releaseNotes = item?.releaseNotes;
   const useMarkdown = isMarkdownStrict(releaseNotes,2)
-
 
   const [copied, setCopied] = useState(false);
 

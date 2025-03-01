@@ -1,4 +1,3 @@
-
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
@@ -10,13 +9,13 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Components } from 'react-markdown'
 import type { ComponentPropsWithoutRef } from 'react'
+import { visit } from 'unist-util-visit'
 
 type ExtendedComponents = Components & {
   info: React.ComponentType<ComponentPropsWithoutRef<'div'>>,
   warn: React.ComponentType<ComponentPropsWithoutRef<'div'>>,
   include: React.ComponentType<{ urltoinclude: string }>
 }
-import { remarkRemoveAnchorLinks } from '@/util/remarkRemoveAnchorLinks'
 import { smoothScroll } from '@/util/smoothScroll'
 import Video from '@/components/mdx/Video'
 import Info from '@/components/mdx/Info'
@@ -32,6 +31,26 @@ interface MarkdownContentProps {
 content: string
   className?: string
 }
+
+// Add custom remark plugin for {#custom-id} syntax
+const remarkCustomId = () => {
+  return (tree: any) => {
+    visit(tree, 'heading', (node: any) => {
+      const lastChild = node.children[node.children.length - 1];
+      if (lastChild && lastChild.type === 'text') {
+        const match = lastChild.value.match(/ {#([^}]+)}$/);
+        if (match) {
+          // Remove the {#custom-id} from the text
+          lastChild.value = lastChild.value.replace(/ {#([^}]+)}$/, '');
+          // Add the custom ID to the node data
+          node.data = node.data || {};
+          node.data.hProperties = node.data.hProperties || {};
+          node.data.hProperties.id = match[1];
+        }
+      }
+    });
+  };
+};
 
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className }) => {
   const { theme } = useTheme();
@@ -248,7 +267,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className })
         rehypeSlug,
         [rehypeAutolinkHeadings, { behavior: 'wrap' }]
       ]}
-      remarkPlugins={[remarkGfm, remarkRemoveAnchorLinks]}
+      remarkPlugins={[remarkGfm, remarkCustomId]}
       components={components}
       className={className}
     >
