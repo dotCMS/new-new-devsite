@@ -4,59 +4,45 @@ import rehypeRaw from 'rehype-raw'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import remarkGfm from 'remark-gfm'
-import SyntaxHighlighter from 'react-syntax-highlighter';
-//import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
+import SyntaxHighlighter from 'react-syntax-highlighter'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Components } from 'react-markdown'
-import type { ComponentPropsWithoutRef } from 'react'
-import { visit } from 'unist-util-visit'
-
-type ExtendedComponents = Components & {
-  info: React.ComponentType<ComponentPropsWithoutRef<'div'>>,
-  warn: React.ComponentType<ComponentPropsWithoutRef<'div'>>,
-  include: React.ComponentType<{ urltoinclude: string }>
-}
+import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 import { smoothScroll } from '@/util/smoothScroll'
 import Video from '@/components/mdx/Video'
 import Info from '@/components/mdx/Info'
 import { CopyButton } from './chat/CopyButton'
 import { a11yLight, dark, docco, a11yDark,vs } from 'react-syntax-highlighter/dist/esm/styles/hljs'
-
 import { useTheme } from "next-themes"
 import Warn from '@/components/mdx/Warn'
 import { Include } from '@/components/mdx/Include'
-
+import { remarkCustomId } from '@/util/remarkCustomId'
 
 interface MarkdownContentProps {
 content: string
   className?: string
 }
 
-// Add custom remark plugin for {#custom-id} syntax
-const remarkCustomId = () => {
-  return (tree: any) => {
-    visit(tree, 'heading', (node: any) => {
-      const lastChild = node.children[node.children.length - 1];
-      if (lastChild && lastChild.type === 'text') {
-        const match = lastChild.value.match(/ {#([^}]+)}$/);
-        if (match) {
-          // Remove the {#custom-id} from the text
-          lastChild.value = lastChild.value.replace(/ {#([^}]+)}$/, '');
-          // Add the custom ID to the node data
-          node.data = node.data || {};
-          node.data.hProperties = node.data.hProperties || {};
-          node.data.hProperties.id = match[1];
-        }
-      }
-    });
-  };
-};
+type ExtendedComponents = Components & {
+  info: React.ComponentType<ComponentPropsWithoutRef<'div'>>,
+  warn: React.ComponentType<ComponentPropsWithoutRef<'div'>>,
+  include: React.ComponentType<{ urltoinclude: string }>
+}
+
+interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
+  level: number;
+  children: React.ReactNode;
+}
+
+interface ChildrenProps {
+  children: ReactNode;
+}
 
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className }) => {
   const { theme } = useTheme();
 
   const components: ExtendedComponents = {
-    h1: ({ children, ...props }) => (
+    h1: ({ node, children, ...props }) => (
       <h1 className="text-4xl font-bold mt-6 mb-4 group flex items-center" {...props}>
         {children}
         <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -154,7 +140,6 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className })
           <div className="absolute right-3 top-3 z-10">
             <CopyButton 
               text={String(children)} 
-
               variant="outline"
               className="bg-background hover:bg-accent text-foreground hover:text-accent-foreground" 
             />
@@ -162,7 +147,6 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className })
           <SyntaxHighlighter
             language={highlight}
             PreTag="div"
-
             style={theme === 'dark' ? a11yDark : a11yLight}
             className="rounded-lg py-2 [&>pre]:!m-0 border border-border"
             customStyle={{
@@ -171,14 +155,11 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className })
               paddingBottom: '2rem',
               fontSize: '14px',
               backgroundColor: theme === 'dark' ? 'hsl(var(--muted))' : 'white',
-
             }}
             {...props}
           >{String(children).replace(/\n$/, '')}</SyntaxHighlighter>
         </div>
-
       );
-
     },
 
     table({ children }) {
