@@ -29,11 +29,12 @@ import { Include } from '@/components/mdx/Include'
 
 
 interface MarkdownContentProps {
-content: string
+  content: string
   className?: string
+  colorOverride?: boolean
 }
 
-const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className }) => {
+const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, colorOverride=false }) => {
   const { theme } = useTheme();
 
   const components: ExtendedComponents = {
@@ -47,7 +48,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className })
     ),
     h2: ({ children, ...props }) => (
       <>
-        <h2 className="text-3xl font-semibold text-foreground mt-12 mb-1 group flex items-center" {...props}>
+        <h2 className={`${colorOverride ? '' : 'text-foreground '}text-3xl font-semibold mt-12 mb-1 group flex items-center`} {...props}>
           {children}
           <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
             #
@@ -58,7 +59,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className })
     ),
     h3: ({ children, ...props }) => (
       <>
-        <h3 className="text-2xl font-semibold text-foreground mt-8 mb-4 group flex items-center" {...props}>
+        <h3 className={`${colorOverride ? '' : 'text-foreground '}text-2xl font-semibold mt-8 mb-4 group flex items-center`} {...props}>
           {children}
           <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
             #
@@ -67,7 +68,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className })
       </>
     ),
     h4: ({ children, ...props }) => (
-      <h4 className="text-xl font-semibold text-foreground mt-6 mb-4 group flex items-center" {...props}>
+      <h4 className={`${colorOverride ? '' : 'text-foreground '}text-xl font-semibold mt-6 mb-4 group flex items-center`} {...props}>
         {children}
         <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
           #
@@ -75,7 +76,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className })
       </h4>
     ),
     h5: ({ children, ...props }) => (
-      <h5 className="text-lg font-semibold text-foreground mt-4 mb-2 group flex items-center" {...props}>
+      <h5 className={`${colorOverride ? '' : 'text-foreground '}text-lg font-semibold mt-4 mb-2 group flex items-center`} {...props}>
         {children}
         <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
           #
@@ -91,27 +92,28 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className })
       </h6>
     ),
     p: ({ children }) => (
-      <p className="text-base leading-7 text-foreground mb-6">{children}</p>
+      <p className={`${colorOverride ? '' : 'text-foreground '}text-base leading-7 mb-6`}>{children}</p>
     ),
     ul: ({ children }) => <ul className="list-disc pl-6 mb-6">{children}</ul>,
     ol: ({ children }) => <ol className="list-decimal list-inside mb-4">{children}</ol>,
     li: ({ children }) => (
-      <li className="text-base leading-7 text-foreground mb-1">{children}</li>
+      <li className={`${colorOverride ? '' : 'text-foreground '}text-base leading-7 mb-1`}>{children}</li>
     ),
     a: ({ href, children, ...props }) => {
       const isInHeading = href?.startsWith('#');
-
-      return (
-        <a
-          href={href}
-          className={isInHeading 
-            ? `text-foreground` 
-            : `text-primary-purple hover:opacity-80 underline hover:no-underline`}
-          onClick={(e) => isInHeading ? smoothScroll(e) : undefined}
-        >
-          {children}
-        </a>
-      )
+      if(isInHeading){
+        return (
+            <a href={href} className={`${colorOverride ? '' : 'text-foreground '}`} onClick={(e) => smoothScroll(e)}>
+              {children}
+            </a>
+          )
+      } else {
+        return (
+          <a href={href} className="text-primary-purple hover:opacity-80 underline hover:no-underline" onClick={(e) => undefined}>
+            {children}
+          </a>
+        )
+      }
     },
 
     code: ({ node, className, children, ...props }: any) => {
@@ -191,7 +193,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className })
       </TableHead>
     },
     td({ children }) {
-      return <TableCell className="text-base leading-7 text-foreground px-4 border-border border-r last:border-r-0">
+      return <TableCell className={`${colorOverride ? '' : 'text-foreground '}text-base leading-7 px-4 border-border border-r last:border-r-0`}>
         {children}
       </TableCell>
     },

@@ -14,7 +14,7 @@ const Info = ({ node, ...props }: any) => {
       <InfoIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" color="#1e40af" />
       <AlertDescription className="text-blue-800 dark:text-blue-200" style={{ marginTop: '1px' }}>
         {typeof content === 'string' ? (
-          <MarkdownContent content={content} className="infoWarnContent"/>
+          <MarkdownContent content={content} className="infoWarnContent" colorOverride={true} />
         ) : (
           content
         )}
