@@ -19,7 +19,6 @@ function cleanMarkdown(markdownString, identifierString) {
     .replaceAll('src="/dA/', 'src="https://www.dotcms.com/dA/')
     .replaceAll("(/contentAsset", "(https://www.dotcms.com/contentAsset")
     .replaceAll("( /contentAsset", "(https://www.dotcms.com/contentAsset")
-    .replaceAll(/\{#[A-Za-z0-1]*\}/g, "")
     .replaceAll("<br>", "<br/>")
     .replaceAll("()", "")
     .replaceAll("</br>", "<br/>");

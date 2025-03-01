@@ -17,11 +17,16 @@ export const OnThisPage = ({
     const generateTOC = () => {
       const headers = document.querySelectorAll(mySelectors);
       const toc = Array.from(headers).map((header) => {
-        // Generate an ID if one doesn't exist
+        // Extract any custom ID if present
+        const customIdMatch = header.textContent.match(/ {#([^}]+)}$/);
+        const customId = customIdMatch ? customIdMatch[1] : null;
+        
+        // Clean the display text by removing the {#custom-id} part
+        const displayText = header.textContent.replace(/ {#[^}]+}$/, '').replace(/#/g, '').trim();
+        
+        // Use custom ID if present, otherwise generate one from cleaned text
         if (!header.id) {
-          // Remove any existing hash symbols from the text content
-          const cleanText = header.textContent.replace(/#/g, '').trim();
-          header.id = cleanText
+          header.id = customId || displayText
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/(^-|-$)/g, '');
@@ -29,8 +34,7 @@ export const OnThisPage = ({
 
         return {
           id: header.id,
-          // Remove any hash symbols from the display text
-          title: header.textContent.replace(/#/g, '').trim(),
+          title: displayText,
           level: parseInt(header.tagName[1]),
         };
       });
