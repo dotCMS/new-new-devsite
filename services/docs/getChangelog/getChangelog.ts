@@ -28,6 +28,10 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
           live
           tags
           eolDate
+          parent {
+            eolDate
+            releasedDate
+          }
       }
       Pagination {
           fieldName
