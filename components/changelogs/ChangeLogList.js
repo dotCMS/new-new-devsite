@@ -4,7 +4,7 @@ import OnThisPage from "../navigation/OnThisPage";
 import ChangeLogEntry from "./ChangeLogEntry";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-
+import { extractDateForTables } from '../../util/formatDate'
 import { useChangelog } from "@/hooks/useChangelog";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import Breadcrumbs from "../navigation/Breadcrumbs";
@@ -97,6 +97,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
   if(data.ltsSingleton){
     isLts = true;
   }
+  let thisMajorVersion; // will convey the Designation/EOL dates for the entire page
   return (
     <div className="max-w-[1400px] mx-auto flex">
       <main
@@ -111,7 +112,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
           items={sideNav[0]?.dotcmsdocumentationchildren || []}
           slug={slug}
         />
-        <div className="flex flex-col gap-6 mb-8">
+        <div className="flex flex-col gap-6 mb-6">
           <h1 className="text-4xl font-bold">dotCMS Changelogs</h1>
           <div className="flex gap-2">
             <button
@@ -164,7 +165,9 @@ export default function ChangeLogContainer({ sideNav, slug }) {
                     return `${vLts} (Past EOL)`;
                   }
                 })();
-
+                // just to convey the Designation/EOL dates for the entire page
+                thisMajorVersion = data.ltsMajors[ltsMajorVersions.indexOf(vLts)].parent ? 
+                  data.ltsMajors[ltsMajorVersions.indexOf(vLts)].parent : data.ltsMajors[ltsMajorVersions.indexOf(vLts)];
                 return (
                   <Dropdown 
                     items={ltsMajorVersions}
@@ -176,6 +179,16 @@ export default function ChangeLogContainer({ sideNav, slug }) {
             }
           </div>
         </div>
+        {
+          isLts && (() => {
+            return (
+              <div className="text-foreground flex items-center text-xl font-semibold justify-between">
+                <div>Designated: {extractDateForTables(thisMajorVersion.releasedDate)}</div>
+                <div>EOL: {extractDateForTables(thisMajorVersion.eolDate)}</div>
+              </div>
+            )
+          })()
+        }
 
         {data.changelogs.map((item, index) => (
           <ChangeLogEntry key={item?.identifier || index} item={item} index={index} />
