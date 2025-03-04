@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { ScrollLock } from '@/components/ScrollLock';
+import { AlertBanner } from '@/components/AlertBanner';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -72,6 +73,13 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <ScrollLock />
+            <AlertBanner 
+              message={
+                <>
+                  dotCMS is now licensed under the BSL 1.1 and is free to use in many cases. <a href="https://www.dotcms.com/bsl-faq" className="underline font-medium hover:text-blue-200">Learn more here</a>.
+                </>
+              } 
+            />
             {children}
             <Toaster />
           </ThemeProvider>
