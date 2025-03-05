@@ -23,7 +23,7 @@ import Link from "next/link";
 import * as React from "react";
 import { cn } from "@/util/utils";
 import { useState, useEffect } from "react"
-import DiscordLink from "./DiscordLink";
+import DiscourseLink from "./DiscourseLink";
 import GithubLink from "./GithubLink";
 import Logo from "./Logo/Logo";
 import { SearchModal } from "../chat/SearchModal";
@@ -256,7 +256,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
 
             <div className="hidden lg:flex items-center space-x-2">
               <GithubLink />
-              <DiscordLink />
+              <DiscourseLink />
               <ThemeToggle />
             </div>
 
@@ -304,7 +304,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
                 
                 <div className="flex items-center gap-2 px-2">
                   <GithubLink />
-                  <DiscordLink />
+                  <DiscourseLink />
                   <ThemeToggle />
                 </div>
               </div>

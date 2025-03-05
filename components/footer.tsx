@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Separator } from "@/components/ui/separator"
 import { Github, Twitter, Linkedin } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
+import DiscourseLink from "@/components/header/DiscourseLink"
 export default function Footer() {
   return (
     <footer className="mt-auto border-t">
@@ -31,6 +31,12 @@ export default function Footer() {
             <Link href="https://linkedin.com/company/dotcms" target="_blank" rel="noopener noreferrer">
               <Linkedin className="h-5 w-5" />
               <span className="sr-only">LinkedIn</span>
+            </Link>
+          </Button>
+          <Button variant="ghost" size="icon" asChild className="hover:bg-transparent">
+            <Link href="https://community.dotcms.com" target="_blank" rel="noopener noreferrer">
+              <DiscourseLink position="footer" />
+              <span className="sr-only">Discourse</span>
             </Link>
           </Button>
         </div>
