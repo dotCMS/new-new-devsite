@@ -23,6 +23,10 @@ export const getSideNav = async () => {
                 urlTitle
                 modDate
                 dotcmsdocumentationchildren {
+                    title
+                    urlTitle
+                    modDate
+                    dotcmsdocumentationchildren {
                         title
                         urlTitle
                         modDate
@@ -34,7 +38,13 @@ export const getSideNav = async () => {
                                 title
                                 urlTitle
                                 modDate
+                                dotcmsdocumentationchildren {
+                                    title
+                                    urlTitle
+                                    modDate
+                                }
                             }
+                        }
                     }
                 }
             }
