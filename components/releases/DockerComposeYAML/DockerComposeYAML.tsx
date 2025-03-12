@@ -20,13 +20,13 @@ const DockerComposeYAML = (props: DockerComposeProps) => {
     const cleanStarterURL = `https://repo.dotcms.com/artifactory/libs-release-local/com/dotcms/starter/empty_${cleanStarter}/starter-empty_${cleanStarter}.zip`
     const demoStarterURL = `https://repo.dotcms.com/artifactory/libs-release-local/com/dotcms/starter/${demoStarter}/starter-${demoStarter}.zip`
     const outputYaml = `
-  # This Docker Compose file is used to spin up a local dotCMS container using Docker.
-  # Simply place this file in the desired working directory and run 'docker compose up' to get started.
-  # Version: ${version}${lts ? " LTS" : ""}
-  # Demo Site ${includeDemo ? "Included" : "Excluded"}
-  # Starter Image: ${includeDemo ? demoStarter : cleanStarter}
+# This Docker Compose file is used to spin up a local dotCMS container using Docker.
+# Simply place this file in the desired working directory and run 'docker compose up' to get started.
+# Version: ${version}${lts ? " LTS" : ""}
+# Demo Site ${includeDemo ? "Included" : "Excluded"}
+# Starter Image: ${includeDemo ? demoStarter : cleanStarter}
 
-  services:
+services:
   db:
     image: pgvector/pgvector:pg16
     command: postgres -c 'max_connections=400' -c 'shared_buffers=128MB'
@@ -76,6 +76,7 @@ const DockerComposeYAML = (props: DockerComposeProps) => {
     image: dotcms/dotcms:${dockerTag}
     environment:
       CMS_JAVA_OPTS: '-Xmx1g '
+      JAVA_TOOL_OPTIONS: '-XX:UseSVE=0'
       LANG: 'C.UTF-8'
       TZ: 'UTC'
       DB_BASE_URL: "jdbc:postgresql://db/dotcms"
