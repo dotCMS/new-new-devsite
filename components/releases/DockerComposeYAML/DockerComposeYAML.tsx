@@ -73,7 +73,7 @@ services:
           memory: 2G
 
   dotcms:
-    image: dotcms/dotcms:${dockerTag}
+    image: dotcms/dotcms:latest
     environment:
       CMS_JAVA_OPTS: '-Xmx1g '
       JAVA_TOOL_OPTIONS: '-XX:UseSVE=0'
@@ -88,7 +88,8 @@ services:
       DOT_DOTCMS_CLUSTER_ID: 'dotcms-production'
       GLOWROOT_ENABLED: 'true'
       GLOWROOT_WEB_UI_ENABLED: 'true' # Enable glowroot web ui on localhost.  do not use in production
-      CUSTOM_STARTER_URL: '${includeDemo ? demoStarterURL : cleanStarterURL}'
+
+      #CUSTOM_STARTER_URL: 'https://repo.dotcms.com/artifactory/libs-release-local/com/dotcms/starter/20240719/starter-20240719.zip'
     depends_on:
       - db
       - opensearch      
@@ -103,14 +104,14 @@ services:
       - "8443:8443"
       - "4000:4000" # Glowroot web ui if enabled
 
-  networks:
-    db_net:
-    opensearch-net:
+networks:
+  db_net:
+  opensearch-net:
 
-  volumes:
-    cms-shared:
-    dbdata:
-    opensearch-data:`;
+volumes:
+  cms-shared:
+  dbdata:
+  opensearch-data:`;
     const blob = new Blob([outputYaml], { type: 'text/yaml' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
