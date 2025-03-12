@@ -34,7 +34,7 @@ export default function FeatureCard({
 }: FeatureCardProps) {
 
     const imageUrl = imageIdentifier && (imageIdentifier.startsWith('http') || imageIdentifier.startsWith('/dA/')) ? imageIdentifier : `${Config.CDNHost}/dA/${imageIdentifier}/`;
-    const myHref = count < 0 ? "#" : href;
+    const myHref = count === 0 ? "#" : href;
 
     return (
         <div className="space-y-4">
@@ -45,9 +45,13 @@ export default function FeatureCard({
                             <Icon className={`h-6 w-6 transition-colors group-hover:text-${color}`} />
                             <div className="flex items-center gap-2">
                                 <h3 className={`text-xl font-semibold transition-colors group-hover:text-${color}`}>{title}</h3>
-                                {count > 0 && (
+                                {count > 0 ? (
                                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
                                         {count}
+                                    </span>
+                                ) : (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+                                        {'+'}
                                     </span>
                                 )}
                             </div>

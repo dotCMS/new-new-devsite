@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { resources } from "@/components/learning/resources"
 import FeatureCard from "../content-types/feature-card"
-
+import { GraduationCap } from "lucide-react"
 export function DevResourceGrid(count: any) {
 
   
@@ -43,6 +43,24 @@ export function DevResourceGrid(count: any) {
           </Link>
         )
       }})}
+
+      <Link 
+        key="lms" 
+        href={`https://dotcms.talentlms.com/plus/login`}
+        className="group"
+        prefetch={false}
+      >
+        <FeatureCard
+          href={`https://dotcms.talentlms.com/plus/login`}
+          icon={GraduationCap}
+          title={"Training & Courses"}
+          description={"Learn dotCMS with our comprehensive training courses"}
+          imageIdentifier={"/dA/68d9824f3e0afff7f637650a3a41dc2f/70q/1000maxw"}
+          color="[#a21caf]"
+          count={-1}
+          links={[]}
+        />
+      </Link>
     </div>
     </>
   )
