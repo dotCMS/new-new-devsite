@@ -20,13 +20,13 @@ const DockerComposeYAML = (props: DockerComposeProps) => {
     const cleanStarterURL = `https://repo.dotcms.com/artifactory/libs-release-local/com/dotcms/starter/empty_${cleanStarter}/starter-empty_${cleanStarter}.zip`
     const demoStarterURL = `https://repo.dotcms.com/artifactory/libs-release-local/com/dotcms/starter/${demoStarter}/starter-${demoStarter}.zip`
     const outputYaml = `
-  # This Docker Compose file is used to spin up a local dotCMS container using Docker.
-  # Simply place this file in the desired working directory and run 'docker compose up' to get started.
-  # Version: ${version}${lts ? " LTS" : ""}
-  # Demo Site ${includeDemo ? "Included" : "Excluded"}
-  # Starter Image: ${includeDemo ? demoStarter : cleanStarter}
+# This Docker Compose file is used to spin up a local dotCMS container using Docker.
+# Simply place this file in the desired working directory and run 'docker compose up' to get started.
+# Version: ${version}${lts ? " LTS" : ""}
+# Demo Site ${includeDemo ? "Included" : "Excluded"}
+# Starter Image: ${includeDemo ? demoStarter : cleanStarter}
 
-  services:
+services:
   db:
     image: pgvector/pgvector:pg16
     command: postgres -c 'max_connections=400' -c 'shared_buffers=128MB'
@@ -73,9 +73,10 @@ const DockerComposeYAML = (props: DockerComposeProps) => {
           memory: 2G
 
   dotcms:
-    image: dotcms/dotcms:${dockerTag}
+    image: dotcms/dotcms:latest
     environment:
       CMS_JAVA_OPTS: '-Xmx1g '
+      JAVA_TOOL_OPTIONS: '-XX:UseSVE=0'
       LANG: 'C.UTF-8'
       TZ: 'UTC'
       DB_BASE_URL: "jdbc:postgresql://db/dotcms"
@@ -87,7 +88,8 @@ const DockerComposeYAML = (props: DockerComposeProps) => {
       DOT_DOTCMS_CLUSTER_ID: 'dotcms-production'
       GLOWROOT_ENABLED: 'true'
       GLOWROOT_WEB_UI_ENABLED: 'true' # Enable glowroot web ui on localhost.  do not use in production
-      CUSTOM_STARTER_URL: '${includeDemo ? demoStarterURL : cleanStarterURL}'
+
+      #CUSTOM_STARTER_URL: 'https://repo.dotcms.com/artifactory/libs-release-local/com/dotcms/starter/20240719/starter-20240719.zip'
     depends_on:
       - db
       - opensearch      
@@ -102,14 +104,14 @@ const DockerComposeYAML = (props: DockerComposeProps) => {
       - "8443:8443"
       - "4000:4000" # Glowroot web ui if enabled
 
-  networks:
-    db_net:
-    opensearch-net:
+networks:
+  db_net:
+  opensearch-net:
 
-  volumes:
-    cms-shared:
-    dbdata:
-    opensearch-data:`;
+volumes:
+  cms-shared:
+  dbdata:
+  opensearch-data:`;
     const blob = new Blob([outputYaml], { type: 'text/yaml' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');

@@ -92,7 +92,7 @@ export const TableReleases: FC<{
           <thead className="bg-gray-50 dark:bg-gray-900">
             <tr>
               {downloadYAML && (
-                <th className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <th className="px-12 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Download
               </th>
               )}
@@ -141,7 +141,7 @@ export const TableReleases: FC<{
                           demoStarter: release.starter, 
                           includeDemo: false 
                         })}}
-                        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-600 
+                        className="px-1 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 w-0 grow
                                   rounded-md transition-colors bg-indigo-100 dark:bg-indigo-600"
                       >
                         Clean
@@ -155,10 +155,10 @@ export const TableReleases: FC<{
                             demoStarter: release.starter, 
                             includeDemo: true 
                           })}}
-                        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-600 
+                        className="px-1 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 w-0 grow
                                   rounded-md transition-colors bg-purple-100 dark:bg-purple-600"
                       >
-                        With Demo Site
+                        Demo Site
                       </button>
                   </td>
                 )}
