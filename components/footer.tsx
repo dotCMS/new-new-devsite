@@ -34,10 +34,9 @@ export default function Footer() {
             </Link>
           </Button>
           <Button variant="ghost" size="icon" asChild className="hover:bg-transparent">
-            <Link href="https://community.dotcms.com" target="_blank" rel="noopener noreferrer">
+            
               <DiscourseLink position="footer" />
-              <span className="sr-only">Discourse</span>
-            </Link>
+              
           </Button>
         </div>
 
