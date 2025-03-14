@@ -3,6 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Globe } from "lucide-react"
 import { cn } from "@/util/utils"
+import MarkdownContent from "../MarkdownContent"
 
 interface LinkCardProps {
   title: string;
@@ -25,12 +26,12 @@ export default function LinkCards(props: LinkCardProps) {
     }
 
     return (
-        <div className="space-y-4 my-16">
-            <h3 className="text-2xl font-bold">{title}</h3>
-            <p className="text-muted-foreground max-w-3xl">
-                {description}
+        <div className="space-y-4 my-12">
+            <h3 className="text-4xl font-bold text-center">{title}</h3>
+            <p className="text-muted-foreground max-w-3xl  text-center mx-auto">
+                <MarkdownContent content={description} />
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 justify-center items-center">
                 {links.map((link, index) => {
                     // Additional safety check per link
                     if (!link?.url || !link?.title) return null;
