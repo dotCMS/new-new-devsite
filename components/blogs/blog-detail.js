@@ -24,8 +24,8 @@ export default function BlogDetailComponent({ post }) {
 
                     <DetailHeader post={post} />
                     
-                    <div className="prose prose-lg max-w-none mb-8">
-                        <DotBlockEditor
+                    <div className="prose prose-lg  mb-8">
+                        <DotBlockEditor className=" max-w-[85vw]"
                             blocks={post.body.json}
                         />
                     </div>
