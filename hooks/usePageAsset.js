@@ -10,7 +10,7 @@ export const usePageAsset = (currentPageAsset) => {
         if (!isInsideEditor()) {
             return;
         }
-        
+
         client.editor.on('changes', (page) => {
             if (!page) {
                 return;
