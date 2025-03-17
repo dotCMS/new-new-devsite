@@ -7,6 +7,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { ScrollLock } from '@/components/ScrollLock';
 import { AlertBanner } from '@/components/AlertBanner';
+import MicrosoftClarity from '@/components/metrics/MicrosoftClarity';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -85,6 +86,7 @@ export default function RootLayout({
           </ThemeProvider>
         </ErrorBoundary>
         <GoogleAnalytics gaId="G-CM1HLQW35G" />
+        <MicrosoftClarity />
       </body>
     </html>
   );
