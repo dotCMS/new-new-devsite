@@ -73,7 +73,7 @@ services:
           memory: 2G
 
   dotcms:
-    image: dotcms/dotcms:latest
+    image: dotcms/dotcms:${dockerTag}
     environment:
       CMS_JAVA_OPTS: '-Xmx1g '
       JAVA_TOOL_OPTIONS: '-XX:UseSVE=0'
@@ -89,7 +89,7 @@ services:
       GLOWROOT_ENABLED: 'true'
       GLOWROOT_WEB_UI_ENABLED: 'true' # Enable glowroot web ui on localhost.  do not use in production
 
-      #CUSTOM_STARTER_URL: 'https://repo.dotcms.com/artifactory/libs-release-local/com/dotcms/starter/20240719/starter-20240719.zip'
+      CUSTOM_STARTER_URL: '${includeDemo ? demoStarterURL : cleanStarterURL}'
     depends_on:
       - db
       - opensearch      
