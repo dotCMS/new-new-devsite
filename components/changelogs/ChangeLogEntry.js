@@ -8,6 +8,9 @@ import { ExternalLink, Copy, Check } from 'lucide-react'
 import { useState } from "react";
 import { isMarkdown, isMarkdownStrict } from '@/util/isMarkdown'
 import DangerousHtmlComponent from '../DangerousHtmlComponent'
+
+const HEADER_HEIGHT = 80;
+
 export default function ChangeLogEntry({ item, index }) {
 
   const releaseNotes = item?.releaseNotes;
@@ -22,6 +25,7 @@ export default function ChangeLogEntry({ item, index }) {
           className="text-3xl font-semibold text-foreground mt-12 pb-2 mb-1 group flex items-center"
           id={"v"+item?.minor}
           key={"h2"+item?.minor}
+          style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
         >
           {item?.minor} 
           <a href={"#v"+item?.minor} onClick={smoothScroll}  className="ml-2 opacity-0 group-hover:opacity-90 transition-opacity">
