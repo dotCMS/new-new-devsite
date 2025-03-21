@@ -10,7 +10,7 @@ import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import Breadcrumbs from "../navigation/Breadcrumbs";
 import PaginationBar from "../PaginationBar";
 import Dropdown from "../shared/dropdown";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ChangeLogContainer({ sideNav, slug }) {
   //const router = useRouter(); // see removal of router in handleVersionChange
@@ -32,6 +32,22 @@ export default function ChangeLogContainer({ sideNav, slug }) {
     singleVersion,
   );
 
+  // Handle hash scrolling after data is loaded
+  useEffect(() => {
+    if (!loading && window.location.hash) {
+      const id = window.location.hash.substring(1);
+      const element = document.getElementById(id);
+      if (element) {
+        const elementTop = element.getBoundingClientRect().top + window.scrollY;
+        const targetScrollPos = elementTop - 80; // Match InitialScroll's HEADER_HEIGHT
+        window.scrollTo({
+          top: targetScrollPos,
+          behavior: 'instant'
+        });
+      }
+    }
+  }, [loading]);
+
   const handleVersionChange = (isLtsVersion) => {
     const params = new URLSearchParams(searchParams);
     if(isLtsVersion !== "false"){
@@ -44,32 +60,6 @@ export default function ChangeLogContainer({ sideNav, slug }) {
     //router.push(`?${params.toString()}`, undefined, {shallow:false}); // switched to window.location.href to avoid shallow routing
     window.location.href = `?${params.toString()}`;
   };
-
-  // Add useEffect to handle hash scrolling after content loads
-  useEffect(() => {
-    if (!loading && (window.location.hash || singleVersion)) {
-      let id = '';
-      if(window.Location.hash){
-        id = window.location.hash.replace('#', '');
-      } else if(singleVersion){
-        id = 'v'+singleVersion;
-      }
-      const element = document.getElementById(id);
-      if (element) {
-        // Add a small delay to ensure the content is rendered
-        setTimeout(() => {
-          const headerHeight = 72; // pixel offset for fixed header
-          const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.scrollY - headerHeight;
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          });
-        }, 100);
-      }
-    }
-  }, [loading, singleVersion]); // Re-run when loading state changes
 
   if (loading) {
     return (
@@ -97,21 +87,22 @@ export default function ChangeLogContainer({ sideNav, slug }) {
   if(data.ltsSingleton){
     isLts = true;
   }
-  let thisMajorVersion; // will convey the Designation/EOL dates for the entire page
+  let thisMajorVersion;
   return (
-    <div className="max-w-[1400px] mx-auto flex">
-      <main
-        className="flex-1 min-w-0 py-8 lg:pb-12 
-          px-0 sm:px-0 lg:px-8 [&::-webkit-scrollbar]:w-1.5 
-          [&::-webkit-scrollbar-track]:bg-transparent 
-          [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10 
-          [&::-webkit-scrollbar-thumb]:rounded-full 
-          hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20"
+    <div className="flex flex-col lg:flex-row w-full max-w-[1400px] mx-auto">
+      {/* Main Content Area */}
+      <main className="flex-1 min-w-0 py-8 lg:pb-12 px-0 sm:px-0 lg:px-8
+        [&::-webkit-scrollbar]:w-1.5
+        [&::-webkit-scrollbar-track]:bg-transparent
+        [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
+        [&::-webkit-scrollbar-thumb]:rounded-full
+        hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20"
       >
         <Breadcrumbs
           items={sideNav[0]?.dotcmsdocumentationchildren || []}
           slug={slug}
         />
+
         <div className="flex flex-col gap-6 mb-6">
           <h1 className="text-4xl font-bold">dotCMS Changelogs</h1>
           <div className="flex gap-2">
@@ -179,6 +170,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
             }
           </div>
         </div>
+
         {
           isLts && (() => {
             return (
@@ -195,9 +187,11 @@ export default function ChangeLogContainer({ sideNav, slug }) {
         ))}
 
         <div className="mt-8 mb-12">
-            <PaginationBar pagination={data.pagination} currentPage={data.pagination.page} additionalQueryParams={isLts ? `&lts=${isLts}` : ""} />
+          <PaginationBar pagination={data.pagination} currentPage={data.pagination.page} additionalQueryParams={isLts ? `&lts=${isLts}` : ""} />
         </div>
       </main>
+
+      {/* Right Sidebar - Hide on smaller screens */}
       <div className="w-64 shrink-0 hidden xl:block">
         <div className="sticky top-16 pt-8 pl-8">
           <div className="text-muted-foreground
