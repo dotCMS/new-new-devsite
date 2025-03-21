@@ -19,9 +19,7 @@ function cleanMarkdown(markdownString, identifierString) {
     .replaceAll('src="/dA/', 'src="https://www.dotcms.com/dA/')
     .replaceAll("(/contentAsset", "(https://www.dotcms.com/contentAsset")
     .replaceAll("( /contentAsset", "(https://www.dotcms.com/contentAsset")
-    .replaceAll("<br>", "<br/>")
-    .replaceAll("()", "")
-    .replaceAll("</br>", "<br/>");
+    .replaceAll("</br>", "<br>");
 }
 
 const Documentation = ({ contentlet, sideNav, slug }) => {
@@ -51,7 +49,7 @@ const Documentation = ({ contentlet, sideNav, slug }) => {
           />
 
           <div className="markdown-content">
-            <h1 className="text-4xl font-bold mb-6 scroll-mt-20">{contentlet.title}</h1>
+            <h1 className="text-4xl font-bold mb-6">{contentlet.title}</h1>
             {contentlet.tag.includes("deprecated")  && (
               <div className="mb-6">
                 <Warn>
