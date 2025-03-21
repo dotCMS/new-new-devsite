@@ -12,51 +12,54 @@ export const OnThisPage = ({
   const [items, setItems] = useState([]);
   const [mySelectors, setMySelectors] = useState(selectors);
 
-
   useEffect(() => {
     const generateTOC = () => {
       const headers = document.querySelectorAll(mySelectors);
-      const toc = Array.from(headers).map((header) => {
-        // Extract any custom ID if present
-        const customIdMatch = header.textContent.match(/ {#([^}]+)}$/);
-        const customId = customIdMatch ? customIdMatch[1] : null;
-        
-        // Clean the display text by removing the {#custom-id} part
-        const displayText = header.textContent.replace(/ {#[^}]+}$/, '').replace(/#/g, '').trim();
-        
-        // Use custom ID if present, otherwise generate one from cleaned text
-        if (!header.id) {
-          header.id = customId || displayText
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/(^-|-$)/g, '');
-        }
-
-        return {
+      const toc = Array.from(headers)
+        .filter(header => {
+          // Only include visible headers that have IDs (which should be all of them due to rehype-slug)
+          return header.offsetParent !== null && header.id;
+        })
+        .map((header) => ({
           id: header.id,
-          title: displayText,
-          level: parseInt(header.tagName[1]),
-        };
-      });
+          title: header.textContent.replace(/#/g, '').trim(),
+          level: parseInt(header.tagName[1])
+        }));
 
       setItems(toc);
     };
 
-    // Initial generation
-    generateTOC();
+    // Run once after a short delay to ensure content is rendered
+    const timer = setTimeout(generateTOC, 0);
 
-    // Re-generate if content changes
-    const observer = new MutationObserver(generateTOC);
-    const markdownContent = document.querySelector(mySelectors);
-    
+    // Only re-run on significant DOM changes
+    const observer = new MutationObserver((mutations) => {
+      const hasSignificantChanges = mutations.some(mutation => 
+        mutation.type === 'childList' && 
+        Array.from(mutation.addedNodes).some(node => 
+          node.nodeType === 1 && 
+          node.matches && 
+          node.matches(mySelectors)
+        )
+      );
+
+      if (hasSignificantChanges) {
+        generateTOC();
+      }
+    });
+
+    const markdownContent = document.querySelector('main');
     if (markdownContent) {
       observer.observe(markdownContent, {
         childList: true,
-        subtree: true,
+        subtree: true
       });
     }
 
-    return () => observer.disconnect();
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
   }, [mySelectors]);
 
   if (items.length === 0) {

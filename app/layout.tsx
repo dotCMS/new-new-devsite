@@ -4,15 +4,14 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/header/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import { GoogleAnalytics } from '@next/third-parties/google'
-import { ScrollLock } from '@/components/ScrollLock';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import { AlertBanner } from '@/components/AlertBanner';
 import MicrosoftClarity from '@/components/metrics/MicrosoftClarity';
+import { InitialScroll } from '@/components/InitialScroll';
 
 const inter = Inter({ 
   subsets: ['latin'],
   display: 'swap',
-  preload: true,
 });
 
 export const viewport: Viewport = {
@@ -64,7 +63,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className="scroll-smooth">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ErrorBoundary>
           <ThemeProvider
@@ -73,7 +72,6 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <ScrollLock />
             <AlertBanner 
               message={
                 <>
@@ -81,6 +79,7 @@ export default function RootLayout({
                 </>
               } 
             />
+            <InitialScroll />
             {children}
             <Toaster />
           </ThemeProvider>
