@@ -51,7 +51,7 @@ const Documentation = ({ contentlet, sideNav, slug }) => {
           />
 
           <div className="markdown-content">
-            <h1 className="text-4xl font-bold mb-6">{contentlet.title}</h1>
+            <h1 className="text-4xl font-bold mb-6 scroll-mt-20">{contentlet.title}</h1>
             {contentlet.tag.includes("deprecated")  && (
               <div className="mb-6">
                 <Warn>

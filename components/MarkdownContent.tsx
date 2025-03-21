@@ -38,23 +38,45 @@ interface ChildrenProps {
   children: ReactNode;
 }
 
+const HEADER_HEIGHT = 80;
+const BREADCRUMB_HEIGHT = 48; // 24px height + 24px bottom margin
+const TOTAL_OFFSET = HEADER_HEIGHT + BREADCRUMB_HEIGHT;
+
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className }) => {
   const { theme } = useTheme();
 
   const components: ExtendedComponents = {
     h1: ({ node, children, ...props }) => (
-      <h1 className="text-4xl font-bold mt-6 mb-4 group flex items-center" {...props}>
+      <h1 
+        className="text-4xl font-bold mt-6 mb-4 group flex items-center relative" 
+        style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
+        {...props}
+      >
         {children}
-        <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <a 
+          href={`#${props.id}`}
+          onClick={smoothScroll}
+          className="absolute -left-5 opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label="Link to section"
+        >
           #
         </a>
       </h1>
     ),
     h2: ({ children, ...props }) => (
       <>
-        <h2 className="text-3xl font-semibold text-foreground mt-12 mb-1 group flex items-center" {...props}>
+        <h2 
+          className="text-3xl font-semibold text-foreground mt-12 mb-1 group flex items-center relative" 
+          style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
+          {...props}
+        >
           {children}
-          <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <a 
+            href={`#${props.id}`}
+            onClick={smoothScroll}
+            className="absolute -left-5 opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label="Link to section"
+          >
             #
           </a>
         </h2>
@@ -62,35 +84,69 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className })
       </>
     ),
     h3: ({ children, ...props }) => (
-      <>
-        <h3 className="text-2xl font-semibold text-foreground mt-8 mb-4 group flex items-center" {...props}>
-          {children}
-          <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            #
-          </a>
-        </h3>
-      </>
+      <h3 
+        className="text-2xl font-semibold text-foreground mt-8 mb-4 group flex items-center relative" 
+        style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
+        {...props}
+      >
+        {children}
+        <a 
+          href={`#${props.id}`}
+          onClick={smoothScroll}
+          className="absolute -left-5 opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label="Link to section"
+        >
+          #
+        </a>
+      </h3>
     ),
     h4: ({ children, ...props }) => (
-      <h4 className="text-xl font-semibold text-foreground mt-6 mb-4 group flex items-center" {...props}>
+      <h4 
+        className="text-xl font-semibold text-foreground mt-6 mb-4 group flex items-center relative" 
+        style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
+        {...props}
+      >
         {children}
-        <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <a 
+          href={`#${props.id}`}
+          onClick={smoothScroll}
+          className="absolute -left-5 opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label="Link to section"
+        >
           #
         </a>
       </h4>
     ),
     h5: ({ children, ...props }) => (
-      <h5 className="text-lg font-semibold text-foreground mt-4 mb-2 group flex items-center" {...props}>
+      <h5 
+        className="text-lg font-semibold text-foreground mt-4 mb-2 group flex items-center relative" 
+        style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
+        {...props}
+      >
         {children}
-        <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <a 
+          href={`#${props.id}`}
+          onClick={smoothScroll}
+          className="absolute -left-5 opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label="Link to section"
+        >
           #
         </a>
       </h5>
     ),
     h6: ({ children, ...props }) => (
-      <h6 className="text-base font-medium mt-2 mb-1 group flex items-center" {...props}>
+      <h6 
+        className="text-base font-medium mt-2 mb-1 group flex items-center relative" 
+        style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
+        {...props}
+      >
         {children}
-        <a href={`#${props.id}`} onClick={smoothScroll} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <a 
+          href={`#${props.id}`}
+          onClick={smoothScroll}
+          className="absolute -left-5 opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label="Link to section"
+        >
           #
         </a>
       </h6>
@@ -245,8 +301,15 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className })
     <ReactMarkdown 
       rehypePlugins={[
         [rehypeRaw],
-        rehypeSlug,
-        [rehypeAutolinkHeadings, { behavior: 'wrap' }]
+        [rehypeSlug],
+        [rehypeAutolinkHeadings, { 
+          behavior: 'wrap',
+          properties: {
+            className: ['anchor'],
+            'data-heading-id': true,
+            style: 'scroll-margin-top: 80px;'
+          }
+        }]
       ]}
       remarkPlugins={[remarkGfm, remarkCustomId]}
       components={components}

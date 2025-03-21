@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { X } from 'lucide-react';
 
 interface AlertBannerProps {
-  message: React.ReactNode;
+  message: ReactNode;
   storageKey?: string;
 }
 
@@ -33,19 +33,8 @@ export function AlertBanner({
   if (!isVisible) return null;
 
   return (
-    <div className="sticky top-0 z-50 w-full">
-      <Alert className="rounded-none relative py-3 px-4 text-white border-none" style={{ backgroundColor: 'rgb(24, 24, 109)' }}>
-        <AlertDescription className="text-white w-full text-center">
-          {message}
-        </AlertDescription>
-        <button
-          onClick={dismissBanner}
-          className="p-1 absolute right-4 top-1/2 transform -translate-y-1/2 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          aria-label="Close alert"
-        >
-          <X className="h-4 w-4 text-white" />
-        </button>
-      </Alert>
+    <div className="bg-primary-purple text-white px-4 py-2 text-center text-sm">
+      {message}
     </div>
   );
 }
