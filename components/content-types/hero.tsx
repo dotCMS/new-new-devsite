@@ -74,6 +74,7 @@ export default function Hero(props: HeroProps) {
     if(!card1 || !card2 || !card3) {
         return <><h1>No cards</h1></>;
     }
+
     return (
         <section className="container mx-auto px-4 py-16">
             <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl text-center">{title}</h1>
@@ -83,7 +84,7 @@ export default function Hero(props: HeroProps) {
 
             <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
                 <FeatureCard
-                    href={card1?.url || "/docs/developer"}
+                    url={card1?.url || "/docs/developer"}
                     icon={Code}
                     title={card1?.title}
                     description={card1?.description}
@@ -94,7 +95,7 @@ export default function Hero(props: HeroProps) {
                 />
 
                 <FeatureCard
-                    href={card2.url || "/docs/authoring"}
+                    url={card2.url || "/docs/authoring"}
                     icon={PenTool}
                     title={card2?.title}
                     description={card2?.description}
@@ -105,7 +106,7 @@ export default function Hero(props: HeroProps) {
                 />
 
                 <FeatureCard
-                    href={card3.url || "/docs/devops"}
+                    url={card3.url || "/docs/devops"}
                     icon={Server}
                     title={card3.title}
                     description={card3.description}

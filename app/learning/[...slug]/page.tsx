@@ -107,7 +107,7 @@ export default async function DevResourceDetailPage({
   }
 
   const devResource = devResourceResult.devResources[0];
-  const hostname = Config.CDNHost;
+  const hostname = Config.CDNHost;  
   
   const imageUrl = devResource.image?.idPath  
     ? `${hostname}/dA/${extractAssetId(devResource.image.idPath)}/70q/1000maxw/${devResource.inode}/${devResource.image.title}`
@@ -125,7 +125,7 @@ export default async function DevResourceDetailPage({
     "author": devResource.author 
       ? {
           "@type": "Person",
-          "name": `${devResource.author}`
+          "name": `${devResource.author.firstName} ${devResource.author.lastName}`
         }
       : {
           "@type": "Organization",
