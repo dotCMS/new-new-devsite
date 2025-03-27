@@ -84,6 +84,7 @@ export default function Hero(props: HeroProps) {
 
             <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
                 <FeatureCard
+                    href={card1?.url || "/docs/developer"}
                     url={card1?.url || "/docs/developer"}
                     icon={Code}
                     title={card1?.title}
@@ -95,6 +96,7 @@ export default function Hero(props: HeroProps) {
                 />
 
                 <FeatureCard
+                    href={card2.url || "/docs/authoring"}
                     url={card2.url || "/docs/authoring"}
                     icon={PenTool}
                     title={card2?.title}
@@ -106,6 +108,7 @@ export default function Hero(props: HeroProps) {
                 />
 
                 <FeatureCard
+                    href={card3.url || "/docs/devops"}
                     url={card3.url || "/docs/devops"}
                     icon={Server}
                     title={card3.title}
