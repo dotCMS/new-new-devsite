@@ -22,6 +22,11 @@ export async function generateMetadata({ params, searchParams }) {
         };
     }
 
+    // Check if the post's tags include 'dot:meta-no-index'
+    const tags = post.tags || [];
+    const shouldNoIndex = Array.isArray(tags) 
+        ? tags.includes('dot:meta-no-index') 
+        : typeof tags === 'string' && tags.includes('dot:meta-no-index');
 
     const blogHostName = post.host?.hostName || 'dev.dotcms.com';
 
@@ -34,8 +39,7 @@ export async function generateMetadata({ params, searchParams }) {
         ? `${hostname}/dA/${extractAssetId(post.image.fileAsset.idPath)}/70q/1000maxw/${post.inode}`
         : `${hostname}/images/default-blog-image.jpg`;
 
-    return {
-
+    const metadata = {
         alternates: {
             canonical: `${hostname}/blog/${post.urlTitle}`,
         },
@@ -80,11 +84,15 @@ export async function generateMetadata({ params, searchParams }) {
 
         // Other meta tags
         keywords: post.tags?.join(', '),
-        robots: {
-            index: true,
-            follow: true,
-        },
+        robots: shouldNoIndex 
+            ? 'noindex, nofollow'
+            : {
+                index: true,
+                follow: true,
+              },
     };
+
+    return metadata;
 }
 
 

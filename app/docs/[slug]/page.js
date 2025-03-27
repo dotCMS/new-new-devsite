@@ -53,16 +53,21 @@ export async function generateMetadata({ params, searchParams }) {
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
     const { pageAsset } = await fetchPageData(path, finalSearchParams);
-
-    return {
-        title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title) ,
+    
+    // Check if the page's tags include 'dot:meta-no-index'
+    const tags = pageAsset.urlContentMap._map.tag || [];
+    const shouldNoIndex = Array.isArray(tags) 
+        ? tags.includes('dot:meta-no-index') 
+        : typeof tags === 'string' && tags.includes('dot:meta-no-index');
+    
+    const metadata = {
+        title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title),
         description: pageAsset.urlContentMap._map.seoDescription,
         keywords: pageAsset.urlContentMap._map.tag,
         openGraph: {
-            title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title) ,
+            title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title),
             description: pageAsset.urlContentMap._map.seoDescription,
             keywords: pageAsset.urlContentMap._map.tag,
-
             url: `${hostname}${path}`,
             siteName: 'dotCMS Docs',
             images: [{
@@ -73,16 +78,19 @@ export async function generateMetadata({ params, searchParams }) {
             }],
             locale: 'en_US',
             type: 'article',
-
-
         },
-
         alternates: {
             canonical: `${hostname}${path}`,
         },
         metadataBase: new URL(hostname),
-        
     };
+    
+    // Add robots meta tag if 'dot:meta-no-index' is present
+    if (shouldNoIndex) {
+        metadata.robots = 'noindex, nofollow';
+    }
+    
+    return metadata;
 }
 
 
