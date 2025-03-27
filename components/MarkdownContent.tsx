@@ -12,7 +12,7 @@ import { smoothScroll } from '@/util/smoothScroll'
 import Video from '@/components/mdx/Video'
 import Info from '@/components/mdx/Info'
 import { CopyButton } from './chat/CopyButton'
-import { a11yLight, dark, docco, a11yDark,vs } from 'react-syntax-highlighter/dist/esm/styles/hljs'
+import { a11yLight, dark, docco, a11yDark, vs } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 import { useTheme } from "next-themes"
 import Warn from '@/components/mdx/Warn'
 import { Include } from '@/components/mdx/Include'

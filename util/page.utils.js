@@ -4,7 +4,7 @@ export const fetchPageData = async (params) => {
     try {
         const pageAsset = await client.page.get({
             ...params,
-            depth: 3,
+            depth: 1,
         });
 
         return { pageAsset };
