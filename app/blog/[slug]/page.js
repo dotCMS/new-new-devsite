@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import BlogDetailComponent from "@/components/blogs/blog-detail";
 import { ErrorPage } from "@/components/error";
 import { extractAssetId } from "@/util/utils";
+import Script from "next/script";
 
 export async function generateMetadata({ params, searchParams }) {
     const finalParams = await params;
@@ -88,6 +89,53 @@ export async function generateMetadata({ params, searchParams }) {
 
 
 
+// JSON-LD component for blog posts
+function JsonLd({ post, hostname }) {
+    const authorName = post.author 
+        ? `${post.author.firstName} ${post.author.lastName}` 
+        : 'dotCMS Team';
+    
+    const imageUrl = post.image?.fileAsset?.idPath  
+        ? `${hostname}/dA/${extractAssetId(post.image.fileAsset.idPath)}/70q/1000maxw/${post.inode}`
+        : `${hostname}/images/default-blog-image.jpg`;
+
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": post.title,
+        "description": post.teaser,
+        "image": imageUrl,
+        "datePublished": post.publishDate,
+        "dateModified": post.modDate,
+        "author": {
+            "@type": "Person",
+            "name": authorName
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "dotCMS",
+            "logo": {
+                "@type": "ImageObject",
+                "url": `${hostname}/images/dotcms-logo.png`
+            }
+        },
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": `${hostname}/blog/${post.urlTitle}`
+        },
+        "keywords": post.tags?.join(', '),
+        "articleBody": post.body
+    };
+
+    return (
+        <Script 
+            id="blog-jsonld" 
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+    );
+}
+
 export default async function BlogPage({ searchParams, params }) {
     const finalParams = await params;
     const slug = finalParams.slug
@@ -100,10 +148,17 @@ export default async function BlogPage({ searchParams, params }) {
     if(!post || !post.identifier) {
         return <ErrorPage error={{ message: "Blog not found", status: 404 }} />;
     }
+
+    const blogHostName = post.host?.hostName || 'dev.dotcms.com';
+    const hostname = (blogHostName === 'dotcms.com')
+        ? 'https://www.dotcms.com' 
+        : 'https://dev.dotcms.com';
+
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
-
+            <JsonLd post={post} hostname={hostname} />
+            
             <div className="flex flex-1">
                 <main className="flex-1">
                     <BlogDetailComponent post={post} />
