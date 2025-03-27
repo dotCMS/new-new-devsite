@@ -27,16 +27,20 @@ export async function generateMetadata({ params , searchParams }: { params: Prom
     }
 
     const devResource = devResources.devResources[0];
-    const hostname = Config.CDNHost;
+    
+    // Check if the resource's tags include 'dot:meta-no-index'
+    const tags = devResource.tags || [];
+    const shouldNoIndex = Array.isArray(tags) 
+        ? tags.includes('dot:meta-no-index') 
+        : typeof tags === 'string' && tags.includes('dot:meta-no-index');
 
+    const hostname = Config.CDNHost;
 
     const imageUrl = devResource.image?.idPath  
         ? `${hostname}/dA/${extractAssetId(devResource.image.idPath)}/70q/1000maxw/${devResource.inode}/${devResource.image.title}`
         : `${hostname}/dA/a6e0a89831/70q/1000maxw/dotcms-dev-site.webp`;
 
-
-    return {
-
+    const metadata = {
         alternates: {
             canonical: `${hostname}/learning/${devResource.slug}`,
         },
@@ -81,11 +85,15 @@ export async function generateMetadata({ params , searchParams }: { params: Prom
 
         // Other meta tags
         keywords: devResource.tags?.join(', '),
-        robots: {
-            index: true,
-            follow: true,
-        },
+        robots: shouldNoIndex 
+            ? 'noindex, nofollow'
+            : {
+                index: true,
+                follow: true,
+              },
     };
+
+    return metadata;
 }
 
 export default async function DevResourceDetailPage({
