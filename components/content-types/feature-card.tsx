@@ -13,7 +13,6 @@ interface DocLinkType {
 
 interface FeatureCardProps {
     href: string;
-    url: string;
     icon: LucideIcon;
     title: string;
     description: string;
@@ -25,7 +24,6 @@ interface FeatureCardProps {
 
 export default function FeatureCard({
     href,
-    url,
     icon: Icon,
     title,
     description,
@@ -36,7 +34,7 @@ export default function FeatureCard({
 }: FeatureCardProps) {
 
     const imageUrl = imageIdentifier && (imageIdentifier.startsWith('http') || imageIdentifier.startsWith('/dA/')) ? imageIdentifier : `${Config.CDNHost}/dA/${imageIdentifier}/`;
-    const myHref = url ? url : count === 0 ? "#" : href;
+    const myHref = count === 0 ? "#" : href;
 
     return (
         <div className="space-y-4">
