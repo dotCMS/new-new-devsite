@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { smoothScroll } from '@/util/smoothScroll';
 
 export const OnThisPage = ({
-  selectors = 'main h1, main h2, main h3, main h4, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4', 
+  selectors = 'main h1, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4', 
   showOnThisPage = true,
   titleOverride = undefined
 }) => {
@@ -18,6 +18,11 @@ export const OnThisPage = ({
       const toc = Array.from(headers)
         .filter(header => {
           // Only include visible headers that have IDs (which should be all of them due to rehype-slug)
+          if (!header.id) {
+            // Generate a unique ID if none exists
+            // This is a hack to ensure h1 headers are included in the TOC
+            header.id = header.textContent.replace(/\s+/g, '-').toLowerCase();
+          }
           return header.offsetParent !== null && header.id;
         })
         .map((header) => ({
