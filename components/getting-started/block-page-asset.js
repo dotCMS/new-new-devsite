@@ -14,7 +14,7 @@ import { usePageAsset } from "../../hooks/usePageAsset";
 import NotFound from "@/app/not-found";
 import { DotBlockEditor } from "../shared/dotBlockEditor";
 import OnThisPage from "../navigation/OnThisPage";
-import NavTree from "../navigation/NavTree";
+import NavTree from "./NavTree";
 import DevResourceDetailComponent from "../learning/devresource-detail";
 
 const componentsMap = {

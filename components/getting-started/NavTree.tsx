@@ -45,8 +45,10 @@ const NavTree = React.memo(
     if(resetNav) {  
         window.localStorage.setItem(NAV_STORAGE_KEY, JSON.stringify([]));
         window.localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(0)); 
+
     }
 
+    console.log("-----nav:", nav)
     const [openSections, setOpenSections] = useStickyState([], NAV_STORAGE_KEY);
     const [savedScroll, setSavedScroll] = useStickyState(0, SCROLL_STORAGE_KEY);
     const navRef = useRef<HTMLElement | null>(null);

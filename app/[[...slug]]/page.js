@@ -109,6 +109,7 @@ export default async function Page({ params, searchParams }) {
             <BlockPageAsset 
             pageAsset ={pageAsset} 
             nav={nav}
+            currentPath={pageAsset?.page?.url}
             serverPath={pathname}
         />
         );
