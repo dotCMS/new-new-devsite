@@ -59,7 +59,8 @@ export function BlockPageAsset({ pageAsset, nav, serverPath }) {
           )}
 
           {/* Main Content - Full width on mobile */}
-          <main className="flex-1 min-w-0 px-6 pt-8 sm:px-6 lg:px-8 [&_.container]:!p-0">
+          <main className="flex-1 min-w-0 px-6 pt-8 sm:px-6 lg:px-8 [&_.container]:!p-0 prose">
+            <h1>{pageAsset.page.title}</h1>
             <DotcmsLayout
               pageContext={{
                 pageAsset,
