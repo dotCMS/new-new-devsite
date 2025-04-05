@@ -6,7 +6,7 @@ import { handleVanityUrlRedirect } from "@/util/vanityUrlHandler";
 import { client } from "@/util/dotcmsClient";
 import { getPageRequestParams } from "@dotcms/client";
 import { fetchNavData, fetchPageData } from "@/util/page.utils";
-
+import { BlockPageAsset } from "@/components/getting-started/block-page-asset";
 /**
  * Generate metadata
  *
@@ -73,7 +73,6 @@ export default async function Page({ params, searchParams }) {
 
         const { pageAsset, error: pageError } = await fetchPageData(pageParams);
 
-
         return {
 
             pageAsset,
@@ -93,7 +92,28 @@ export default async function Page({ params, searchParams }) {
     if (pageAsset?.vanityUrl) {
         handleVanityUrlRedirect(pageAsset?.vanityUrl);
     }
+    const isBlockPage = pageAsset?.page?.contentType==="BlockPage"
+    if(isBlockPage) {
 
+        // Extract the correct folder path for navigation
+        const pathParts = pageAsset?.page?.url.split("/").filter(part => part.length > 0);
+
+
+        const folderNavPath = pathParts.length > 0 ? `/${pathParts[0]}` : "/"
+
+        const { nav, error: navError } = await fetchNavData({languageId: 1, path: folderNavPath, depth: 4});
+
+
+
+        return (
+            <BlockPageAsset 
+            pageAsset ={pageAsset} 
+            nav={nav}
+            currentPath={pageAsset?.page?.url}
+            serverPath={pathname}
+        />
+        );
+    }
     return (
         <PageAsset 
             pageAsset={pageAsset} 

@@ -58,7 +58,10 @@ export function PageAsset({ pageAsset, nav, serverPath }) {
                     }}
                 />
             </main>
+            <div className="container mx-auto px-4">
+                {pageAsset?.content}
 
+            </div>
             {pageAsset?.layout.footer && <Footer />}
         </div>
     );

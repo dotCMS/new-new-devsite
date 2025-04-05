@@ -6,15 +6,15 @@ import Link from "next/link";
 const SCROLL_STORAGE_KEY = "docs-nav-scroll";
 export const NAV_STORAGE_KEY = "subnav-open-sections";
 type NavTreeProps = {
-  items?: any[];
-  nav?: {
-    entity?: {
-      children?: Array<{
-        title: string;
-        href: string;
-        children?: any[];
-      }>;
-    };
+  nav: {
+    children: Array<{
+      children: any[];
+      title: string;
+      href: string;
+      type: string;
+    }>;
+    title: string;
+    href: string;
   };
   currentPath?: string;
   level?: number;
@@ -41,25 +41,16 @@ function useStickyState(defaultValue: any, name: string) {
 }
 
 const NavTree = React.memo(
-  ({ items, nav, currentPath = "", level = 0, isMobile = false,resetNav = false }: NavTreeProps) => {
-    // Debug the nav structure in detail
-
-
-
+  ({ nav, currentPath = "", level = 0, isMobile = false, resetNav = false }: NavTreeProps) => {
     if(resetNav) {  
         window.localStorage.setItem(NAV_STORAGE_KEY, JSON.stringify([]));
         window.localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(0)); 
-      }
 
+    }
 
 
     const [openSections, setOpenSections] = useStickyState([], NAV_STORAGE_KEY);
-
     const [savedScroll, setSavedScroll] = useStickyState(0, SCROLL_STORAGE_KEY);
-
-
-
-
     const navRef = useRef<HTMLElement | null>(null);
 
     useEffect(() => {
@@ -69,7 +60,6 @@ const NavTree = React.memo(
       if (!nav) return;
 
       // Restore scroll position on mount
-
       if (savedScroll) {
         nav.scrollTop = parseInt(savedScroll, 10);
       }
@@ -107,53 +97,23 @@ const NavTree = React.memo(
                 ${mobileStyles}
             `}
       >
+  
         <div className={isMobile ? "" : "h-dvh"}>
           <div className={`space-t-2 min-w-64 ${isMobile ? "pb-2" : "pb-12"}`}>
-            {items ? items.map((item) => (
+            {nav?.children?.map((item) => (
               <div key={item.title} className="mb-5">
                 <div className="py-1 px-2 font-semibold text-foreground">
-                    <Link href={item.urlTitle} prefetch={false} className="flex items-center gap-2 hover:text-primary-purple">
-                            {item.title}
-                    </Link>
+                    {item.title}
                 </div>
                 <SubNavTree
-                  items={item.dotcmsdocumentationchildren}
+                  items={item.children}
                   currentPath={currentPath}
                   level={level + 1}
                   openSections={openSections}
                   setOpenSections={setOpenSections}
                 />
               </div>
-            )) : (
-              <div>
-                {/* Debug info visible */}
-                <div className="text-sm text-muted-foreground mb-4 p-2 bg-gray-100 rounded">
-                  Navigation: {nav?.entity?.children?.length || 0} items
-                </div>
-                
-                {nav?.entity?.children?.map((item: any) => (
-                  <div key={item.title || Math.random()} className="mb-5">
-                    <div className="py-2 px-3 font-semibold bg-gray-50 rounded-md text-foreground border border-gray-200">
-                        <Link href={item.href || "#"} prefetch={false} className="flex items-center gap-2 hover:text-primary-purple">
-                                {item.title || "Unnamed Link"}
-                        </Link>
-                        <div className="text-xs text-gray-500 mt-1">
-                          href: {item.href || "none"}
-                        </div>
-                    </div>
-                    {item.children && item.children.length > 0 && (
-                      <SubNavTree
-                        items={item.children}
-                        currentPath={currentPath}
-                        level={level + 1}
-                        openSections={openSections}
-                        setOpenSections={setOpenSections}
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+            ))}
           </div>
         </div>
       </nav>

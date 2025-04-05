@@ -1,5 +1,6 @@
 import React from 'react';
-
+import { isJSON } from '@/util/utils';
+import { DotBlockEditor } from '@/components/shared/dotBlockEditor';
 interface WebPageContentProps {
   title: string;
   body: string;
@@ -7,12 +8,20 @@ interface WebPageContentProps {
 
 const WebPageContent: React.FC<WebPageContentProps> = ({ title, body }) => {
   return (
-    <article className="max-w-4xl mx-auto px-4 py-8">
+    <article className="w-full">
       <h1 className="text-3xl font-bold mb-6 text-primary">{title}</h1>
-      <div 
-        className="prose prose-lg max-w-none"
-        dangerouslySetInnerHTML={{ __html: body }} 
-      />
+      <div className="prose prose-lg max-w-none">
+      {isJSON(body) ? (
+        <DotBlockEditor  
+          blocks={typeof body === 'string' ? JSON.parse(body) : body}
+          customRenderers={{}}
+        />
+      ) : (
+        <>
+        <div dangerouslySetInnerHTML={{ __html: body }} />
+        </>
+      )}
+      </div>
     </article>
   );
 };
