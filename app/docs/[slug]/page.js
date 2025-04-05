@@ -16,6 +16,7 @@ import AllReleases from "@/components/releases/AllReleases";
 import AllSecurityIssues from "@/components/security-issues/AllSecurityIssues";
 import RestApiPlayground from "@/components/playgrounds/RestApiPlayground/RestApiPlayground";
 import SwaggerUIComponent from "@/components/playgrounds/SwaggerUIComponent/SwaggerUIComponent";
+import Script from "next/script";
 
 async function fetchPageData(path, searchParams) {
     const finalPath = await path;
@@ -52,16 +53,21 @@ export async function generateMetadata({ params, searchParams }) {
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
     const { pageAsset } = await fetchPageData(path, finalSearchParams);
-
-    return {
-        title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title) ,
+    
+    // Check if the page's tags include 'dot:meta-no-index'
+    const tags = pageAsset.urlContentMap._map.tag || [];
+    const shouldNoIndex = Array.isArray(tags) 
+        ? tags.includes('dot:meta-no-index') 
+        : typeof tags === 'string' && tags.includes('dot:meta-no-index');
+    
+    const metadata = {
+        title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title),
         description: pageAsset.urlContentMap._map.seoDescription,
         keywords: pageAsset.urlContentMap._map.tag,
         openGraph: {
-            title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title) ,
+            title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title),
             description: pageAsset.urlContentMap._map.seoDescription,
             keywords: pageAsset.urlContentMap._map.tag,
-
             url: `${hostname}${path}`,
             siteName: 'dotCMS Docs',
             images: [{
@@ -72,18 +78,81 @@ export async function generateMetadata({ params, searchParams }) {
             }],
             locale: 'en_US',
             type: 'article',
-
-
         },
-
         alternates: {
             canonical: `${hostname}${path}`,
         },
         metadataBase: new URL(hostname),
-        
     };
+    
+    // Add robots meta tag if 'dot:meta-no-index' is present
+    if (shouldNoIndex) {
+        metadata.robots = 'noindex, nofollow';
+    }
+    
+    return metadata;
 }
 
+
+// JSON-LD component for documentation pages
+function JsonLd({ pageData, path, hostname }) {
+    const title = pageData.contentlet.navTitle || pageData.contentlet.title;
+    const description = pageData.contentlet.seoDescription || '';
+    const datePublished = pageData.contentlet.publishDate || '';
+    const dateModified = pageData.contentlet.modDate || '';
+    const keywords = pageData.contentlet.tag || [];
+
+    // Different schema types based on content
+    let schemaType = "TechArticle"; // Default for documentation
+    
+    // Check for special content types and adjust schema
+    if (path.includes("changelog") || path.includes("releases")) {
+        schemaType = "SoftwareApplication";
+    } else if (path.includes("api") || path.includes("rest-api")) {
+        schemaType = "APIReference";
+    }
+
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": schemaType,
+        "headline": title,
+        "description": description,
+        "datePublished": datePublished,
+        "dateModified": dateModified,
+        "image": `${hostname}/dA/4b13a794db115b14ce79d30850712188/1024maxw/80q/`,
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": `${hostname}${path}`
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "dotCMS",
+            "logo": {
+                "@type": "ImageObject",
+                "url": `${hostname}/images/dotcms-logo.png`
+            }
+        }
+    };
+
+    // Add properties specific to certain schema types
+    if (schemaType === "SoftwareApplication") {
+        jsonLd.applicationCategory = "CMS";
+        jsonLd.operatingSystem = "All";
+    }
+
+    // Add keywords if available
+    if (keywords && keywords.length > 0) {
+        jsonLd.keywords = Array.isArray(keywords) ? keywords.join(', ') : keywords;
+    }
+
+    return (
+        <Script 
+            id="docs-jsonld" 
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+    );
+}
 
 export default async function Home({ searchParams, params }) {
     const finalParams = await params;
@@ -92,6 +161,7 @@ export default async function Home({ searchParams, params }) {
     const resetNav = finalSearchParams.n === "0";
     const slug = finalParams.slug;
     const path = "/docs/" + (slug || "table-of-contents");
+    const hostname = "https://dev.dotcms.com";
     const { pageAsset, sideNav } = await fetchPageData(path, finalSearchParams);
     const data = {
         contentlet: pageAsset.urlContentMap._map,
@@ -118,6 +188,7 @@ export default async function Home({ searchParams, params }) {
     return (
         <div className="flex flex-col min-h-screen">
             <Header sideNavItems={sideNav[0]?.dotcmsdocumentationchildren || []} currentPath={slug} />
+            <JsonLd pageData={data} path={path} hostname={hostname} />
             
             <div className="flex-1">
                 <div className="flex flex-col lg:flex-row container mx-auto px-0">
