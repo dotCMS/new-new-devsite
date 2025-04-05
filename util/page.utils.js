@@ -17,16 +17,15 @@ export const fetchPageData = async (params) => {
     }
 };
 
-export const fetchNavData = async (languageId = 1) => {
-    try {
-        const nav = await client.nav.get({
-            path: "/",
-            depth: 2,
-            languageId,
-        });
+export const fetchNavData = async (data) => {
 
-        return { nav };
+
+    try {
+        const nav = await client.nav.get(data);
+
+        return { "nav": nav };
     } catch (error) {
+        console.log("-----error1sds", error)
         return { nav: null, error };
     }
 };
