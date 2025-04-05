@@ -48,7 +48,7 @@ const NavTree = React.memo(
 
     }
 
-    console.log("-----nav:", nav)
+
     const [openSections, setOpenSections] = useStickyState([], NAV_STORAGE_KEY);
     const [savedScroll, setSavedScroll] = useStickyState(0, SCROLL_STORAGE_KEY);
     const navRef = useRef<HTMLElement | null>(null);
@@ -97,14 +97,13 @@ const NavTree = React.memo(
                 ${mobileStyles}
             `}
       >
+  
         <div className={isMobile ? "" : "h-dvh"}>
           <div className={`space-t-2 min-w-64 ${isMobile ? "pb-2" : "pb-12"}`}>
             {nav?.children?.map((item) => (
               <div key={item.title} className="mb-5">
                 <div className="py-1 px-2 font-semibold text-foreground">
-                    <Link href={item.href} prefetch={false} className="flex items-center gap-2 hover:text-primary-purple">
-                            {item.title}
-                    </Link>
+                    {item.title}
                 </div>
                 <SubNavTree
                   items={item.children}

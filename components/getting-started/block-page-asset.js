@@ -46,7 +46,7 @@ export function BlockPageAsset({ pageAsset, nav, serverPath }) {
   
   const showPageToc = (pageAsset?.page?.show && pageAsset?.page?.show.indexOf("toc") !== -1)
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen ">
       {pageAsset?.layout.header && <Header />}
 
       <div className="flex-1">
@@ -54,8 +54,7 @@ export function BlockPageAsset({ pageAsset, nav, serverPath }) {
           {/* Left Navigation - Hide on mobile */}
           {showLeftNav && (
             <div className="hidden lg:block w-72 shrink-0">
-
-                <NavTree nav={nav} />
+                <NavTree nav={nav} currentPath={pageAsset?.page?.url}/>
             </div>
           )}
 
