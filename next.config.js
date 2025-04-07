@@ -25,7 +25,7 @@ const nextConfig = {
           {
             source: '/docs/long-term-supported-releases',
             destination: '/docs/changelogs?lts=true',
-            permanent: false,
+            permanent: true,
           },
         ]
       },
