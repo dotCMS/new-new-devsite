@@ -35,7 +35,7 @@ export function ChatComponent() {
   const [loading, setLoading] = useState(false)
   const [input, setInput] = useState("")
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState("")
-  const [mode, setMode] = useState<"ai" | "search">("ai")
+  const [mode, setMode] = useState<"ai" | "search">("search")
   const abortControllerRef = useRef<AbortController | null>(null)
 
   // Add refs for the messages container and form
@@ -324,10 +324,34 @@ export function ChatComponent() {
     }
   }
 
+  const handleChatAboutResults = () => {
+    handleModeChange(false)
+    // Get the last user message (which should be the search query)
+    const lastUserMessage = messages.findLast(m => m.role === "user")
+    if (lastUserMessage) {
+      setInput(lastUserMessage.content)
+      // Submit the form after a short delay to ensure mode switch is complete
+      setTimeout(() => {
+        formRef.current?.requestSubmit()
+      }, 100)
+    }
+  }
+
   return (
     <div className="flex flex-col h-full relative max-w-4xl mx-auto w-full">
       <div className="flex justify-between items-center p-2 sm:p-4 border-b">
         <div className="flex gap-2">
+        <Button
+            variant={mode === "search" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => handleModeChange(true)}
+            className="gap-2"
+          >
+            <Search className="h-4 w-4" />
+            Search
+          </Button>
+
+
           <Button
             variant={mode === "ai" ? "default" : "ghost"}
             size="sm"
@@ -336,15 +360,6 @@ export function ChatComponent() {
           >
             <MessageSquare className="h-4 w-4" />
             AI Chat
-          </Button>
-          <Button
-            variant={mode === "search" ? "default" : "ghost"}
-            size="sm"
-            onClick={() => handleModeChange(true)}
-            className="gap-2"
-          >
-            <Search className="h-4 w-4" />
-            Search
           </Button>
         </div>
         <div className="flex items-center gap-2">
@@ -468,6 +483,19 @@ export function ChatComponent() {
             </div>
           </div>
         ))}
+        {mode === "search" && messages.length > 0 && messages.some(m => m.isSearchResult) && (
+          <div className="flex justify-center pt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleChatAboutResults}
+              className="gap-2"
+            >
+              <MessageSquare className="h-4 w-4" />
+              Chat about these results
+            </Button>
+          </div>
+        )}
         {currentStreamingMessage && mode === "ai" && (
           <div className="flex items-start gap-4 rounded-lg p-4 bg-primary/10">
             <Bot className="w-8 h-8" />
