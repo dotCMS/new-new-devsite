@@ -54,6 +54,7 @@ export default function AllSecurityIssues({ sideNav, slug }) {
                         items={breadcrumbs}
                         slug={slug}
                         appendItems={appendItems}
+                        childrenKey="dotcmsdocumentationchildren"
                     />
 
                     <div className="markdown-content">

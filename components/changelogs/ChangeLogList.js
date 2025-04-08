@@ -101,6 +101,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
         <Breadcrumbs
           items={sideNav[0]?.dotcmsdocumentationchildren || []}
           slug={slug}
+          childrenKey="dotcmsdocumentationchildren"
         />
 
         <div className="flex flex-col gap-6 mb-6">

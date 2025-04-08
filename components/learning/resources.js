@@ -2,7 +2,7 @@ import { BookOpen, BookText, PlayCircle, FileCode, HelpCircle } from "lucide-rea
 
 
 
-export  const resources = [
+export  const DevResourceTypes = [
   {
     title: "How-tos",
     description: "Step-by-step tutorials to help you accomplish specific tasks in dotCMS",

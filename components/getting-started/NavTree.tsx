@@ -41,13 +41,17 @@ function useStickyState(defaultValue: any, name: string) {
 }
 
 const NavTree = React.memo(
-  ({ nav, currentPath = "", level = 0, isMobile = false, resetNav = false }: NavTreeProps) => {
-    if(resetNav) {  
-        window.localStorage.setItem(NAV_STORAGE_KEY, JSON.stringify([]));
-        window.localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(0)); 
-
+  ({
+    nav,
+    currentPath = "",
+    level = 0,
+    isMobile = false,
+    resetNav = false,
+  }: NavTreeProps) => {
+    if (resetNav) {
+      window.localStorage.setItem(NAV_STORAGE_KEY, JSON.stringify([]));
+      window.localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(0));
     }
-
 
     const [openSections, setOpenSections] = useStickyState([], NAV_STORAGE_KEY);
     const [savedScroll, setSavedScroll] = useStickyState(0, SCROLL_STORAGE_KEY);
@@ -97,21 +101,36 @@ const NavTree = React.memo(
                 ${mobileStyles}
             `}
       >
-  
-        <div className={isMobile ? "" : "h-dvh"}>
+        <div className={isMobile ? "" : " "}>
           <div className={`space-t-2 min-w-64 ${isMobile ? "pb-2" : "pb-12"}`}>
             {nav?.children?.map((item) => (
-              <div key={item.title} className="mb-5">
-                <div className="py-1 px-2 font-semibold text-foreground">
-                    {item.title}
-                </div>
-                <SubNavTree
-                  items={item.children}
-                  currentPath={currentPath}
-                  level={level + 1}
-                  openSections={openSections}
-                  setOpenSections={setOpenSections}
-                />
+              <div key={item.title} className="mb-0">
+                {!item?.children ||
+                  (item.children.length === 0 && (
+                    <SubNavTree
+                      items={[item]}
+                      currentPath={currentPath}
+                      level={level + 1}
+                      openSections={openSections}
+                      setOpenSections={setOpenSections}
+                    />
+                  ))}
+
+                {item?.children && item.children.length > 0 && (
+                  <div className="my-5">
+                    <div className="py-1 px-2 font-semibold text-foreground">
+                      {item.title}
+                    </div>
+                    <SubNavTree
+                      items={item.children}
+                      currentPath={currentPath}
+                      level={level + 1}
+                      openSections={openSections}
+                      setOpenSections={setOpenSections}
+                      
+                    />
+                  </div>
+                )}
               </div>
             ))}
           </div>

@@ -22,6 +22,7 @@ export default function CurrentReleases({ sideNav, slug }) {
         <Breadcrumbs
           items={sideNav[0]?.dotcmsdocumentationchildren || []}
           slug={slug}
+          childrenKey="dotcmsdocumentationchildren"
         />
 
         <div className="markdown-content">

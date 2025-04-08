@@ -4,14 +4,14 @@ import { format } from 'date-fns';
 import { Calendar, ArrowLeft } from 'lucide-react';
 import TagCloud from '@/components/shared/TagCloud';
 import Image from 'next/image';
-import { resources } from "@/components/learning/resources"
+import { DevResourceTypes } from "@/components/learning/resources"
 import { getTagsByLuceneQuery } from "@/services/getTags";
 import { devResourceBaseQuery } from "@/services/learning/getDevResources";
 import PaginationBar from '../PaginationBar';
 import { ErrorPage } from '../error';
 
 export default async function DevResourceListing({ devResources, pagination, tagFilter, type }: { devResources: any, pagination: any, tagFilter: string, type: string }) {
-    const myResources = resources.filter((resource) => resource.type === type);
+    const myResources = DevResourceTypes.filter((resource) => resource.type === type);
     if (myResources.length === 0) {
         return <ErrorPage error={{message:"Resource not found",status:404}} />
     }
