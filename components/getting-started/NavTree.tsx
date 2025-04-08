@@ -104,7 +104,7 @@ const NavTree = React.memo(
         <div className={isMobile ? "" : " "}>
           <div className={`space-t-2 min-w-64 ${isMobile ? "pb-2" : "pb-12"}`}>
             {nav?.children?.map((item) => (
-              <div key={item.title} className="mb-5">
+              <div key={item.title} className="mb-0">
                 {!item?.children ||
                   (item.children.length == 0 && (
                     <SubNavTree
@@ -117,7 +117,7 @@ const NavTree = React.memo(
                   ))}
 
                 {item?.children && item.children.length > 0 && (
-                  <>
+                  <div className="my-5">
                     <div className="py-1 px-2 font-semibold text-foreground">
                       {item.title}
                     </div>
@@ -127,8 +127,9 @@ const NavTree = React.memo(
                       level={level + 1}
                       openSections={openSections}
                       setOpenSections={setOpenSections}
+                      
                     />
-                  </>
+                  </div>
                 )}
               </div>
             ))}
