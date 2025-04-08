@@ -8,7 +8,7 @@ import { cn } from "@/util/utils";
 const Breadcrumbs = React.memo(({ items, slug, appendItems = [] }) => {
   const [breadcrumbs, setBreadcrumbs] = useState([]);
   const relevantPath = slug.replace(/^\/docs\/latest\//, '');
-  console.log("items----", items);
+  //console.log("items----", items);
   useEffect(() => {
     const findPath = (items, target, slug = []) => {
 
