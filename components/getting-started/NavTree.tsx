@@ -106,7 +106,7 @@ const NavTree = React.memo(
             {nav?.children?.map((item) => (
               <div key={item.title} className="mb-0">
                 {!item?.children ||
-                  (item.children.length == 0 && (
+                  (item.children.length === 0 && (
                     <SubNavTree
                       items={[item]}
                       currentPath={currentPath}
