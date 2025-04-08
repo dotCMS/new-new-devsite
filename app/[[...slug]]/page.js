@@ -6,7 +6,7 @@ import { handleVanityUrlRedirect } from "@/util/vanityUrlHandler";
 import { client } from "@/util/dotcmsClient";
 import { getPageRequestParams } from "@dotcms/client";
 import { fetchNavData, fetchPageData } from "@/util/page.utils";
-import { BlockPageAsset } from "@/components/getting-started/block-page-asset";
+import { BlockPageAsset } from "@/components/page-asset-with-content-block";
 /**
  * Generate metadata
  *

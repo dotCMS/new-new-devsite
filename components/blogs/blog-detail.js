@@ -7,6 +7,7 @@ import OnThisPage from '@/components/navigation/OnThisPage';
 import React from 'react';
 import { DetailHeader } from './blog-header';
 import Authors from './authors';  
+import BlogComponent from "./blog-component";
 
 export default function BlogDetailComponent({ post }) {
 
@@ -21,14 +22,9 @@ export default function BlogDetailComponent({ post }) {
                 {/* Main Content */}
                 <article className="flex-1 px-4 max-w-4xl">
 
-
                     <DetailHeader post={post} />
                     
-                    <div className="prose prose-lg  mb-8">
-                        <DotBlockEditor className=" max-w-[85vw]"
-                            blocks={post.body.json}
-                        />
-                    </div>
+                    <BlogComponent body={post.body.json} />
                 </article>
 
                 {/* Right Sidebar */}

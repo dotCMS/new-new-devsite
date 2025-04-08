@@ -1,31 +1,23 @@
 "use client";
 
-import WebPageContent from "../content-types/webPageContent";
-import Header from "../header/header";
-import Footer from "../footer";
-import Hero from "../content-types/hero";
-import Heading from "../content-types/heading";
-import LinkCards from "../content-types/link-cards";
-import APIPlaygrounds from "../content-types/api-playgrounds";
-import RelatedBlogs from "../content-types/related-blogs";
+import WebPageContent from "./content-types/webPageContent";
+import Header from "./header/header";
+import Footer from "./footer";
+import Hero from "./content-types/hero";
+import Heading from "./content-types/heading";
+import LinkCards from "./content-types/link-cards";
+import APIPlaygrounds from "./content-types/api-playgrounds";
+import RelatedBlogs from "./content-types/related-blogs";
 import { usePathname, useRouter } from "next/navigation";
 import { DotcmsLayout } from "@dotcms/react";
-import { usePageAsset } from "../../hooks/usePageAsset";
+import { usePageAsset } from "../hooks/usePageAsset";
 import NotFound from "@/app/not-found";
-import { DotBlockEditor } from "../shared/dotBlockEditor";
-import OnThisPage from "../navigation/OnThisPage";
-import NavTree from "./NavTree";
-import DevResourceComponent from "../learning/devresource-component";
-const componentsMap = {
-  webPageContent: WebPageContent,
-  DocumentationHero: Hero,
-  Heading: Heading,
-  DocumentationLinks: LinkCards,
-  DocumentationApiPlaygrounds: APIPlaygrounds,
-  RelatedBlogs: RelatedBlogs,
-  DevResource: DevResourceComponent
-};
-
+import Breadcrumbs from "@/components/navigation/Breadcrumbs";
+import { DotBlockEditor } from "./shared/dotBlockEditor";
+import OnThisPage from "./navigation/OnThisPage";
+import NavTree from "./getting-started/NavTree";
+import DevResourceComponent from "./learning/devresource-component";
+import { UVEComponentsMap } from "./common-component-map";
 export function BlockPageAsset({ pageAsset, nav, serverPath }) {
   const { replace } = useRouter();
   const clientPath = usePathname();
@@ -60,12 +52,19 @@ export function BlockPageAsset({ pageAsset, nav, serverPath }) {
 
           {/* Main Content - Full width on mobile */}
           <main id="content-here" className="min-w-0 px-4 pt-8 lg:px-8 [&_.container]:!p-0  border-l-2 border-gray-200">
+            <Breadcrumbs
+              items={Array.isArray(nav) ? nav : []}
+              slug={pageAsset.page.url}
+              childrenKey="children"
+              identifierKey="href"
+              basePath="/"
+            />
             <h1 className="text-4xl font-bold mb-6">{pageAsset.page.title}</h1>
             
             <DotcmsLayout
               pageContext={{
                 pageAsset,
-                components: componentsMap,
+                components: UVEComponentsMap,
               }}
               config={{
                 pathname,
