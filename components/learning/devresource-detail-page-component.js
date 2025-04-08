@@ -2,14 +2,14 @@
 
 import { client } from "@/util/dotcmsClient";
 import Link from 'next/link';
-import { DotBlockEditor } from '@/components/shared/dotBlockEditor';
+
 import OnThisPage from '@/components/navigation/OnThisPage';
 import React from 'react';
 
 import { DevResourceHeader } from './devresource-header';
-import { resources } from "./resources";
+import { DevResourceTypes } from "./resources";
 import { ErrorPage } from "@/components/error";
-
+import DevResourceComponent from "./devresource-component";
 const checkForType = (json, type) => {
     function traverse(node) {
       // Return true if current node is a heading
@@ -28,14 +28,12 @@ const checkForType = (json, type) => {
     return traverse(json);
 }
 
-export default function DevResourceDetailComponent({ devResource }) {
-    const myResources = resources.filter((resource) => resource.type === devResource.type1[0]);
-    if (myResources.length === 0) {
-        return <ErrorPage error={{message:"Resource not found",status:404}} />
-    }
-    const myResource = myResources[0]
+export default function DevResourceDetailPageComponent({ devResource }) {
+    const myResources = DevResourceTypes.filter((resource) => resource.type === devResource.type1[0]);
+    const myResource=(myResources.length>0)?myResources[0]:DevResourceTypes[0];
 
-    const customRenderers = {};
+
+
     const hasHeadings = checkForType(devResource.body.json, "heading");
     const isVideo = myResource.type==="video";
 
@@ -48,11 +46,7 @@ export default function DevResourceDetailComponent({ devResource }) {
                     <main>
                         {/**    Dont show image if it is a video */}
                         <DevResourceHeader devResource={devResource} myResource={myResource} showImage={!isVideo}/>
-                        <div className="prose dark:prose-invert mb-6 sm:mb-8 break-words whitespace-normal overflow-hidden max-w-none">
-                            <DotBlockEditor 
-                                blocks={devResource.body.json}
-                            />
-                        </div>
+                        <DevResourceComponent body={devResource.body} />
                     </main>
                 </article>
 

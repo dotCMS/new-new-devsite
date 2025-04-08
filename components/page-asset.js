@@ -8,6 +8,7 @@ import Heading from "./content-types/heading";
 import LinkCards from "./content-types/link-cards"
 import APIPlaygrounds from "./content-types/api-playgrounds";
 import RelatedBlogs from "./content-types/related-blogs";
+import DevResourceComponent from "./learning/devresource-component";
 import { usePathname, useRouter } from "next/navigation";
 import { DotcmsLayout } from "@dotcms/react";
 import { usePageAsset } from "../hooks/usePageAsset";
@@ -20,7 +21,8 @@ const componentsMap = {
     Heading: Heading,
     DocumentationLinks: LinkCards,
     DocumentationApiPlaygrounds: APIPlaygrounds,
-    RelatedBlogs: RelatedBlogs
+    RelatedBlogs: RelatedBlogs,
+    DevResource: DevResourceComponent
 };
 
 export function PageAsset({ pageAsset, nav, serverPath }) {

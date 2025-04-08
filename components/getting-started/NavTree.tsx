@@ -98,7 +98,7 @@ const NavTree = React.memo(
             `}
       >
   
-        <div className={isMobile ? "" : "h-dvh"}>
+        <div className={isMobile ? "" : " "}>
           <div className={`space-t-2 min-w-64 ${isMobile ? "pb-2" : "pb-12"}`}>
             {nav?.children?.map((item) => (
               <div key={item.title} className="mb-5">

@@ -1,7 +1,7 @@
 
 
 import Link from "next/link"
-import { resources } from "@/components/learning/resources"
+import { DevResourceTypes } from "@/components/learning/resources"
 import FeatureCard from "../content-types/feature-card"
 import { GraduationCap } from "lucide-react"
 export function DevResourceGrid(count: any) {
@@ -19,7 +19,7 @@ export function DevResourceGrid(count: any) {
   </div>
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 pb-16">
         
-      {resources.map((resource) => {
+      {DevResourceTypes.map((resource) => {
         if ((count.count[resource.type] || -1 )>0) {
         const Icon = resource.icon
         return (

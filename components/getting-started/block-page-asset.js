@@ -15,8 +15,7 @@ import NotFound from "@/app/not-found";
 import { DotBlockEditor } from "../shared/dotBlockEditor";
 import OnThisPage from "../navigation/OnThisPage";
 import NavTree from "./NavTree";
-import DevResourceDetailComponent from "../learning/devresource-detail";
-
+import DevResourceComponent from "../learning/devresource-component";
 const componentsMap = {
   webPageContent: WebPageContent,
   DocumentationHero: Hero,
@@ -24,7 +23,7 @@ const componentsMap = {
   DocumentationLinks: LinkCards,
   DocumentationApiPlaygrounds: APIPlaygrounds,
   RelatedBlogs: RelatedBlogs,
-  DevResource: DevResourceDetailComponent
+  DevResource: DevResourceComponent
 };
 
 export function BlockPageAsset({ pageAsset, nav, serverPath }) {
@@ -45,22 +44,24 @@ export function BlockPageAsset({ pageAsset, nav, serverPath }) {
   );
   
   const showPageToc = (pageAsset?.page?.show && pageAsset?.page?.show.indexOf("toc") !== -1)
+
   return (
-    <div className="flex flex-col min-h-screen ">
+    <div className="">
       {pageAsset?.layout.header && <Header />}
 
-      <div className="flex-1">
-        <div className="flex flex-col lg:flex-row container mx-auto px-0">
+      
+        <div id="main-content" className="grid grid-cols-1 lg:grid-cols-[auto_1fr_auto] container mx-auto px-0 w-full">
           {/* Left Navigation - Hide on mobile */}
           {showLeftNav && (
-            <div className="hidden lg:block w-72 shrink-0">
+            <div id="left-nav" className="hidden lg:block w-72 h-[calc(100vh-4rem)] sticky top-16 overflow-y-auto">
                 <NavTree nav={nav} currentPath={pageAsset?.page?.url}/>
             </div>
           )}
 
           {/* Main Content - Full width on mobile */}
-          <main className="flex-1 min-w-0 px-6 pt-8 sm:px-6 lg:px-8 [&_.container]:!p-0 prose">
-            <h1>{pageAsset.page.title}</h1>
+          <main id="content-here" className="min-w-0 px-4 pt-8 lg:px-8 [&_.container]:!p-0  border-l-2 border-gray-200">
+            <h1 className="text-4xl font-bold mb-6">{pageAsset.page.title}</h1>
+            
             <DotcmsLayout
               pageContext={{
                 pageAsset,
@@ -78,29 +79,26 @@ export function BlockPageAsset({ pageAsset, nav, serverPath }) {
 
             {hasBlockContent && (
               <div className="prose prose-lg mb-8">
-                <article className="prose prose-lg mb-8">
                   <DotBlockEditor blocks={pageAsset.page.content} />
-                </article>
               </div>
             )}
           </main>
-        </div>
+        
         {showPageToc && (
-        <div className="w-64 shrink-0 hidden xl:block">
-          <div
-            className="sticky top-16 pt-8 pl-8
-                overflow-y-auto p-4 px-2
+            <div id="right-toc" className="w-64 hidden xl:block sticky top-16
+                overflow-y-auto p-4
                 [&::-webkit-scrollbar]:w-1.5
                 [&::-webkit-scrollbar-track]:bg-transparent
                 [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
                 [&::-webkit-scrollbar-thumb]:rounded-full
                 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20
                 h-[calc(100vh-4rem)]">
-            <OnThisPage />
-            </div>
+            <OnThisPage selectors="main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4" />
+
           </div>
         )}
-      </div>
+        </div>
+        {pageAsset?.layout?.footer && <Footer />}
     </div>
   );
 }

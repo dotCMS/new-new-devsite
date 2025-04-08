@@ -1,7 +1,7 @@
 
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
-import DevResourceDetailComponent from "@/components/learning/devresource-detail";
+import DevResourceDetailPageComponent from "@/components/learning/devresource-detail-page-component";
 import { getDevResources } from "@/services/learning/getDevResources";
 import { ErrorPage } from "@/components/error";
 import { notFound } from "next/navigation";
@@ -164,7 +164,7 @@ export default async function DevResourceDetailPage({
       />
       <Header />
       <div className="container relative">
-        <DevResourceDetailComponent devResource={devResource} />
+        <DevResourceDetailPageComponent devResource={devResource} />
       </div>
       <Footer />
     </div>
