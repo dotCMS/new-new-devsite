@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { Calendar } from 'lucide-react';
+import { ArrowLeft, Calendar } from 'lucide-react';
 import TagCloud from '@/components/shared/TagCloud';
 import { getTagsByLuceneQuery } from "@/services/getTags";
 import { BLOG_LISTING_LUCENE_QUERY } from '@/services/blog/getBlogListing';
@@ -75,6 +75,20 @@ export default async function BlogListing({ blogs, pagination, tagFilter }) {
                         dotCMS Developer Blog
                     </h1>
                     <p className="text-muted-foreground mb-8 px-2 text-center">Articles for the dotDeveloper.</p>
+                    <div className="container mx-auto px-4">
+                <Link 
+                    prefetch={false}
+
+                    href="/learning" 
+                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 w-fit group transition-colors"
+                >
+                    <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                    <span>Back to Learning Center</span>
+                </Link>
+            </div>
+
+
+
                     <div 
                         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                         role="feed"
