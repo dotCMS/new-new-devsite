@@ -1,6 +1,6 @@
 "use client";
 
-import { Code2, Menu, Search, X, ArrowLeft } from "lucide-react";
+import { Code2, Menu, Search, X, ArrowLeft, ExternalLink } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import {
   NavigationMenu,
@@ -128,9 +128,9 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link prefetch={false} href="/blog" legacyBehavior passHref>
+            <Link prefetch={false} href="https://community.dotcms.com/" target="_dotCMSCommunity" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Blog
+                Community <ExternalLink className="h-3 w-3 inline-block ml-1" />
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
@@ -219,19 +219,21 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link href="/blog" legacyBehavior passHref>
-                    <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "px-3")}>
-                      Blog
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
+
                 <NavigationMenuItem>
                   <Link href="/learning" legacyBehavior passHref>
                     <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "px-3")}>
                     Learning
                     </NavigationMenuLink>
                   </Link>
+                </NavigationMenuItem>
+                &nbsp; &nbsp;
+                <NavigationMenuItem>
+                    <a href="https://community.dotcms.com/" target="dotCMSCommunity">
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        Community <ExternalLink className="h-3 w-3 inline-block ml-1" />
+                    </NavigationMenuLink>
+                    </a>
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
