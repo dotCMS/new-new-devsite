@@ -6,6 +6,7 @@ import LinkCards from "./content-types/link-cards";
 import RelatedBlogs from "./content-types/related-blogs";
 import WebPageContent from "./content-types/webPageContent";
 import DevResourceComponent from "./learning/devresource-component";
+import DocumentationComponent from "./documentation/DocumentationComponent";
 
 export const UVEComponentsMap = {
     webPageContent: WebPageContent,
@@ -15,5 +16,6 @@ export const UVEComponentsMap = {
     DocumentationApiPlaygrounds: APIPlaygrounds,
     RelatedBlogs: RelatedBlogs,
     DevResource: DevResourceComponent,
-    Blog:BlogComponent
+    Blog:BlogComponent,
+    DotcmsDocumentation: DocumentationComponent
 };
