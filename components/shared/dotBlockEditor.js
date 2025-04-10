@@ -1,11 +1,8 @@
+import Link from "next/link";
 
+import { decode } from "html-entities";
 
-import Link from 'next/link';
-
-import { decode } from 'html-entities';
-
-import { BlockEditorRenderer } from '@dotcms/react';
-
+import { BlockEditorRenderer } from "@dotcms/react";
 
 /**
  * Renders the text in bold.
@@ -43,23 +40,23 @@ const Underline = ({ children }) => <u>{children}</u>;
  * @returns The rendered link component.
  */
 const LinkMark = ({ children, attrs }) => {
-    const { href } = attrs;
-    const relative = href.startsWith('/') || href.startsWith('..');
+  const { href } = attrs;
+  const relative = href.startsWith("/") || href.startsWith("..");
 
-    if (relative) {
-        // If the URL fails it is likely a relative URL
-        return (
-            <Link {...attrs} href={href || '/'}>
-                {children}
-            </Link>
-        );
-    }
-
+  if (relative) {
+    // If the URL fails it is likely a relative URL
     return (
-        <a {...attrs} href={href}>
-            {children}
-        </a>
+      <Link {...attrs} href={href || "/"}>
+        {children}
+      </Link>
     );
+  }
+
+  return (
+    <a {...attrs} href={href}>
+      {children}
+    </a>
+  );
 };
 
 /**
@@ -83,20 +80,20 @@ const Subscript = ({ children }) => <sub>{children}</sub>;
  * @param children - The content to be rendered as inline code.
  */
 const InlineCode = ({ children }) => (
-    <code className="rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm before:content-none after:content-none">
-        {children}
-    </code>
+  <code className="rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm before:content-none after:content-none">
+    {children}
+  </code>
 );
 
 const nodeMarks = {
-    link: LinkMark,
-    bold: Bold,
-    underline: Underline,
-    italic: Italic,
-    strike: Strike,
-    superscript: Superscript,
-    subscript: Subscript,
-    code: InlineCode
+  link: LinkMark,
+  bold: Bold,
+  underline: Underline,
+  italic: Italic,
+  strike: Strike,
+  superscript: Superscript,
+  subscript: Subscript,
+  code: InlineCode,
 };
 
 /**
@@ -106,42 +103,42 @@ const nodeMarks = {
  * @returns The rendered text block.
  */
 const TextBlock = (props) => {
-    const { marks = [], text } = props;
-    const mark = marks[0] || { type: '', attrs: {} };
-    const newProps = { ...props, marks: marks.slice(1) };
-    const Component = nodeMarks[mark?.type];
+  const { marks = [], text } = props;
+  const mark = marks[0] || { type: "", attrs: {} };
+  const newProps = { ...props, marks: marks.slice(1) };
+  const Component = nodeMarks[mark?.type];
 
-    // To avoid the warning: "Warning: Invalid DOM property `class`. Did you mean `className`?"
-    if (mark.attrs) {
-        mark.attrs.className = mark.attrs.class;
-        delete mark.attrs.class;
-    }
+  // To avoid the warning: "Warning: Invalid DOM property `class`. Did you mean `className`?"
+  if (mark.attrs) {
+    mark.attrs.className = mark.attrs.class;
+    delete mark.attrs.class;
+  }
 
-    if (!Component) {
-        return text;
-    }
+  if (!Component) {
+    return text;
+  }
 
-    return (
-        <Component attrs={mark.attrs}>
-            <TextBlock {...newProps} />
-        </Component>
-    );
+  return (
+    <Component attrs={mark.attrs}>
+      <TextBlock {...newProps} />
+    </Component>
+  );
 };
 
 export const DecodeHTML = (props) => {
-    const { text } = props;
+  const { text } = props;
 
-    return <TextBlock {...props} text={decode(text)} />;
+  return <TextBlock {...props} text={decode(text)} />;
 };
 
 export const DotBlockEditor = ({ customRenderers, ...props }) => {
-    return (
-        <BlockEditorRenderer
-            {...props}
-            customRenderers={{
-                text: DecodeHTML,
-                ...customRenderers
-            }}
-        />
-    );
+  return (
+    <BlockEditorRenderer
+      {...props}
+      customRenderers={{
+        text: DecodeHTML,
+        ...customRenderers,
+      }}
+    />
+  );
 };

@@ -60,7 +60,13 @@ export function BlockPageAsset({ pageAsset, nav, serverPath }) {
               basePath="/"
             />
             <h1 className="text-4xl font-bold mb-6">{pageAsset.page.title}</h1>
-            
+
+            {hasBlockContent && (
+              <div className="prose prose-lg mb-8">
+                  <DotBlockEditor blocks={pageAsset.page.content} customRenderers={{}} />
+              </div>
+            )}
+
             <DotcmsLayout
               pageContext={{
                 pageAsset,
@@ -76,11 +82,7 @@ export function BlockPageAsset({ pageAsset, nav, serverPath }) {
               }}
             />
 
-            {hasBlockContent && (
-              <div className="prose prose-lg mb-8">
-                  <DotBlockEditor blocks={pageAsset.page.content} />
-              </div>
-            )}
+
           </main>
         
         {showPageToc && (

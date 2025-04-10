@@ -13,17 +13,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { DotcmsLayout } from "@dotcms/react";
 import { usePageAsset } from "../hooks/usePageAsset";
 import NotFound from "@/app/not-found";
+import { UVEComponentsMap } from "./common-component-map";
 
 
-const componentsMap = {
-    webPageContent: WebPageContent,
-    DocumentationHero: Hero,
-    Heading: Heading,
-    DocumentationLinks: LinkCards,
-    DocumentationApiPlaygrounds: APIPlaygrounds,
-    RelatedBlogs: RelatedBlogs,
-    DevResource: DevResourceComponent
-};
 
 export function PageAsset({ pageAsset, nav, serverPath }) {
     const { replace } = useRouter();
@@ -48,7 +40,7 @@ export function PageAsset({ pageAsset, nav, serverPath }) {
                 <DotcmsLayout
                     pageContext={{
                         pageAsset,
-                        components: componentsMap
+                        components: UVEComponentsMap
                     }}
                     config={{
                         pathname,
