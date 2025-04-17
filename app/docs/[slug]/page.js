@@ -49,7 +49,7 @@ async function fetchPageData(path, searchParams) {
 export async function generateMetadata({ params, searchParams }) {
     const finalParams = await params;
     const finalSearchParams = await searchParams;
-    const slug = finalParams.slug;
+    const slug = finalParams.slug.toLowerCase();
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
     const { pageAsset } = await fetchPageData(path, finalSearchParams);
@@ -159,7 +159,7 @@ export default async function Home({ searchParams, params }) {
     const finalSearchParams = await searchParams;
 
     const resetNav = finalSearchParams.n === "0";
-    const slug = finalParams.slug;
+    const slug = finalParams.slug.toLowerCase();
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
     const { pageAsset, sideNav } = await fetchPageData(path, finalSearchParams);
