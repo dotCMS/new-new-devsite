@@ -222,7 +222,7 @@ export function ChatComponent() {
 
   async function handleSearch(query: string) {
     setLoading(true)
-    
+    /*
     // Add user message for search
     setMessages(prev => [...prev, {
       role: "user",
@@ -231,7 +231,7 @@ export function ChatComponent() {
       mode: "search"
     }])
     
-    
+    */
     
     try {
       const response = await fetch(`${API_ENDPOINT}/api/v1/ai/search`, {
@@ -333,13 +333,18 @@ export function ChatComponent() {
           ...prev.slice(1)
         ].slice(0, 5);
       } else {
-        // Only add if not already in history and not in predefined list
-        if (
-          prev.includes(question) ||
-          PreDefinedQuestions.includes(question)
-        ) {
+        // Check if the question is in the predefined list
+        if (PreDefinedQuestions.includes(question)) {
           updated = prev;
+        } else if (prev.includes(question)) {
+          // If the same question exists, remove it from its current position
+          // and add it to the top of the history
+          updated = [
+            question,
+            ...prev.filter(q => q !== question)
+          ].slice(0, 5);
         } else {
+          // Add new question to the top
           updated = [question, ...prev].slice(0, 5);
         }
       }
@@ -350,43 +355,54 @@ export function ChatComponent() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    
+    if(loading) return;
     if (!input.trim()) return
     
     // Store the question
     storeRecentQuestion(input.trim())
 
     if (mode === "search") {
+        setMessages([])
       await handleSearch(input.trim())
     } else {
       await sendMessage(e)
     }
   }
 
-  const clearInput = () => {
-    setInput("")
-  }
 
-  const handleModeChange = async (pressed: boolean) => {
+  const handleModeChange = (pressed: boolean) => {
+
     // Abort any ongoing streaming response
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
       abortControllerRef.current = null
     }
-    setCurrentStreamingMessage("")
-    setMessages([])
+
+
+
+
+
+
+    //setCurrentStreamingMessage("")
+    //setMessages([])
     const newMode = pressed ? "search" : "ai"
     setMode(newMode)
-    
+
+    if(newMode === "search" && input.trim() == ""){
+        setInput(recentQuestions[0])
+        setTimeout(() => {
+            //formRef.current?.requestSubmit();
+        }, 100);
+    }
     // Save the mode preference to localStorage
     localStorage.setItem(MODE_STORAGE_KEY, newMode)
     
-    // If switching to search mode and there's input, trigger search
-    if (newMode === "search" && input.trim()) {
-      await handleSearch(input.trim())
-    }
+    // Don't auto-submit when changing modes - let the user press Enter
   }
 
   const handleChatAboutResults = () => {
+    
     handleModeChange(false)
     // Get the last user message (which should be the search query)
     const lastUserMessage = filteredMessages.findLast(m => m.role === "user")
@@ -401,10 +417,48 @@ export function ChatComponent() {
 
   return (
     <div className="flex flex-col h-full relative max-w-4xl mx-auto w-full">
-      <div className="flex justify-between items-center p-2 sm:p-4 border-b">
+
+      
+      <form
+        ref={formRef}
+        onSubmit={handleSubmit}
+        className="p-2 sm:p-4 border-b flex gap-2 sm:gap-4 items-center"
+      >
+        <div className="flex-1 relative">
+          <input
+            ref={inputRef}
+            className="w-full p-2 pr-8 bg-background border rounded-md text-sm sm:text-base"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+                
+              if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent form submission on Enter key
+                handleSubmit(e);
+              }
+            }}
+
+            placeholder={mode === "search" 
+                ? "Search the dev site..." 
+                : filteredMessages.length > 0 && mode === "ai"
+                    ? "Ask a follow up..." 
+                    : "Ask a question..."}
+            disabled={loading}
+          />
+          { (input ||filteredMessages.length > 0) && (
+            <button
+              type="button"
+              onClick={clearHistory}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full"
+            >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4 text-muted-foreground" />}
+              <span className="sr-only">Clear search</span>
+            </button>
+          )}
+        </div>
         <div className="flex gap-2">
           <Button
-            variant={mode === "search" ? "default" : "ghost"}
+            variant={mode === "search" ? "default" : "secondary"}
             size="sm"
             onClick={() => handleModeChange(true)}
             className="gap-2"
@@ -414,7 +468,7 @@ export function ChatComponent() {
           </Button>
 
           <Button
-            variant={mode === "ai" ? "default" : "ghost"}
+            variant={mode === "ai" ? "default" : "secondary"}
             size="sm"
             onClick={() => handleModeChange(false)}
             className="gap-2"
@@ -423,20 +477,7 @@ export function ChatComponent() {
             AI Chat
           </Button>
         </div>
-        <div className="flex items-center gap-2">
-          {filteredMessages.length > 0 && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={clearHistory}
-              className="h-8 w-8"
-              title="Clear history"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-      </div>
+      </form>
       
       <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4">
         {filteredMessages.length === 0 && (
@@ -662,45 +703,6 @@ export function ChatComponent() {
         <div ref={messagesEndRef} />
       </div>
 
-      <form
-        ref={formRef}
-        onSubmit={handleSubmit}
-        className="p-2 sm:p-4 border-t flex gap-2 sm:gap-4 items-end"
-      >
-        <div className="flex-1 relative">
-          <input
-            ref={inputRef}
-            className="w-full p-2 pr-8 bg-background border rounded-md text-sm sm:text-base"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={mode === "search" 
-                ? "Search the dev site..." 
-                : filteredMessages.length > 0 && mode === "ai"
-                    ? "Ask a follow up..." 
-                    : "Ask a question..."}
-            disabled={loading}
-          />
-          {input && (
-            <button
-              type="button"
-              onClick={clearInput}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full"
-            >
-              <X className="h-4 w-4 text-muted-foreground" />
-              <span className="sr-only">Clear search</span>
-            </button>
-          )}
-        </div>
-        <Button type="submit" disabled={loading}>
-          {loading ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : mode === "search" ? (
-            <Search className="w-4 h-4" />
-          ) : (
-            <MessageSquare className="w-4 h-4" />
-          )}
-        </Button>
-      </form>
     </div>
   )
 }
