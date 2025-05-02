@@ -22,18 +22,17 @@ import {
 import Link from "next/link";
 import * as React from "react";
 import { cn } from "@/util/utils";
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
 import DiscourseLink from "./DiscourseLink";
 import GithubLink from "./GithubLink";
-import Logo from "./Logo/Logo";
 import { SearchModal } from "../chat/SearchModal";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import NavTree from "@/components/navigation/NavTree";
+import LogoWithArrow from "./Logo/LogoWithArrow";
 
 type HeaderProps = {
   sideNavItems?: any[];
   currentPath?: string;
-}
+};
 
 export default function Header({ sideNavItems, currentPath }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -58,88 +57,148 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Check for Command/Control + K
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault(); // Prevent default browser behavior
         setIsSearchOpen((prev) => !prev);
       }
       // Close on escape
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         setIsSearchOpen(false);
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   // Add effect to handle body scroll
   useEffect(() => {
     if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     // Cleanup
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isMobileMenuOpen]);
 
-  const NavItems = ({ isMobile }: { isMobile?: boolean }) => {
-    if (isMobile) {
-      return (
-        <nav className="flex flex-col space-y-4">
-          <div className="space-y-1">
-            <Link 
-              prefetch={false}
-              href="/docs/table-of-contents?n=0" 
-              className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-4")}
-            >
-              Docs
-            </Link>
-            <Link 
-              prefetch={false}
-              href="/blog" 
-              className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-4")}
-            >
-              Blog
-            </Link>
-            <Link 
-              prefetch={false}
-              href="/learning" 
-              className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-4")}
-            >
-              Learning
-            </Link>
-          </div>
-        </nav>
-      );
-    }
+  const MobileNavItems = () => {
+    return (
+      <nav className="flex flex-col space-y-4">
+        <div className="space-y-1">
+          <Link
+            prefetch={false}
+            href="/getting-started"
+            className={cn(
+              navigationMenuTriggerStyle(),
+              "w-full justify-start h-9 px-4"
+            )}
+          >
+            Getting Started
+          </Link>
+          <Link
+            prefetch={false}
+            href="/docs/table-of-contents?n=0"
+            className={cn(
+              navigationMenuTriggerStyle(),
+              "w-full justify-start h-9 px-4"
+            )}
+          >
+            Docs
+          </Link>
+          <Link
+            prefetch={false}
+            href="/blog"
+            className={cn(
+              navigationMenuTriggerStyle(),
+              "w-full justify-start h-9 px-4"
+            )}
+          >
+            Blog
+          </Link>
+          <Link
+            prefetch={false}
+            href="/learning"
+            className={cn(
+              navigationMenuTriggerStyle(),
+              "w-full justify-start h-9 px-4"
+            )}
+          >
+            Learning
+          </Link>
+        </div>
+      </nav>
+    );
+  };
 
+  const NavItems = () => {
     return (
       <NavigationMenu>
-        <NavigationMenuList className="flex items-center space-x-6">
+        <NavigationMenuList className="space-x-1">
           <NavigationMenuItem>
-            <Link prefetch={false} href="/docs/table-of-contents?n=0" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+            <NavigationMenuTrigger className="px-3">
+              Getting Started
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+                <li className="row-span-3">
+                  <NavigationMenuLink asChild>
+                    <a
+                      className="flex h-full w-full select-none flex-col  rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
+                      href="/getting-started"
+                    >
+                      <div className="mb-2 mt-4 text-lg font-medium">
+                        dotDev <Code2 className="h-6 w-6 inline-block" />
+                      </div>
+                      <p className="text-sm leading-tight text-muted-foreground">
+                        Your one-stop site for learning dotCMS, including Docs,
+                        resources and tools.
+                      </p>
+                    </a>
+                  </NavigationMenuLink>
+                </li>
+                <ListItem href="/getting-started" title="Introduction">
+                  Learn about dotCMS&apos;s core concepts and architecture.
+                </ListItem>
+                <ListItem
+                  href="/docs/quick-start-guide"
+                  title="Headless Quick Start"
+                >
+                  Get up and running in less than 5 minutes.
+                </ListItem>
+                <ListItem href="/docs/features" title="Features">
+                  Explore our comprehensive feature set.
+                </ListItem>
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link href="/docs/table-of-contents?n=0" legacyBehavior passHref>
+              <NavigationMenuLink
+                className={cn(navigationMenuTriggerStyle(), "px-3")}
+              >
                 Docs
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link prefetch={false} href="https://community.dotcms.com/" target="_dotCMSCommunity" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Community <ExternalLink className="h-3 w-3 inline-block ml-1" />
+            <Link href="/learning" legacyBehavior passHref>
+              <NavigationMenuLink
+                className={cn(navigationMenuTriggerStyle(), "px-3")}
+              >
+                Learning
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link prefetch={false} href="/learning" legacyBehavior passHref>
+            <a href="https://community.dotcms.com/" target="dotCMSCommunity">
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              Learning
+                Community <ExternalLink className="h-3 w-3 inline-block ml-1" />
               </NavigationMenuLink>
-            </Link>
+            </a>
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
@@ -150,93 +209,10 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
     <header className="sticky top-0 z-50 w-full">
       <div className="border-b bg-background">
         <div className="flex h-16 items-center px-4 container mx-auto">
-          <div 
-            className="flex items-center relative group"
-            onMouseEnter={handleLogoMouseEnter}
-            onMouseLeave={handleLogoMouseLeave}
-          >
-            <div 
-              className={`absolute right-full mr-2 transition-opacity duration-2000 z-[60] ${
-                showBackArrow ? 'opacity-75' : 'opacity-0 pointer-events-none'
-              }`}
-            >
-              <a 
-                href="https://www.dotcms.com"
-                className="hover:text-primary p-2 block"
-                aria-label="Back to dotCMS.com"
-                title="Back to dotCMS.com"
-              >
-                <ArrowLeft className="h-6 w-6" />
-              </a>
-            </div>
-            <div className="max-w-[100px]">
-              <Logo />
-            </div>
-          </div>
+          <LogoWithArrow />
           
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex flex-1 ml-4">
-            <NavigationMenu className="flex">
-              <NavigationMenuList className="space-x-1">
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="px-3">
-                    Getting Started
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                      <li className="row-span-3">
-                        <NavigationMenuLink asChild>
-                          <a
-                            className="flex h-full w-full select-none flex-col  rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                            href="/"
-                          >
-                            
-                            <div className="mb-2 mt-4 text-lg font-medium">
-                              dotDev <Code2 className="h-6 w-6 inline-block" />
-                            </div>
-                            <p className="text-sm leading-tight text-muted-foreground">
-                              Your one-stop site for learning dotCMS, including Docs, resources and tools.
-                            </p>
-                          </a>
-                        </NavigationMenuLink>
-                      </li>
-                      <ListItem href="/docs/table-of-contents" title="Introduction">
-                        Learn about dotCMS&apos;s core concepts and architecture.
-                      </ListItem>
-                      <ListItem href="/docs/quick-start-guide" title="Headless Quick Start">
-                        Get up and running in less than 5 minutes.
-                      </ListItem>
-                      <ListItem href="/docs/features" title="Features">
-                        Explore our comprehensive feature set.
-                      </ListItem>
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link href="/docs/table-of-contents?n=0" legacyBehavior passHref>
-                    <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "px-3")}>
-                      Docs
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <Link href="/learning" legacyBehavior passHref>
-                    <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "px-3")}>
-                    Learning
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-                &nbsp; &nbsp;
-                <NavigationMenuItem>
-                    <a href="https://community.dotcms.com/" target="dotCMSCommunity">
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                        Community <ExternalLink className="h-3 w-3 inline-block ml-1" />
-                    </NavigationMenuLink>
-                    </a>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+          <div className="hidden lg:flex items-center space-x-2">
+            <NavItems />
           </div>
 
           {/* Right side items */}
@@ -263,7 +239,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
             </div>
 
             {/* Mobile menu button */}
-            <button 
+            <button
               className="lg:hidden p-2"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
@@ -284,14 +260,15 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
             <div className="flex flex-col h-full">
               {/* Main Navigation Links */}
               <div className="py-4">
-                <NavItems isMobile />
+                <MobileNavItems />
               </div>
-
 
               {/* Side Navigation Tree (if available) */}
               {sideNavItems && (
                 <div className="flex-1 border-t pt-4 mt-4">
-                    <div className="text-sm font-medium leading-none text-muted-foreground mb-4 px-2">Docs</div>
+                  <div className="text-sm font-medium leading-none text-muted-foreground mb-4 px-2">
+                    Docs
+                  </div>
                   <NavTree
                     items={sideNavItems}
                     currentPath={currentPath}
@@ -300,25 +277,22 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
                 </div>
               )}
 
-              
               {/* External Links and Theme Toggle */}
               <div className="border-t py-4 mt-4">
-                
                 <div className="flex items-center gap-2 px-2">
                   <GithubLink />
                   <DiscourseLink />
                   <ThemeToggle />
                 </div>
               </div>
-
             </div>
           </div>
         </div>
       )}
 
-      <SearchModal 
-        isOpen={isSearchOpen} 
-        onClose={() => setIsSearchOpen(false)} 
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
       />
     </header>
   );
