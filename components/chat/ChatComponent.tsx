@@ -22,17 +22,16 @@ interface Message {
   content: string
   timestamp: number
   isSearchResult?: boolean
+  mode?: "ai" | "search" // Track which mode the message was from
 }
 
-const CHAT_STORAGE_KEY = "ai-chat-history"
-const SEARCH_STORAGE_KEY = "search-history"
+const MESSAGES_STORAGE_KEY = "dotai-messages-history"
 const RECENT_QUESTIONS_KEY = "recent-questions"
 const API_KEY = Config.AuthToken;
 const API_ENDPOINT = Config.DotCMSHost;
 
 export function ChatComponent() {
-  const [chatMessages, setChatMessages] = useState<Message[]>([])
-  const [searchMessages, setSearchMessages] = useState<Message[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(false)
   const [input, setInput] = useState("")
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState("")
@@ -64,7 +63,8 @@ export function ChatComponent() {
     "How do I create a new content type in dotCMS?",
     "How do I search content using rest api?",
   ] 
-  // Load recent questions and clear previous chat/search messages
+  
+  // Load recent questions and messages from storage
   useEffect(() => {
     // Load recent questions
     const savedRecentQuestions = localStorage.getItem(RECENT_QUESTIONS_KEY)
@@ -72,32 +72,30 @@ export function ChatComponent() {
       setRecentQuestions(JSON.parse(savedRecentQuestions))
     }
 
-    
-    // Clear previous messages to start with a clean slate
-    setChatMessages([])
-    setSearchMessages([])
-    localStorage.removeItem(CHAT_STORAGE_KEY)
-    localStorage.removeItem(SEARCH_STORAGE_KEY)
+    // Load saved messages
+    const savedMessages = localStorage.getItem(MESSAGES_STORAGE_KEY)
+    if (savedMessages) {
+      setMessages(JSON.parse(savedMessages))
+    }
   }, [])
 
-  // Save messages
+  // Save messages when updated
   useEffect(() => {
-    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chatMessages))
-  }, [chatMessages])
+    localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(messages))
+  }, [messages])
 
+  // Scroll for new messages based on mode
   useEffect(() => {
-    localStorage.setItem(SEARCH_STORAGE_KEY, JSON.stringify(searchMessages))
-  }, [searchMessages])
-
-  // Scroll for new AI chat messages, but not search results
-  useEffect(() => {
-    if (chatMessages.length > 0 && mode === "ai") {
-      scrollToBottom()
+    if (messages.length > 0) {
+      // Don't auto-scroll for search results, as they can be many
+      if (mode === "ai" || !messages[messages.length - 1].isSearchResult) {
+        scrollToBottom()
+      }
     }
-  }, [chatMessages, mode])
+  }, [messages, mode])
 
-  const messages = mode === "search" ? searchMessages : chatMessages
-
+  // Filter messages based on current mode
+  const filteredMessages = messages.filter(msg => !msg.mode || msg.mode === mode)
 
   // Scroll to bottom function
   const scrollToBottom = () => {
@@ -115,20 +113,25 @@ export function ChatComponent() {
     e.preventDefault()
     if (!input.trim()) return
     const inputTrimmed = input.trim();
+    
+    // Add user message
     const userMessage: Message = {
       role: "user",
       content: inputTrimmed,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      mode: "ai"
     }
-    setChatMessages(prev => [...prev, userMessage])
+    setMessages(prev => [...prev, userMessage])
     setLoading(true)
+    setInput("")
 
     // Create new AbortController for this request
     abortControllerRef.current = new AbortController()
 
     try {
-      // Format chat history for context
-      const chatHistory = messages.map(msg => `${msg.role === 'user' ? 'Human' : 'Assistant'}: ${msg.content}`).join('\n');
+      // Format chat history for context - only include AI conversation messages
+      const aiConversation = messages.filter(msg => !msg.isSearchResult && (!msg.mode || msg.mode === "ai"));
+      const chatHistory = aiConversation.map(msg => `${msg.role === 'user' ? 'Human' : 'Assistant'}: ${msg.content}`).join('\n');
       const fullPrompt = `${chatHistory}\nHuman: ${inputTrimmed}`;
 
       const response = await fetch(`${API_ENDPOINT}/api/v1/ai/completions`, {
@@ -164,16 +167,16 @@ export function ChatComponent() {
         const chunk = new TextDecoder().decode(value)
         
         // Split the chunk into individual SSE messages
-        const messages = chunk
+        const messageChunks = chunk
           .split('\n')
           .filter(line => line.startsWith('data: '))
           .map(line => line.slice(6)) // Remove 'data: ' prefix
 
-          if(chunk.includes("[DONE]")) {
-            break;
-          }
+        if(chunk.includes("[DONE]")) {
+          break;
+        }
 
-        for (const message of messages) {
+        for (const message of messageChunks) {
           try {
             const parsed = JSON.parse(message)
             if (parsed.choices && parsed.choices[0].delta && parsed.choices[0].delta.content) {
@@ -183,34 +186,30 @@ export function ChatComponent() {
           } catch (e) {
             console.error('Error parsing SSE message:', e)
             break;
-            
           }
         }
       }
       
-      //console.log("setting message:" + finalMessage);
       // After streaming is complete, add the full message to the messages array
-      setChatMessages(prev => [...prev, {
+      setMessages(prev => [...prev, {
         role: "assistant",
         content: finalMessage,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        mode: "ai"
       }])
 
-    // Only clear the streaming message after adding it to messages
-
-    setCurrentStreamingMessage("")
-
-
+      // Clear the streaming message after adding it
+      setCurrentStreamingMessage("")
     } catch (error) {
       // Only show error if not aborted
       if (!(error instanceof DOMException && error.name === 'AbortError')) {
         console.error('Error:', error)
-        const errorMessage: Message = {
+        setMessages(prev => [...prev, {
           role: "assistant",
           content: "Sorry, there was an error processing your request.",
-          timestamp: Date.now()
-        }
-        setChatMessages(prev => [...prev, errorMessage])
+          timestamp: Date.now(),
+          mode: "ai"
+        }])
       }
     } finally {
       setLoading(false)
@@ -225,18 +224,24 @@ export function ChatComponent() {
       abortControllerRef.current = null
     }
     setCurrentStreamingMessage("")
-    if (mode === "search") {
-      setSearchMessages([])
-      localStorage.removeItem(SEARCH_STORAGE_KEY)
-    } else {
-      setChatMessages([])
-      localStorage.removeItem(CHAT_STORAGE_KEY)
-    }
+    setMessages([])
+    localStorage.removeItem(MESSAGES_STORAGE_KEY)
     setInput("")
   }
 
   async function handleSearch(query: string) {
     setLoading(true)
+    
+    // Add user message for search
+    setMessages(prev => [...prev, {
+      role: "user",
+      content: query,
+      timestamp: Date.now(),
+      mode: "search"
+    }])
+    
+    setInput("")
+    
     try {
       const response = await fetch(`${API_ENDPOINT}/api/v1/ai/search`, {
         method: "POST",
@@ -245,12 +250,12 @@ export function ChatComponent() {
           "Authorization": `Bearer ${API_KEY}`,
         },
         body: JSON.stringify({
-          model:"gpt-4o",
+          model: "gpt-4o",
           indexName: "default",
           prompt: query,
           operator: "cosine",
           threshold: ".25",
-          searchLimit:10,
+          searchLimit: 10,
         }),
       })
 
@@ -275,15 +280,12 @@ export function ChatComponent() {
           modDate: result.modDate,
         }),
         timestamp: Date.now(),
-        isSearchResult: true
+        isSearchResult: true,
+        mode: "search" as const
       }))
 
-      // Update search messages instead of all messages
-      setSearchMessages(prev => [
-        ...prev,
-        { role: "user", content: query, timestamp: Date.now() },
-        ...searchResults
-      ])
+      // Add search results to messages
+      setMessages(prev => [...prev, ...searchResults])
 
       // Scroll to the last user message after adding search results
       setTimeout(() => {
@@ -292,10 +294,11 @@ export function ChatComponent() {
 
     } catch (error) {
       console.error('Error:', error)
-      setSearchMessages(prev => [...prev, {
+      setMessages(prev => [...prev, {
         role: "assistant",
         content: "Sorry, there was an error processing your search request.",
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        mode: "search"
       }])
     } finally {
       setLoading(false)
@@ -324,7 +327,6 @@ export function ChatComponent() {
     storeRecentQuestion(input.trim())
 
     if (mode === "search") {
-        setSearchMessages([])
       await handleSearch(input.trim())
     } else {
       await sendMessage(e)
@@ -332,9 +334,7 @@ export function ChatComponent() {
   }
 
   const clearInput = () => {
-    setSearchMessages([])
     setInput("")
-
   }
 
   const handleModeChange = async (pressed: boolean) => {
@@ -349,7 +349,7 @@ export function ChatComponent() {
     setMode(newMode)
     
     // If switching to search mode and there's input, trigger search
-    if (newMode === "search" && input.trim() && searchMessages.length === 0) {
+    if (newMode === "search" && input.trim()) {
       await handleSearch(input.trim())
     }
   }
@@ -357,7 +357,7 @@ export function ChatComponent() {
   const handleChatAboutResults = () => {
     handleModeChange(false)
     // Get the last user message (which should be the search query)
-    const lastUserMessage = messages.findLast(m => m.role === "user")
+    const lastUserMessage = filteredMessages.findLast(m => m.role === "user")
     if (lastUserMessage) {
       setInput(lastUserMessage.content)
       // Submit the form after a short delay to ensure mode switch is complete
@@ -371,7 +371,7 @@ export function ChatComponent() {
     <div className="flex flex-col h-full relative max-w-4xl mx-auto w-full">
       <div className="flex justify-between items-center p-2 sm:p-4 border-b">
         <div className="flex gap-2">
-        <Button
+          <Button
             variant={mode === "search" ? "default" : "ghost"}
             size="sm"
             onClick={() => handleModeChange(true)}
@@ -380,7 +380,6 @@ export function ChatComponent() {
             <Search className="h-4 w-4" />
             Search
           </Button>
-
 
           <Button
             variant={mode === "ai" ? "default" : "ghost"}
@@ -393,7 +392,7 @@ export function ChatComponent() {
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          {messages.length > 0 && (
+          {filteredMessages.length > 0 && (
             <Button
               variant="ghost"
               size="icon"
@@ -408,7 +407,7 @@ export function ChatComponent() {
       </div>
       
       <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4">
-        {messages.length === 0 && (
+        {filteredMessages.length === 0 && (
           <>
             {loading ? (
               <div className="flex flex-col items-center justify-center h-full space-y-4">
@@ -424,46 +423,46 @@ export function ChatComponent() {
                 </p>
                 <div className="space-y-2 text-left w-full max-w-md px-2 sm:px-0">
                   {(() => {
-                  // Show between 3-5 questions
-                  const questionsToShow: string[] = [];
-                  
-                  // Add all recent questions first (up to 5)
-                  if (recentQuestions.length > 0) {
-                    recentQuestions.forEach(question => {
-                      questionsToShow.push(question);
-                    });
-                  }
-                  
-                  // If we have fewer than 3 recent questions, add predefined ones to reach minimum of 3
-                  if (questionsToShow.length < 3) {
-                    // Filter out predefined questions that match recent ones to avoid duplicates
-                    const filteredPredefined = PreDefinedQuestions.filter(
-                      q => !questionsToShow.includes(q)
-                    );
+                    // Show between 3-5 questions
+                    const questionsToShow: string[] = [];
                     
-                    // Add unique predefined questions to fill up to at least 3 total
-                    filteredPredefined.slice(0, 3 - questionsToShow.length).forEach(question => {
-                      questionsToShow.push(question);
-                    });
-                  }
-                  
-                  // Render the 3 questions
-                  return questionsToShow.map((question, index) => (
-                    <div 
-                      key={index}
-                      className="p-2 sm:p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70 text-center text-sm sm:text-base" 
-                      onClick={() => handleExampleClick(question)}
-                    >
-                      {question}
-                    </div>
-                  ));
-                })()}
+                    // Add all recent questions first (up to 5)
+                    if (recentQuestions.length > 0) {
+                      recentQuestions.forEach(question => {
+                        questionsToShow.push(question);
+                      });
+                    }
+                    
+                    // If we have fewer than 3 recent questions, add predefined ones to reach minimum of 3
+                    if (questionsToShow.length < 3) {
+                      // Filter out predefined questions that match recent ones to avoid duplicates
+                      const filteredPredefined = PreDefinedQuestions.filter(
+                        q => !questionsToShow.includes(q)
+                      );
+                      
+                      // Add unique predefined questions to fill up to at least 3 total
+                      filteredPredefined.slice(0, 3 - questionsToShow.length).forEach(question => {
+                        questionsToShow.push(question);
+                      });
+                    }
+                    
+                    // Render the questions
+                    return questionsToShow.map((question, index) => (
+                      <div 
+                        key={index}
+                        className="p-2 sm:p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70 text-center text-sm sm:text-base" 
+                        onClick={() => handleExampleClick(question)}
+                      >
+                        {question}
+                      </div>
+                    ));
+                  })()}
                 </div>
               </div>
             )}
           </>
         )}
-        {messages.map((message, index) => (
+        {filteredMessages.map((message, index) => (
           <div
             key={index}
             ref={message.role === "user" ? lastUserMessageRef : undefined}
@@ -536,7 +535,7 @@ export function ChatComponent() {
             </div>
           </div>
         ))}
-        {mode === "search" && messages.length > 0 && messages.some(m => m.isSearchResult) && (
+        {mode === "search" && filteredMessages.length > 0 && filteredMessages.some(m => m.isSearchResult) && (
           <div className="flex justify-center pt-4">
             <Button
               variant="outline"
@@ -622,12 +621,12 @@ export function ChatComponent() {
             onChange={(e) => setInput(e.target.value)}
             placeholder={mode === "search" 
                 ? "Search the dev site..." 
-                : messages.length > 0 && mode === "ai"
+                : filteredMessages.length > 0 && mode === "ai"
                     ? "Ask a follow up..." 
                     : "Ask a question..."}
             disabled={loading}
           />
-          {input  && (
+          {input && (
             <button
               type="button"
               onClick={clearInput}
