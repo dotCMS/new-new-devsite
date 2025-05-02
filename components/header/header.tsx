@@ -99,6 +99,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
           >
             Getting Started
           </Link>
+
           <Link
             prefetch={false}
             href="/docs/table-of-contents?n=0"
@@ -109,16 +110,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
           >
             Docs
           </Link>
-          <Link
-            prefetch={false}
-            href="/blog"
-            className={cn(
-              navigationMenuTriggerStyle(),
-              "w-full justify-start h-9 px-4"
-            )}
-          >
-            Blog
-          </Link>
+
           <Link
             prefetch={false}
             href="/learning"
@@ -127,8 +119,9 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
               "w-full justify-start h-9 px-4"
             )}
           >
-            Learning
+            Learning & Blogs
           </Link>
+
         </div>
       </nav>
     );
@@ -189,7 +182,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
               <NavigationMenuLink
                 className={cn(navigationMenuTriggerStyle(), "px-3")}
               >
-                Learning & Blog
+                Learning & Blogs
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
