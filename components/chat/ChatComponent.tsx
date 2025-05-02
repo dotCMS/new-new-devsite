@@ -245,7 +245,7 @@ export function ChatComponent() {
       mode: "search"
     }])
     
-    setInput("")
+    
     
     try {
       const response = await fetch(`${API_ENDPOINT}/api/v1/ai/search`, {
@@ -366,15 +366,15 @@ export function ChatComponent() {
       abortControllerRef.current = null
     }
     setCurrentStreamingMessage("")
-    
+    setMessages([])
     const newMode = pressed ? "search" : "ai"
     setMode(newMode)
     
     // Save the mode preference to localStorage
     localStorage.setItem(MODE_STORAGE_KEY, newMode)
-    setMessages([])
+    
     // If switching to search mode and there's input, trigger search
-    if (newMode === "search" && input.trim() && messages.length === 0) {
+    if (newMode === "search" && input.trim()) {
       await handleSearch(input.trim())
     }
   }
@@ -444,11 +444,11 @@ export function ChatComponent() {
                 <Bot className="w-16 h-16 text-primary" />
                 <h2 className="text-2xl font-semibold">Welcome to dotAI Assistant</h2>
                 <p className="text-muted-foreground max-w-md">
-                  I can answer your questions or help you find information about the dotCMS platform. Here are some example questions:
+                  I can answer your questions or help you find information about the dotCMS platform. Here are some previous questions:
                 </p>
                 <div className="space-y-2 text-left w-full max-w-md px-2 sm:px-0">
                   {(() => {
-                    // Show between 3-5 questions
+                    // Always show up to 5 questions total
                     const questionsToShow: string[] = [];
                     
                     // Add all recent questions first (up to 5)
@@ -458,15 +458,15 @@ export function ChatComponent() {
                       });
                     }
                     
-                    // If we have fewer than 3 recent questions, add predefined ones to reach minimum of 3
-                    if (questionsToShow.length < 3) {
+                    // Fill remaining slots with predefined questions to reach a total of 5
+                    if (questionsToShow.length < 5) {
                       // Filter out predefined questions that match recent ones to avoid duplicates
                       const filteredPredefined = PreDefinedQuestions.filter(
                         q => !questionsToShow.includes(q)
                       );
                       
-                      // Add unique predefined questions to fill up to at least 3 total
-                      filteredPredefined.slice(0, 3 - questionsToShow.length).forEach(question => {
+                      // Add unique predefined questions to fill the remaining slots (up to 5 total)
+                      filteredPredefined.slice(0, 5 - questionsToShow.length).forEach(question => {
                         questionsToShow.push(question);
                       });
                     }
