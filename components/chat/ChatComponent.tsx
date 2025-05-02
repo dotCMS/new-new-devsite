@@ -26,6 +26,7 @@ interface Message {
 
 const CHAT_STORAGE_KEY = "ai-chat-history"
 const SEARCH_STORAGE_KEY = "search-history"
+const RECENT_QUESTIONS_KEY = "recent-questions"
 const API_KEY = Config.AuthToken;
 const API_ENDPOINT = Config.DotCMSHost;
 
@@ -36,6 +37,7 @@ export function ChatComponent() {
   const [input, setInput] = useState("")
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState("")
   const [mode, setMode] = useState<"ai" | "search">("search")
+  const [recentQuestions, setRecentQuestions] = useState<string[]>([])
   const abortControllerRef = useRef<AbortController | null>(null)
 
   // Add refs for the messages container and form
@@ -57,16 +59,25 @@ export function ChatComponent() {
     }, 100);
   }
 
-  // Load saved messages
+  const PreDefinedQuestions = [
+    "What are the system requirements for dotCMS?",
+    "How do I create a new content type in dotCMS?",
+    "How do I search content using rest api?",
+  ] 
+  // Load recent questions and clear previous chat/search messages
   useEffect(() => {
-    const savedChatMessages = localStorage.getItem(CHAT_STORAGE_KEY)
-    const savedSearchMessages = localStorage.getItem(SEARCH_STORAGE_KEY)
-    if (savedChatMessages) {
-      setChatMessages(JSON.parse(savedChatMessages))
+    // Load recent questions
+    const savedRecentQuestions = localStorage.getItem(RECENT_QUESTIONS_KEY)
+    if (savedRecentQuestions) {
+      setRecentQuestions(JSON.parse(savedRecentQuestions))
     }
-    if (savedSearchMessages) {
-      setSearchMessages(JSON.parse(savedSearchMessages))
-    }
+
+    
+    // Clear previous messages to start with a clean slate
+    setChatMessages([])
+    setSearchMessages([])
+    localStorage.removeItem(CHAT_STORAGE_KEY)
+    localStorage.removeItem(SEARCH_STORAGE_KEY)
   }, [])
 
   // Save messages
@@ -86,7 +97,7 @@ export function ChatComponent() {
   }, [chatMessages, mode])
 
   const messages = mode === "search" ? searchMessages : chatMessages
-  const setMessages = mode === "search" ? setSearchMessages : setChatMessages
+
 
   // Scroll to bottom function
   const scrollToBottom = () => {
@@ -291,11 +302,29 @@ export function ChatComponent() {
     }
   }
 
+  // Store recent questions when a user asks something
+  const storeRecentQuestion = (question: string) => {
+    // Don't store empty questions
+    if (!question.trim()) return
+    
+    setRecentQuestions(prev => {
+      // Add the new question to the beginning and limit to 5 items
+      const updated = [question, ...prev.filter(q => q !== question)].slice(0, 5)
+      // Save to localStorage
+      localStorage.setItem(RECENT_QUESTIONS_KEY, JSON.stringify(updated))
+      return updated
+    })
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!input.trim()) return
+    
+    // Store the question
+    storeRecentQuestion(input.trim())
 
     if (mode === "search") {
+        setSearchMessages([])
       await handleSearch(input.trim())
     } else {
       await sendMessage(e)
@@ -303,6 +332,7 @@ export function ChatComponent() {
   }
 
   const clearInput = () => {
+    setSearchMessages([])
     setInput("")
 
   }
@@ -319,7 +349,7 @@ export function ChatComponent() {
     setMode(newMode)
     
     // If switching to search mode and there's input, trigger search
-    if (newMode === "search" && input.trim()) {
+    if (newMode === "search" && input.trim() && searchMessages.length === 0) {
       await handleSearch(input.trim())
     }
   }
@@ -393,18 +423,41 @@ export function ChatComponent() {
                   I can answer your questions or help you find information about the dotCMS platform. Here are some example questions:
                 </p>
                 <div className="space-y-2 text-left w-full max-w-md px-2 sm:px-0">
-                  <div className="p-2 sm:p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70 text-center text-sm sm:text-base" 
-                       onClick={() => handleExampleClick("What are the system requirements for dotCMS?")}>
-                    What are the system requirements for dotCMS?
-                  </div>
-                  <div className="p-2 sm:p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70 text-center text-sm sm:text-base"
-                       onClick={() => handleExampleClick("How do I create a new content type in dotCMS?")}>
-                    How do I create a new content type in dotCMS?
-                  </div>
-                  <div className="p-2 sm:p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70 text-center text-sm sm:text-base"
-                       onClick={() => handleExampleClick("How do I search content using rest api??")}>
-                    How do I search content using the rest api?
-                  </div>
+                  {(() => {
+                  // Show between 3-5 questions
+                  const questionsToShow: string[] = [];
+                  
+                  // Add all recent questions first (up to 5)
+                  if (recentQuestions.length > 0) {
+                    recentQuestions.forEach(question => {
+                      questionsToShow.push(question);
+                    });
+                  }
+                  
+                  // If we have fewer than 3 recent questions, add predefined ones to reach minimum of 3
+                  if (questionsToShow.length < 3) {
+                    // Filter out predefined questions that match recent ones to avoid duplicates
+                    const filteredPredefined = PreDefinedQuestions.filter(
+                      q => !questionsToShow.includes(q)
+                    );
+                    
+                    // Add unique predefined questions to fill up to at least 3 total
+                    filteredPredefined.slice(0, 3 - questionsToShow.length).forEach(question => {
+                      questionsToShow.push(question);
+                    });
+                  }
+                  
+                  // Render the 3 questions
+                  return questionsToShow.map((question, index) => (
+                    <div 
+                      key={index}
+                      className="p-2 sm:p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70 text-center text-sm sm:text-base" 
+                      onClick={() => handleExampleClick(question)}
+                    >
+                      {question}
+                    </div>
+                  ));
+                })()}
                 </div>
               </div>
             )}
