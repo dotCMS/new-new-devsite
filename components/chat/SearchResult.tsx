@@ -55,7 +55,18 @@ const getLinkForContentType = (contentType: string = "",url: string = "") => {
       return url
   }
 }
-export function SearchResult({ title, content, url, score, contentType, inode, modDate,     matches }: SearchResultProps) {
+export function SearchResult({ title, content, url, score, contentType, inode, modDate, matches }: SearchResultProps) {
+  // Create an absolute URL if it's just a path
+  const formattedUrl = getLinkForContentType(contentType, url);
+  const displayUrl = formattedUrl.startsWith('/') 
+    ? window.location.origin + formattedUrl 
+    : formattedUrl;
+  
+  // Handle content preview - ensure it's a string and not undefined
+  const contentPreview = typeof content === 'string' 
+    ? content.trim().replace(/^[\s\S]*?(?=\S)/, '') 
+    : 'No preview available';
+
   return (
     <div className="flex gap-4 w-full">
       <div className="flex-shrink-0 mt-1">
@@ -65,39 +76,41 @@ export function SearchResult({ title, content, url, score, contentType, inode, m
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
           <h3 className="font-medium text-base truncate">
             <a 
-              href={getLinkForContentType(contentType, url)}
+              href={formattedUrl}
+              target="_blank"
               rel="noopener noreferrer"
               className="hover:underline"
             >
-              {title}
+              {title || 'Untitled Result'}
             </a>
           </h3>
           <div className="flex flex-wrap items-center gap-2 flex-shrink-0 text-xs text-muted-foreground">
-            <span className="px-2 py-1 rounded-full bg-muted">{contentType}</span>
-            {score && (
+            <span className="px-2 py-1 rounded-full bg-muted">{contentType || 'Content'}</span>
+            {score !== undefined && (
               <span className="px-2 py-1 rounded-full bg-muted">
                 Score: {Math.round((1-score) * 100)}%
               </span>
             )}
-            {matches && (
+            {matches && matches.length > 0 && (
               <span className="px-2 py-1 rounded-full bg-muted">
                 {matches.length} {matches.length === 1 ? 'match' : 'matches'}
               </span>
             )}
           </div>
         </div>
-        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-          {content.trim().replace(/^[\s\S]*?(?=\S)/, '')}
+        <p className="text-sm text-muted-foreground mt-1 line-clamp-3">
+          {contentPreview}
         </p>
         <a 
-          href={getLinkForContentType(contentType, url)}
+          href={formattedUrl}
+          target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1 text-xs text-primary hover:underline mt-2"
         >
           <Link2 className="h-3 w-3" />
-          {getLinkForContentType(contentType, url)}
+          {displayUrl}
         </a>
       </div>
     </div>
   )
-} 
+}

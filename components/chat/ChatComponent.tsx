@@ -25,7 +25,6 @@ interface Message {
   mode?: "ai" | "search" // Track which mode the message was from
 }
 
-const MESSAGES_STORAGE_KEY = "dotai-messages-history"
 const RECENT_QUESTIONS_KEY = "recent-questions"
 const MODE_STORAGE_KEY = "dotai-last-mode"
 const API_KEY = Config.AuthToken;
@@ -69,25 +68,13 @@ export function ChatComponent() {
     "How do I search content using rest api?",
   ] 
   
-  // Load recent questions and messages from storage
+  // Load recent questions from storage
   useEffect(() => {
-    // Load recent questions
     const savedRecentQuestions = localStorage.getItem(RECENT_QUESTIONS_KEY)
     if (savedRecentQuestions) {
       setRecentQuestions(JSON.parse(savedRecentQuestions))
     }
-
-    // Load saved messages
-    const savedMessages = localStorage.getItem(MESSAGES_STORAGE_KEY)
-    if (savedMessages) {
-      setMessages(JSON.parse(savedMessages))
-    }
   }, [])
-
-  // Save messages when updated
-  useEffect(() => {
-    localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(messages))
-  }, [messages])
 
   // Scroll for new messages based on mode
   useEffect(() => {
@@ -230,7 +217,6 @@ export function ChatComponent() {
     }
     setCurrentStreamingMessage("")
     setMessages([])
-    localStorage.removeItem(MESSAGES_STORAGE_KEY)
     setInput("")
   }
 
@@ -245,7 +231,7 @@ export function ChatComponent() {
       mode: "search"
     }])
     
-    setInput("")
+    
     
     try {
       const response = await fetch(`${API_ENDPOINT}/api/v1/ai/search`, {
@@ -331,14 +317,35 @@ export function ChatComponent() {
   const storeRecentQuestion = (question: string) => {
     // Don't store empty questions
     if (!question.trim()) return
-    
+
     setRecentQuestions(prev => {
-      // Add the new question to the beginning and limit to 5 items
-      const updated = [question, ...prev.filter(q => q !== question)].slice(0, 5)
-      // Save to localStorage
-      localStorage.setItem(RECENT_QUESTIONS_KEY, JSON.stringify(updated))
-      return updated
-    })
+      let updated: string[];
+      // Only append if in a conversation (filteredMessages.length > 0 && mode === "ai")
+      if (
+        filteredMessages.length > 0 &&
+        mode === "ai" &&
+        prev.length > 0 &&
+        !PreDefinedQuestions.includes(prev[0])
+      ) {
+        // Append the follow-up to the most recent question
+        updated = [
+          prev[0] + " " + question,
+          ...prev.slice(1)
+        ].slice(0, 5);
+      } else {
+        // Only add if not already in history and not in predefined list
+        if (
+          prev.includes(question) ||
+          PreDefinedQuestions.includes(question)
+        ) {
+          updated = prev;
+        } else {
+          updated = [question, ...prev].slice(0, 5);
+        }
+      }
+      localStorage.setItem(RECENT_QUESTIONS_KEY, JSON.stringify(updated));
+      return updated;
+    });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -366,15 +373,15 @@ export function ChatComponent() {
       abortControllerRef.current = null
     }
     setCurrentStreamingMessage("")
-    
+    setMessages([])
     const newMode = pressed ? "search" : "ai"
     setMode(newMode)
     
     // Save the mode preference to localStorage
     localStorage.setItem(MODE_STORAGE_KEY, newMode)
-    setMessages([])
+    
     // If switching to search mode and there's input, trigger search
-    if (newMode === "search" && input.trim() && messages.length === 0) {
+    if (newMode === "search" && input.trim()) {
       await handleSearch(input.trim())
     }
   }
@@ -444,11 +451,11 @@ export function ChatComponent() {
                 <Bot className="w-16 h-16 text-primary" />
                 <h2 className="text-2xl font-semibold">Welcome to dotAI Assistant</h2>
                 <p className="text-muted-foreground max-w-md">
-                  I can answer your questions or help you find information about the dotCMS platform. Here are some example questions:
+                  I can answer your questions or help you find information about the dotCMS platform. Here are some previous questions:
                 </p>
                 <div className="space-y-2 text-left w-full max-w-md px-2 sm:px-0">
                   {(() => {
-                    // Show between 3-5 questions
+                    // Always show up to 5 questions total
                     const questionsToShow: string[] = [];
                     
                     // Add all recent questions first (up to 5)
@@ -458,15 +465,15 @@ export function ChatComponent() {
                       });
                     }
                     
-                    // If we have fewer than 3 recent questions, add predefined ones to reach minimum of 3
-                    if (questionsToShow.length < 3) {
+                    // Fill remaining slots with predefined questions to reach a total of 5
+                    if (questionsToShow.length < 5) {
                       // Filter out predefined questions that match recent ones to avoid duplicates
                       const filteredPredefined = PreDefinedQuestions.filter(
                         q => !questionsToShow.includes(q)
                       );
                       
-                      // Add unique predefined questions to fill up to at least 3 total
-                      filteredPredefined.slice(0, 3 - questionsToShow.length).forEach(question => {
+                      // Add unique predefined questions to fill the remaining slots (up to 5 total)
+                      filteredPredefined.slice(0, 5 - questionsToShow.length).forEach(question => {
                         questionsToShow.push(question);
                       });
                     }
@@ -475,10 +482,32 @@ export function ChatComponent() {
                     return questionsToShow.map((question, index) => (
                       <div 
                         key={index}
-                        className="p-2 sm:p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/70 text-center text-sm sm:text-base" 
-                        onClick={() => handleExampleClick(question)}
+                        className="flex items-start justify-between p-2 sm:p-3 rounded-lg bg-muted/50 text-sm sm:text-base mb-1"
                       >
-                        {question}
+                        <span
+                          className="flex-1 cursor-pointer text-center"
+                          onClick={() => handleExampleClick(question)}
+                        >
+                          {question}
+                        </span>
+                        {recentQuestions.includes(question) && !PreDefinedQuestions.includes(question) && (
+                          <button
+                            type="button"
+                            className="ml-2 mt-0.5 p-1 hover:bg-muted rounded-full"
+                            style={{ alignSelf: "flex-start" }}
+                            onClick={e => {
+                              e.stopPropagation();
+                              setRecentQuestions(prev => {
+                                const updated = prev.filter(q => q !== question);
+                                localStorage.setItem(RECENT_QUESTIONS_KEY, JSON.stringify(updated));
+                                return updated;
+                              });
+                            }}
+                            aria-label="Remove from history"
+                          >
+                            <X className="h-4 w-4 text-muted-foreground" />
+                          </button>
+                        )}
                       </div>
                     ));
                   })()}
