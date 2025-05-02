@@ -189,7 +189,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
               <NavigationMenuLink
                 className={cn(navigationMenuTriggerStyle(), "px-3")}
               >
-                Learning
+                Learning & Blog
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
