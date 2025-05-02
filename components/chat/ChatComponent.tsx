@@ -27,6 +27,7 @@ interface Message {
 
 const MESSAGES_STORAGE_KEY = "dotai-messages-history"
 const RECENT_QUESTIONS_KEY = "recent-questions"
+const MODE_STORAGE_KEY = "dotai-last-mode"
 const API_KEY = Config.AuthToken;
 const API_ENDPOINT = Config.DotCMSHost;
 
@@ -35,7 +36,11 @@ export function ChatComponent() {
   const [loading, setLoading] = useState(false)
   const [input, setInput] = useState("")
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState("")
-  const [mode, setMode] = useState<"ai" | "search">("search")
+  const [mode, setMode] = useState<"ai" | "search">(() => {
+    // Try to get the last mode from localStorage, default to "search"
+    const savedMode = localStorage.getItem(MODE_STORAGE_KEY)
+    return (savedMode === "ai" || savedMode === "search") ? savedMode : "search"
+  })
   const [recentQuestions, setRecentQuestions] = useState<string[]>([])
   const abortControllerRef = useRef<AbortController | null>(null)
 
@@ -262,27 +267,44 @@ export function ChatComponent() {
       if (!response.ok) throw new Error('Network response was not ok')
       const data = await response.json()
       
-      // Format search results
-      const searchResults = data.dotCMSResults.filter((result: any) => 
-        result.contentType.toLowerCase() === "dotcmsdocumentation" || 
-        result.contentType.toLowerCase() === "devresource" || 
-        result.contentType.toLowerCase() === "blog"
-      ).map((result: any) => ({
-        role: "assistant" as const,
-        content: JSON.stringify({
-          title: result.title || 'Untitled Result',
-          matches: result.matches || [],
-          content: truncateText(result.matches[0].extractedText, 200),
-          inode: result.inode,
-          url: result.urlMap || result.slug || result.urlTitle,
-          score: parseFloat(result.matches[0].distance),
-          contentType: result.contentType || 'documentation',
-          modDate: result.modDate,
-        }),
-        timestamp: Date.now(),
-        isSearchResult: true,
-        mode: "search" as const
-      }))
+      // Check if there are results
+      if (!data.dotCMSResults || data.dotCMSResults.length === 0) {
+        // Add a "no results" message
+        setMessages(prev => [...prev, {
+          role: "assistant",
+          content: "No search results found. Please try different keywords.",
+          timestamp: Date.now(),
+          mode: "search"
+        }])
+        return
+      }
+      
+      // Format search results - include all content types
+      const searchResults = data.dotCMSResults.map((result: any) => {
+        // Ensure we have matches
+        if (!result.matches || !result.matches.length) {
+          return null
+        }
+        
+        return {
+          role: "assistant" as const,
+          content: JSON.stringify({
+            title: result.title || 'Untitled Result',
+            matches: result.matches || [],
+            content: result.matches[0]?.extractedText ? 
+                     truncateText(result.matches[0].extractedText, 200) : 
+                     "No preview available",
+            inode: result.inode,
+            url: result.urlMap || result.url || result.slug || result.urlTitle || "",
+            score: result.matches[0]?.distance ? parseFloat(result.matches[0].distance) : 0,
+            contentType: result.contentType || 'documentation',
+            modDate: result.modDate,
+          }),
+          timestamp: Date.now(),
+          isSearchResult: true,
+          mode: "search" as const
+        }
+      }).filter(Boolean) // Remove any null items
 
       // Add search results to messages
       setMessages(prev => [...prev, ...searchResults])
@@ -348,8 +370,11 @@ export function ChatComponent() {
     const newMode = pressed ? "search" : "ai"
     setMode(newMode)
     
+    // Save the mode preference to localStorage
+    localStorage.setItem(MODE_STORAGE_KEY, newMode)
+    setMessages([])
     // If switching to search mode and there's input, trigger search
-    if (newMode === "search" && input.trim()) {
+    if (newMode === "search" && input.trim() && messages.length === 0) {
       await handleSearch(input.trim())
     }
   }
