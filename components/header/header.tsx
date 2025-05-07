@@ -155,7 +155,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
           // update the state. This allows Radix to close "Getting Started" if it was opened by click.
           setCurrentOpenMenu(newValue);
         }}
-        delayDuration={999999} // Keep high delay as a fallback, primary logic is now in onValueChange
+        delayDuration={300*1000} // Keep high delay as a fallback, primary logic is now in onValueChange
       >
         <NavigationMenuList className="space-x-1">
           <NavigationMenuItem value={GETTING_STARTED_NAV_ITEM_VALUE}>
