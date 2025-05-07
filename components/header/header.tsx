@@ -40,6 +40,10 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
   const [showBackArrow, setShowBackArrow] = useState(false);
   const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
 
+  // State for controlled navigation menu
+  const [currentOpenMenu, setCurrentOpenMenu] = useState<string | undefined>(undefined);
+  const GETTING_STARTED_NAV_ITEM_VALUE = "getting-started-nav";
+
   const handleLogoMouseEnter = () => {
     if (hoverTimeout) {
       clearTimeout(hoverTimeout);
@@ -70,6 +74,16 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  // useEffect for cleaning up the logo hover timeout
+  useEffect(() => {
+    const currentTimeout = hoverTimeout;
+    return () => {
+      if (currentTimeout) {
+        clearTimeout(currentTimeout);
+      }
+    };
+  }, [hoverTimeout]);
 
   // Add effect to handle body scroll
   useEffect(() => {
@@ -129,10 +143,33 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
 
   const NavItems = () => {
     return (
-      <NavigationMenu>
+      <NavigationMenu
+        value={currentOpenMenu}
+        onValueChange={(newValue) => {
+          // If Radix tries to set the "Getting Started" menu via onValueChange (e.g., due to hover/focus),
+          // we ignore it here because its opening is controlled exclusively by its onClick handler.
+          if (newValue === GETTING_STARTED_NAV_ITEM_VALUE) {
+            return;
+          }
+          // For any other menu item opening, or for *any* menu closing (newValue is undefined),
+          // update the state. This allows Radix to close "Getting Started" if it was opened by click.
+          setCurrentOpenMenu(newValue);
+        }}
+        delayDuration={999999} // Keep high delay as a fallback, primary logic is now in onValueChange
+      >
         <NavigationMenuList className="space-x-1">
-          <NavigationMenuItem>
-            <NavigationMenuTrigger className="px-3">
+          <NavigationMenuItem value={GETTING_STARTED_NAV_ITEM_VALUE}>
+            <NavigationMenuTrigger
+              className="px-3"
+              onClick={(e) => {
+                e.preventDefault(); // Prevent any default link behavior if it were a link
+                if (currentOpenMenu === GETTING_STARTED_NAV_ITEM_VALUE) {
+                  setCurrentOpenMenu(undefined); // Toggle close
+                } else {
+                  setCurrentOpenMenu(GETTING_STARTED_NAV_ITEM_VALUE); // Toggle open
+                }
+              }}
+            >
               Getting Started
             </NavigationMenuTrigger>
             <NavigationMenuContent>
