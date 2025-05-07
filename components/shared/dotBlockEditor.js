@@ -3,7 +3,9 @@ import Link from "next/link";
 import { decode } from "html-entities";
 
 import { BlockEditorRenderer } from "@dotcms/react";
-
+import LinkCards from "../content-types/link-cards";
+import FeatureCard from "../content-types/feature-card";
+import TestComponent from "../content-types/TestComponent";
 /**
  * Renders the text in bold.
  *
@@ -131,13 +133,32 @@ export const DecodeHTML = (props) => {
   return <TextBlock {...props} text={decode(text)} />;
 };
 
+
+
+const defaultRenderers = {
+    DocumentationLinks:LinkCards,
+    CardContent:TestComponent
+};
+
+
+
+
 export const DotBlockEditor = ({ customRenderers, ...props }) => {
+
+    const mergedCustomRenderers = {
+        ...defaultRenderers,
+        ...customRenderers
+    };
+
+
+
+
   return (
     <BlockEditorRenderer
       {...props}
       customRenderers={{
         text: DecodeHTML,
-        ...customRenderers,
+        ...mergedCustomRenderers,
       }}
     />
   );
