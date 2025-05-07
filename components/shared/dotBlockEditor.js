@@ -4,7 +4,6 @@ import { decode } from "html-entities";
 
 import { BlockEditorRenderer } from "@dotcms/react";
 import LinkCards from "../content-types/link-cards";
-import FeatureCard from "../content-types/feature-card";
 import TestComponent from "../content-types/TestComponent";
 /**
  * Renders the text in bold.
