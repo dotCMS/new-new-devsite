@@ -10,7 +10,7 @@ const WebPageContent: React.FC<WebPageContentProps> = ({ title, body }) => {
   return (
     <article className="w-full">
       <h1 className="text-3xl font-bold mb-6 text-primary">{title}</h1>
-      <div className="prose prose-lg max-w-none">
+      <div className="prose  max-w-none">
       {isJSON(body) ? (
         <DotBlockEditor  
           blocks={typeof body === 'string' ? JSON.parse(body) : body}
