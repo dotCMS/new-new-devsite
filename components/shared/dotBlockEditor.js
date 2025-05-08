@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { decode } from "html-entities";
-
 import { BlockEditorRenderer } from "@dotcms/react";
 import LinkCards from "../content-types/link-cards";
 
@@ -131,33 +130,56 @@ export const DecodeHTML = (props) => {
 
   return <TextBlock {...props} text={decode(text)} />;
 };
-
-
-
-const defaultRenderers = {
-    DocumentationLinks:LinkCards
+export const VidContent = (props) => {
+  const tags = props.attrs.data.tags.split(",");
+  const src = props.attrs.src;
+  const title = props.attrs.title;
+  const width = props.attrs.width;
+  const height = props.attrs.height;
+  const identifier = props.attrs.data.identifier;
+  const controls = !tags.includes("nocontrols");
+  const autoPlay = tags.includes("autoplay");
+  const loop = tags.includes("loop");
+  const muted = tags.includes("muted");
+  return <video
+    width={width}
+    height={height}
+    controls={controls}
+    autoPlay={autoPlay}
+    loop={loop}
+    muted={muted}
+    playsInline
+    title={title}
+  >
+    <track default="" kind="captions" srclang="en" />
+    {src && (
+      <source 
+        src={src} 
+        type={`video/${src.split('.').pop()}`} 
+      />
+    )}
+    Your browser does not support the video tag.
+  </video>;
 };
 
-
-
+const defaultRenderers = {
+    DocumentationLinks: LinkCards,
+};
 
 export const DotBlockEditor = ({ customRenderers, ...props }) => {
-
     const mergedCustomRenderers = {
         ...defaultRenderers,
         ...customRenderers
     };
 
-
-
-
-  return (
-    <BlockEditorRenderer
-      {...props}
-      customRenderers={{
-        text: DecodeHTML,
-        ...mergedCustomRenderers,
-      }}
-    />
-  );
+    return (
+        <BlockEditorRenderer
+            {...props}
+            customRenderers={{
+                text: DecodeHTML,
+                dotVideo: VidContent,
+                ...mergedCustomRenderers,  // Move this before any other renderers
+            }}
+        />
+    );
 };
