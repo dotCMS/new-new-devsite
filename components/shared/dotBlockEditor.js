@@ -47,14 +47,14 @@ const LinkMark = ({ children, attrs }) => {
   if (relative) {
     // If the URL fails it is likely a relative URL
     return (
-      <Link {...attrs} href={href || "/"}>
+      <Link {...attrs} href={href || "/"} className="text-primary-purple hover:opacity-80 underline hover:no-underline">
         {children}
       </Link>
     );
   }
 
   return (
-    <a {...attrs} href={href}>
+    <a {...attrs} href={href} className="text-primary-purple hover:opacity-80 underline hover:no-underline">
       {children}
     </a>
   );

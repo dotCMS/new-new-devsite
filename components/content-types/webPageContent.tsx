@@ -10,7 +10,7 @@ const WebPageContent: React.FC<WebPageContentProps> = ({ title, body }) => {
   return (
     <article className="w-full">
 
-      <div className="prose  max-w-none">
+      <div className="prose dark:prose-invert max-w-none">
       {isJSON(body) ? (
         <DotBlockEditor  
           blocks={typeof body === 'string' ? JSON.parse(body) : body}
