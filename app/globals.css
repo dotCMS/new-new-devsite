@@ -88,6 +88,14 @@
   body {
     @apply antialiased bg-background text-foreground;
   }
+
+  /* Adding these to make short list items a bit less spacey*/
+  li > p:first-child {
+    margin-top: 0;
+  }
+  li > p:last-child {
+    margin-bottom: 0;
+  }
 }
 
 
@@ -131,3 +139,4 @@ main {
 .swagger-ui .model-toggle:after {
   background: url("data:image/svg+xml;charset=utf-8,<svg xmlns=\"http://www.w3.org/2000/svg\" style=\"fill:gray;\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z\"/></svg>") 50% no-repeat !important;
 }
+
