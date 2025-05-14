@@ -131,7 +131,7 @@ export const DecodeHTML = (props) => {
   return <TextBlock {...props} text={decode(text)} />;
 };
 export const VidContent = (props) => {
-  const tags = props.attrs.data.tags.split(",");
+  const tags = props?.attrs?.data?.tags?.split(",") ||props?.attrs?.tags?.split(",") ||[];
   const src = props.attrs.src;
   const title = props.attrs.title;
   const width = props.attrs.width;
