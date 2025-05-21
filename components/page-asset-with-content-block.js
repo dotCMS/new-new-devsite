@@ -1,13 +1,7 @@
 "use client";
 
-import WebPageContent from "./content-types/webPageContent";
 import Header from "./header/header";
 import Footer from "./footer";
-import Hero from "./content-types/hero";
-import Heading from "./content-types/heading";
-import LinkCards from "./content-types/link-cards";
-import APIPlaygrounds from "./content-types/api-playgrounds";
-import RelatedBlogs from "./content-types/related-blogs";
 import { usePathname, useRouter } from "next/navigation";
 import { DotcmsLayout } from "@dotcms/react";
 import { usePageAsset } from "../hooks/usePageAsset";
@@ -16,8 +10,8 @@ import Breadcrumbs from "@/components/navigation/Breadcrumbs";
 import { DotBlockEditor } from "./shared/dotBlockEditor";
 import OnThisPage from "./navigation/OnThisPage";
 import NavTree from "./getting-started/NavTree";
-import DevResourceComponent from "./learning/devresource-component";
 import { UVEComponentsMap } from "./common-component-map";
+import NextBackButtons from "./navigation/NextBackButtons";
 export function BlockPageAsset({ pageAsset, nav, serverPath }) {
   const { replace } = useRouter();
   const clientPath = usePathname();
@@ -82,7 +76,7 @@ export function BlockPageAsset({ pageAsset, nav, serverPath }) {
               }}
             />
 
-
+            <NextBackButtons navTree={nav} currentSlug={pageAsset?.page?.url} />
           </main>
         
         {showPageToc && (
@@ -95,9 +89,9 @@ export function BlockPageAsset({ pageAsset, nav, serverPath }) {
                 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20
                 h-[calc(100vh-4rem)]">
             <OnThisPage selectors="main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4" />
-
           </div>
         )}
+       
         </div>
         {pageAsset?.layout?.footer && <Footer />}
     </div>
