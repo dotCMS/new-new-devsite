@@ -97,9 +97,9 @@ const NextBackButtons: React.FC<NextBackButtonsProps> = ({ navTree, currentSlug 
 
 
   return (
-    <div className="flex justify-between mt-4 mb-8">
+    <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:justify-between mt-4 mb-8">
       {previous && (
-        <Button variant="secondary" asChild className="transition-transform duration-200 hover:scale-105 hover:shadow-md">
+        <Button variant="ghost" asChild className="w-full sm:w-auto transition-transform duration-200 hover:scale-105 hover:shadow-md">
           <Link href={`${finalPrevious}`} className="flex items-center">
             <ChevronLeft className="mr-2 h-4 w-4" />
             Previous: {previous.title}
@@ -110,7 +110,7 @@ const NextBackButtons: React.FC<NextBackButtonsProps> = ({ navTree, currentSlug 
         <div></div>
       )}
       {next && (
-        <Button variant="default" asChild className="transition-transform duration-200 hover:scale-105 hover:shadow-md bg-primary-purple/10 hover:bg-primary-purple/10">
+        <Button variant="default" asChild className="w-full sm:w-auto transition-transform duration-200 hover:scale-105 hover:shadow-md bg-primary-purple/10 hover:bg-primary-purple/10">
           <Link href={`${finalNext}`} className="flex items-center text-primary-purple">
             Next: {next.title}
             <ChevronRight className="ml-2 h-4 w-4" />
