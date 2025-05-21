@@ -82,7 +82,7 @@ const NextBackButtons: React.FC<NextBackButtonsProps> = ({ navTree, currentSlug 
 
     const flattenedNavTree = flattenNavTree(tree);
     for(let i = 0; i < flattenedNavTree.length; i++) {  
-        console.log(flattenedNavTree[i].href);
+        // Debugging log removed to prevent information leakage in production.
     }
 
     traverse(flattenedNavTree);
