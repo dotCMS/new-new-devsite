@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { headers } from 'next/headers';
+import { handleVanityUrlRedirect } from "@/util/vanityUrlHandler";
 
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
 
@@ -169,8 +170,10 @@ export default async function Home({ searchParams, params }) {
         currentPath: slug,
         searchParams: finalSearchParams
     }
-
-
+    if (pageAsset?.page?.vanityUrl) {
+        handleVanityUrlRedirect(pageAsset?.page?.vanityUrl);
+    }
+    
     // Add more path-component mappings here as needed:
     // "path-name": (contentlet) => <ComponentName contentlet={contentlet} />,
     const componentMap = {
