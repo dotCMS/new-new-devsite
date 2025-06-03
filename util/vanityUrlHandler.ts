@@ -2,8 +2,8 @@ import { permanentRedirect, redirect } from "next/navigation";
 
 interface VanityUrlRedirectOptions {
   forwardTo: string;
-  temporaryRedirect?: boolean;
-  permanentRedirect?: boolean;
+  action: number;
+  uri: string;
 }
 
 /**
@@ -18,13 +18,13 @@ interface VanityUrlRedirectOptions {
  * @param {VanityUrlRedirectOptions} options - The options for the vanity URL redirect
  */
 export function handleVanityUrlRedirect({
+  action,
   forwardTo,
-  temporaryRedirect,
-  permanentRedirect: isPermanentRedirect,
+  uri, //unused for now
 }: VanityUrlRedirectOptions): void {
-  if (temporaryRedirect) {
+  if (action === 302) {
     redirect(forwardTo);
-  } else if (isPermanentRedirect) {
+  } else {
     permanentRedirect(forwardTo);
   }
 }
