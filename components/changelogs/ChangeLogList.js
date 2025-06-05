@@ -207,7 +207,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
                 [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
                 [&::-webkit-scrollbar-thumb]:rounded-full
                 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20
-                h-[calc(100vh-4rem)]">
+                h-[calc(100vh-6rem)]">
             {hasPrevPage && (
               <a
                 title="Newer Releases"
