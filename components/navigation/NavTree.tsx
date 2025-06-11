@@ -79,7 +79,7 @@ const NavTree = React.memo(
       // Restore scroll position immediately
       navElement.scrollTop = savedScroll;
       setIsInitialSetupComplete(true);
-    }, [savedScroll, isMobile]);
+    }, [isMobile]);
 
     // Helper function to find active link with flexible matching
     const findActiveLink = useCallback((navElement: HTMLElement) => {
