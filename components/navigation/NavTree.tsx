@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import SubNavTree from "./SubNavTree";
 import Link from "next/link";
 const SCROLL_STORAGE_KEY = "docs-nav-scroll";
@@ -51,44 +51,145 @@ const NavTree = React.memo(
         window.localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(0)); 
       }
 
-
-
     const [openSections, setOpenSections] = useStickyState([], NAV_STORAGE_KEY);
-
     const [savedScroll, setSavedScroll] = useStickyState(0, SCROLL_STORAGE_KEY);
-
-
-
-
     const navRef = useRef<HTMLElement | null>(null);
 
-    useEffect(() => {
+    // Auto-center current page after DOM is rendered
+    useLayoutEffect(() => {
       if (isMobile) return; // Don't manage scroll for mobile view
 
-      const nav = navRef.current;
-      if (!nav) return;
+      const navElement = navRef.current;
+      if (!navElement || !currentPath) return;
+      
+      // Only proceed if navigation items are actually rendered
+      const hasItems = (items && items.length > 0) || (nav && nav.entity?.children && nav.entity.children.length > 0);
+      
+      if (!hasItems) return;
 
-      // Restore scroll position on mount
+      // Try multiple href patterns to find the active link
+      const findActiveLink = () => {
+        // Try exact match first
+        let activeLink = navElement.querySelector(`a[href="${currentPath}"]`) as HTMLElement;
+        if (activeLink) return activeLink;
+        
+        // Try with leading slash
+        activeLink = navElement.querySelector(`a[href="/${currentPath}"]`) as HTMLElement;
+        if (activeLink) return activeLink;
+        
+        // Try ending with currentPath
+        activeLink = navElement.querySelector(`a[href$="/${currentPath}"]`) as HTMLElement;
+        if (activeLink) return activeLink;
+        
+        // Try containing currentPath
+        const allLinks = navElement.querySelectorAll('a[href]');
+        for (const link of allLinks) {
+          const href = link.getAttribute('href');
+          if (href && (href.includes(currentPath) || href.endsWith(`/${currentPath}`))) {
+            return link as HTMLElement;
+          }
+        }
+        
+        return null;
+      };
 
-      if (savedScroll) {
-        nav.scrollTop = parseInt(savedScroll, 10);
+      const activeLink = findActiveLink();
+      
+      if (activeLink) {
+        // Calculate position to center the active link
+        const navHeight = navElement.clientHeight;
+        const linkTop = activeLink.offsetTop;
+        const linkHeight = activeLink.offsetHeight;
+        const scrollTop = linkTop - (navHeight / 2) + (linkHeight / 2);
+        
+        // Set scroll position immediately (no smooth scrolling)
+        navElement.scrollTop = Math.max(0, scrollTop);
+        
+        // Brief highlight to make auto-scroll obvious
+        activeLink.classList.add('bg-blue-100', 'dark:bg-blue-900/30', 'ring-2', 'ring-blue-300', 'dark:ring-blue-700');
+        setTimeout(() => {
+          activeLink.classList.remove('bg-blue-100', 'dark:bg-blue-900/30', 'ring-2', 'ring-blue-300', 'dark:ring-blue-700');
+        }, 2000);
+        
+        // Update saved scroll to the new centered position
+        setSavedScroll(Math.max(0, scrollTop));
       }
+    }, [currentPath, items, nav, setSavedScroll, isMobile]);
 
-      // Save scroll position on scroll
+    // Separate effect to retry auto-scroll when data loads
+    useEffect(() => {
+      if (isMobile) return;
+      
+      const navElement = navRef.current;
+      if (!navElement || !currentPath) return;
+      
+      // If we have navigation data but no active link yet, retry after a short delay
+      const hasItems = (items && items.length > 0) || (nav && nav.entity?.children && nav.entity.children.length > 0);
+      if (hasItems) {
+        // Use the same flexible matching logic
+        const findActiveLink = () => {
+          let activeLink = navElement.querySelector(`a[href="${currentPath}"]`) as HTMLElement;
+          if (activeLink) return activeLink;
+          
+          activeLink = navElement.querySelector(`a[href="/${currentPath}"]`) as HTMLElement;
+          if (activeLink) return activeLink;
+          
+          activeLink = navElement.querySelector(`a[href$="/${currentPath}"]`) as HTMLElement;
+          if (activeLink) return activeLink;
+          
+          const allLinks = navElement.querySelectorAll('a[href]');
+          for (const link of allLinks) {
+            const href = link.getAttribute('href');
+            if (href && (href.includes(currentPath) || href.endsWith(`/${currentPath}`))) {
+              return link as HTMLElement;
+            }
+          }
+          return null;
+        };
+
+        const activeLink = findActiveLink();
+        if (!activeLink) {
+          const timeoutId = setTimeout(() => {
+            const retryLink = findActiveLink();
+            if (retryLink) {
+              const navHeight = navElement.clientHeight;
+              const linkTop = retryLink.offsetTop;
+              const linkHeight = retryLink.offsetHeight;
+              const scrollTop = linkTop - (navHeight / 2) + (linkHeight / 2);
+              
+              navElement.scrollTop = Math.max(0, scrollTop);
+              
+              // Brief highlight for retry scroll too  
+              retryLink.classList.add('bg-blue-100', 'dark:bg-blue-900/30', 'ring-2', 'ring-blue-300', 'dark:ring-blue-700');
+              setTimeout(() => {
+                retryLink.classList.remove('bg-blue-100', 'dark:bg-blue-900/30', 'ring-2', 'ring-blue-300', 'dark:ring-blue-700');
+              }, 2000);
+              
+              setSavedScroll(Math.max(0, scrollTop));
+            }
+          }, 150);
+          
+          return () => clearTimeout(timeoutId);
+        }
+      }
+    }, [currentPath, items, nav, setSavedScroll, isMobile]);
+
+    // Handle scroll position persistence
+    useEffect(() => {
+      if (isMobile) return;
+      
+      const navElement = navRef.current;
+      if (!navElement) return;
+
       const handleScroll = () => {
-        if (nav) {
-          localStorage.setItem(
-            SCROLL_STORAGE_KEY,
-            Math.round(nav.scrollTop).toString()
-          );
+        if (navElement) {
+          setSavedScroll(Math.round(navElement.scrollTop));
         }
       };
 
-      nav.addEventListener("scroll", () => {
-        setSavedScroll(Math.round(nav.scrollTop));
-      });
-      return () => nav.removeEventListener("scroll", handleScroll);
-    }, [savedScroll, setSavedScroll, isMobile]);
+      navElement.addEventListener("scroll", handleScroll);
+      return () => navElement.removeEventListener("scroll", handleScroll);
+    }, [setSavedScroll, isMobile]);
 
     const mobileStyles = isMobile
       ? "pt-4"
