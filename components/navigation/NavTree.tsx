@@ -51,6 +51,7 @@ const NavTree = React.memo(
 
     const [openSections, setOpenSections] = useStickyState([], NAV_STORAGE_KEY);
     const [savedScroll, setSavedScroll] = useStickyState(0, SCROLL_STORAGE_KEY);
+    const [isInitialSetupComplete, setIsInitialSetupComplete] = useState(false);
     const navRef = useRef<HTMLElement | null>(null);
     const timeoutRefs = useRef<Set<NodeJS.Timeout>>(new Set());
 
@@ -62,24 +63,22 @@ const NavTree = React.memo(
       };
     }, []);
 
-    // Restore saved scroll position on mount
+    // Restore saved scroll position on mount, then enable auto-centering
     useEffect(() => {
-      if (isMobile) return;
+      if (isMobile) {
+        setIsInitialSetupComplete(true);
+        return;
+      }
       
       const navElement = navRef.current;
-      if (!navElement) return;
+      if (!navElement) {
+        setIsInitialSetupComplete(true);
+        return;
+      }
       
-      // Restore scroll position after a brief delay to ensure DOM is ready
-      const timeoutId = setTimeout(() => {
-        navElement.scrollTop = savedScroll;
-      }, 50);
-      
-      timeoutRefs.current.add(timeoutId);
-      
-      return () => {
-        timeoutRefs.current.delete(timeoutId);
-        clearTimeout(timeoutId);
-      };
+      // Restore scroll position immediately
+      navElement.scrollTop = savedScroll;
+      setIsInitialSetupComplete(true);
     }, [isMobile]);
 
     // Helper function to find active link with flexible matching
@@ -137,9 +136,9 @@ const NavTree = React.memo(
       setSavedScroll(Math.max(0, scrollTop));
     }, [addHighlightWithCleanup, setSavedScroll]);
 
-    // Auto-center current page after DOM is rendered
+    // Auto-center current page after initial setup is complete
     useLayoutEffect(() => {
-      if (isMobile || !currentPath) return;
+      if (isMobile || !currentPath || !isInitialSetupComplete) return;
 
       const navElement = navRef.current;
       if (!navElement) return;
@@ -151,23 +150,12 @@ const NavTree = React.memo(
       const activeLink = findActiveLink(navElement);
       if (activeLink) {
         scrollToActiveLink(navElement, activeLink);
-      } else {
-        // Retry after a short delay if items are present but link not found yet
-        const timeoutId = setTimeout(() => {
-          const retryLink = findActiveLink(navElement);
-          if (retryLink) {
-            scrollToActiveLink(navElement, retryLink);
-          }
-          timeoutRefs.current.delete(timeoutId);
-        }, 150);
-        
-        timeoutRefs.current.add(timeoutId);
       }
-    }, [currentPath, items, nav, isMobile, findActiveLink, scrollToActiveLink]);
+    }, [currentPath, items, nav, isMobile, isInitialSetupComplete, findActiveLink, scrollToActiveLink]);
 
-    // Handle scroll position persistence
+    // Handle scroll position persistence (only after initial setup is complete)
     useEffect(() => {
-      if (isMobile) return;
+      if (isMobile || !isInitialSetupComplete) return;
       
       const navElement = navRef.current;
       if (!navElement) return;
@@ -180,7 +168,7 @@ const NavTree = React.memo(
 
       navElement.addEventListener("scroll", handleScroll);
       return () => navElement.removeEventListener("scroll", handleScroll);
-    }, [setSavedScroll, isMobile]);
+    }, [setSavedScroll, isMobile, isInitialSetupComplete]);
 
     const mobileStyles = isMobile
       ? "pt-4"
