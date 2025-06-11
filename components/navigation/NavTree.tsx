@@ -67,7 +67,7 @@ const NavTree = React.memo(
       if (isMobile) return;
       
       const navElement = navRef.current;
-      if (!navElement || savedScroll === 0) return;
+      if (!navElement) return;
       
       // Restore scroll position after a brief delay to ensure DOM is ready
       const timeoutId = setTimeout(() => {
@@ -80,7 +80,7 @@ const NavTree = React.memo(
         timeoutRefs.current.delete(timeoutId);
         clearTimeout(timeoutId);
       };
-    }, [savedScroll, isMobile]);
+    }, [isMobile]);
 
     // Helper function to find active link with flexible matching
     const findActiveLink = useCallback((navElement: HTMLElement) => {
