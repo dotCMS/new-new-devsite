@@ -23,19 +23,26 @@ type NavTreeProps = {
 };
 
 function useStickyState(defaultValue: any, name: string) {
-  const [value, setValue] = useState(() => {
-    if (typeof window === "undefined" || !window.localStorage) {
-      return defaultValue;
-    }
+  const [value, setValue] = useState(defaultValue);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-    const persistedValue = window.localStorage.getItem(name);
-
-    return persistedValue !== null ? JSON.parse(persistedValue) : defaultValue;
-  });
-
+  // Load from localStorage after hydration
   useEffect(() => {
-    window.localStorage.setItem(name, JSON.stringify(value));
-  }, [name, value]);
+    if (typeof window !== "undefined" && window.localStorage) {
+      const persistedValue = window.localStorage.getItem(name);
+      if (persistedValue !== null) {
+        setValue(JSON.parse(persistedValue));
+      }
+    }
+    setIsHydrated(true);
+  }, [name]);
+
+  // Save to localStorage when value changes (but only after hydration)
+  useEffect(() => {
+    if (isHydrated && typeof window !== "undefined" && window.localStorage) {
+      window.localStorage.setItem(name, JSON.stringify(value));
+    }
+  }, [name, value, isHydrated]);
 
   return [value, setValue];
 }
@@ -43,11 +50,6 @@ function useStickyState(defaultValue: any, name: string) {
 const NavTree = React.memo(
   ({ items, nav, currentPath = "", level = 0, isMobile = false,resetNav = false }: NavTreeProps) => {
     // Debug the nav structure in detail
-
-    if(resetNav) {  
-        window.localStorage.setItem(NAV_STORAGE_KEY, JSON.stringify([]));
-        window.localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(0)); 
-      }
 
     const [openSections, setOpenSections] = useStickyState([], NAV_STORAGE_KEY);
     const [savedScroll, setSavedScroll] = useStickyState(0, SCROLL_STORAGE_KEY);
@@ -62,6 +64,19 @@ const NavTree = React.memo(
         timeoutRefs.current.clear();
       };
     }, []);
+
+    // Handle navigation reset on client-side only
+    useEffect(() => {
+      if (resetNav && typeof window !== "undefined" && window.localStorage) {
+        // Clear localStorage
+        window.localStorage.setItem(NAV_STORAGE_KEY, JSON.stringify([]));
+        window.localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(0));
+        
+        // Reset component state to default values
+        setOpenSections([]);
+        setSavedScroll(0);
+      }
+    }, [resetNav, setOpenSections, setSavedScroll]);
 
     // Restore saved scroll position on mount, then enable auto-centering
     useEffect(() => {
