@@ -23,19 +23,26 @@ type NavTreeProps = {
 };
 
 function useStickyState(defaultValue: any, name: string) {
-  const [value, setValue] = useState(() => {
-    if (typeof window === "undefined" || !window.localStorage) {
-      return defaultValue;
-    }
+  const [value, setValue] = useState(defaultValue);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-    const persistedValue = window.localStorage.getItem(name);
-
-    return persistedValue !== null ? JSON.parse(persistedValue) : defaultValue;
-  });
-
+  // Load from localStorage after hydration
   useEffect(() => {
-    window.localStorage.setItem(name, JSON.stringify(value));
-  }, [name, value]);
+    if (typeof window !== "undefined" && window.localStorage) {
+      const persistedValue = window.localStorage.getItem(name);
+      if (persistedValue !== null) {
+        setValue(JSON.parse(persistedValue));
+      }
+    }
+    setIsHydrated(true);
+  }, [name]);
+
+  // Save to localStorage when value changes (but only after hydration)
+  useEffect(() => {
+    if (isHydrated && typeof window !== "undefined" && window.localStorage) {
+      window.localStorage.setItem(name, JSON.stringify(value));
+    }
+  }, [name, value, isHydrated]);
 
   return [value, setValue];
 }
