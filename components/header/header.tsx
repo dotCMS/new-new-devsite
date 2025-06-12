@@ -224,11 +224,11 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <a href="https://community.dotcms.com/" target="dotCMSCommunity">
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+            <NavigationMenuLink asChild>
+              <a href="https://community.dotcms.com/" target="dotCMSCommunity" className={navigationMenuTriggerStyle()}>
                 Community <ExternalLink className="h-3 w-3 inline-block ml-1" />
-              </NavigationMenuLink>
-            </a>
+              </a>
+            </NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
