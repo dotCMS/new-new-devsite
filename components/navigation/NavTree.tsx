@@ -51,11 +51,6 @@ const NavTree = React.memo(
   ({ items, nav, currentPath = "", level = 0, isMobile = false,resetNav = false }: NavTreeProps) => {
     // Debug the nav structure in detail
 
-    if(resetNav) {  
-        window.localStorage.setItem(NAV_STORAGE_KEY, JSON.stringify([]));
-        window.localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(0)); 
-      }
-
     const [openSections, setOpenSections] = useStickyState([], NAV_STORAGE_KEY);
     const [savedScroll, setSavedScroll] = useStickyState(0, SCROLL_STORAGE_KEY);
     const [isInitialSetupComplete, setIsInitialSetupComplete] = useState(false);
@@ -69,6 +64,14 @@ const NavTree = React.memo(
         timeoutRefs.current.clear();
       };
     }, []);
+
+    // Handle navigation reset on client-side only
+    useEffect(() => {
+      if (resetNav && typeof window !== "undefined" && window.localStorage) {
+        window.localStorage.setItem(NAV_STORAGE_KEY, JSON.stringify([]));
+        window.localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(0));
+      }
+    }, [resetNav]);
 
     // Restore saved scroll position on mount, then enable auto-centering
     useEffect(() => {
