@@ -68,10 +68,15 @@ const NavTree = React.memo(
     // Handle navigation reset on client-side only
     useEffect(() => {
       if (resetNav && typeof window !== "undefined" && window.localStorage) {
+        // Clear localStorage
         window.localStorage.setItem(NAV_STORAGE_KEY, JSON.stringify([]));
         window.localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(0));
+        
+        // Reset component state to default values
+        setOpenSections([]);
+        setSavedScroll(0);
       }
-    }, [resetNav]);
+    }, [resetNav, setOpenSections, setSavedScroll]);
 
     // Restore saved scroll position on mount, then enable auto-centering
     useEffect(() => {
