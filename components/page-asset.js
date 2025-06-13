@@ -1,14 +1,8 @@
 "use client";
 
-import WebPageContent from "./content-types/webPageContent";
+
 import Header from "./header/header";
 import Footer from "./footer";
-import Hero from "./content-types/hero";
-import Heading from "./content-types/heading";
-import LinkCards from "./content-types/link-cards"
-import APIPlaygrounds from "./content-types/api-playgrounds";
-import RelatedBlogs from "./content-types/related-blogs";
-import DevResourceComponent from "./learning/devresource-component";
 import { usePathname, useRouter } from "next/navigation";
 import { DotcmsLayout } from "@dotcms/react";
 import { usePageAsset } from "../hooks/usePageAsset";
@@ -36,7 +30,7 @@ export function PageAsset({ pageAsset, nav, serverPath }) {
                 <Header />
             )}
 
-            <main className="container mx-auto px-4">
+            <main className="container mx-auto px-2 sm:px-4">
                 <DotcmsLayout
                     pageContext={{
                         pageAsset,
@@ -52,7 +46,7 @@ export function PageAsset({ pageAsset, nav, serverPath }) {
                     }}
                 />
             </main>
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-2 sm:px-4">
                 {pageAsset?.content}
 
             </div>

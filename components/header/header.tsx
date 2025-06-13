@@ -238,7 +238,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full">
       <div className="border-b bg-background">
-        <div className="flex h-16 items-center px-4 container mx-auto">
+        <div className="flex h-16 items-center px-2 sm:px-4 container mx-auto">
           <LogoWithArrow />
           
           <div className="hidden lg:flex items-center space-x-2">
@@ -286,7 +286,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
       {/* Mobile Navigation Menu */}
       {isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 top-16 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-          <div className="container h-full mx-auto px-4 py-4 overflow-y-auto">
+          <div className="container h-full mx-auto px-2 sm:px-4 py-4 overflow-y-auto">
             <div className="flex flex-col h-full">
               {/* Main Navigation Links */}
               <div className="py-4">

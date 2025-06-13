@@ -98,7 +98,7 @@ const NavTree = React.memo(
       <nav
         ref={navRef}
         className={`
-                overflow-y-auto p-4 px-2
+                overflow-y-auto p-2 sm:p-4 px-2
                 [&::-webkit-scrollbar]:w-1.5
                 [&::-webkit-scrollbar-track]:bg-transparent
                 [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10

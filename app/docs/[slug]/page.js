@@ -202,7 +202,7 @@ export default async function Home({ searchParams, params }) {
                     </div>
 
                     {/* Main Content - Full width on mobile */}
-                    <main className="flex-1 min-w-0 px-6 sm:px-6 lg:px-8">
+                    <main className="flex-1 min-w-0 px-2 sm:px-4 lg:px-8">
                         {(componentMap[slug] || componentMap.default)(data)}
                     </main>
                 </div>
