@@ -1,12 +1,17 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// Simple in-memory cache for vanity URL lookups
-const vanityUrlCache = new Map<string, { forwardTo: string; action: number; timestamp: number }>();
+// Cache for vanity URL lookups - includes negative caching
+const vanityUrlCache = new Map<string, { 
+  forwardTo: string | null; 
+  action: number; 
+  timestamp: number; 
+  isVanityUrl: boolean 
+}>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const MAX_CACHE_SIZE = 1000; // Maximum number of entries to prevent unbounded growth
 
-// Clean up expired entries from cache
+// Clean up expired entries from cache (less aggressive)
 function cleanupExpiredEntries() {
   const now = Date.now();
   for (const [key, value] of vanityUrlCache) {
@@ -16,8 +21,13 @@ function cleanupExpiredEntries() {
   }
 }
 
-// Clean up cache if it's getting too large
-function cleanupCache() {
+// Clean up cache if it's getting too large (only when needed)
+function cleanupCacheIfNeeded() {
+  // Only cleanup if we're over the size limit
+  if (vanityUrlCache.size <= MAX_CACHE_SIZE) {
+    return;
+  }
+  
   // First, remove expired entries
   cleanupExpiredEntries();
   
@@ -33,26 +43,34 @@ function cleanupCache() {
   }
 }
 
+// Escape pathname for GraphQL query to prevent injection issues
+function escapeGraphQLString(str: string): string {
+  return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
 async function checkVanityUrl(pathname: string): Promise<{ forwardTo: string; action: number } | null> {
-  // Check cache first
+  // Check cache first (including negative cache)
   const cached = vanityUrlCache.get(pathname);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return { forwardTo: cached.forwardTo, action: cached.action };
+    return cached.isVanityUrl ? { forwardTo: cached.forwardTo!, action: cached.action } : null;
   }
 
   try {
     const dotcmsHost = process.env.NEXT_PUBLIC_DOTCMS_HOST;
-    const authToken = process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN; // Reverted - this was working before
+    const authToken = process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN;
     
     if (!dotcmsHost || !authToken) {
       console.warn('Missing DOTCMS_HOST or AUTH_TOKEN for vanity URL check');
       return null;
     }
 
+    // Escape pathname for GraphQL query
+    const escapedPathname = escapeGraphQLString(pathname);
+
     // Use the same GraphQL query that your app uses for consistency
     const query = `
       {
-        page(url: "${pathname}", site:"173aff42881a55a562cec436180999cf") {
+        page(url: "${escapedPathname}", site:"173aff42881a55a562cec436180999cf") {
           vanityUrl {
             action
             forwardTo
@@ -77,22 +95,34 @@ async function checkVanityUrl(pathname: string): Promise<{ forwardTo: string; ac
       const data = await response.json();
       const vanityUrl = data?.data?.page?.vanityUrl;
       
+      // Clean up cache only when we're approaching the limit
+      cleanupCacheIfNeeded();
+      
       if (vanityUrl?.forwardTo) {
-        // Clean up cache before adding new entry
-        cleanupCache();
-        
-        // Cache the result
+        // Cache positive result
         vanityUrlCache.set(pathname, {
           forwardTo: vanityUrl.forwardTo,
           action: vanityUrl.action || 302,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          isVanityUrl: true
         });
         
         return { forwardTo: vanityUrl.forwardTo, action: vanityUrl.action || 302 };
+      } else {
+        // Cache negative result (this URL is NOT a vanity URL)
+        vanityUrlCache.set(pathname, {
+          forwardTo: null,
+          action: 0,
+          timestamp: Date.now(),
+          isVanityUrl: false
+        });
       }
+    } else {
+      console.warn(`Vanity URL API returned ${response.status} for ${pathname}`);
     }
   } catch (error) {
     console.error('Middleware: Error checking vanity URL:', error);
+    // Don't cache errors - let them retry
   }
 
   return null;
