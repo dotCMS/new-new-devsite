@@ -1,4 +1,6 @@
-import React from 'react'
+'use client'
+
+import React, { useEffect, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import rehypeSlug from 'rehype-slug'
@@ -44,6 +46,11 @@ const TOTAL_OFFSET = HEADER_HEIGHT + BREADCRUMB_HEIGHT;
 
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className }) => {
   const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const components: ExtendedComponents = {
     h1: ({ node, children, ...props }) => (
@@ -191,6 +198,17 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className })
         )
       } 
 
+      // Prevent hydration mismatch by not rendering theme-dependent content until mounted
+      if (!mounted) {
+        return (
+          <div className="mb-6 relative">
+            <pre className="rounded-lg py-2 border border-border bg-muted p-4 pt-8 pb-8 text-sm font-mono overflow-x-auto">
+              <code>{String(children).replace(/\n$/, '')}</code>
+            </pre>
+          </div>
+        );
+      }
+
       return (
         <div className="mb-6 relative">
           <div className="absolute right-3 top-3 z-10">
@@ -204,13 +222,13 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className })
             language={highlight}
             PreTag="div"
             style={theme === 'dark' ? a11yDark : a11yLight}
-            className="rounded-lg py-2 [&>pre]:!m-0 border border-border"
+            className="rounded-lg py-2 [&>pre]:!m-0 border border-border [&>pre]:!bg-muted"
             customStyle={{
               padding: '1rem',
               paddingTop: '2rem',
               paddingBottom: '2rem',
               fontSize: '14px',
-              backgroundColor: theme === 'dark' ? 'hsl(var(--muted))' : 'white',
+              backgroundColor: 'transparent', // Use transparent to let CSS handle the background
             }}
             {...props}
           >{String(children).replace(/\n$/, '')}</SyntaxHighlighter>
