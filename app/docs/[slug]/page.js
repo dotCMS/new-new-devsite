@@ -55,14 +55,8 @@ export async function generateMetadata({ params, searchParams }) {
     const hostname = "https://dev.dotcms.com";
     const { pageAsset } = await fetchPageData(path, finalSearchParams);
     
-    // Check for vanity URL redirect first
-    if (pageAsset?.page?.vanityUrl) {
-        // Return minimal metadata for vanity URLs since they'll redirect anyway
-        return {
-            title: "Redirecting...",
-            description: "Page is being redirected"
-        };
-    }
+    // NOTE: Vanity URL redirects are now handled by middleware
+    // If we reach this point, it's not a vanity URL or the redirect already happened
     
     // Check if urlContentMap exists before accessing _map
     if (!pageAsset?.urlContentMap?._map) {
@@ -187,13 +181,8 @@ export default async function Home({ searchParams, params }) {
     const hostname = "https://dev.dotcms.com";
     const { pageAsset, sideNav } = await fetchPageData(path, finalSearchParams);
     
-    // Handle vanity URL redirect - this should redirect and not continue execution
-    if (pageAsset?.page?.vanityUrl) {
-        handleVanityUrlRedirect(pageAsset?.page?.vanityUrl);
-        // If we reach here, the redirect didn't work as expected
-        // Return null or a loading state instead of continuing
-        return null;
-    }
+    // NOTE: Vanity URL redirects are now handled by middleware
+    // If we reach this point, it's not a vanity URL or the redirect already happened
     
     // Check if urlContentMap exists before accessing _map
     if (!pageAsset?.urlContentMap?._map) {

@@ -27,14 +27,8 @@ export async function generateMetadata({ params, searchParams }) {
         const data = await client.page.get(pageRequestParams);
         const page = data.page;
         
-        // Check for vanity URL redirect first
-        if (page?.vanityUrl) {
-            // Return minimal metadata for vanity URLs since they'll redirect anyway
-            return {
-                title: "Redirecting...",
-                description: "Page is being redirected"
-            };
-        }
+        // NOTE: Vanity URL redirects are now handled by middleware
+        // If we reach this point, it's not a vanity URL or the redirect already happened
         
         const title = page?.friendlyName || page?.title;
 
@@ -62,6 +56,7 @@ export async function generateMetadata({ params, searchParams }) {
             type: 'article',
         };
     } catch (e) {
+        console.error('Error generating metadata:', e.message);
         return {
             title: "not found",
         };
@@ -99,12 +94,9 @@ export default async function Page({ params, searchParams }) {
         return <ErrorPage error={{ message: "Page not found", status: 404 }} />;
     }
 
-    if (pageAsset?.page?.vanityUrl) {
-        handleVanityUrlRedirect(pageAsset?.page?.vanityUrl);
-        // If we reach here, the redirect didn't work as expected
-        // Return null or a loading state instead of continuing
-        return null;
-    }
+    // NOTE: Vanity URL redirects are now handled by middleware
+    // If we reach this point, it's not a vanity URL or the redirect already happened
+    
     const isBlockPage = pageAsset?.page?.contentType==="BlockPage"
     if(isBlockPage) {
 
