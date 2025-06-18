@@ -187,9 +187,12 @@ export default async function Home({ searchParams, params }) {
     const hostname = "https://dev.dotcms.com";
     const { pageAsset, sideNav } = await fetchPageData(path, finalSearchParams);
     
-    // Handle vanity URL redirect before trying to access urlContentMap
+    // Handle vanity URL redirect - this should redirect and not continue execution
     if (pageAsset?.page?.vanityUrl) {
         handleVanityUrlRedirect(pageAsset?.page?.vanityUrl);
+        // If we reach here, the redirect didn't work as expected
+        // Return null or a loading state instead of continuing
+        return null;
     }
     
     // Check if urlContentMap exists before accessing _map
