@@ -4,7 +4,21 @@ const url = new URL(process.env.NEXT_PUBLIC_DOTCMS_HOST);
 
 const nextConfig = {
     reactStrictMode: true,
-    cacheMaxMemorySize: 0, 
+    // cacheMaxMemorySize: 0, // Comment out to re-enable default caching
+    async headers() {
+        return [
+            {
+                // Apply cache control for large pages
+                source: '/(.*)',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, s-maxage=31536000, max-age=0',
+                    },
+                ],
+            },
+        ];
+    },
     async redirects() {
         return [
           {
@@ -78,7 +92,7 @@ const nextConfig = {
         };
     },
       experimental: {
-        largePageDataBytes: 128 * 100000,
+        largePageDataBytes: 128 * 1000, // Reduce from 100000 to 1000 (128KB instead of 12.8MB)
     
       }
 };
