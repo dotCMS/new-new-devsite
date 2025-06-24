@@ -3,6 +3,7 @@ import Link from "next/link";
 import { decode } from "html-entities";
 import { BlockEditorRenderer } from "@dotcms/react";
 import LinkCards from "../content-types/link-cards";
+import CodeHighlighterBlockEditor from "./CodeHighlighterBlockEditor";
 
 /**
  * Renders the text in bold.
@@ -164,6 +165,8 @@ export const VidContent = (props) => {
 
 const defaultRenderers = {
     DocumentationLinks: LinkCards,
+    code: CodeHighlighterBlockEditor,
+    codeBlock: CodeHighlighterBlockEditor,
 };
 
 export const DotBlockEditor = ({ customRenderers, ...props }) => {

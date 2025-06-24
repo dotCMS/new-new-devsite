@@ -14,26 +14,25 @@ export default function BlogDetailComponent({ post }) {
     const customRenderers = {};
 
     return (
-        <div className="container mx-auto">
+        <div className="container mx-auto px-2 sm:px-4 lg:px-6">
             {/* Main Content Grid */}
-            <div className="flex gap-4 py-8 ">
-
-
+            <div className="flex flex-col xl:flex-row gap-4 py-4 sm:py-8">
                 {/* Main Content */}
-                <article className="flex-1 px-4 max-w-4xl">
-
-                    <DetailHeader post={post} />
-                    
-                    <BlogComponent body={post.body.json} />
+                <article className="xl:flex-1 xl:max-w-4xl max-w-4xl">
+                    <main>
+                        <DetailHeader post={post} />
+                        
+                        <BlogComponent body={post.body.json} />
+                    </main>
                 </article>
 
                 {/* Right Sidebar */}
-                <div className="w-64 shrink-0 hidden xl:block">
-                    <div className="sticky top-16">
+                <aside className="w-full xl:w-56 xl:shrink-0">
+                    <div className="sticky top-16 xl:block xl:pl-4">
                         <Authors authors={post.author} />
-                        <OnThisPage />
+                        <OnThisPage selectors="main h1, main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4" />
                     </div>
-                </div>
+                </aside>
             </div>
         </div>
     );

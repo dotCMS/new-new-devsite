@@ -46,8 +46,8 @@ export default class ErrorBoundary extends Component<Props, State> {
               <Button 
                 variant="destructive" 
                 onClick={() => {
-                  const timestamp = Date.now();
-                  window.location.href = `${window.location.pathname}?reload=${timestamp}`;
+                  // Use window.location.reload() for proper page refresh
+                  window.location.reload();
                 }}
               >
                 Refresh Page

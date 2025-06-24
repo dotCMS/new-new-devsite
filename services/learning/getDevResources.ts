@@ -98,19 +98,19 @@ export async function getDevResources({
 
 
 const countDevResources = `query getAllDevResources {
-  videos: DevResourceCollection(query: "+live:true +devresource.type1:video ", limit: 1) {
+  videos: DevResourceCollection(query: "+live:true +devresource.type1:video ", limit: 0) {
     title
   }
-  guides: DevResourceCollection(query: "+live:true +devresource.type1:guide ", limit: 1) {
+  guides: DevResourceCollection(query: "+live:true +devresource.type1:guide ", limit: 0) {
     title
   }
-  howto: DevResourceCollection(query: "+live:true +devresource.type1:howto ", limit: 1) {
+  howto: DevResourceCollection(query: "+live:true +devresource.type1:howto ", limit: 0) {
     title
   }
-  kb: DevResourceCollection(query: "+live:true +devresource.type1:kb ", limit: 1) {
+  kb: DevResourceCollection(query: "+live:true +devresource.type1:kb ", limit: 0) {
     title
   }
-  example: DevResourceCollection(query: "+live:true +devresource.type1:example ", limit: 1) {
+  example: DevResourceCollection(query: "+live:true +devresource.type1:example ", limit: 0) {
     title
   }
   Pagination {

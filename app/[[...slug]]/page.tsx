@@ -1,20 +1,23 @@
 import { headers } from 'next/headers';
-import { PageAsset } from "@/components/page-asset";
+import { PageAsset as PageAssetComponent } from "@/components/page-asset";
 import { ErrorPage } from "@/components/error";
+import { Metadata } from 'next';
 
 import { handleVanityUrlRedirect } from "@/util/vanityUrlHandler";
 import { client } from "@/util/dotcmsClient";
 import { getPageRequestParams } from "@dotcms/client";
 import { fetchNavData, fetchPageData } from "@/util/page.utils";
 import { BlockPageAsset } from "@/components/page-asset-with-content-block";
+
+interface PageProps {
+    params: Promise<{ slug?: string[] }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
 /**
  * Generate metadata
- *
- * @export
- * @param {*} { params, searchParams }
- * @return {*}
  */
-export async function generateMetadata({ params, searchParams }) {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
     const finalParams = await params;
     const finalSearchParams = await searchParams;
     const path = finalParams?.slug?.join("/") || "/";
@@ -24,8 +27,8 @@ export async function generateMetadata({ params, searchParams }) {
     });
 
     try {
-        const data = await client.page.get(pageRequestParams);
-        const page = data.page;
+        const data = await client.page.get(pageRequestParams) as any;
+        const page = data?.page;
         const title = page?.friendlyName || page?.title;
 
         const description = page?.description || page?.teaser || page?.seoDescription || "dotCMS Dev Site, Documentation and Resources. Learn how to build with dotCMS";
@@ -34,31 +37,36 @@ export async function generateMetadata({ params, searchParams }) {
         
         return {
             title: title,
-            "description": description,
-            url: `${hostname}${path}`,
-            siteName: 'dotCMS Docs',
+            description: description,
             keywords: keywords,
             alternates: {
                 canonical: `${hostname}${path}`,
             },
             metadataBase: new URL(hostname),
-            images: [{
-                url: `${hostname}/dA/4b13a794db115b14ce79d30850712188/1024maxw/80q/}`,
-                width: 1200,
-                height: 630,
-                alt: description || title,
-            }],
-            locale: 'en_US',
-            type: 'article',
+            openGraph: {
+                title: title,
+                description: description,
+                url: `${hostname}${path}`,
+                siteName: 'dotCMS Docs',
+                images: [{
+                    url: `${hostname}/dA/4b13a794db115b14ce79d30850712188/1024maxw/80q/`,
+                    width: 1200,
+                    height: 630,
+                    alt: description || title,
+                }],
+                locale: 'en_US',
+                type: 'article',
+            },
         };
     } catch (e) {
         return {
-            title: "not found",
+            title: "Page Not Found",
+            description: "The requested page could not be found.",
         };
     }
 }
 
-export default async function Page({ params, searchParams }) {
+export default async function Page({ params, searchParams }: PageProps) {
     const finalParams = await params;
     const finalSearchParams = await searchParams;
     const headersList = await headers();
@@ -74,50 +82,54 @@ export default async function Page({ params, searchParams }) {
         const { pageAsset, error: pageError } = await fetchPageData(pageParams);
 
         return {
-
             pageAsset,
-            error: pageError ,
+            error: pageError,
         };
     };
+    
     const { pageAsset, error } = await getPageData();
 
-    // Move this to MyPage
     if (error) {
         return <ErrorPage error={error} />;
     }
-    if(!pageAsset) {
-        return <ErrorPage error={{ message: "Page not found", status: 404 }} />;
+    
+    if (!pageAsset) {
+        return <ErrorPage error={{ message: "Page not found", status: 404 } as any} />;
     }
 
-    if (pageAsset?.vanityUrl) {
-        handleVanityUrlRedirect(pageAsset?.vanityUrl);
-    }
-    const isBlockPage = pageAsset?.page?.contentType==="BlockPage"
-    if(isBlockPage) {
+    // Type assertion to help TypeScript understand the structure
+    const typedPageAsset = pageAsset as any;
 
+    if (typedPageAsset.vanityUrl) {
+        handleVanityUrlRedirect(typedPageAsset.vanityUrl);
+    }
+    
+    const isBlockPage = typedPageAsset.page?.contentType === "BlockPage";
+    
+    if (isBlockPage) {
         // Extract the correct folder path for navigation
-        const pathParts = pageAsset?.page?.url.split("/").filter(part => part.length > 0);
+        const pathParts = typedPageAsset.page?.url?.split("/").filter((part: string) => part.length > 0) || [];
+        const folderNavPath = pathParts.length > 0 ? `/${pathParts[0]}` : "/";
 
-
-        const folderNavPath = pathParts.length > 0 ? `/${pathParts[0]}` : "/"
-
-        const { nav, error: navError } = await fetchNavData({languageId: 1, path: folderNavPath, depth: 4});
-
-
+        const { nav } = await fetchNavData({
+            languageId: 1, 
+            path: folderNavPath, 
+            depth: 4
+        });
 
         return (
             <BlockPageAsset 
-            pageAsset ={pageAsset} 
-            nav={nav}
-            currentPath={pageAsset?.page?.url}
-            serverPath={pathname}
-        />
+                pageAsset={typedPageAsset} 
+                nav={nav}
+                serverPath={pathname}
+            />
         );
     }
+    
     return (
-        <PageAsset 
-            pageAsset={pageAsset} 
-
+        <PageAssetComponent 
+            pageAsset={typedPageAsset} 
+            nav={null}
             serverPath={pathname}
         />
     );

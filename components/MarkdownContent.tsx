@@ -4,16 +4,13 @@ import rehypeRaw from 'rehype-raw'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import remarkGfm from 'remark-gfm'
-import SyntaxHighlighter from 'react-syntax-highlighter'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Components } from 'react-markdown'
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 import { smoothScroll } from '@/util/smoothScroll'
 import Video from '@/components/mdx/Video'
 import Info from '@/components/mdx/Info'
-import { CopyButton } from './chat/CopyButton'
-import { a11yLight, dark, docco, a11yDark, vs } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
-import { useTheme } from "next-themes"
+import CodeHighlighter from '@/components/shared/CodeHighlighter'
 import Warn from '@/components/mdx/Warn'
 import { Include } from '@/components/mdx/Include'
 import { remarkCustomId } from '@/util/remarkCustomId'
@@ -43,7 +40,6 @@ const BREADCRUMB_HEIGHT = 48; // 24px height + 24px bottom margin
 const TOTAL_OFFSET = HEADER_HEIGHT + BREADCRUMB_HEIGHT;
 
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className }) => {
-  const { theme } = useTheme();
 
   const components: ExtendedComponents = {
     h1: ({ node, children, ...props }) => (
@@ -175,48 +171,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className })
       )
     },
 
-    code: ({ node, className, children, ...props }: any) => {
-      const match = /language-(\w+)/.exec(className || '')
-      const inline = !String(children).includes("\n");
-      const highlight = match ? match[1] : "html";
-
-      if (inline) {
-        return (
-          <code 
-            className="bg-muted text-foreground text-sm font-mono px-1 py-0.5 rounded whitespace-normal" 
-            {...props}
-          >
-            {children}
-          </code>
-        )
-      } 
-
-      return (
-        <div className="mb-6 relative">
-          <div className="absolute right-3 top-3 z-10">
-            <CopyButton 
-              text={String(children)} 
-              variant="outline"
-              className="bg-background hover:bg-accent text-foreground hover:text-accent-foreground" 
-            />
-          </div>
-          <SyntaxHighlighter
-            language={highlight}
-            PreTag="div"
-            style={theme === 'dark' ? a11yDark : a11yLight}
-            className="rounded-lg py-2 [&>pre]:!m-0 border border-border"
-            customStyle={{
-              padding: '1rem',
-              paddingTop: '2rem',
-              paddingBottom: '2rem',
-              fontSize: '14px',
-              backgroundColor: theme === 'dark' ? 'hsl(var(--muted))' : 'white',
-            }}
-            {...props}
-          >{String(children).replace(/\n$/, '')}</SyntaxHighlighter>
-        </div>
-      );
-    },
+    code: CodeHighlighter,
 
     table({ children }) {
       return (
