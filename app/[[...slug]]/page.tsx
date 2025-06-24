@@ -14,6 +14,8 @@ interface PageProps {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
+export const revalidate = 600;
+export const dynamic = 'force-static';
 /**
  * Generate metadata
  */
