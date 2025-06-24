@@ -7,6 +7,8 @@ import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import { getBlogListing } from "@/services/blog/getBlogListing";
 
+export const revalidate = 15; // seconds - matches s-maxage cache header
+
 const getPath = (params) => {
     const defaultPath = "index";
     const path = "/blog/" + (params?.slug?.join("/") || defaultPath);
@@ -84,7 +86,3 @@ export default async function BlogPage({ searchParams, params }) {
         </div>
     );
 }
-
-
-
-

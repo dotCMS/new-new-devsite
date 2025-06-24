@@ -1,6 +1,8 @@
 import Footer from "@/components/footer";
 import Header from "@/components/header/header";
 
+export const revalidate = 15; // seconds - matches s-maxage cache header
+
 export default function VideosPage() {
   return (<>
     <Header />

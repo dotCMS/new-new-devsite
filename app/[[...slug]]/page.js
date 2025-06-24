@@ -7,6 +7,11 @@ import { client } from "@/util/dotcmsClient";
 import { getPageRequestParams } from "@dotcms/client";
 import { fetchNavData, fetchPageData } from "@/util/page.utils";
 import { BlockPageAsset } from "@/components/page-asset-with-content-block";
+
+
+export const revalidate = 15; // seconds - matches s-maxage cache header
+
+
 /**
  * Generate metadata
  *

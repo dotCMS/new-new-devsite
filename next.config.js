@@ -4,26 +4,26 @@ const url = new URL(process.env.NEXT_PUBLIC_DOTCMS_HOST);
 
 const nextConfig = {
     reactStrictMode: true,
-    cacheMaxMemorySize: 0, 
+    cacheMaxMemorySize: 0,
     async redirects() {
         return [
-          {
-            source: '/security/:path',
-            destination: '/docs/known-security-issues?issueNumber=:path',
-            permanent: true,
-          },
-          {
-            source: '/docs/latest/:path',
-            destination: '/docs/:path',
-            permanent: true,
-          },
-          {
-            source: '/blogs',
-            destination: '/blog',
-            permanent: true,
-          },
+            {
+                source: '/security/:path',
+                destination: '/docs/known-security-issues?issueNumber=:path',
+                permanent: true,
+            },
+            {
+                source: '/docs/latest/:path',
+                destination: '/docs/:path',
+                permanent: true,
+            },
+            {
+                source: '/blogs',
+                destination: '/blog',
+                permanent: true,
+            },
         ]
-      },
+    },
     images: {
         remotePatterns: [
             {
@@ -53,7 +53,7 @@ const nextConfig = {
         dangerouslyAllowSVG: true,
         loader: 'custom',
         loaderFile: './util/imageLoader.ts',
-        
+
     },
 
     async rewrites() {
@@ -73,14 +73,48 @@ const nextConfig = {
                 }
             ],
             afterFiles: [
- 
+
             ]
         };
     },
-      experimental: {
+    experimental: {
         largePageDataBytes: 128 * 100000,
-    
-      }
+
+    },
+    async headers() {
+        return [
+            {
+                // Apply to all pages
+                source: '/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=300, s-maxage=15, stale-while-revalidate=59',
+                    },
+                ],
+            },
+            {
+                // Apply to static assets (images, fonts, etc.)
+                source: '/static/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable',
+                    },
+                ],
+            },
+            {
+                // Apply to API routes (no browser caching)
+                source: '/api/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'no-store, max-age=0',
+                    },
+                ],
+            },
+        ];
+    }
 };
 
 module.exports = nextConfig;
