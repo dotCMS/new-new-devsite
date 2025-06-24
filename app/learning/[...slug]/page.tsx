@@ -10,6 +10,9 @@ import { Config } from "@/util/config";
 import Script from "next/script";
 
 
+export const revalidate = Config.RevalidateCacheInSeconds; // seconds - matches s-maxage cache header
+
+
 export async function generateMetadata({ params , searchParams }: { params: Promise<{ slug: string }>, searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
     const finalParams = await params;
     const slug = finalParams.slug

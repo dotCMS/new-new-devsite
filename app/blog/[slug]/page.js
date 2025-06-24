@@ -6,6 +6,10 @@ import BlogDetailComponent from "@/components/blogs/blog-detail";
 import { ErrorPage } from "@/components/error";
 import { extractAssetId } from "@/util/utils";
 import Script from "next/script";
+import { Config } from '@/util/config';
+
+
+export const revalidate = Config.RevalidateCacheInSeconds; // seconds - matches s-maxage cache header
 
 export async function generateMetadata({ params, searchParams }) {
     const finalParams = await params;

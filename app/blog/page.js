@@ -6,8 +6,11 @@ import BlogListing from '@/components/blogs/blog-listing';
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import { getBlogListing } from "@/services/blog/getBlogListing";
+import { Config } from '@/util/config';
 
-export const revalidate = 15; // seconds - matches s-maxage cache header
+
+export const revalidate = Config.RevalidateCacheInSeconds; // seconds - matches s-maxage cache header
+
 
 const getPath = (params) => {
     const defaultPath = "index";

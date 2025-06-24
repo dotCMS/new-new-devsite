@@ -1,6 +1,4 @@
 import { notFound } from "next/navigation";
-import { headers } from 'next/headers';
-import { handleVanityUrlRedirect } from "@/util/vanityUrlHandler";
 
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
 
@@ -18,6 +16,10 @@ import AllSecurityIssues from "@/components/security-issues/AllSecurityIssues";
 import RestApiPlayground from "@/components/playgrounds/RestApiPlayground/RestApiPlayground";
 import SwaggerUIComponent from "@/components/playgrounds/SwaggerUIComponent/SwaggerUIComponent";
 import Script from "next/script";
+import { Config } from '@/util/config';
+
+
+export const revalidate = Config.RevalidateCacheInSeconds; // seconds - matches s-maxage cache header
 
 async function fetchPageData(path, searchParams) {
     const finalPath = await path;

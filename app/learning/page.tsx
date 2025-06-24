@@ -5,8 +5,11 @@ import Footer from "@/components/footer";
 import { getCountDevResources, getDevResources } from "@/services/learning/getDevResources";
 
 import DevResourceListing from "@/components/learning/devresource-listing";
+import { Config } from '@/util/config';
 
-export const revalidate = 15; // seconds - matches s-maxage cache header
+
+export const revalidate = Config.RevalidateCacheInSeconds; // seconds - matches s-maxage cache header
+
 export const metadata: Metadata = {
   title: "dotCMS Learning Center",
   description:

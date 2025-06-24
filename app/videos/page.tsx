@@ -1,7 +1,8 @@
 import Footer from "@/components/footer";
 import Header from "@/components/header/header";
+import { Config } from '@/util/config';
 
-export const revalidate = 15; // seconds - matches s-maxage cache header
+export const revalidate = Config.RevalidateCacheInSeconds; // seconds - matches s-maxage cache header
 
 export default function VideosPage() {
   return (<>
