@@ -1,6 +1,7 @@
 import { Config } from '@/util/config';
+import { getCacheKey } from '@/util/cacheService'
+import axios from 'axios';
 
-const GRAPHQL_ENPOINT = `${Config.DotCMSHost}/api/v1/graphql`;
 
 /**
  * Get the GraphQL query for a page
@@ -8,7 +9,7 @@ const GRAPHQL_ENPOINT = `${Config.DotCMSHost}/api/v1/graphql`;
  * @param {*} query
  * @return {*}
  */
-export function getGraphQLPageQuery({ path, mode}) {
+export function getGraphQLPageQuery({ path, mode }) {
     const params = [];
 
     if (mode) {
@@ -112,23 +113,29 @@ export function getGraphQLPageQuery({ path, mode}) {
  * @return {*}
  */
 export const getGraphqlResults = async (query) => {
-    const url = new URL(GRAPHQL_ENPOINT, Config.DotCMSHost);
+    const queryHash = getCacheKey(query);
 
-    try {
-        const res = await fetch(url, {
-            method: "POST",
-            headers: Config.Headers,
-            body: JSON.stringify({ query }),
-            cache: "no-cache", // Invalidate cache for Next.js
-        });
-        const { data } = await res.json();
-        return data;
-    } catch(err) {
-        console.group("Error fetching Page");
-        console.warn("Check your URL or DOTCMS_HOST: ", url.toString());
-        console.error(err);
-        console.groupEnd();
+    return await axios.get(Config.GraphqlUrl, {
+        params: { "qid": queryHash },   
+        data: { query } ,                 
+        headers: Config.Headers
+    })
+    .then(function (response) {
+        if(response?.data?.data){
+            return response.data.data;
+        }else if(response?.data){
+            return response.data;
+        }else{
+            console.error('no data in response:', response);
+            return { page: null, errors: 'no data in response:' };
+        }
+        
+    })
+    .catch(function (error) {
 
-        return { page: null };
-    }
+        console.error('Error fetching data:', error);
+        return { page: null, errors: error };
+    });
+
+
 };
