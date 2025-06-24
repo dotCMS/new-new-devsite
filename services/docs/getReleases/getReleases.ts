@@ -62,7 +62,12 @@ export const getReleases = async (limit: number = 50, page: number = 1, filter: 
 if (log) {
   console.log("query",query);
 }
-const data = await logRequest(async () => getGraphqlResults(query), 'getCurrentRelease');
+const result = await logRequest(async () => getGraphqlResults(query), 'getCurrentRelease');
 
-return {releases: data.DotcmsbuildsCollection, pagination: data.Pagination[0]};
+if (result.errors && result.errors.length > 0) {
+  console.error('GraphQL errors in getReleases:', result.errors);
+  throw new Error(result.errors[0].message);
+}
+
+return {releases: result.data.DotcmsbuildsCollection, pagination: result.data.Pagination[0]};
 };

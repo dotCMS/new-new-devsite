@@ -68,8 +68,13 @@ export async function getBlogListing({tagFilter, page, pageSize}) {
     //console.warn("--------------------------------");
     //console.warn(query);
     //console.warn("--------------------------------");
-    const data = await logRequest(async () => getGraphqlResults(query), 'getBlogListing');
+    const result = await logRequest(async () => getGraphqlResults(query), 'getBlogListing');
+    
+    if (result.errors && result.errors.length > 0) {
+        console.error('GraphQL errors in getBlogListing:', result.errors);
+        throw new Error(result.errors[0].message);
+    }
 
-    return {blogs: data.BlogCollection, pagination: data.Pagination[0]};
+    return {blogs: result.data.BlogCollection, pagination: result.data.Pagination[0]};
 
 }

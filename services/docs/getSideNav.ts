@@ -57,10 +57,10 @@ export const getSideNav = async () => {
 
     const graphData = await getGraphqlResults(query);
 
-    if (graphData.errors) {
+    if (graphData.errors && graphData.errors.length > 0) {
         throw new Error(graphData.errors[0].message)
     }
-    dotCache.set(cacheKey, graphData.DotcmsDocumentationCollection);
+    dotCache.set(cacheKey, graphData.data.DotcmsDocumentationCollection);
 
-    return graphData.DotcmsDocumentationCollection
+    return graphData.data.DotcmsDocumentationCollection
 }

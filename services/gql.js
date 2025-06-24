@@ -121,21 +121,35 @@ export const getGraphqlResults = async (query) => {
         headers: Config.Headers
     })
     .then(function (response) {
-        if(response?.data?.data){
-            return response.data.data;
-        }else if(response?.data){
-            return response.data;
-        }else{
-            console.error('no data in response:', response);
-            return { page: null, errors: 'no data in response:' };
+        // GraphQL responses can have both data and errors
+        if (response?.data) {
+            const result = {
+                data: response.data.data || null,
+                errors: response.data.errors || []
+            };
+            
+            // If there are errors, log them
+            if (result.errors.length > 0) {
+                console.error('GraphQL errors:', result.errors);
+            }
+            
+            return result;
+        } else {
+            console.error('No data in response:', response);
+            return { 
+                data: null, 
+                errors: [{ message: 'No data in response' }] 
+            };
         }
-        
     })
     .catch(function (error) {
-
         console.error('Error fetching data:', error);
-        return { page: null, errors: error };
+        return { 
+            data: null, 
+            errors: [{ 
+                message: error.message || 'Network or request error',
+                originalError: error
+            }] 
+        };
     });
-
-
 };

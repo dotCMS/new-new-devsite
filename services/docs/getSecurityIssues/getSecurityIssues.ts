@@ -75,7 +75,12 @@ export const getSecurityIssues = async (
 if (log) {
   console.log("query",query);
 }
-const data = await logRequest(async () => getGraphqlResults(query), 'getSecurityIssues');
+const result = await logRequest(async () => getGraphqlResults(query), 'getSecurityIssues');
 
-return {securityIssues: data.SecurityissueCollection, pagination: data.Pagination[0]};
+if (result.errors && result.errors.length > 0) {
+  console.error('GraphQL errors in getSecurityIssues:', result.errors);
+  throw new Error(result.errors[0].message);
+}
+
+return {securityIssues: result.data.SecurityissueCollection, pagination: result.data.Pagination[0]};
 };
