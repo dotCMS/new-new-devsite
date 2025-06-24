@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { headers } from 'next/headers';
+import { handleVanityUrlRedirect } from "@/util/vanityUrlHandler";
 
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
 
@@ -54,6 +55,17 @@ export async function generateMetadata({ params, searchParams }) {
     const hostname = "https://dev.dotcms.com";
     const { pageAsset } = await fetchPageData(path, finalSearchParams);
     
+    // NOTE: Vanity URL redirects are now handled by middleware
+    // If we reach this point, it's not a vanity URL or the redirect already happened
+    
+    // Check if urlContentMap exists before accessing _map
+    if (!pageAsset?.urlContentMap?._map) {
+        return {
+            title: "Page Not Found",
+            description: "The requested page could not be found"
+        };
+    }
+    
     // Check if the page's tags include 'dot:meta-no-index'
     const tags = pageAsset.urlContentMap._map.tag || [];
     const shouldNoIndex = Array.isArray(tags) 
@@ -96,7 +108,12 @@ export async function generateMetadata({ params, searchParams }) {
 
 // JSON-LD component for documentation pages
 function JsonLd({ pageData, path, hostname }) {
-    const title = pageData.contentlet.navTitle || pageData.contentlet.title;
+    // Add null checks for pageData and contentlet
+    if (!pageData?.contentlet) {
+        return null;
+    }
+    
+    const title = pageData.contentlet.navTitle || pageData.contentlet.title || '';
     const description = pageData.contentlet.seoDescription || '';
     const datePublished = pageData.contentlet.publishDate || '';
     const dateModified = pageData.contentlet.modDate || '';
@@ -163,14 +180,22 @@ export default async function Home({ searchParams, params }) {
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
     const { pageAsset, sideNav } = await fetchPageData(path, finalSearchParams);
+    
+    // NOTE: Vanity URL redirects are now handled by middleware
+    // If we reach this point, it's not a vanity URL or the redirect already happened
+    
+    // Check if urlContentMap exists before accessing _map
+    if (!pageAsset?.urlContentMap?._map) {
+        notFound();
+    }
+    
     const data = {
         contentlet: pageAsset.urlContentMap._map,
         sideNav: sideNav,
         currentPath: slug,
         searchParams: finalSearchParams
     }
-
-
+    
     // Add more path-component mappings here as needed:
     // "path-name": (contentlet) => <ComponentName contentlet={contentlet} />,
     const componentMap = {

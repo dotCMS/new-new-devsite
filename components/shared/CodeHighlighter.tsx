@@ -65,10 +65,11 @@ const CodeHighlighter: React.FC<CodeHighlighterProps> = ({
             width: '100%',
             padding: '1rem',
             paddingTop: '2rem',
-            paddingBottom: '1.5rem',
-            fontSize: '14px',
+            paddingBottom: '1.0rem',
+            fontSize: '16px',
             backgroundColor: theme === 'dark' ? 'hsl(var(--muted))' : 'hsl(var(--card))',
             color: theme === 'dark' ? 'hsl(var(--muted-foreground))' : undefined,
+            tabSize: 3
   
           }}
           {...props}

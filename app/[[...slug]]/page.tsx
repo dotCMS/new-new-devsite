@@ -27,8 +27,8 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
     });
 
     try {
-        const data = await client.page.get(pageRequestParams) as any;
-        const page = data?.page;
+        const data = await client.page.get(pageRequestParams);
+        const page = data.page;
         const title = page?.friendlyName || page?.title;
 
         const description = page?.description || page?.teaser || page?.seoDescription || "dotCMS Dev Site, Documentation and Resources. Learn how to build with dotCMS";
@@ -59,6 +59,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
             },
         };
     } catch (e) {
+        console.error('Error generating metadata:', e.message);
         return {
             title: "Page Not Found",
             description: "The requested page could not be found.",
@@ -100,13 +101,12 @@ export default async function Page({ params, searchParams }: PageProps) {
     // Type assertion to help TypeScript understand the structure
     const typedPageAsset = pageAsset as any;
 
-    if (typedPageAsset.vanityUrl) {
-        handleVanityUrlRedirect(typedPageAsset.vanityUrl);
+    if (typedPageAsset?.vanityUrl) {
+        handleVanityUrlRedirect(typedPageAsset?.vanityUrl);
     }
-    
-    const isBlockPage = typedPageAsset.page?.contentType === "BlockPage";
-    
-    if (isBlockPage) {
+    const isBlockPage = typedPageAsset?.page?.contentType==="BlockPage"
+    if(isBlockPage) {
+
         // Extract the correct folder path for navigation
         const pathParts = typedPageAsset.page?.url?.split("/").filter((part: string) => part.length > 0) || [];
         const folderNavPath = pathParts.length > 0 ? `/${pathParts[0]}` : "/";

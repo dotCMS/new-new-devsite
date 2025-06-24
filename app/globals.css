@@ -96,6 +96,9 @@
   li > p:last-child {
     margin-bottom: 0;
   }
+  td code {
+    word-break: break-word;
+  }
 }
 
 
@@ -110,6 +113,10 @@ main {
   flex: 1;
 }
 
+
+
+
+/* Swagger UI specs for the All APIs page */
 .swagger-ui :not(pre):not(pre *):not(span.opblock-summary-method):not(code) {
   color: hsl(var(--foreground)) !important;
 }

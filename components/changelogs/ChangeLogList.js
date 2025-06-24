@@ -158,8 +158,13 @@ export default function ChangeLogContainer({ sideNav, slug }) {
                   }
                 })();
                 // just to convey the Designation/EOL dates for the entire page
-                thisMajorVersion = data.ltsMajors[ltsMajorVersions.indexOf(vLts)].parent ? 
-                  data.ltsMajors[ltsMajorVersions.indexOf(vLts)].parent : data.ltsMajors[ltsMajorVersions.indexOf(vLts)];
+                const vLtsIndex = ltsMajorVersions.indexOf(vLts);
+                if (vLtsIndex !== -1 && data.ltsMajors && data.ltsMajors[vLtsIndex]) {
+                  thisMajorVersion = data.ltsMajors[vLtsIndex].parent ? 
+                    data.ltsMajors[vLtsIndex].parent : data.ltsMajors[vLtsIndex];
+                } else {
+                  thisMajorVersion = null;
+                }
                 return (
                   <Dropdown 
                     items={ltsMajorVersions}
@@ -173,7 +178,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
         </div>
 
         {
-          isLts && (() => {
+          isLts && thisMajorVersion && (() => {
             return (
               <div className="text-foreground flex items-center text-xl font-semibold justify-between">
                 <div>Designated: {extractDateForTables(thisMajorVersion.releasedDate)}</div>
@@ -202,7 +207,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
                 [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
                 [&::-webkit-scrollbar-thumb]:rounded-full
                 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20
-                h-[calc(100vh-4rem)]">
+                h-[calc(100vh-6rem)]">
             {hasPrevPage && (
               <a
                 title="Newer Releases"

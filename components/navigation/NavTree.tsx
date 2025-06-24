@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import SubNavTree from "./SubNavTree";
 import Link from "next/link";
 const SCROLL_STORAGE_KEY = "docs-nav-scroll";
@@ -23,19 +23,26 @@ type NavTreeProps = {
 };
 
 function useStickyState(defaultValue: any, name: string) {
-  const [value, setValue] = useState(() => {
-    if (typeof window === "undefined" || !window.localStorage) {
-      return defaultValue;
-    }
+  const [value, setValue] = useState(defaultValue);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-    const persistedValue = window.localStorage.getItem(name);
-
-    return persistedValue !== null ? JSON.parse(persistedValue) : defaultValue;
-  });
-
+  // Load from localStorage after hydration
   useEffect(() => {
-    window.localStorage.setItem(name, JSON.stringify(value));
-  }, [name, value]);
+    if (typeof window !== "undefined" && window.localStorage) {
+      const persistedValue = window.localStorage.getItem(name);
+      if (persistedValue !== null) {
+        setValue(JSON.parse(persistedValue));
+      }
+    }
+    setIsHydrated(true);
+  }, [name]);
+
+  // Save to localStorage when value changes (but only after hydration)
+  useEffect(() => {
+    if (isHydrated && typeof window !== "undefined" && window.localStorage) {
+      window.localStorage.setItem(name, JSON.stringify(value));
+    }
+  }, [name, value, isHydrated]);
 
   return [value, setValue];
 }
@@ -44,51 +51,139 @@ const NavTree = React.memo(
   ({ items, nav, currentPath = "", level = 0, isMobile = false,resetNav = false }: NavTreeProps) => {
     // Debug the nav structure in detail
 
-
-
-    if(resetNav) {  
-        window.localStorage.setItem(NAV_STORAGE_KEY, JSON.stringify([]));
-        window.localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(0)); 
-      }
-
-
-
     const [openSections, setOpenSections] = useStickyState([], NAV_STORAGE_KEY);
-
     const [savedScroll, setSavedScroll] = useStickyState(0, SCROLL_STORAGE_KEY);
-
-
-
-
+    const [isInitialSetupComplete, setIsInitialSetupComplete] = useState(false);
     const navRef = useRef<HTMLElement | null>(null);
+    const timeoutRefs = useRef<Set<NodeJS.Timeout>>(new Set());
 
+    // Cleanup timeouts on unmount
     useEffect(() => {
-      if (isMobile) return; // Don't manage scroll for mobile view
+      return () => {
+        timeoutRefs.current.forEach(timeout => clearTimeout(timeout));
+        timeoutRefs.current.clear();
+      };
+    }, []);
 
-      const nav = navRef.current;
-      if (!nav) return;
-
-      // Restore scroll position on mount
-
-      if (savedScroll) {
-        nav.scrollTop = parseInt(savedScroll, 10);
+    // Handle navigation reset on client-side only
+    useEffect(() => {
+      if (resetNav && typeof window !== "undefined" && window.localStorage) {
+        // Clear localStorage
+        window.localStorage.setItem(NAV_STORAGE_KEY, JSON.stringify([]));
+        window.localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(0));
+        
+        // Reset component state to default values
+        setOpenSections([]);
+        setSavedScroll(0);
       }
+    }, [resetNav, setOpenSections, setSavedScroll]);
 
-      // Save scroll position on scroll
+    // Restore saved scroll position on mount, then enable auto-centering
+    useEffect(() => {
+      if (isMobile) {
+        setIsInitialSetupComplete(true);
+        return;
+      }
+      
+      const navElement = navRef.current;
+      if (!navElement) {
+        setIsInitialSetupComplete(true);
+        return;
+      }
+      
+      // Restore scroll position immediately
+      navElement.scrollTop = savedScroll;
+      setIsInitialSetupComplete(true);
+    }, [isMobile]);
+
+    // Helper function to find active link with flexible matching
+    const findActiveLink = useCallback((navElement: HTMLElement) => {
+      if (!currentPath) return null;
+      
+      // Try exact match first
+      let activeLink = navElement.querySelector(`a[href="${currentPath}"]`) as HTMLElement;
+      if (activeLink) return activeLink;
+      
+      // Try with leading slash
+      activeLink = navElement.querySelector(`a[href="/${currentPath}"]`) as HTMLElement;
+      if (activeLink) return activeLink;
+      
+      // Try ending with currentPath
+      activeLink = navElement.querySelector(`a[href$="/${currentPath}"]`) as HTMLElement;
+      if (activeLink) return activeLink;
+      
+      // Try containing currentPath
+      const allLinks = navElement.querySelectorAll('a[href]');
+      for (const link of allLinks) {
+        const href = link.getAttribute('href');
+        if (href && (href.includes(currentPath) || href.endsWith(`/${currentPath}`))) {
+          return link as HTMLElement;
+        }
+      }
+      
+      return null;
+    }, [currentPath]);
+
+    // Helper function to add highlight with cleanup
+    const addHighlightWithCleanup = useCallback((element: HTMLElement) => {
+      element.classList.add('bg-blue-100', 'dark:bg-blue-900/30', 'ring-2', 'ring-blue-300', 'dark:ring-blue-700');
+      
+      const timeoutId = setTimeout(() => {
+        // Check if element is still in DOM before modifying
+        if (element.isConnected) {
+          element.classList.remove('bg-blue-100', 'dark:bg-blue-900/30', 'ring-2', 'ring-blue-300', 'dark:ring-blue-700');
+        }
+        timeoutRefs.current.delete(timeoutId);
+      }, 2000);
+      
+      timeoutRefs.current.add(timeoutId);
+    }, []);
+
+    // Helper function to scroll to active link
+    const scrollToActiveLink = useCallback((navElement: HTMLElement, activeLink: HTMLElement) => {
+      const navHeight = navElement.clientHeight;
+      const linkTop = activeLink.offsetTop;
+      const linkHeight = activeLink.offsetHeight;
+      const scrollTop = linkTop - (navHeight / 2) + (linkHeight / 2);
+      
+      navElement.scrollTop = Math.max(0, scrollTop);
+      addHighlightWithCleanup(activeLink);
+      setSavedScroll(Math.max(0, scrollTop));
+    }, [addHighlightWithCleanup, setSavedScroll]);
+
+    // Auto-center current page after initial setup is complete
+    useLayoutEffect(() => {
+      if (isMobile || !currentPath || !isInitialSetupComplete) return;
+
+      const navElement = navRef.current;
+      if (!navElement) return;
+      
+      // Only proceed if navigation items are actually rendered
+      const hasItems = (items && items.length > 0) || (nav && nav.entity?.children && nav.entity.children.length > 0);
+      if (!hasItems) return;
+
+      const activeLink = findActiveLink(navElement);
+      if (activeLink) {
+        scrollToActiveLink(navElement, activeLink);
+      }
+    }, [currentPath, items, nav, isMobile, isInitialSetupComplete, findActiveLink, scrollToActiveLink]);
+
+    // Handle scroll position persistence (only after initial setup is complete)
+    useEffect(() => {
+      if (isMobile || !isInitialSetupComplete) return;
+      
+      const navElement = navRef.current;
+      if (!navElement) return;
+
       const handleScroll = () => {
-        if (nav) {
-          localStorage.setItem(
-            SCROLL_STORAGE_KEY,
-            Math.round(nav.scrollTop).toString()
-          );
+        if (navElement) {
+          setSavedScroll(Math.round(navElement.scrollTop));
         }
       };
 
-      nav.addEventListener("scroll", () => {
-        setSavedScroll(Math.round(nav.scrollTop));
-      });
-      return () => nav.removeEventListener("scroll", handleScroll);
-    }, [savedScroll, setSavedScroll, isMobile]);
+      navElement.addEventListener("scroll", handleScroll);
+      return () => navElement.removeEventListener("scroll", handleScroll);
+    }, [setSavedScroll, isMobile, isInitialSetupComplete]);
 
     const mobileStyles = isMobile
       ? "pt-4"

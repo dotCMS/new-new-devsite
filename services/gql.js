@@ -80,6 +80,11 @@ export function getGraphQLPageQuery({ path, mode}) {
                     }
                 }
             }
+            vanityUrl {
+                action
+                forwardTo
+                uri
+            }
             viewAs {
                 visitor {
                   persona {
