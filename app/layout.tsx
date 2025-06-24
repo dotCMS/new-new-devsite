@@ -8,7 +8,7 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { AlertBanner } from '@/components/AlertBanner';
 import MicrosoftClarity from '@/components/metrics/MicrosoftClarity';
 import { InitialScroll } from '@/components/InitialScroll';
-
+import { SpeedInsights } from "@vercel/speed-insights/next"
 const inter = Inter({ 
   subsets: ['latin'],
   display: 'swap',
@@ -86,6 +86,7 @@ export default function RootLayout({
         </ErrorBoundary>
         <GoogleAnalytics gaId="G-CM1HLQW35G" />
         <MicrosoftClarity />
+        <SpeedInsights />
       </body>
     </html>
   );

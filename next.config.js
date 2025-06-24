@@ -77,6 +77,41 @@ const nextConfig = {
             ]
         };
     },
+    async headers() {
+        return [
+            {
+                // Apply to all pages
+                source: '/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=300, s-maxage=15, stale-while-revalidate=59',
+                    },
+                ],
+            },
+            {
+                // Apply to static assets (images, fonts, etc.)
+                source: '/static/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable',
+                    },
+                ],
+            },
+            {
+                // Apply to API routes (no browser caching)
+                source: '/api/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'no-store, max-age=0',
+                    },
+                ],
+            },
+
+        ];
+    },
       experimental: {
         largePageDataBytes: 128 * 100000,
     
