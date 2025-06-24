@@ -35,8 +35,6 @@ interface Message {
 
 const RECENT_QUESTIONS_KEY = "recent-questions";
 const MODE_STORAGE_KEY = "dotai-last-mode";
-const API_KEY = Config.AuthToken;
-const API_ENDPOINT = Config.DotCMSHost;
 
 export function ChatComponent() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -143,11 +141,10 @@ export function ChatComponent() {
         .join("\n");
       const fullPrompt = `${chatHistory}\nHuman: ${inputTrimmed}`;
 
-      const response = await fetch(`${API_ENDPOINT}/api/v1/ai/completions`, {
+      const response = await fetch(`/api/ai/completions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${API_KEY}`,
         },
         body: JSON.stringify({
           indexName: "default",
@@ -263,11 +260,10 @@ export function ChatComponent() {
     */
 
     try {
-      const response = await fetch(`${API_ENDPOINT}/api/v1/ai/search`, {
+      const response = await fetch(`/api/ai/search`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${API_KEY}`,
         },
         body: JSON.stringify({
           model: "gpt-4o",

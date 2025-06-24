@@ -1,5 +1,5 @@
 import { Config } from '@/util/config';
-
+import { getServerHeaders } from '@/util/headers-config';
 const GRAPHQL_ENPOINT = `${Config.DotCMSHost}/api/v1/graphql`;
 
 /**
@@ -117,7 +117,7 @@ export const getGraphqlResults = async (query) => {
     try {
         const res = await fetch(url, {
             method: "POST",
-            headers: Config.Headers,
+            headers: getServerHeaders(),
             body: JSON.stringify({ query }),
             cache: "no-cache", // Invalidate cache for Next.js
         });

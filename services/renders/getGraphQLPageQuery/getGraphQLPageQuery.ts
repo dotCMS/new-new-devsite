@@ -1,5 +1,5 @@
 import { Config } from '@/util/config';
-import type { TGraphQLPageData, TGetGraphQLPageQuery } from './types';
+import { getServerHeaders } from '@/util/headers-config';import type { TGraphQLPageData, TGetGraphQLPageQuery } from './types';
 import { logRequest } from '@/util/logRequest';
 
 export const getGraphQLPageQuery = async ({
@@ -92,7 +92,7 @@ export const getGraphQLPageQuery = async ({
     const response = await logRequest(() =>
       fetch(`${Config.DotCMSHost}/api/v1/graphql`, {
         method: 'POST',
-        headers: Config.Headers,
+        headers: getServerHeaders(),
         body: JSON.stringify({ query }),
         cache: 'no-cache'
       }),

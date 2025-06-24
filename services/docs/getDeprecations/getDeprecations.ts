@@ -1,4 +1,5 @@
 import { Config } from '@/util/config';
+import { getServerHeaders } from '@/util/headers-config';
 //import { SIZE_PAGE } from './config';
 const SIZE_PAGE = 0;
 import { logRequest } from '@/util/logRequest'; 
@@ -19,7 +20,7 @@ const getDeprecations = async (): Promise<TDeprecation[] | null> => {
     const response = await logRequest(async () => {
       return await fetch(`${Config.DotCMSHost}/api/content/_search`, {
         method: 'POST',
-        headers: Config.Headers,
+        headers: getServerHeaders(),
         body: JSON.stringify(query),
       });
     }, 'getDeprecations');

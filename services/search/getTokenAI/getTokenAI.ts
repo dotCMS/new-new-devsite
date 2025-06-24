@@ -1,11 +1,11 @@
 import { Config } from '@/util/config';
-import { logRequest } from '@/util/logRequest';
+import { getServerHeaders } from '@/util/headers-config';import { logRequest } from '@/util/logRequest';
 
 export const getTokenAI = async (): Promise<string | null> => {
   try {
     const options = {
       method: 'GET',
-      headers: Config.Headers,
+      headers: getServerHeaders(),
     };
 
     const token = await logRequest(async () => {

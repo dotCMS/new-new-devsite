@@ -27,8 +27,8 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
     });
 
     try {
-        const data = await client.page.get(pageRequestParams);
-        const page = data.page;
+        const data = await client.page.get(pageRequestParams) as any;
+        const page = data?.page;
         const title = page?.friendlyName || page?.title;
 
         const description = page?.description || page?.teaser || page?.seoDescription || "dotCMS Dev Site, Documentation and Resources. Learn how to build with dotCMS";
@@ -58,8 +58,10 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
                 type: 'article',
             },
         };
-    } catch (e) {
-        console.error('Error generating metadata:', e.message);
+    } catch (e: any) {
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Error generating metadata:', e?.message || e);
+        }
         return {
             title: "Page Not Found",
             description: "The requested page could not be found.",
