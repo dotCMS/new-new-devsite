@@ -51,7 +51,7 @@ export default function AllReleases({ sideNav, slug }) {
 
     return (
             <div className="max-w-[1400px] mx-auto flex">
-                <main className="flex-1 min-w-0 pt-8 px-12
+                <main className="flex-1 min-w-0 pt-8 px-2 sm:px-4 lg:px-8
                     [&::-webkit-scrollbar]:w-1.5
                     [&::-webkit-scrollbar-track]:bg-transparent
                     [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10

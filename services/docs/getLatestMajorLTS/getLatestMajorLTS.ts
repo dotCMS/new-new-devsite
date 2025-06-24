@@ -1,5 +1,5 @@
 import { Config } from '@/util/config';
-import { SIZE_PAGE } from './config';
+import { getServerHeaders } from '@/util/headers-config';import { SIZE_PAGE } from './config';
 import type { TLatestMajorLTS } from './types';
 import { logRequest } from '@/util/logRequest'; 
 
@@ -17,7 +17,7 @@ export const getLatestMajorLTS = async (): Promise<TLatestMajorLTS | null> => {
     const response = await logRequest(async () => {
       return await fetch(`${Config.DotCMSHost}/api/content/_search`, {
         method: 'POST',
-        headers: Config.Headers,
+        headers: getServerHeaders(),
         body: JSON.stringify(query)
       });
     }, 'getLatestMajorLTS');

@@ -38,7 +38,7 @@ export default function DevResourceDetailPageComponent({ devResource }) {
     const isVideo = myResource.type==="video";
 
     return (
-        <div className={`container mx-auto px-4 sm:px-6 lg:px-8 ${!hasHeadings ? 'max-w-screen-2xl' : ''}`}>
+        <div className={`container mx-auto px-2 sm:px-4 lg:px-6 ${!hasHeadings ? 'max-w-screen-2xl' : ''}`}>
             {/* Main Content Grid */}
             <div className={`flex flex-col xl:flex-row gap-4 py-4 sm:py-8 ${!hasHeadings ? 'items-center' : ''}`}>
                 {/* Main Content */}

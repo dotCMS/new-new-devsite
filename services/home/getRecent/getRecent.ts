@@ -1,5 +1,5 @@
 import { Config } from '@/util/config';
-import { SIZE } from './config';
+import { getServerHeaders } from '@/util/headers-config';import { SIZE } from './config';
 import { logRequest } from '@/util/logRequest';
 
 import type { TGetRecent } from './types';
@@ -18,7 +18,7 @@ export const getRecent = async (): Promise<TGetRecent | null> => {
     const response = await logRequest(async () => {
       return await fetch(`${Config.DotCMSHost}/api/content/_search`, {
         method: 'POST',
-        headers: Config.Headers,
+        headers: getServerHeaders(),
         body: JSON.stringify(query),
       });
     }, 'getRecent');

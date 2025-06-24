@@ -1,8 +1,8 @@
 import { DotCmsClient } from "@dotcms/client";
-import { Config } from "./config";
+import { ServerConfig } from "./server-config";
 // Check if required environment variables are set
-const dotcmsUrl = Config.DotCMSHost;
-const authToken = Config.AuthToken;
+const dotcmsUrl = ServerConfig.DotCMSHost;
+const authToken = ServerConfig.AuthToken;
 
 if (!dotcmsUrl || !authToken) {
   throw new Error("Missing required environment variables for DotCMS client initialization");

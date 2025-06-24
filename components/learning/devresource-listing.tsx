@@ -70,7 +70,7 @@ export default async function DevResourceListing({ devResources, pagination, tag
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {devResources.map((resource: any) => (
                                 <article key={resource.identifier} className="bg-card text-card-foreground rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border border-border">
-                                    <div className="relative">
+                                    <div className="relative" >
                                         {resource.image?.modDate ? (
                                         <Link href={`/learning/${resource.slug}`} prefetch={false} className="block">
 
@@ -83,7 +83,9 @@ export default async function DevResourceListing({ devResources, pagination, tag
                                                 />
                                             </Link>
                                         ) : (
-                                            <div className="w-full h-48 bg-muted rounded-t-lg" />
+                                            <Link href={`/learning/${resource.slug}`} prefetch={false} className="block">
+                                                <div className="w-full h-48 bg-muted rounded-t-lg" style={{backgroundColor: 'rgba(0, 0, 0, 0.5)', backgroundSize: 'cover', backgroundImage: ` url(${myResource.image})`}} />
+                                            </Link>
                                         )}
                                     </div>
                                     <div className="p-5">

@@ -1,7 +1,7 @@
 
 import { type TGetSearch } from './types';
 import { Config } from '@/util/config';
-import { logRequest } from '@/util/logRequest'; 
+import { getServerHeaders } from '@/util/headers-config';import { logRequest } from '@/util/logRequest'; 
 
 export const getSearch = async ({ searchTerm, typeDoc, currentPage }: TGetSearch) => {
   const contentType = typeDoc ? 'dotcmsdocumentation' : '';
@@ -11,7 +11,7 @@ export const getSearch = async ({ searchTerm, typeDoc, currentPage }: TGetSearch
     const data = await logRequest(async () => {
       const response = await fetch(`${Config.DotCMSHost}/api/v1/ai/search`, {
         method: 'POST',
-        headers: Config.Headers,
+        headers: getServerHeaders(),
         body: JSON.stringify({
           contentType,
           prompt: searchTerm,

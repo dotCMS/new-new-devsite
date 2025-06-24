@@ -37,7 +37,7 @@ export const DetailHeader = ({
                     <svg viewBox="0 0 24 24" width="24" height="24" className="mr-2 my-2" fill="currentColor"><path d="M10.78 19.03a.75.75 0 0 1-1.06 0l-6.25-6.25a.75.75 0 0 1 0-1.06l6.25-6.25a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L5.81 11.5h14.44a.75.75 0 0 1 0 1.5H5.81l4.97 4.97a.75.75 0 0 1 0 1.06Z"></path></svg> Back to Blogs
                 </Link>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4 break-words">
                 {post.title}
             </h1>
 
@@ -66,7 +66,7 @@ export const DetailHeader = ({
                         alt={post.image?.description || post.title}
                         width={1000}
                         height={400}
-                        className="w-full h-[400px] object-cover rounded-lg shadow-lg"
+                        className="w-full h-[200px] sm:h-[300px] lg:h-[400px] object-cover rounded-lg shadow-lg"
                     />
                 </figure>
             )}

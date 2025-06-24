@@ -45,7 +45,7 @@ export function BlockPageAsset({ pageAsset, nav, serverPath }) {
           )}
 
           {/* Main Content - Full width on mobile */}
-          <main id="content-here" className="min-w-0 px-4 pt-8 lg:px-8 [&_.container]:!p-0  border-l-2 border-gray-200">
+          <main id="content-here" className="min-w-0 px-2 sm:px-4 lg:px-8 pt-8 [&_.container]:!p-0  border-l-2 border-gray-200">
             <Breadcrumbs
               items={Array.isArray(nav) ? nav : []}
               slug={pageAsset.page.url}

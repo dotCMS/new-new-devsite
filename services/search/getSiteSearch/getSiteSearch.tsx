@@ -1,5 +1,5 @@
 import { Config } from '@/util/config';
-import type { TSiteSearh, TSearchResult } from './types';
+import { getServerHeaders } from '@/util/headers-config';import type { TSiteSearh, TSearchResult } from './types';
 import { logRequest } from '@/util/logRequest'; 
 
 export const getSiteSearch = async ({
@@ -17,7 +17,7 @@ export const getSiteSearch = async ({
     await logRequest(async () => {
       const response = await fetch(`${Config.DotCMSHost}/api/vtl/sitesearch`, {
         method: 'POST',
-        headers: Config.Headers,
+        headers: getServerHeaders(),
         body: JSON.stringify(requestBody)
       });
 

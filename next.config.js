@@ -4,7 +4,6 @@ const url = new URL(process.env.NEXT_PUBLIC_DOTCMS_HOST);
 
 const nextConfig = {
     reactStrictMode: true,
-    cacheMaxMemorySize: 0, 
     async redirects() {
         return [
           {

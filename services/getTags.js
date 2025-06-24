@@ -1,5 +1,5 @@
 import { Config } from "@/util/config";
-import { logRequest } from "../util/logRequest";
+import { getServerHeaders } from '@/util/headers-config';import { logRequest } from "../util/logRequest";
 
 
 function getTagQuery(query, limit) {
@@ -42,7 +42,7 @@ export async function getTagsByLuceneQuery(luceneQuery, limit) {
 
     const res = await logRequest(async () => await fetch(ES_ENPOINT, {
         method: 'POST',
-        headers: Config.Headers,
+        headers: getServerHeaders(),
         body:  query ,
         cache: "no-cache",
     }), "getTags");

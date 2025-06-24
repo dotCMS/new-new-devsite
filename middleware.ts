@@ -57,7 +57,8 @@ async function checkVanityUrl(pathname: string): Promise<{ forwardTo: string; ac
 
   try {
     const dotcmsHost = process.env.NEXT_PUBLIC_DOTCMS_HOST;
-    const authToken = process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN;
+    // Use server-side env var first, fallback to public one temporarily
+    const authToken = process.env.DOTCMS_AUTH_TOKEN || process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN;
     
     if (!dotcmsHost || !authToken) {
       console.warn('Missing DOTCMS_HOST or AUTH_TOKEN for vanity URL check');
@@ -188,4 +189,4 @@ export const config = {
      */
     '/((?!api|_next/static|_next/image|favicon.ico|.*\\.[a-zA-Z0-9]+$|\\.well-known).+)',
   ],
-} 
+}
