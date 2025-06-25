@@ -89,9 +89,15 @@ export async function getDevResources({
         }
     }`;
     //console.log(query);
-    const data = await logRequest(async () => getGraphqlResults(query), 'getResources');
-    //console.log(data);
-    return { devResources: data.DevResourceCollection, pagination: data.Pagination[0] };
+    const result = await logRequest(async () => getGraphqlResults(query), 'getResources');
+    
+    if (result.errors && result.errors.length > 0) {
+        console.error('GraphQL errors in getDevResources:', result.errors);
+        throw new Error(result.errors[0].message);
+    }
+    
+    //console.log(result.data);
+    return { devResources: result.data.DevResourceCollection, pagination: result.data.Pagination[0] };
 }
 
 
@@ -119,10 +125,16 @@ const countDevResources = `query getAllDevResources {
 }`;
 
 export async function getCountDevResources() {
-    const data = await logRequest(async () => getGraphqlResults(countDevResources), 'getCountDevResources');
-    return {video: data.Pagination[0].totalRecords, 
-        guide: data.Pagination[1].totalRecords, 
-        howto: data.Pagination[2].totalRecords, 
-        kb: data.Pagination[3].totalRecords, 
-        example: data.Pagination[4].totalRecords};
+    const result = await logRequest(async () => getGraphqlResults(countDevResources), 'getCountDevResources');
+    
+    if (result.errors && result.errors.length > 0) {
+        console.error('GraphQL errors in getCountDevResources:', result.errors);
+        throw new Error(result.errors[0].message);
+    }
+    
+    return {video: result.data.Pagination[0].totalRecords, 
+        guide: result.data.Pagination[1].totalRecords, 
+        howto: result.data.Pagination[2].totalRecords, 
+        kb: result.data.Pagination[3].totalRecords, 
+        example: result.data.Pagination[4].totalRecords};
 }   

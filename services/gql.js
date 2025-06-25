@@ -1,6 +1,7 @@
 import { Config } from '@/util/config';
+import { getCacheKey } from '@/util/cacheService'
+import axios from 'axios';
 
-const GRAPHQL_ENPOINT = `${Config.DotCMSHost}/api/v1/graphql`;
 
 /**
  * Get the GraphQL query for a page
@@ -8,7 +9,7 @@ const GRAPHQL_ENPOINT = `${Config.DotCMSHost}/api/v1/graphql`;
  * @param {*} query
  * @return {*}
  */
-export function getGraphQLPageQuery({ path, mode}) {
+export function getGraphQLPageQuery({ path, mode }) {
     const params = [];
 
     if (mode) {
@@ -112,23 +113,43 @@ export function getGraphQLPageQuery({ path, mode}) {
  * @return {*}
  */
 export const getGraphqlResults = async (query) => {
-    const url = new URL(GRAPHQL_ENPOINT, Config.DotCMSHost);
+    const queryHash = getCacheKey(query);
 
-    try {
-        const res = await fetch(url, {
-            method: "POST",
-            headers: Config.Headers,
-            body: JSON.stringify({ query }),
-            cache: "no-cache", // Invalidate cache for Next.js
-        });
-        const { data } = await res.json();
-        return data;
-    } catch(err) {
-        console.group("Error fetching Page");
-        console.warn("Check your URL or DOTCMS_HOST: ", url.toString());
-        console.error(err);
-        console.groupEnd();
-
-        return { page: null };
-    }
+    return await axios.get(Config.GraphqlUrl, {
+        params: { "qid": queryHash },   
+        data: { query } ,                 
+        headers: Config.Headers
+    })
+    .then(function (response) {
+        // GraphQL responses can have both data and errors
+        if (response?.data) {
+            const result = {
+                data: response.data.data || null,
+                errors: response.data.errors || []
+            };
+            
+            // If there are errors, log them
+            if (result.errors.length > 0) {
+                console.error('GraphQL errors:', result.errors);
+            }
+            
+            return result;
+        } else {
+            console.error('No data in response:', response);
+            return { 
+                data: null, 
+                errors: [{ message: 'No data in response' }] 
+            };
+        }
+    })
+    .catch(function (error) {
+        console.error('Error fetching data:', error);
+        return { 
+            data: null, 
+            errors: [{ 
+                message: error.message || 'Network or request error',
+                originalError: error
+            }] 
+        };
+    });
 };
