@@ -153,3 +153,30 @@ export const getGraphqlResults = async (query) => {
         };
     });
 };
+
+
+
+
+export const graphqlPost = async (query) => {
+
+
+    try {
+        const res = await fetch(Config.GraphqlUrl, {
+            method: "POST",
+            headers: Config.Headers,
+            body: JSON.stringify({ query }),
+        });
+        const { data } = await res.json();
+
+        return data;
+    } catch(err) {
+        console.group("Error fetching Page");
+        console.warn("Check your URL or DOTCMS_HOST: ", url.toString());
+        console.error(err);
+        console.groupEnd();
+
+        return { page: null };
+    }
+};
+
+

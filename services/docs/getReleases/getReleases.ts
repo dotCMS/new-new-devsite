@@ -1,7 +1,7 @@
 import { Config } from '@/util/config';
 
 import { logRequest } from '@/util/logRequest';
-import { getGraphqlResults } from '@/services/gql';
+import { getGraphqlResults, graphqlPost } from '@/services/gql';
 import { FilterReleases } from './types';
 export const getReleases = async (limit: number = 50, page: number = 1, filter: FilterReleases = FilterReleases.ALL, log: boolean = false, version: string = "") => {
   var buildQuery = '+contentType:Dotcmsbuilds +Dotcmsbuilds.download:1 +Dotcmsbuilds.released:true +live:true';
@@ -62,12 +62,12 @@ export const getReleases = async (limit: number = 50, page: number = 1, filter: 
 if (log) {
   console.log("query",query);
 }
-const result = await logRequest(async () => getGraphqlResults(query), 'getCurrentRelease');
+const result = await logRequest(async () => graphqlPost(query), 'getCurrentRelease');
 
 if (result.errors && result.errors.length > 0) {
   console.error('GraphQL errors in getReleases:', result.errors);
   throw new Error(result.errors[0].message);
 }
 
-return {releases: result.data.DotcmsbuildsCollection, pagination: result.data.Pagination[0]};
+return {releases: result.DotcmsbuildsCollection, pagination: result.Pagination[0]};
 };
