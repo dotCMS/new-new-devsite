@@ -20,14 +20,8 @@ async function fetchPage(path, searchParams) {
     const pageRequestParams = getPageRequestParams({ path: finalPath, params: finalSearchParams });
     const query = getGraphQLPageQuery(pageRequestParams);
 
-    const result = await getGraphqlResults(query);
-    
-    if (result.errors && result.errors.length > 0) {
-        console.error('GraphQL errors in blog page:', result.errors);
-        throw new Error(result.errors[0].message);
-    }
-    
-    const pageAsset = graphqlToPageEntity(result.data);
+    const pageData = await getGraphqlResults(query);
+    const pageAsset = graphqlToPageEntity(pageData);
 
     return pageAsset;
 }

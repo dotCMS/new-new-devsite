@@ -55,12 +55,6 @@ export async function getBlogDetailQuery(urlTitle) {
     }
   `;
   return logRequest(async () => getGraphqlResults(query), "blogDetail").then(
-    (result) => {
-      if (result.errors && result.errors.length > 0) {
-        console.error('GraphQL errors in getBlogDetail:', result.errors);
-        throw new Error(result.errors[0].message);
-      }
-      return result.data.BlogCollection[0];
-    }
+    (data) => data.BlogCollection[0]
   );
 }

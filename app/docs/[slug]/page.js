@@ -24,18 +24,14 @@ async function fetchPageData(path, searchParams) {
     const finalSearchParams = await searchParams;
     const pageRequestParams = getPageRequestParams({ path: finalPath, params: finalSearchParams });
     const query = getGraphQLPageQuery(pageRequestParams);
-    const [result, sideNav] = await Promise.all([
+    const [pageData, sideNav] = await Promise.all([
         getGraphqlResults(query),
 
         getSideNav()
     ]);
 
-    if (result.errors && result.errors.length > 0) {
-        console.error('GraphQL errors in docs page:', result.errors);
-        throw new Error(result.errors[0].message);
-    }
 
-    const pageAsset = graphqlToPageEntity(result.data);
+    const pageAsset = graphqlToPageEntity(pageData);
 
     if (!pageAsset) {
         notFound();

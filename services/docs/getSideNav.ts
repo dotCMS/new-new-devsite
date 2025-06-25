@@ -1,8 +1,6 @@
 import {dotCache} from '@/util/cacheService'
-import { Config } from '@/util/config';
 import { logRequest } from '@/util/logRequest';
-import { getGraphqlResults } from '../gql';
-
+const GRAPHQL_ENPOINT = `/api/v1/graphql`
 
 
 const cacheKey = "coreNavLeftCacheKey";
@@ -54,13 +52,29 @@ export const getSideNav = async () => {
     }
     `
 
+    const url = new URL(GRAPHQL_ENPOINT, process.env.NEXT_PUBLIC_DOTCMS_HOST);
 
-    const graphData = await getGraphqlResults(query);
+    const res = await logRequest(async () => await fetch(url, {
+        method: 'POST',
+        headers: {
+            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN}`,
+            "Content-Type": "application/json",
+            "dotcachettl": "0" // Bypasses GraphQL cache
+        },
+        body: JSON.stringify({ query }),
+        cache: "no-cache",
+    }), "getSideNav");
 
-    if (graphData.errors && graphData.errors.length > 0) {
-        throw new Error(graphData.errors[0].message)
+    if (!res || !res?.ok) {
+        throw new Error('Failed to fetch sideNav')
     }
-    dotCache.set(cacheKey, graphData.data.DotcmsDocumentationCollection);
 
-    return graphData.data.DotcmsDocumentationCollection
+    const data = await res.json()
+
+    if (data.errors) {
+        throw new Error(data.errors[0].message)
+    }
+    dotCache.set(cacheKey, data.data.DotcmsDocumentationCollection);
+
+    return data.data.DotcmsDocumentationCollection
 }

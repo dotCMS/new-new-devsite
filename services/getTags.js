@@ -44,6 +44,7 @@ export async function getTagsByLuceneQuery(luceneQuery, limit) {
         method: 'POST',
         headers: Config.Headers,
         body:  query ,
+        cache: "no-cache",
     }), "getTags");
     if (!res.ok) {
         throw new Error('Failed to fetch tags:' + res.status)

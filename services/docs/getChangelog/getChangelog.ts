@@ -55,17 +55,12 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
   const ltsQueryMaj = '+Dotcmsbuilds.lts:1';
   const sortByEol = 'Dotcmsbuilds.eolDate desc';
   const ltsMajorQuery = assembleQuery(buildQuery, ltsQueryMaj, "", "", limit, page, sortByEol);
-  const ltsMajorResult =  await logRequest(async () => getGraphqlResults(ltsMajorQuery), 'getLTSMajorVersions');
-  
-  if (ltsMajorResult.errors && ltsMajorResult.errors.length > 0) {
-    console.error('GraphQL errors in getLTSMajorVersions:', ltsMajorResult.errors);
-    throw new Error(ltsMajorResult.errors[0].message);
-  }
+  const ltsMajorData =  await logRequest(async () => getGraphqlResults(ltsMajorQuery), 'getLTSMajorVersions');
 
   //if singleVersion is provided, check if it's an LTS patch version
   let ltsPatchVersion = "";
   if(singleVersion){
-    for(const item of ltsMajorResult.data.DotcmsbuildsCollection){
+    for(const item of ltsMajorData.DotcmsbuildsCollection){
       for (const vTag of item.tags){
         if(singleVersion.startsWith(vTag) && singleVersion !== vTag){
           vLts = vTag;
@@ -93,16 +88,11 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
       return "";
     } else return "";
   };
-  const ltsMajVersion = sussOutLatestMajor(ltsMajorResult.data.DotcmsbuildsCollection[0], vLts);
+  const ltsMajVersion = sussOutLatestMajor(ltsMajorData.DotcmsbuildsCollection[0], vLts);
   //console.log("sussed as:", ltsMajVersion);
   const sortBy = 'Dotcmsbuilds.releasedDate desc';
   const query = assembleQuery(buildQuery, ltsQuery, ltsMajVersion, (singleVersion && !ltsPatchVersion) ? `+Dotcmsbuilds.minor:${singleVersion}` : "", (ltsMajVersion ? 20 : limit), page, sortBy);
-  const result = await logRequest(async () => getGraphqlResults(query), 'getChangelog');
+  const data = await logRequest(async () => getGraphqlResults(query), 'getChangelog');
 
-  if (result.errors && result.errors.length > 0) {
-    console.error('GraphQL errors in getChangelog:', result.errors);
-    throw new Error(result.errors[0].message);
-  }
-
-  return {changelogs: result.data.DotcmsbuildsCollection, pagination: result.data.Pagination[0], ltsMajors: ltsMajorResult.data.DotcmsbuildsCollection, ltsSingleton: ltsPatchVersion};
+  return {changelogs: data.DotcmsbuildsCollection, pagination: data.Pagination[0], ltsMajors: ltsMajorData.DotcmsbuildsCollection, ltsSingleton: ltsPatchVersion};
 };
