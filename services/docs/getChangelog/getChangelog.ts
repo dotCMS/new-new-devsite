@@ -3,7 +3,7 @@
 
 import { SIZE_PAGE } from './config';
 import { logRequest } from '@/util/logRequest'; 
-import { getGraphqlResults } from '@/services/gql';
+import {  graphqlPost } from '@/services/gql';
 
 export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "", limit = SIZE_PAGE }) => {
   const assembleQuery = (buildQuery:string, ltsQuery:string, ltsMajVersion:string, singleVersion:string,
@@ -55,7 +55,7 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
   const ltsQueryMaj = '+Dotcmsbuilds.lts:1';
   const sortByEol = 'Dotcmsbuilds.eolDate desc';
   const ltsMajorQuery = assembleQuery(buildQuery, ltsQueryMaj, "", "", limit, page, sortByEol);
-  const ltsMajorResult =  await logRequest(async () => getGraphqlResults(ltsMajorQuery), 'getLTSMajorVersions');
+  const ltsMajorResult =  await logRequest(async () => graphqlPost(ltsMajorQuery), 'getLTSMajorVersions');
   
   if (ltsMajorResult.errors && ltsMajorResult.errors.length > 0) {
     console.error('GraphQL errors in getLTSMajorVersions:', ltsMajorResult.errors);
@@ -65,7 +65,7 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
   //if singleVersion is provided, check if it's an LTS patch version
   let ltsPatchVersion = "";
   if(singleVersion){
-    for(const item of ltsMajorResult.data.DotcmsbuildsCollection){
+    for(const item of ltsMajorResult.DotcmsbuildsCollection){
       for (const vTag of item.tags){
         if(singleVersion.startsWith(vTag) && singleVersion !== vTag){
           vLts = vTag;
@@ -93,16 +93,16 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
       return "";
     } else return "";
   };
-  const ltsMajVersion = sussOutLatestMajor(ltsMajorResult.data.DotcmsbuildsCollection[0], vLts);
+  const ltsMajVersion = sussOutLatestMajor(ltsMajorResult.DotcmsbuildsCollection[0], vLts);
   //console.log("sussed as:", ltsMajVersion);
   const sortBy = 'Dotcmsbuilds.releasedDate desc';
   const query = assembleQuery(buildQuery, ltsQuery, ltsMajVersion, (singleVersion && !ltsPatchVersion) ? `+Dotcmsbuilds.minor:${singleVersion}` : "", (ltsMajVersion ? 20 : limit), page, sortBy);
-  const result = await logRequest(async () => getGraphqlResults(query), 'getChangelog');
+  const result = await logRequest(async () => graphqlPost(query), 'getChangelog');
 
   if (result.errors && result.errors.length > 0) {
     console.error('GraphQL errors in getChangelog:', result.errors);
     throw new Error(result.errors[0].message);
   }
 
-  return {changelogs: result.data.DotcmsbuildsCollection, pagination: result.data.Pagination[0], ltsMajors: ltsMajorResult.data.DotcmsbuildsCollection, ltsSingleton: ltsPatchVersion};
+  return {changelogs: result.DotcmsbuildsCollection, pagination: result.Pagination[0], ltsMajors: ltsMajorResult.DotcmsbuildsCollection, ltsSingleton: ltsPatchVersion};
 };

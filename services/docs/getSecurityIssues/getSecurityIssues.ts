@@ -1,6 +1,6 @@
 
 import { logRequest } from '@/util/logRequest';
-import { getGraphqlResults } from '@/services/gql';
+import { getGraphqlResults, graphqlPost } from '@/services/gql';
 import { SecurityOrderBy } from './types';
 export const getSecurityIssues = async (
     limit: number = 50, 
@@ -75,12 +75,12 @@ export const getSecurityIssues = async (
 if (log) {
   console.log("query",query);
 }
-const result = await logRequest(async () => getGraphqlResults(query), 'getSecurityIssues');
+const result = await logRequest(async () => graphqlPost(query), 'getSecurityIssues');
 
 if (result.errors && result.errors.length > 0) {
   console.error('GraphQL errors in getSecurityIssues:', result.errors);
   throw new Error(result.errors[0].message);
 }
 
-return {securityIssues: result.data.SecurityissueCollection, pagination: result.data.Pagination[0]};
+return {securityIssues: result.SecurityissueCollection, pagination: result.Pagination[0]};
 };
