@@ -159,7 +159,7 @@ export const getGraphqlResults = async (query) => {
 
 export const graphqlPost = async (query) => {
 
-    console.log("GRAPHQL POST")
+
     try {
         const res = await fetch(Config.GraphqlUrl, {
             method: "POST",
