@@ -87,6 +87,20 @@ const nextConfig = {
                         key: 'Cache-Control',
                         value: 'public, max-age=300, s-maxage=15, stale-while-revalidate=59',
                     },
+                    {
+                        key: 'x-dotcms-cache-control',
+                        value: 'public, max-age=300, s-maxage=15, stale-while-revalidate=59',
+                    }
+                ],
+            },
+            {
+                // Apply to all pages
+                source: '/:path*',
+                headers: [
+                    {
+                        key: 'x-dotcms-cache-control',
+                        value: 'public, max-age=300, s-maxage=15, stale-while-revalidate=59',
+                    },
                 ],
             },
             {
