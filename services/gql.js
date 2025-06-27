@@ -119,26 +119,22 @@ export const graphqlResults = async (query, cacheTTL = 10) => {
     if (cachedData) {
         return cachedData;
     }
-
     let graphData = {
         data: null,
         errors: []
     };
 
-
     graphData = await get(query);
 
-    if (graphData?.data
-        && Object.keys(graphData?.data).length > 0
-        || graphData.errors.length === 0) {
-
-        dotCache.set(cacheKey, graphData, cacheTTL);
-        return graphData;
+    if (!graphData?.data
+        || Object.keys(graphData?.data).length === 0
+        || graphData.errors.length > 0) {
+        console.debug("GET FAILED, trying POST");
+        graphData = await post(query);
     }
-    console.debug("GET FAILED, trying POST");
-    graphData = await post(query);
 
-    dotCache.set(cacheKey, graphData, 10);
+
+    dotCache.set(cacheKey, graphData, cacheTTL);
     return graphData;
 
 }
