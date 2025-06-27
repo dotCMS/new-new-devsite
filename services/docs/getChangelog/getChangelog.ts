@@ -1,6 +1,3 @@
-
-
-
 import { SIZE_PAGE } from './config';
 import { logRequest } from '@/util/logRequest'; 
 import {  graphqlResults } from '@/services/gql';
@@ -58,13 +55,12 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
   const ltsMajorResults =  await logRequest(async () => graphqlResults(ltsMajorQuery), 'getLTSMajorVersions');
   const ltsMajorResult = ltsMajorResults?.data;
 
-  console.log("ltsMajorResult",ltsMajorResult)
   if (!ltsMajorResult?.DotcmsbuildsCollection ) {
 
-    console.error('GraphQL errors in getLTSMajorVersions:', ltsMajorResult.errors);
-    throw new Error(ltsMajorResult.errors[0].message);
+    console.error('GraphQL errors in getLTSMajorVersions:', ltsMajorResults.errors);
+    throw new Error(ltsMajorResults.errors[0].message);
   }
-  console.log("ltsMajorResult.DotcmsbuildsCollection",ltsMajorResult.DotcmsbuildsCollection)
+
   //if singleVersion is provided, check if it's an LTS patch version
   let ltsPatchVersion = "";
   if(singleVersion){
