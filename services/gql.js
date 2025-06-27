@@ -1,7 +1,7 @@
 import { Config } from '@/util/config';
 import { getCacheKey } from '@/util/cacheService'
 import axios from 'axios';
-import { dotCache } from '@/util/cacheService';
+import { graphCache } from '@/util/cacheService';
 
 /**
  * Get the GraphQL query for a page
@@ -115,7 +115,7 @@ export function getGraphQLPageQuery({ path, mode }) {
 export const graphqlResults = async (query, cacheTTL = 10) => {
 
     const cacheKey = getCacheKey(query);
-    const cachedData = dotCache.get(cacheKey);
+    const cachedData = graphCache.get(cacheKey);
     if (cachedData) {
         return cachedData;
     }
@@ -134,7 +134,7 @@ export const graphqlResults = async (query, cacheTTL = 10) => {
     }
 
 
-    dotCache.set(cacheKey, graphData, cacheTTL);
+    graphCache.set(cacheKey, graphData, cacheTTL);
     return graphData;
 
 }

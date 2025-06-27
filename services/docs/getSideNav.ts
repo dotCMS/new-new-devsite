@@ -1,4 +1,4 @@
-import {dotCache} from '@/util/cacheService'
+import {navCache} from '@/util/cacheService'
 import { Config } from '@/util/config';
 import { logRequest } from '@/util/logRequest';
 import { graphqlResults } from '../gql';
@@ -8,7 +8,7 @@ import { graphqlResults } from '../gql';
 const cacheKey = "coreNavLeftCacheKey";
 export const getSideNav = async () => {
 
-    const cachedValue = dotCache.get(cacheKey);
+    const cachedValue = navCache.get(cacheKey);
 
     if(cachedValue){
         return cachedValue;
@@ -57,11 +57,11 @@ export const getSideNav = async () => {
 
     const graphData = await graphqlResults(query);
 
-    console.log("graphData:", graphData);
+    //console.log("graphData:", graphData);
     if (graphData.errors && graphData.errors.length > 0) {
         throw new Error(graphData.errors[0].message)
     }
-    dotCache.set(cacheKey, graphData.data.DotcmsDocumentationCollection);
+    navCache.set(cacheKey, graphData.data.DotcmsDocumentationCollection);
 
     return graphData.data.DotcmsDocumentationCollection
 }

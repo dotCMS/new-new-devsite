@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { dotCache } from './util/cacheService';
+import { vanityCache } from './util/cacheService';
 import {  graphqlResults } from './services/gql';
 
 interface VanityUrlEntry {
@@ -26,7 +26,7 @@ async function checkVanityUrl (pathname: string): Promise<VanityUrlEntry> {
 
 
     // Check cache first (including negative cache)
-    const cachedVanity:VanityUrlEntry = dotCache.get(pathKey) as VanityUrlEntry;
+    const cachedVanity:VanityUrlEntry = vanityCache.get(pathKey) as VanityUrlEntry;
 
     if(cachedVanity !=null){
         return cachedVanity;  
@@ -54,13 +54,13 @@ async function checkVanityUrl (pathname: string): Promise<VanityUrlEntry> {
 
     if(errors?.length>0 || ! json?.page?.vanityUrl?.forwardTo){
         console.log("no vanity found for:", pathKey)
-        dotCache.set(pathKey,VanityUrl404)
+        vanityCache.set(pathKey,VanityUrl404)
         return VanityUrl404;
     }
 
     const foundVanityUrl = {forwardTo: json?.page?.vanityUrl.forwardTo,action: json.page.vanityUrl.action,identifier: json.page.vanityUrl.identifier};
     console.log("foundVanity", foundVanityUrl);
-    dotCache.set(pathKey, foundVanityUrl, cacheTTL);
+    vanityCache.set(pathKey, foundVanityUrl, cacheTTL);
 
     return foundVanityUrl;
 
