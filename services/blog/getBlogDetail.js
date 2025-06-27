@@ -1,4 +1,4 @@
-import { getGraphqlResults } from "@/services/gql";
+import { graphqlResults } from "@/services/gql";
 import { logRequest } from "@/util/logRequest";
 
 export async function getBlogDetailQuery(urlTitle) {
@@ -54,7 +54,7 @@ export async function getBlogDetailQuery(urlTitle) {
         }
     }
   `;
-  return logRequest(async () => getGraphqlResults(query), "blogDetail").then(
+  return logRequest(async () => graphqlResults(query), "blogDetail").then(
     (result) => {
       if (result.errors && result.errors.length > 0) {
         console.error('GraphQL errors in getBlogDetail:', result.errors);

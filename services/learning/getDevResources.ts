@@ -1,4 +1,4 @@
-import { getGraphqlResults } from "@/services/gql";
+import { graphqlResults } from "@/services/gql";
 import { logRequest } from "@/util/logRequest";
 
 const sanitize = (param: string) => {
@@ -89,7 +89,7 @@ export async function getDevResources({
         }
     }`;
     //console.log(query);
-    const result = await logRequest(async () => getGraphqlResults(query), 'getResources');
+    const result = await logRequest(async () => graphqlResults(query), 'getResources');
     
     if (result.errors && result.errors.length > 0) {
         console.error('GraphQL errors in getDevResources:', result.errors);
@@ -125,7 +125,7 @@ const countDevResources = `query getAllDevResources {
 }`;
 
 export async function getCountDevResources() {
-    const result = await logRequest(async () => getGraphqlResults(countDevResources), 'getCountDevResources');
+    const result = await logRequest(async () => graphqlResults(countDevResources), 'getCountDevResources');
     
     if (result.errors && result.errors.length > 0) {
         console.error('GraphQL errors in getCountDevResources:', result.errors);

@@ -1,4 +1,4 @@
-import { getGraphqlResults } from "@/services/gql";
+import { graphqlResults } from "@/services/gql";
 import { logRequest } from "@/util/logRequest";
 
 
@@ -68,7 +68,7 @@ export async function getBlogListing({tagFilter, page, pageSize}) {
     //console.warn("--------------------------------");
     //console.warn(query);
     //console.warn("--------------------------------");
-    const result = await logRequest(async () => getGraphqlResults(query), 'getBlogListing');
+    const result = await logRequest(async () => graphqlResults(query), 'getBlogListing');
     
     if (result.errors && result.errors.length > 0) {
         console.error('GraphQL errors in getBlogListing:', result.errors);
