@@ -40,7 +40,6 @@ async function checkVanityUrl (pathname: string): Promise<VanityUrlEntry> {
       {
         page(url: "${escapedPathname}", site:"173aff42881a55a562cec436180999cf") {
           vanityUrl {
-            identifier
             action
             forwardTo
             uri
@@ -50,16 +49,17 @@ async function checkVanityUrl (pathname: string): Promise<VanityUrlEntry> {
     `;
     
     const json = await graphqlResults(query); 
-    const errors = json?.errors||{};
-
-    if(errors?.length>0 || ! json?.page?.vanityUrl?.forwardTo){
+    const errors = json?.errors||[];
+    console.debug("errors.length:", errors.length);
+    console.debug("forwardTo:", json?.data?.page?.vanityUrl?.forwardTo);
+    if(errors && errors.length>0 || ! json?.data?.page?.vanityUrl?.forwardTo){
         console.log("no vanity found for:", pathKey)
         vanityCache.set(pathKey,VanityUrl404)
         return VanityUrl404;
     }
 
-    const foundVanityUrl = {forwardTo: json?.page?.vanityUrl.forwardTo,action: json.page.vanityUrl.action,identifier: json.page.vanityUrl.identifier};
-    console.log("foundVanity", foundVanityUrl);
+    const foundVanityUrl = {forwardTo: json?.data?.page?.vanityUrl.forwardTo,action: json.data.page.vanityUrl.action,identifier: "vanityFound"};
+    console.debug("foundVanity", foundVanityUrl);
     vanityCache.set(pathKey, foundVanityUrl, cacheTTL);
 
     return foundVanityUrl;

@@ -1,4 +1,6 @@
-import { dotCache } from '../../../util/cacheService';
+import { graphCache } from '../../../util/cacheService';
+import { navCache } from '../../../util/cacheService';
+import { pageCache } from '../../../util/cacheService';
 import { NextResponse } from 'next/server';
 
 // API key for securing the webhook - this should be stored in environment variables in production
@@ -28,7 +30,7 @@ function isAuthorized(request) {
 
 /**
  * POST handler for the flush-cache webhook
- * Flushes the dotCache when this endpoint is hit with valid authorization
+ * Flushes the cache when this endpoint is hit with valid authorization
  */
 export async function POST(request) {
   try {
@@ -41,19 +43,21 @@ export async function POST(request) {
     }
     
     // Flush all keys from the cache
-    dotCache.flushAll();
+    graphCache.flushAll();
+    navCache.flushAll();
+    pageCache.flushAll();
     
     // Return success response
     return NextResponse.json({
       success: true,
-      message: 'dotCache successfully flushed',
+      message: 'Cache successfully flushed',
       timestamp: new Date().toISOString()
     }, { status: 200 });
   } catch (error) {
     // Return error response if something goes wrong
     return NextResponse.json({
       success: false,
-      message: 'Error flushing dotCache',
+      message: 'Error flushing Cache',
       error: error.message
     }, { status: 500 });
   }
@@ -76,19 +80,21 @@ export async function GET(request) {
     }
     
     // Flush all keys from the cache
-    dotCache.flushAll();
+    graphCache.flushAll();
+    navCache.flushAll();
+    pageCache.flushAll();
     
     // Return success response
     return NextResponse.json({
       success: true,
-      message: 'dotCache successfully flushed',
+      message: 'Cache successfully flushed',
       timestamp: new Date().toISOString()
     }, { status: 200 });
   } catch (error) {
     // Return error response if something goes wrong
     return NextResponse.json({
       success: false,
-      message: 'Error flushing dotCache',
+      message: 'Error flushing Cache',
       error: error.message
     }, { status: 500 });
   }
