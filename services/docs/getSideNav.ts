@@ -1,7 +1,7 @@
 import {dotCache} from '@/util/cacheService'
 import { Config } from '@/util/config';
 import { logRequest } from '@/util/logRequest';
-import { getGraphqlResults } from '../gql';
+import { graphqlResults } from '../gql';
 
 
 
@@ -55,8 +55,9 @@ export const getSideNav = async () => {
     `
 
 
-    const graphData = await getGraphqlResults(query);
+    const graphData = await graphqlResults(query);
 
+    console.log("graphData:", graphData);
     if (graphData.errors && graphData.errors.length > 0) {
         throw new Error(graphData.errors[0].message)
     }

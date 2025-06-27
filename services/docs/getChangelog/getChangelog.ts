@@ -3,7 +3,7 @@
 
 import { SIZE_PAGE } from './config';
 import { logRequest } from '@/util/logRequest'; 
-import {  graphqlPost } from '@/services/gql';
+import {  graphqlResults } from '@/services/gql';
 
 export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "", limit = SIZE_PAGE }) => {
   const assembleQuery = (buildQuery:string, ltsQuery:string, ltsMajVersion:string, singleVersion:string,
@@ -55,13 +55,16 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
   const ltsQueryMaj = '+Dotcmsbuilds.lts:1';
   const sortByEol = 'Dotcmsbuilds.eolDate desc';
   const ltsMajorQuery = assembleQuery(buildQuery, ltsQueryMaj, "", "", limit, page, sortByEol);
-  const ltsMajorResult =  await logRequest(async () => graphqlPost(ltsMajorQuery), 'getLTSMajorVersions');
-  
-  if (ltsMajorResult.errors && ltsMajorResult.errors.length > 0) {
+  const ltsMajorResults =  await logRequest(async () => graphqlResults(ltsMajorQuery), 'getLTSMajorVersions');
+  const ltsMajorResult = ltsMajorResults?.data;
+
+  console.log("ltsMajorResult",ltsMajorResult)
+  if (!ltsMajorResult?.DotcmsbuildsCollection ) {
+
     console.error('GraphQL errors in getLTSMajorVersions:', ltsMajorResult.errors);
     throw new Error(ltsMajorResult.errors[0].message);
   }
-
+  console.log("ltsMajorResult.DotcmsbuildsCollection",ltsMajorResult.DotcmsbuildsCollection)
   //if singleVersion is provided, check if it's an LTS patch version
   let ltsPatchVersion = "";
   if(singleVersion){
@@ -97,12 +100,12 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
   //console.log("sussed as:", ltsMajVersion);
   const sortBy = 'Dotcmsbuilds.releasedDate desc';
   const query = assembleQuery(buildQuery, ltsQuery, ltsMajVersion, (singleVersion && !ltsPatchVersion) ? `+Dotcmsbuilds.minor:${singleVersion}` : "", (ltsMajVersion ? 20 : limit), page, sortBy);
-  const result = await logRequest(async () => graphqlPost(query), 'getChangelog');
-
-  if (result.errors && result.errors.length > 0) {
+  const result = await logRequest(async () => graphqlResults(query), 'getChangelog');
+  
+  if (result?.errors && result.errors.length > 0) {
     console.error('GraphQL errors in getChangelog:', result.errors);
     throw new Error(result.errors[0].message);
   }
 
-  return {changelogs: result.DotcmsbuildsCollection, pagination: result.Pagination[0], ltsMajors: ltsMajorResult.DotcmsbuildsCollection, ltsSingleton: ltsPatchVersion};
+  return {changelogs: result?.data?.DotcmsbuildsCollection, pagination: result?.data?.Pagination[0], ltsMajors: ltsMajorResult.DotcmsbuildsCollection, ltsSingleton: ltsPatchVersion};
 };
