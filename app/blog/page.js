@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
-import { getGraphqlResults, getGraphQLPageQuery } from "@/services/gql";
+import { graphqlResults, getGraphQLPageQuery } from "@/services/gql";
 import BlogListing from '@/components/blogs/blog-listing';
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
@@ -20,7 +20,7 @@ async function fetchPage(path, searchParams) {
     const pageRequestParams = getPageRequestParams({ path: finalPath, params: finalSearchParams });
     const query = getGraphQLPageQuery(pageRequestParams);
 
-    const result = await getGraphqlResults(query);
+    const result = await graphqlResults(query);
     
     if (result.errors && result.errors.length > 0) {
         console.error('GraphQL errors in blog page:', result.errors);

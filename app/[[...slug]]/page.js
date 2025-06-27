@@ -24,9 +24,10 @@ export async function generateMetadata({ params, searchParams }) {
     });
 
     try {
+
         const data = await client.page.get(pageRequestParams);
         const page = data.page;
-        
+
         // NOTE: Vanity URL redirects are now handled by middleware
         // If we reach this point, it's not a vanity URL or the redirect already happened
         

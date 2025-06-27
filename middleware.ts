@@ -1,67 +1,35 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { vanityCache } from './util/cacheService';
+import {  graphqlResults } from './services/gql';
 
-// Cache for vanity URL lookups - includes negative caching
-const vanityUrlCache = new Map<string, { 
-  forwardTo: string | null; 
-  action: number; 
-  timestamp: number; 
-  isVanityUrl: boolean 
-}>();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-const MAX_CACHE_SIZE = 1000; // Maximum number of entries to prevent unbounded growth
-
-// Clean up expired entries from cache (less aggressive)
-function cleanupExpiredEntries() {
-  const now = Date.now();
-  for (const [key, value] of vanityUrlCache) {
-    if (now - value.timestamp >= CACHE_TTL) {
-      vanityUrlCache.delete(key);
-    }
-  }
+interface VanityUrlEntry {
+  forwardTo: string ;
+  action: number;
+  identifier: string;
 }
 
-// Clean up cache if it's getting too large (only when needed)
-function cleanupCacheIfNeeded() {
-  // Only cleanup if we're over the size limit
-  if (vanityUrlCache.size <= MAX_CACHE_SIZE) {
-    return;
-  }
-  
-  // First, remove expired entries
-  cleanupExpiredEntries();
-  
-  // If still too large, remove oldest entries
-  if (vanityUrlCache.size > MAX_CACHE_SIZE) {
-    const entries = Array.from(vanityUrlCache.entries());
-    entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
-    
-    const entriesToRemove = entries.slice(0, entries.length - MAX_CACHE_SIZE);
-    for (const [key] of entriesToRemove) {
-      vanityUrlCache.delete(key);
-    }
-  }
-}
+const VanityUrl404:VanityUrlEntry ={forwardTo:"404",action:404,identifier:"404"};
+
+const cacheTTL = 600;
+
+const vanityUrlPrefix="dotVanity:";
 
 // Escape pathname for GraphQL query to prevent injection issues
 function escapeGraphQLString(str: string): string {
   return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
 
-async function checkVanityUrl(pathname: string): Promise<{ forwardTo: string; action: number } | null> {
-  // Check cache first (including negative cache)
-  const cached = vanityUrlCache.get(pathname);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return cached.isVanityUrl ? { forwardTo: cached.forwardTo!, action: cached.action } : null;
-  }
+async function checkVanityUrl (pathname: string): Promise<VanityUrlEntry> {
 
-  try {
-    const dotcmsHost = process.env.NEXT_PUBLIC_DOTCMS_HOST;
-    const authToken = process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN;
-    
-    if (!dotcmsHost || !authToken) {
-      console.warn('Missing DOTCMS_HOST or AUTH_TOKEN for vanity URL check');
-      return null;
+    const pathKey = vanityUrlPrefix + pathname;
+
+
+    // Check cache first (including negative cache)
+    const cachedVanity:VanityUrlEntry = vanityCache.get(pathKey) as VanityUrlEntry;
+
+    if(cachedVanity !=null){
+        return cachedVanity;  
     }
 
     // Escape pathname for GraphQL query
@@ -72,6 +40,7 @@ async function checkVanityUrl(pathname: string): Promise<{ forwardTo: string; ac
       {
         page(url: "${escapedPathname}", site:"173aff42881a55a562cec436180999cf") {
           vanityUrl {
+            identifier
             action
             forwardTo
             uri
@@ -79,53 +48,22 @@ async function checkVanityUrl(pathname: string): Promise<{ forwardTo: string; ac
         }
       }
     `;
+    
+    const json = await graphqlResults(query); 
+    const errors = json?.errors||{};
 
-    const response = await fetch(`${dotcmsHost}/api/v1/graphql`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${authToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query }),
-      // Short timeout to avoid blocking requests
-      signal: AbortSignal.timeout(3000),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      const vanityUrl = data?.data?.page?.vanityUrl;
-      
-      // Clean up cache only when we're approaching the limit
-      cleanupCacheIfNeeded();
-      
-      if (vanityUrl?.forwardTo) {
-        // Cache positive result
-        vanityUrlCache.set(pathname, {
-          forwardTo: vanityUrl.forwardTo,
-          action: vanityUrl.action || 302,
-          timestamp: Date.now(),
-          isVanityUrl: true
-        });
-        
-        return { forwardTo: vanityUrl.forwardTo, action: vanityUrl.action || 302 };
-      } else {
-        // Cache negative result (this URL is NOT a vanity URL)
-        vanityUrlCache.set(pathname, {
-          forwardTo: null,
-          action: 0,
-          timestamp: Date.now(),
-          isVanityUrl: false
-        });
-      }
-    } else {
-      console.warn(`Vanity URL API returned ${response.status} for ${pathname}`);
+    if(errors?.length>0 || ! json?.page?.vanityUrl?.forwardTo){
+        console.log("no vanity found for:", pathKey)
+        vanityCache.set(pathKey,VanityUrl404)
+        return VanityUrl404;
     }
-  } catch (error) {
-    console.error('Middleware: Error checking vanity URL:', error);
-    // Don't cache errors - let them retry
-  }
 
-  return null;
+    const foundVanityUrl = {forwardTo: json?.page?.vanityUrl.forwardTo,action: json.page.vanityUrl.action,identifier: json.page.vanityUrl.identifier};
+    console.log("foundVanity", foundVanityUrl);
+    vanityCache.set(pathKey, foundVanityUrl, cacheTTL);
+
+    return foundVanityUrl;
+
 }
 
 export async function middleware(request: NextRequest) {
@@ -135,6 +73,7 @@ export async function middleware(request: NextRequest) {
   if (
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/api/') ||
+    pathname.startsWith('/static/') ||
     pathname.startsWith('/favicon') ||
     pathname.startsWith('/.well-known/') ||
     // Skip files with extensions (CSS, JS, images, maps, etc.)
@@ -152,11 +91,10 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check for vanity URL
-  const vanityUrl = await checkVanityUrl(pathname);
+  const vanityUrl:VanityUrlEntry = await checkVanityUrl(pathname);
   
-  if (vanityUrl) {
-    const { forwardTo, action } = vanityUrl;
-    
+  if (vanityUrl && vanityUrl.action!=404) {
+    const { forwardTo, action } = vanityUrl;    
     // Ensure the redirect URL is properly formatted
     let redirectUrl = forwardTo;
     if (!redirectUrl.startsWith('http') && !redirectUrl.startsWith('/')) {
@@ -172,7 +110,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(redirectUrl, request.url), statusCode);
   }
 
-  return NextResponse.next();
+  let response = NextResponse.next();
+
+  response.headers.set("Cache-Control", "public, max-age=300, s-maxage=15, stale-while-revalidate=300");
+  response.headers.set("X-DOT-Cache-Control", "public, max-age=300, s-maxage=15, stale-while-revalidate=300");
+  return response;
 }
 
 export const config = {
@@ -186,6 +128,6 @@ export const config = {
      * - Files with extensions (.css, .js, .png, etc.)
      * - Well-known paths (.well-known/)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.[a-zA-Z0-9]+$|\\.well-known).+)',
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.[a-zA-Z0-9]+$|\\.well-known).*)',
   ],
-} 
+}

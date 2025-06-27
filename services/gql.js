@@ -1,7 +1,7 @@
 import { Config } from '@/util/config';
 import { getCacheKey } from '@/util/cacheService'
 import axios from 'axios';
-
+import { graphCache } from '@/util/cacheService';
 
 /**
  * Get the GraphQL query for a page
@@ -107,76 +107,81 @@ export function getGraphQLPageQuery({ path, mode }) {
 
 
 /**
- * Fetch content from dotCMS using GraphQL
- *
- * @param {*} query
- * @return {*}
+ * This method tries to use a graphql GET for a cached response before it uses a POST
+ * If it gets no data in the GET, it falls back to the POST, which should load cache.
+ * @param {*} query 
+ * @returns 
  */
-export const getGraphqlResults = async (query) => {
-    const queryHash = getCacheKey(query);
+export const graphqlResults = async (query, cacheTTL = 10) => {
 
-    return await axios.get(Config.GraphqlUrl, {
-        params: { "qid": queryHash },   
-        data: { query } ,                 
-        headers: Config.Headers
-    })
-    .then(function (response) {
-        // GraphQL responses can have both data and errors
-        if (response?.data) {
-            const result = {
-                data: response.data.data || null,
-                errors: response.data.errors || []
-            };
-            
-            // If there are errors, log them
-            if (result.errors.length > 0) {
-                console.error('GraphQL errors:', result.errors);
-            }
-            
-            return result;
-        } else {
-            console.error('No data in response:', response);
-            return { 
-                data: null, 
-                errors: [{ message: 'No data in response' }] 
-            };
-        }
-    })
-    .catch(function (error) {
-        console.error('Error fetching data:', error);
-        return { 
-            data: null, 
-            errors: [{ 
+    const cacheKey = getCacheKey(query);
+    const cachedData = graphCache.get(cacheKey);
+    if (cachedData) {
+        return cachedData;
+    }
+    let graphData = {
+        data: null,
+        errors: []
+    };
+
+    graphData = await get(query);
+
+    if (!graphData?.data
+        || Object.keys(graphData?.data).length === 0
+        || graphData.errors.length > 0) {
+        console.debug("GET FAILED, trying POST");
+        graphData = await post(query);
+    }
+
+
+    graphCache.set(cacheKey, graphData, cacheTTL);
+    return graphData;
+
+}
+
+
+
+const axiosFetch = async (query, method) => {
+    const queryHash = getCacheKey(query);
+    const graphUrl = Config.GraphqlUrl + "?dotcachekey=" + queryHash + "&qid=" + queryHash + "&dotcachettl=" + 600;
+    console.debug("Graphql " + method.toUpperCase() + ", url:" + graphUrl)
+    try {
+        return await axios({
+            url: graphUrl,
+            method: method,
+            data: { query },
+            headers: Config.Headers
+        })
+            .then(function (response) {
+                // GraphQL responses can have both data and errors
+                const data = response?.data?.data || response?.data || null;
+                const errors = response?.data?.errors || response?.errors || [];
+                return { data, errors: (typeof errors === 'String') ? [errors] : errors };
+            })
+    } catch (error) {
+
+        return {
+            data: null,
+            errors: [{
                 message: error.message || 'Network or request error',
                 originalError: error
-            }] 
+            }]
         };
-    });
+
+    }
+
+
+}
+
+
+export const get = async (query) => {
+    //console.log("graph GET");
+    return axiosFetch(query, "get");
 };
 
-
-
-
-export const graphqlPost = async (query) => {
-
-
-    try {
-        const res = await fetch(Config.GraphqlUrl, {
-            method: "POST",
-            headers: Config.Headers,
-            body: JSON.stringify({ query }),
-        });
-        const { data } = await res.json();
-
-        return data;
-    } catch(err) {
-        console.group("Error fetching Page");
-        console.warn("Check your URL or DOTCMS_HOST: ", url.toString());
-        console.error(err);
-        console.groupEnd();
-
-        return { page: null };
-    }
+export const post = async (query) => {
+    //console.log("graph POST");
+    return axiosFetch(query, "post");
 };
 
 

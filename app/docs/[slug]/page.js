@@ -4,7 +4,7 @@ import { handleVanityUrlRedirect } from "@/util/vanityUrlHandler";
 
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
 
-import { getGraphqlResults, getGraphQLPageQuery } from "@/services/gql";
+import { graphqlResults , getGraphQLPageQuery} from "@/services/gql";
 
 import { getSideNav } from "@/services/docs/getSideNav"
 import Header from "@/components/header/header";
@@ -25,14 +25,17 @@ async function fetchPageData(path, searchParams) {
     const pageRequestParams = getPageRequestParams({ path: finalPath, params: finalSearchParams });
     const query = getGraphQLPageQuery(pageRequestParams);
     const [result, sideNav] = await Promise.all([
-        getGraphqlResults(query),
+        graphqlResults(query),
 
         getSideNav()
     ]);
 
-    if (result.errors && result.errors.length > 0) {
+
+
+    if (result?.errors && result.errors.length > 0) {
         console.error('GraphQL errors in docs page:', result.errors);
-        throw new Error(result.errors[0].message);
+        notFound();
+        
     }
 
     const pageAsset = graphqlToPageEntity(result.data);
