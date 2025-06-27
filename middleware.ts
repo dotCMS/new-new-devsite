@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { dotCache } from './util/cacheService';
-import { graphqlPost, graphqlResults } from './services/gql';
+import {  graphqlResults } from './services/gql';
 
 interface VanityUrlEntry {
   forwardTo: string ;
   action: number;
+  identifier: string;
 }
 
 const VanityUrl404:VanityUrlEntry ={forwardTo:"404",action:404};
@@ -39,6 +40,7 @@ async function checkVanityUrl (pathname: string): Promise<VanityUrlEntry> {
       {
         page(url: "${escapedPathname}", site:"173aff42881a55a562cec436180999cf") {
           vanityUrl {
+            identifier
             action
             forwardTo
             uri
@@ -56,7 +58,7 @@ async function checkVanityUrl (pathname: string): Promise<VanityUrlEntry> {
         return VanityUrl404;
     }
 
-    const foundVanityUrl = {forwardTo: json?.page?.vanityUrl.forwardTo,action: json.page.vanityUrl.action};
+    const foundVanityUrl = {forwardTo: json?.page?.vanityUrl.forwardTo,action: json.page.vanityUrl.action,identifier: json.page.vanityUrl.identifier};
     console.log("foundVanity", foundVanityUrl);
     dotCache.set(pathKey, foundVanityUrl, cacheTTL);
 
