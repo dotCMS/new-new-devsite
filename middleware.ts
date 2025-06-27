@@ -9,7 +9,7 @@ interface VanityUrlEntry {
   identifier: string;
 }
 
-const VanityUrl404:VanityUrlEntry ={forwardTo:"404",action:404};
+const VanityUrl404:VanityUrlEntry ={forwardTo:"404",action:404,identifier:"404"};
 
 const cacheTTL = 600;
 
