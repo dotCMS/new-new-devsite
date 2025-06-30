@@ -111,10 +111,10 @@ export async function middleware(request: NextRequest) {
   }
 
   let response = NextResponse.next();
+  response.headers.set("Cache-Control", "public, s-maxage=600, stale-while-revalidate=120");
+  response.headers.set("CDN-Cache-Control", "public, s-maxage=600, stale-while-revalidate=120");
+  response.headers.set("Vercel-CDN-Cache-Control", "public, s-maxage=600, stale-while-revalidate=1200");  
   response.headers.set("X-dotcms", "oh yes!");
-  response.headers.set("X-dotcms-Cache-Control", "public, s-maxage=60, stale-while-revalidate=120");
-  response.headers.set("X-dotcms-CDN-Cache-Control", "public, s-maxage=60, stale-while-revalidate=120");
-  response.headers.set("X-dotcms-Vercel-CDN-Cache-Control", "public, s-maxage=600, stale-while-revalidate=1200");
   return response;
 }
 
