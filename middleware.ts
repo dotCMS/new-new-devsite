@@ -111,9 +111,10 @@ export async function middleware(request: NextRequest) {
   }
 
   let response = NextResponse.next();
-
-  response.headers.set("Cache-Control", "public, max-age=300, s-maxage=15, stale-while-revalidate=300");
-  response.headers.set("X-DOT-Cache-Control", "public, max-age=300, s-maxage=15, stale-while-revalidate=300");
+  response.headers.set("Cache-Control", "public, s-maxage=1");
+  response.headers.set("CDN-Cache-Control", "public, s-maxage=60");
+  response.headers.set("Vercel-CDN-Cache-Control", "public, s-maxage=3600");  
+  response.headers.set("X-DOT-Cache-Control", "public, s-maxage=3600");
   return response;
 }
 
