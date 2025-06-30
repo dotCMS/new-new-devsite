@@ -124,12 +124,17 @@ export const graphqlResults = async (query, cacheTTL = 10) => {
         errors: []
     };
 
-    graphData = await get(query);
+    // If we are in the server, try the GET method
+    if (typeof window === 'undefined') {
+        graphData = await get(query);
+        if(!graphData?.data){
+            console.debug("graphql GET failed, trying POST");
+        }
+    } 
 
     if (!graphData?.data
         || Object.keys(graphData?.data).length === 0
         || graphData.errors.length > 0) {
-        console.debug("GET FAILED, trying POST");
         graphData = await post(query);
     }
 
