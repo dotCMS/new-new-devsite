@@ -15,8 +15,22 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
   }
 
   const { githubConfig } = contentlet;
+  
+  // Check if githubConfig exists and has required properties
+  if (!githubConfig || !githubConfig.owner || !githubConfig.repo || !githubConfig.branch || !githubConfig.path) {
+    return <div>Error: Missing GitHub configuration</div>;
+  }
+
   const githubUrl = `https://github.com/${githubConfig.owner}/${githubConfig.repo}`;
-  const githubLibraryUrl = `https://github.com/${githubConfig.owner}/${githubConfig.repo}/tree/${githubConfig.branch}/${githubConfig.path.replace('README.md', '')}`;
+  
+  // Construct library URL properly - remove README.md only if it's at the end of the path
+  const pathWithoutReadme = githubConfig.path.endsWith('README.md') 
+    ? githubConfig.path.slice(0, -9) // Remove 'README.md'
+    : githubConfig.path.endsWith('/README.md')
+    ? githubConfig.path.slice(0, -10) // Remove '/README.md'
+    : githubConfig.path;
+  
+  const githubLibraryUrl = `https://github.com/${githubConfig.owner}/${githubConfig.repo}/tree/${githubConfig.branch}/${pathWithoutReadme}`;
   const documentation = contentlet.documentation;
 
   return (

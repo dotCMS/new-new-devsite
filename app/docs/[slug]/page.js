@@ -29,7 +29,9 @@ async function fetchPageData(path, searchParams) {
     const query = getGraphQLPageQuery(pageRequestParams);
     
     // Extract slug from path for GitHub docs check - ensure consistent processing
-    const slug = finalPath.replace('/docs/', '').toLowerCase();
+    const extractedSlug = finalPath.replace('/docs/', '').toLowerCase();
+    // Maintain consistency with generateMetadata/Home - use empty string for table-of-contents fallback
+    const slug = extractedSlug === 'table-of-contents' ? '' : extractedSlug;
     
     const [result, sideNav] = await Promise.all([
         graphqlResults(query),
@@ -80,8 +82,8 @@ export async function generateMetadata({ params, searchParams }) {
     const finalParams = await params;
     const finalSearchParams = await searchParams;
     // Handle slug as array (for nested paths) or string, and ensure consistent processing
-    const slugArray = Array.isArray(finalParams.slug) ? finalParams.slug : [finalParams.slug];
-    const slug = slugArray.join('/').toLowerCase();
+    const slugArray = Array.isArray(finalParams.slug) ? finalParams.slug : (finalParams.slug ? [finalParams.slug] : []);
+    const slug = slugArray.filter(Boolean).join('/').toLowerCase();
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
     const { pageAsset } = await fetchPageData(path, finalSearchParams);
@@ -208,8 +210,8 @@ export default async function Home({ searchParams, params }) {
 
     const resetNav = finalSearchParams.n === "0";
     // Handle slug as array (for nested paths) or string, and ensure consistent processing
-    const slugArray = Array.isArray(finalParams.slug) ? finalParams.slug : [finalParams.slug];
-    const slug = slugArray.join('/').toLowerCase();
+    const slugArray = Array.isArray(finalParams.slug) ? finalParams.slug : (finalParams.slug ? [finalParams.slug] : []);
+    const slug = slugArray.filter(Boolean).join('/').toLowerCase();
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
     const { pageAsset, sideNav } = await fetchPageData(path, finalSearchParams);

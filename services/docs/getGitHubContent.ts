@@ -54,7 +54,6 @@ export async function fetchGitHubContent(config: GitHubConfig): Promise<string |
       }
 
       const content = await response.text();
-      console.log('content', content);
       return processGitHubMarkdown(content, config);
     } catch (error) {
       console.error('Error fetching GitHub content:', error);
