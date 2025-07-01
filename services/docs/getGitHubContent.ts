@@ -7,14 +7,61 @@ interface ContentResult {
   config: GitHubConfig | null;
 }
 
-// Simple request-level cache to prevent duplicate fetches within the same request
-const requestCache = new Map<string, Promise<string | null>>();
+// Cache entry with expiration timestamp
+interface CacheEntry {
+  promise: Promise<string | null>;
+  expireAt: number;
+}
 
-// Clear cache periodically to prevent memory leaks
-if (typeof setInterval !== 'undefined') {
-  setInterval(() => {
-    requestCache.clear();
-  }, 60000); // Clear every minute
+// Simple request-level cache to prevent duplicate fetches within the same request
+const requestCache = new Map<string, CacheEntry>();
+
+// Cache TTL: 1 minute
+const CACHE_TTL = 60000;
+
+/**
+ * Clean expired entries from cache
+ */
+function cleanExpiredEntries(): void {
+  const now = Date.now();
+  for (const [key, entry] of requestCache.entries()) {
+    if (now > entry.expireAt) {
+      requestCache.delete(key);
+    }
+  }
+}
+
+/**
+ * Get cached entry if valid, otherwise return null
+ */
+function getCachedEntry(url: string): Promise<string | null> | null {
+  const entry = requestCache.get(url);
+  if (!entry) {
+    return null;
+  }
+  
+  // Check if entry is expired
+  if (Date.now() > entry.expireAt) {
+    requestCache.delete(url);
+    return null;
+  }
+  
+  return entry.promise;
+}
+
+/**
+ * Set cache entry with expiration
+ */
+function setCacheEntry(url: string, promise: Promise<string | null>): void {
+  // Clean expired entries periodically (only when setting new entries)
+  if (requestCache.size > 10) {
+    cleanExpiredEntries();
+  }
+  
+  requestCache.set(url, {
+    promise,
+    expireAt: Date.now() + CACHE_TTL
+  });
 }
 
 /**
@@ -25,10 +72,11 @@ if (typeof setInterval !== 'undefined') {
 export async function fetchGitHubContent(config: GitHubConfig): Promise<string | null> {
   const url = buildGitHubRawUrl(config);
   
-  // Check if we already have a pending request for this URL
-  if (requestCache.has(url)) {
+  // Check if we already have a valid cached request for this URL
+  const cachedPromise = getCachedEntry(url);
+  if (cachedPromise) {
     console.log(`[GitHub Cache] Using cached request for: ${url}`);
-    return requestCache.get(url)!;
+    return cachedPromise;
   }
 
   // Create and cache the promise
@@ -58,13 +106,10 @@ export async function fetchGitHubContent(config: GitHubConfig): Promise<string |
     } catch (error) {
       console.error('Error fetching GitHub content:', error);
       return null;
-    } finally {
-      // Remove from cache after completion to allow fresh requests
-      setTimeout(() => requestCache.delete(url), 1000);
     }
   })();
 
-  requestCache.set(url, fetchPromise);
+  setCacheEntry(url, fetchPromise);
   return fetchPromise;
 }
 

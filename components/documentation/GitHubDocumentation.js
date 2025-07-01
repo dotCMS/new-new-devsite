@@ -24,10 +24,10 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
   const githubUrl = `https://github.com/${githubConfig.owner}/${githubConfig.repo}`;
   
   // Construct library URL properly - remove README.md only if it's at the end of the path
-  const pathWithoutReadme = githubConfig.path.endsWith('README.md') 
-    ? githubConfig.path.slice(0, -9) // Remove 'README.md'
-    : githubConfig.path.endsWith('/README.md')
+  const pathWithoutReadme = githubConfig.path.endsWith('/README.md')
     ? githubConfig.path.slice(0, -10) // Remove '/README.md'
+    : githubConfig.path.endsWith('README.md') 
+    ? githubConfig.path.slice(0, -9) // Remove 'README.md'
     : githubConfig.path;
   
   const githubLibraryUrl = `https://github.com/${githubConfig.owner}/${githubConfig.repo}/tree/${githubConfig.branch}/${pathWithoutReadme}`;
