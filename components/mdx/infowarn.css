@@ -1,45 +1,82 @@
-.infoWarnContent > p {
-    margin-bottom: 0px;
+.infoWarnContent > p,
+.infoWarnContent p {
+    margin-bottom: 0.5rem !important;
     padding-bottom: 0px;
 }
 
-.infoWarnContent > h1 {
-    margin-top: 0px;
+.infoWarnContent > p:last-child,
+.infoWarnContent p:last-child {
+    margin-bottom: 0px !important;
+}
+
+.infoWarnContent > h1,
+.infoWarnContent h1 {
+    margin-top: 0px !important;
+    margin-bottom: 0.5rem !important;
     padding-top: 0px;
 }
 
-.infoWarnContent > h2 {
-    margin-top: 0px;
+.infoWarnContent > h2,
+.infoWarnContent h2 {
+    margin-top: 0px !important;
+    margin-bottom: 0.5rem !important;
     padding-top: 0px;
 }
 
-.infoWarnContent > h3 {
-    margin-top: 0px;
+.infoWarnContent > h3,
+.infoWarnContent h3 {
+    margin-top: 0px !important;
+    margin-bottom: 0.5rem !important;
     padding-top: 0px;
 }
 
-.infoWarnContent > ul {
-    margin-bottom: 6px;
-    padding-bottom: 6px;
+.infoWarnContent > ul,
+.infoWarnContent ul {
+    margin-bottom: 0.5rem !important;
+    padding-bottom: 0px;
 }
 
-.infoWarnContent > ol {
-    margin-bottom: 6px;
-    padding-bottom: 6px;
+.infoWarnContent > ol,
+.infoWarnContent ol {
+    margin-bottom: 0.5rem !important;
+    padding-bottom: 0px;
 }   
 
-.infoWarnContent > li {
-    margin-bottom: 0px;
+.infoWarnContent > li,
+.infoWarnContent li {
+    margin-bottom: 0px !important;
     padding-bottom: 0px;
 }   
-.infoWarnContent > ul > li > p {
-    margin-bottom: 0px;
+
+.infoWarnContent > ul > li > p,
+.infoWarnContent ul li p {
+    margin-bottom: 0px !important;
     padding-bottom: 0px;
 }
 
-.infoWarnContent > ol > li > p {
-    margin-bottom: 0px;
+.infoWarnContent > ol > li > p,
+.infoWarnContent ol li p {
+    margin-bottom: 0px !important;
     padding-bottom: 0px;
+}
+
+/* Ensure links maintain proper styling */
+.infoWarnContent a {
+    color: inherit;
+}
+
+/* Override any conflicting Tailwind margins specifically */
+.infoWarnContent .mb-6 {
+    margin-bottom: 0.5rem !important;
+}
+
+.infoWarnContent .mb-6:last-child {
+    margin-bottom: 0px !important;
+}
+
+/* Ensure proper line height for readability */
+.infoWarnContent p {
+    line-height: 1.5;
 }
 
 
