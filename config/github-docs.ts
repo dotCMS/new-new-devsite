@@ -14,12 +14,6 @@ export interface GitHubConfig {
  */
 export const GITHUB_DOCS_MAP: Record<string, GitHubConfig> = {
   // Example SDK mappings - update with actual repo information
-  'javascript-sdk-react-library': {
-    owner: 'dotCMS',
-    repo: 'core',
-    path: 'core-web/libs/sdk/react/README.md',
-    branch: 'main'
-  },
   'sdk-react-library': {
     owner: 'dotCMS',
     repo: 'core',
@@ -30,12 +24,6 @@ export const GITHUB_DOCS_MAP: Record<string, GitHubConfig> = {
     owner: 'dotCMS',
     repo: 'core',
     path: 'core-web/libs/sdk/angular/README.md',
-    branch: 'main'
-  },
-  'javascript-sdk-client-library': {
-    owner: 'dotCMS',
-    repo: 'core',
-    path: 'core-web/libs/sdk/client/README.md',
     branch: 'main'
   },
   'sdk-client-library': {
