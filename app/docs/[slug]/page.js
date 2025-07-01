@@ -65,7 +65,7 @@ async function fetchPageData(path, searchParams, slug) {
         const contentResult = await getDocsContentWithGitHub(
             slug,
             githubConfig,
-            () => pageAsset.urlContentMap._map.documentation || ''
+            () => pageAsset?.urlContentMap?._map?.documentation || ''
         );
 
         // Replace the documentation content with GitHub content
