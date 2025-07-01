@@ -9,6 +9,7 @@ import { AlertBanner } from '@/components/AlertBanner';
 import MicrosoftClarity from '@/components/metrics/MicrosoftClarity';
 import { InitialScroll } from '@/components/InitialScroll';
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { LeadboxerScript } from '@/components/metrics/Leadboxer';
 const inter = Inter({ 
   subsets: ['latin'],
   display: 'swap',
@@ -86,6 +87,7 @@ export default function RootLayout({
         </ErrorBoundary>
         <GoogleAnalytics gaId="G-CM1HLQW35G" />
         <MicrosoftClarity />
+        <LeadboxerScript />
         <SpeedInsights />
       </body>
     </html>
