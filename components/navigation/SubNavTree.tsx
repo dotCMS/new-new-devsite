@@ -54,10 +54,11 @@ const SubNavTree = React.memo(({ items=[], currentPath, level = 0, openSections,
     expandCurrentSection(items, []);
   }, [items, relevantPath, setOpenSections]);
 
-  const renderNavItem = useCallback((item: { urlTitle: string; title: string; dotcmsdocumentationchildren?: any[] }) => {
+  const renderNavItem = useCallback((item: { urlTitle: string; title: string; navTitle?: string; dotcmsdocumentationchildren?: any[] }) => {
     const isCurrentPage = item.urlTitle === relevantPath;
     const hasChildren = item.dotcmsdocumentationchildren && item.dotcmsdocumentationchildren.length > 0;
     const paddingY = 'py-1.5';
+    const displayTitle = item.navTitle || item.title;
 
     if (hasChildren) {
       return (
@@ -85,7 +86,7 @@ const SubNavTree = React.memo(({ items=[], currentPath, level = 0, openSections,
                   toggleSection(item.urlTitle);
                 }}
               >
-                {item.title}
+                {displayTitle}
               </Link>
               <CollapsibleTrigger className="p-0">
                 <ChevronRight
@@ -123,7 +124,7 @@ const SubNavTree = React.memo(({ items=[], currentPath, level = 0, openSections,
               : "text-muted-foreground hover:bg-muted hover:text-foreground"
           )}
         >
-          {item.title}
+          {displayTitle}
         </Link>
       );
     }

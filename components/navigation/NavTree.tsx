@@ -208,7 +208,7 @@ const NavTree = React.memo(
               <div key={item.title} className="mb-5">
                 <div className="py-1 px-2 font-semibold text-foreground">
                     <Link href={item.urlTitle} prefetch={false} className="flex items-center gap-2 hover:text-primary-purple">
-                            {item.title}
+                            {item.navTitle || item.title}
                     </Link>
                 </div>
                 <SubNavTree
@@ -230,7 +230,7 @@ const NavTree = React.memo(
                   <div key={item.title || Math.random()} className="mb-5">
                     <div className="py-2 px-3 font-semibold bg-gray-50 rounded-md text-foreground border border-gray-200">
                         <Link href={item.href || "#"} prefetch={false} className="flex items-center gap-2 hover:text-primary-purple">
-                                {item.title || "Unnamed Link"}
+                                {item.navTitle || item.title || "Unnamed Link"}
                         </Link>
                         <div className="text-xs text-gray-500 mt-1">
                           href: {item.href || "none"}

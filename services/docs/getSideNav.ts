@@ -16,30 +16,37 @@ export const getSideNav = async () => {
     query Documents {
         DotcmsDocumentationCollection(query: "+DotcmsDocumentation.urlTitle_dotraw:table-of-contents") {
             title
+            navTitle
             urlTitle
             modDate
             dotcmsdocumentationchildren {
                 title
+                navTitle
                 urlTitle
                 modDate
                 dotcmsdocumentationchildren {
                     title
+                    navTitle
                     urlTitle
                     modDate
                     dotcmsdocumentationchildren {
                         title
+                        navTitle
                         urlTitle
                         modDate
                         dotcmsdocumentationchildren {
                             title
+                            navTitle
                             urlTitle
                             modDate
                             dotcmsdocumentationchildren {
                                 title
+                                navTitle
                                 urlTitle
                                 modDate
                                 dotcmsdocumentationchildren {
                                     title
+                                    navTitle
                                     urlTitle
                                     modDate
                                 }
