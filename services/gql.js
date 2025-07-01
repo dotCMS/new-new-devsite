@@ -136,6 +136,9 @@ export const graphqlResults = async (query, cacheTTL = 10) => {
         || Object.keys(graphData?.data).length === 0
         || graphData.errors.length > 0) {
         graphData = await post(query);
+        if(!graphData?.data){
+            console.debug("graphql failed:", graphData.errors);
+        }
     }
 
 
@@ -166,7 +169,7 @@ const axiosFetch = async (query, method) => {
     } catch (error) {
 
         return {
-            data: null,
+            data: {},
             errors: [{
                 message: error.message || 'Network or request error',
                 originalError: error

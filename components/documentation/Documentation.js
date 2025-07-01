@@ -10,15 +10,6 @@ import Warn from "../mdx/Warn";
 function cleanMarkdown(markdownString, identifierString) {
   return markdownString
     .replaceAll("${docImage}", "/dA/" + identifierString + "/diagram")
-    .replaceAll(
-      'src="/contentAsset',
-      'src="https://www.dotcms.com/contentAsset'
-    )
-    .replaceAll("(/dA/", "(https://www.dotcms.com/dA/")
-    .replaceAll("( /dA/", "(https://www.dotcms.com/dA/")
-    .replaceAll('src="/dA/', 'src="https://www.dotcms.com/dA/')
-    .replaceAll("(/contentAsset", "(https://www.dotcms.com/contentAsset")
-    .replaceAll("( /contentAsset", "(https://www.dotcms.com/contentAsset")
     .replaceAll("</br>", "<br>");
 }
 

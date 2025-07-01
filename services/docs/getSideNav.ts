@@ -1,6 +1,4 @@
 import {navCache} from '@/util/cacheService'
-import { Config } from '@/util/config';
-import { logRequest } from '@/util/logRequest';
 import { graphqlResults } from '../gql';
 
 
@@ -61,7 +59,7 @@ export const getSideNav = async () => {
     if (graphData.errors && graphData.errors.length > 0) {
         throw new Error(graphData.errors[0].message)
     }
-    navCache.set(cacheKey, graphData.data.DotcmsDocumentationCollection);
+    navCache.set(cacheKey, graphData.data.DotcmsDocumentationCollection, 3600);
 
     return graphData.data.DotcmsDocumentationCollection
 }
