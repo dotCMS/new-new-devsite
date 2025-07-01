@@ -1,6 +1,4 @@
 import { notFound } from "next/navigation";
-import { headers } from 'next/headers';
-import { handleVanityUrlRedirect } from "@/util/vanityUrlHandler";
 
 import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
 
@@ -26,7 +24,6 @@ async function fetchPageData(path, searchParams) {
     const query = getGraphQLPageQuery(pageRequestParams);
     const [result, sideNav] = await Promise.all([
         graphqlResults(query),
-
         getSideNav()
     ]);
 
