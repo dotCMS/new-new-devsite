@@ -114,6 +114,35 @@ export async function fetchGitHubContent(config: GitHubConfig): Promise<string |
 }
 
 /**
+ * Remove H1 title header from the beginning of markdown content
+ * @param content - Raw markdown content
+ * @returns Content with H1 title removed
+ */
+function removeTitle(content: string): string {
+  const lines = content.split('\n');
+  let h1Index = -1;
+  
+  // Find the first H1 heading (starts with single #)
+  // Scan through all content without stopping early to handle
+  // multi-line comments, YAML front-matter, and other content
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    // Check if it's an H1 heading (starts with single # followed by space)
+    if (/^#\s/.test(line)) {
+      h1Index = i;
+      break;
+    }
+  }
+  
+  // Remove the H1 line if found
+  if (h1Index !== -1) {
+    lines.splice(h1Index, 1);
+  }
+  
+  return lines.join('\n');
+}
+
+/**
  * Remove table of contents section from markdown content
  * @param content - Raw markdown content
  * @returns Content with TOC section removed
@@ -167,8 +196,11 @@ function processGitHubMarkdown(content: string, config: GitHubConfig): string {
   const baseUrl = `https://github.com/${owner}/${repo}`;
   const rawBaseUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}`;
   
-  // First, remove table of contents if present
+  // First, remove table of contents if present (including its heading)
   let processedContent = removeTableOfContents(content);
+  
+  // Then, remove any remaining H1 title header
+  processedContent = removeTitle(processedContent);
 
   // Convert relative links to absolute GitHub URLs
   // Handle markdown links like [text](./path) or [text](path)
@@ -195,11 +227,6 @@ function processGitHubMarkdown(content: string, config: GitHubConfig): string {
 
   // Convert anchor links to the current page (keep them as-is for now)
   // These will work with the OnThisPage component
-
-  // Add a header note indicating this is from GitHub
-  const githubNote = `> **Note**: This documentation is automatically synchronized from the [${repo} repository](${baseUrl}).\n\n`;
-  
-  processedContent = githubNote + processedContent;
 
   return processedContent;
 }
