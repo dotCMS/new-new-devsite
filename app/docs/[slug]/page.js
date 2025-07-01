@@ -22,16 +22,24 @@ import RestApiPlayground from "@/components/playgrounds/RestApiPlayground/RestAp
 import SwaggerUIComponent from "@/components/playgrounds/SwaggerUIComponent/SwaggerUIComponent";
 import Script from "next/script";
 
-async function fetchPageData(path, searchParams) {
+/**
+ * Process slug consistently across all functions
+ * @param {string|string[]|undefined} slug - The slug from params
+ * @returns {string} - The processed slug
+ */
+function processSlug(slug) {
+    // Handle slug as array (for nested paths) or string, and ensure consistent processing
+    const slugArray = Array.isArray(slug) ? slug : (slug ? [slug] : []);
+    const processedSlug = slugArray.filter(Boolean).join('/').toLowerCase();
+    // Convert 'table-of-contents' to empty string for consistency with GitHub docs check
+    return processedSlug === 'table-of-contents' ? '' : processedSlug;
+}
+
+async function fetchPageData(path, searchParams, slug) {
     const finalPath = await path;
     const finalSearchParams = await searchParams;
     const pageRequestParams = getPageRequestParams({ path: finalPath, params: finalSearchParams });
     const query = getGraphQLPageQuery(pageRequestParams);
-    
-    // Extract slug from path for GitHub docs check - ensure consistent processing
-    const extractedSlug = finalPath.replace('/docs/', '').toLowerCase();
-    // Maintain consistency with generateMetadata/Home - use empty string for table-of-contents fallback
-    const slug = extractedSlug === 'table-of-contents' ? '' : extractedSlug;
     
     const [result, sideNav] = await Promise.all([
         graphqlResults(query),
@@ -81,12 +89,11 @@ async function fetchPageData(path, searchParams) {
 export async function generateMetadata({ params, searchParams }) {
     const finalParams = await params;
     const finalSearchParams = await searchParams;
-    // Handle slug as array (for nested paths) or string, and ensure consistent processing
-    const slugArray = Array.isArray(finalParams.slug) ? finalParams.slug : (finalParams.slug ? [finalParams.slug] : []);
-    const slug = slugArray.filter(Boolean).join('/').toLowerCase();
+    // Use consistent slug processing
+    const slug = processSlug(finalParams.slug);
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
-    const { pageAsset } = await fetchPageData(path, finalSearchParams);
+    const { pageAsset } = await fetchPageData(path, finalSearchParams, slug);
     
     // NOTE: Vanity URL redirects are now handled by middleware
     // If we reach this point, it's not a vanity URL or the redirect already happened
@@ -209,12 +216,11 @@ export default async function Home({ searchParams, params }) {
     const finalSearchParams = await searchParams;
 
     const resetNav = finalSearchParams.n === "0";
-    // Handle slug as array (for nested paths) or string, and ensure consistent processing
-    const slugArray = Array.isArray(finalParams.slug) ? finalParams.slug : (finalParams.slug ? [finalParams.slug] : []);
-    const slug = slugArray.filter(Boolean).join('/').toLowerCase();
+    // Use consistent slug processing
+    const slug = processSlug(finalParams.slug);
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
-    const { pageAsset, sideNav } = await fetchPageData(path, finalSearchParams);
+    const { pageAsset, sideNav } = await fetchPageData(path, finalSearchParams, slug);
     
     // NOTE: Vanity URL redirects are now handled by middleware
     // If we reach this point, it's not a vanity URL or the redirect already happened

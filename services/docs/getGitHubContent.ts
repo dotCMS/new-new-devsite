@@ -172,21 +172,24 @@ function processGitHubMarkdown(content: string, config: GitHubConfig): string {
 
   // Convert relative links to absolute GitHub URLs
   // Handle markdown links like [text](./path) or [text](path)
+  // Exclude site-absolute paths that start with /
   processedContent = processedContent.replace(
-    /\[([^\]]+)\]\((?!https?:\/\/)(?:\.\/)?([^)]+)\)/g,
+    /\[([^\]]+)\]\((?!https?:\/\/)(?!\/)(?:\.\/)?([^)]+)\)/g,
     `[$1](${baseUrl}/blob/${branch}/$2)`
   );
 
   // Convert relative image references to raw GitHub URLs
   // Handle images like ![alt](./path) or ![alt](path)
+  // Exclude site-absolute paths that start with /
   processedContent = processedContent.replace(
-    /!\[([^\]]*)\]\((?!https?:\/\/)(?:\.\/)?([^)]+)\)/g,
+    /!\[([^\]]*)\]\((?!https?:\/\/)(?!\/)(?:\.\/)?([^)]+)\)/g,
     `![$1](${rawBaseUrl}/$2)`
   );
 
   // Convert relative HTML img tags to raw GitHub URLs
+  // Exclude site-absolute paths that start with /
   processedContent = processedContent.replace(
-    /<img([^>]*)\s+src=["'](?!https?:\/\/)(?:\.\/)?([^"']+)["']/g,
+    /<img([^>]*)\s+src=["'](?!https?:\/\/)(?!\/)(?:\.\/)?([^"']+)["']/g,
     `<img$1 src="${rawBaseUrl}/$2"`
   );
 
