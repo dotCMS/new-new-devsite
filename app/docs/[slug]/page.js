@@ -61,18 +61,29 @@ async function fetchPageData(path, searchParams, slug) {
     if (isGitHubDoc(slug)) {
         const githubConfig = getGitHubConfig(slug);
         
-        // Fetch GitHub content with fallback to dotCMS
-        const contentResult = await getDocsContentWithGitHub(
-            slug,
-            githubConfig,
-            () => pageAsset?.urlContentMap?._map?.documentation || ''
-        );
+        // Only proceed if githubConfig exists and pageAsset structure is valid
+        if (githubConfig && pageAsset?.urlContentMap?._map) {
+            // Fetch GitHub content with fallback to dotCMS
+            const contentResult = await getDocsContentWithGitHub(
+                slug,
+                githubConfig,
+                () => pageAsset?.urlContentMap?._map?.documentation || ''
+            );
 
-        // Replace the documentation content with GitHub content
-        if (contentResult.source === 'github') {
-            pageAsset.urlContentMap._map.documentation = contentResult.content;
-            pageAsset.urlContentMap._map.githubSource = true;
-            pageAsset.urlContentMap._map.githubConfig = contentResult.config;
+            // Replace the documentation content with GitHub content
+            if (contentResult.source === 'github') {
+                // Ensure urlContentMap and _map exist before mutation
+                if (!pageAsset.urlContentMap) {
+                    pageAsset.urlContentMap = {};
+                }
+                if (!pageAsset.urlContentMap._map) {
+                    pageAsset.urlContentMap._map = {};
+                }
+                
+                pageAsset.urlContentMap._map.documentation = contentResult.content;
+                pageAsset.urlContentMap._map.githubSource = true;
+                pageAsset.urlContentMap._map.githubConfig = contentResult.config;
+            }
         }
     }
 
