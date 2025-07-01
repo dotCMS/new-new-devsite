@@ -123,15 +123,13 @@ function removeTitle(content: string): string {
   let h1Index = -1;
   
   // Find the first H1 heading (starts with single #)
+  // Scan through all content without stopping early to handle
+  // multi-line comments, YAML front-matter, and other content
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     // Check if it's an H1 heading (starts with single # followed by space)
     if (/^#\s/.test(line)) {
       h1Index = i;
-      break;
-    }
-    // Stop searching if we encounter any non-empty, non-comment content
-    if (line && !line.startsWith('<!--') && !line.endsWith('-->')) {
       break;
     }
   }
@@ -198,11 +196,11 @@ function processGitHubMarkdown(content: string, config: GitHubConfig): string {
   const baseUrl = `https://github.com/${owner}/${repo}`;
   const rawBaseUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}`;
   
-  // First, remove H1 title header if present
-  let processedContent = removeTitle(content);
+  // First, remove table of contents if present (including its heading)
+  let processedContent = removeTableOfContents(content);
   
-  // Then, remove table of contents if present
-  processedContent = removeTableOfContents(processedContent);
+  // Then, remove any remaining H1 title header
+  processedContent = removeTitle(processedContent);
 
   // Convert relative links to absolute GitHub URLs
   // Handle markdown links like [text](./path) or [text](path)
