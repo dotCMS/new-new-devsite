@@ -151,7 +151,7 @@ export const VidContent = (props) => {
     playsInline
     title={title}
   >
-    <track default="" kind="captions" srclang="en" />
+    <track default="" kind="captions" srcLang="en" />
     {src && (
       <source 
         src={src} 
