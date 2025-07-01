@@ -5,9 +5,12 @@ import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
 import { graphqlResults , getGraphQLPageQuery} from "@/services/gql";
 
 import { getSideNav } from "@/services/docs/getSideNav"
+import { isGitHubDoc, getGitHubConfig } from "@/config/github-docs";
+import { getDocsContentWithGitHub } from "@/services/docs/getGitHubContent";
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import Documentation from "@/components/documentation/Documentation";
+import GitHubDocumentation from "@/components/documentation/GitHubDocumentation";
 import ChangeLogList from "@/components/changelogs/ChangeLogList";
 import NavTree from "@/components/navigation/NavTree";
 import CurrentReleases from "@/components/releases/CurrentReleases";
@@ -17,28 +20,69 @@ import RestApiPlayground from "@/components/playgrounds/RestApiPlayground/RestAp
 import SwaggerUIComponent from "@/components/playgrounds/SwaggerUIComponent/SwaggerUIComponent";
 import Script from "next/script";
 
-async function fetchPageData(path, searchParams) {
+/**
+ * Process slug consistently across all functions
+ * @param {string|string[]|undefined} slug - The slug from params
+ * @returns {string} - The processed slug
+ */
+function processSlug(slug) {
+    // Handle slug as array (for nested paths) or string, and ensure consistent processing
+    const slugArray = Array.isArray(slug) ? slug : (slug ? [slug] : []);
+    const processedSlug = slugArray.filter(Boolean).join('/').toLowerCase();
+    // Convert 'table-of-contents' to empty string for consistency with GitHub docs check
+    return processedSlug === 'table-of-contents' ? '' : processedSlug;
+}
+
+async function fetchPageData(path, searchParams, slug) {
     const finalPath = await path;
     const finalSearchParams = await searchParams;
     const pageRequestParams = getPageRequestParams({ path: finalPath, params: finalSearchParams });
     const query = getGraphQLPageQuery(pageRequestParams);
+    
     const [result, sideNav] = await Promise.all([
         graphqlResults(query),
         getSideNav()
     ]);
 
-
-
     if (result?.errors && result.errors.length > 0) {
         console.error('GraphQL errors in docs page:', result.errors);
         notFound();
-        
     }
 
-    const pageAsset = graphqlToPageEntity(result.data);
+    let pageAsset = graphqlToPageEntity(result.data);
 
     if (!pageAsset) {
         notFound();
+    }
+
+    // Check if this is a GitHub docs page
+    if (isGitHubDoc(slug)) {
+        const githubConfig = getGitHubConfig(slug);
+        
+        // Only proceed if githubConfig exists and pageAsset structure is valid
+        if (githubConfig && pageAsset?.urlContentMap?._map) {
+            // Fetch GitHub content with fallback to dotCMS
+            const contentResult = await getDocsContentWithGitHub(
+                slug,
+                githubConfig,
+                () => pageAsset?.urlContentMap?._map?.documentation || ''
+            );
+
+            // Replace the documentation content with GitHub content
+            if (contentResult.source === 'github') {
+                // Ensure urlContentMap and _map exist before mutation
+                if (!pageAsset.urlContentMap) {
+                    pageAsset.urlContentMap = {};
+                }
+                if (!pageAsset.urlContentMap._map) {
+                    pageAsset.urlContentMap._map = {};
+                }
+                
+                pageAsset.urlContentMap._map.documentation = contentResult.content;
+                pageAsset.urlContentMap._map.githubSource = true;
+                pageAsset.urlContentMap._map.githubConfig = contentResult.config;
+            }
+        }
     }
 
     return { pageAsset, sideNav, query, currentPath: finalPath };
@@ -54,10 +98,11 @@ async function fetchPageData(path, searchParams) {
 export async function generateMetadata({ params, searchParams }) {
     const finalParams = await params;
     const finalSearchParams = await searchParams;
-    const slug = finalParams.slug.toLowerCase();
+    // Use consistent slug processing
+    const slug = processSlug(finalParams.slug);
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
-    const { pageAsset } = await fetchPageData(path, finalSearchParams);
+    const { pageAsset } = await fetchPageData(path, finalSearchParams, slug);
     
     // NOTE: Vanity URL redirects are now handled by middleware
     // If we reach this point, it's not a vanity URL or the redirect already happened
@@ -180,10 +225,11 @@ export default async function Home({ searchParams, params }) {
     const finalSearchParams = await searchParams;
 
     const resetNav = finalSearchParams.n === "0";
-    const slug = finalParams.slug.toLowerCase();
+    // Use consistent slug processing
+    const slug = processSlug(finalParams.slug);
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
-    const { pageAsset, sideNav } = await fetchPageData(path, finalSearchParams);
+    const { pageAsset, sideNav } = await fetchPageData(path, finalSearchParams, slug);
     
     // NOTE: Vanity URL redirects are now handled by middleware
     // If we reach this point, it's not a vanity URL or the redirect already happened
@@ -210,7 +256,13 @@ export default async function Home({ searchParams, params }) {
         "known-security-issues": (data) => <AllSecurityIssues  {...data} slug={slug} />,
         "rest-api-sampler": (data) => <RestApiPlayground {...data} slug={slug} />,
         "all-rest-apis": (data) => <SwaggerUIComponent {...data} slug={slug} />,
-        default: (data) => <Documentation {...data} slug={slug} />
+        default: (data) => {
+            // Check if this is GitHub-sourced content
+            if (data.contentlet.githubSource) {
+                return <GitHubDocumentation {...data} slug={slug} />;
+            }
+            return <Documentation {...data} slug={slug} />;
+        }
     };
 
 
