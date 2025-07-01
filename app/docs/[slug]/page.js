@@ -7,9 +7,12 @@ import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
 import { graphqlResults , getGraphQLPageQuery} from "@/services/gql";
 
 import { getSideNav } from "@/services/docs/getSideNav"
+import { isGitHubDoc, getGitHubConfig } from "@/config/github-docs";
+import { getDocsContentWithGitHub } from "@/services/docs/getGitHubContent";
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import Documentation from "@/components/documentation/Documentation";
+import GitHubDocumentation from "@/components/documentation/GitHubDocumentation";
 import ChangeLogList from "@/components/changelogs/ChangeLogList";
 import NavTree from "@/components/navigation/NavTree";
 import CurrentReleases from "@/components/releases/CurrentReleases";
@@ -24,24 +27,43 @@ async function fetchPageData(path, searchParams) {
     const finalSearchParams = await searchParams;
     const pageRequestParams = getPageRequestParams({ path: finalPath, params: finalSearchParams });
     const query = getGraphQLPageQuery(pageRequestParams);
+    
+    // Extract slug from path for GitHub docs check - ensure consistent processing
+    const slug = finalPath.replace('/docs/', '').toLowerCase();
+    
     const [result, sideNav] = await Promise.all([
         graphqlResults(query),
-
         getSideNav()
     ]);
-
-
 
     if (result?.errors && result.errors.length > 0) {
         console.error('GraphQL errors in docs page:', result.errors);
         notFound();
-        
     }
 
-    const pageAsset = graphqlToPageEntity(result.data);
+    let pageAsset = graphqlToPageEntity(result.data);
 
     if (!pageAsset) {
         notFound();
+    }
+
+    // Check if this is a GitHub docs page
+    if (isGitHubDoc(slug)) {
+        const githubConfig = getGitHubConfig(slug);
+        
+        // Fetch GitHub content with fallback to dotCMS
+        const contentResult = await getDocsContentWithGitHub(
+            slug,
+            githubConfig,
+            () => pageAsset.urlContentMap._map.documentation || ''
+        );
+
+        // Replace the documentation content with GitHub content
+        if (contentResult.source === 'github') {
+            pageAsset.urlContentMap._map.documentation = contentResult.content;
+            pageAsset.urlContentMap._map.githubSource = true;
+            pageAsset.urlContentMap._map.githubConfig = contentResult.config;
+        }
     }
 
     return { pageAsset, sideNav, query, currentPath: finalPath };
@@ -57,7 +79,9 @@ async function fetchPageData(path, searchParams) {
 export async function generateMetadata({ params, searchParams }) {
     const finalParams = await params;
     const finalSearchParams = await searchParams;
-    const slug = finalParams.slug.toLowerCase();
+    // Handle slug as array (for nested paths) or string, and ensure consistent processing
+    const slugArray = Array.isArray(finalParams.slug) ? finalParams.slug : [finalParams.slug];
+    const slug = slugArray.join('/').toLowerCase();
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
     const { pageAsset } = await fetchPageData(path, finalSearchParams);
@@ -183,7 +207,9 @@ export default async function Home({ searchParams, params }) {
     const finalSearchParams = await searchParams;
 
     const resetNav = finalSearchParams.n === "0";
-    const slug = finalParams.slug.toLowerCase();
+    // Handle slug as array (for nested paths) or string, and ensure consistent processing
+    const slugArray = Array.isArray(finalParams.slug) ? finalParams.slug : [finalParams.slug];
+    const slug = slugArray.join('/').toLowerCase();
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
     const { pageAsset, sideNav } = await fetchPageData(path, finalSearchParams);
@@ -213,7 +239,13 @@ export default async function Home({ searchParams, params }) {
         "known-security-issues": (data) => <AllSecurityIssues  {...data} slug={slug} />,
         "rest-api-sampler": (data) => <RestApiPlayground {...data} slug={slug} />,
         "all-rest-apis": (data) => <SwaggerUIComponent {...data} slug={slug} />,
-        default: (data) => <Documentation {...data} slug={slug} />
+        default: (data) => {
+            // Check if this is GitHub-sourced content
+            if (data.contentlet.githubSource) {
+                return <GitHubDocumentation {...data} slug={slug} />;
+            }
+            return <Documentation {...data} slug={slug} />;
+        }
     };
 
 
