@@ -12,98 +12,26 @@ import { Components } from 'react-markdown'
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 import { smoothScroll } from '@/util/smoothScroll'
 import Video from '@/components/mdx/Video'
-import Info from '@/components/mdx/Info'
 import { CopyButton } from './chat/CopyButton'
 import { a11yLight, dark, docco, a11yDark, vs } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 import { useTheme } from "next-themes"
-import Warn from '@/components/mdx/Warn'
 import { Include } from '@/components/mdx/Include'
 import { remarkCustomId } from '@/util/remarkCustomId'
-import { visit } from 'unist-util-visit'
-
-// Store raw content for info/warn components
-const rawContentMap = new Map<string, string>();
-
-// Simple preprocessing to extract Info/Warn content before react-markdown processes it
-function extractInfoWarnContent(content: string): string {
-  let processed = content;
-  
-  // Handle Info/info components
-  processed = processed.replace(/<(Info|info)([^>]*)>([\s\S]*?)<\/(Info|info)>/gi, (match, openTag, attributes, innerContent, closeTag) => {
-    const id = `info_${Date.now()}_${Math.random()}`;
-    rawContentMap.set(id, innerContent.trim());
-    return `<info data-content-id="${id}"${attributes}></info>`;
-  });
-  
-  // Handle Warn/warn components  
-  processed = processed.replace(/<(Warn|warn)([^>]*)>([\s\S]*?)<\/(Warn|warn)>/gi, (match, openTag, attributes, innerContent, closeTag) => {
-    const id = `warn_${Date.now()}_${Math.random()}`;
-    rawContentMap.set(id, innerContent.trim());
-    return `<warn data-content-id="${id}"${attributes}></warn>`;
-  });
-  
-  return processed;
-}
-
-// Rehype plugin to unwrap info/warn components from paragraphs
-function rehypeUnwrapInfoWarn() {
-  return (tree: any) => {
-    visit(tree, 'element', (node, index, parent) => {
-      // Look for paragraphs that contain info or warn elements
-      if (node.tagName === 'p' && node.children && parent && typeof index === 'number') {
-        let hasInfoWarn = false;
-        const infoWarnElements: any[] = [];
-        const otherContent: any[] = [];
-
-        // Separate info/warn elements from other content
-        node.children.forEach((child: any) => {
-          if (child.type === 'element' && (child.tagName === 'info' || child.tagName === 'warn')) {
-            hasInfoWarn = true;
-            infoWarnElements.push(child);
-          } else if (child.type === 'text' && child.value.trim() === '') {
-            // Skip empty text nodes
-          } else {
-            otherContent.push(child);
-          }
-        });
-
-        if (hasInfoWarn) {
-          const replacements: any[] = [];
-          
-          // If there's other content, keep it in a paragraph
-          if (otherContent.length > 0) {
-            replacements.push({
-              type: 'element',
-              tagName: 'p',
-              properties: node.properties,
-              children: otherContent
-            });
-          }
-          
-          // Add info/warn elements as block elements
-          replacements.push(...infoWarnElements);
-          
-          // Replace the original paragraph with the separated elements
-          parent.children.splice(index, 1, ...replacements);
-          
-          // Return the new index to continue processing
-          return index + replacements.length - 1;
-        }
-      }
-    });
-  };
-}
+import { 
+  extractBlockComponentContent, 
+  rehypeUnwrapBlockComponents,
+  generateBlockComponentMappings
+} from './block-components-system'
 
 interface MarkdownContentProps {
   content: string
   className?: string
-  disableInfoWarn?: boolean
+  disableBlockComponents?: boolean // Renamed from disableInfoWarn
 }
 
 type ExtendedComponents = Components & {
-  info: React.ComponentType<ComponentPropsWithoutRef<'div'>>,
-  warn: React.ComponentType<ComponentPropsWithoutRef<'div'>>,
   include: React.ComponentType<{ urltoinclude: string }>
+  // Block components are added dynamically
 }
 
 interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
@@ -119,7 +47,7 @@ const HEADER_HEIGHT = 80;
 const BREADCRUMB_HEIGHT = 48; // 24px height + 24px bottom margin
 const TOTAL_OFFSET = HEADER_HEIGHT + BREADCRUMB_HEIGHT;
 
-const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, disableInfoWarn = false }) => {
+const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, disableBlockComponents = false }) => {
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -383,21 +311,17 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, d
         </video>
       );
     },
-    info: disableInfoWarn ? (() => null) : ({ 'data-content-id': contentId, ...props }: any) => {
-      const rawContent = contentId ? rawContentMap.get(contentId) : null;
-      return <Info rawContent={rawContent} {...props} />;
-    },
-    warn: disableInfoWarn ? (() => null) : ({ 'data-content-id': contentId, ...props }: any) => {
-      const rawContent = contentId ? rawContentMap.get(contentId) : null;
-      return <Warn rawContent={rawContent} {...props} />;
-    },
+
     include: ({ urltoinclude }: any) => {
       return <Include urlToInclude={urltoinclude} />;
     },
+
+    // Dynamically generated block component mappings
+    ...generateBlockComponentMappings(disableBlockComponents),
   }
 
-  // Extract Info/Warn content before react-markdown processes it
-  const processedContent = disableInfoWarn ? content : extractInfoWarnContent(content);
+  // Extract block component content before react-markdown processes it
+  const processedContent = disableBlockComponents ? content : extractBlockComponentContent(content);
 
   // Build rehype plugins array
   const rehypePlugins: any[] = [
@@ -413,9 +337,9 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, d
     }]
   ];
 
-  // Add info/warn unwrap plugin if not disabled
-  if (!disableInfoWarn) {
-    rehypePlugins.splice(1, 0, [rehypeUnwrapInfoWarn]);
+  // Add block component unwrap plugin if not disabled
+  if (!disableBlockComponents) {
+    rehypePlugins.splice(1, 0, [rehypeUnwrapBlockComponents]);
   }
 
   return (
