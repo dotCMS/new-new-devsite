@@ -2,7 +2,7 @@ import React from 'react';
 import { visit } from 'unist-util-visit';
 import Info from '@/components/mdx/Info';
 import Warn from '@/components/mdx/Warn';
-import Note from '@/components/mdx/Note';
+//import Note from '@/components/mdx/Note';
 import Endpoint from '@/components/mdx/Endpoint';
 
 // Store raw content for block-level components
