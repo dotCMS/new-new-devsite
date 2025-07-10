@@ -1,5 +1,6 @@
 import { graphCache } from '../../../util/cacheService';
 import { navCache } from '../../../util/cacheService';
+import { pageCache } from '../../../util/cacheService';
 import { NextResponse } from 'next/server';
 
 // API key for securing the webhook - this should be stored in environment variables in production
@@ -44,6 +45,7 @@ export async function POST(request) {
     // Flush all keys from the cache
     graphCache.flushAll();
     navCache.flushAll();
+    pageCache.flushAll();
     
     // Return success response
     return NextResponse.json({
@@ -80,6 +82,7 @@ export async function GET(request) {
     // Flush all keys from the cache
     graphCache.flushAll();
     navCache.flushAll();
+    pageCache.flushAll();
     
     // Return success response
     return NextResponse.json({
