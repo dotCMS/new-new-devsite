@@ -60,6 +60,12 @@ export function extractBlockComponentContent(content: string): string {
   
   // Then handle regular tags (with content)
   processed = processed.replace(regularRegex, (match, openTag, attributes, innerContent, closeTag) => {
+    // Validate that opening and closing tags match
+    if (openTag.toLowerCase() !== closeTag.toLowerCase()) {
+      // Return the original match if tags don't match - don't process as a component
+      return match;
+    }
+    
     matchCount++;
     const componentName = openTag.toLowerCase();
     const config = BLOCK_COMPONENTS[componentName];

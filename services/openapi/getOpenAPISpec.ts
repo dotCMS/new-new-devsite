@@ -3,13 +3,9 @@ import { Config } from '@/util/config';
 // Global cache for OpenAPI spec
 let openAPICache: {
   data: any | null;
-  loading: boolean;
-  error: string | null;
   promise: Promise<any> | null;
 } = {
   data: null,
-  loading: false,
-  error: null,
   promise: null
 };
 
@@ -62,20 +58,12 @@ export const getOpenAPISpec = async (): Promise<OpenAPISpec> => {
     return openAPICache.data;
   }
 
-  // If there's an error, throw it
-  if (openAPICache.error) {
-    throw new Error(openAPICache.error);
-  }
-
   // If already loading, return the existing promise
-  if (openAPICache.loading && openAPICache.promise) {
+  if (openAPICache.promise) {
     return openAPICache.promise;
   }
 
   // Start loading
-  openAPICache.loading = true;
-  openAPICache.error = null;
-
   const fetchPromise = fetch(Config.SwaggerUrl)
     .then(async (response) => {
       if (!response.ok) {
@@ -85,18 +73,12 @@ export const getOpenAPISpec = async (): Promise<OpenAPISpec> => {
       
       // Cache the successful result
       openAPICache.data = data;
-      openAPICache.loading = false;
-      openAPICache.promise = null;
       
       return data;
     })
-    .catch((error) => {
-      // Cache the error
-      openAPICache.error = error.message;
-      openAPICache.loading = false;
+    .finally(() => {
+      // Clear the promise when done (success or failure)
       openAPICache.promise = null;
-      
-      throw error;
     });
 
   // Store the promise so concurrent calls can use it
@@ -134,8 +116,6 @@ export const getEndpointSpec = async (method: string, path: string): Promise<End
  */
 export const clearOpenAPICache = (): void => {
   openAPICache.data = null;
-  openAPICache.loading = false;
-  openAPICache.error = null;
   openAPICache.promise = null;
 };
 
@@ -145,8 +125,6 @@ export const clearOpenAPICache = (): void => {
 export const getOpenAPICacheStatus = () => {
   return {
     hasData: !!openAPICache.data,
-    loading: openAPICache.loading,
-    error: openAPICache.error,
     hasPromise: !!openAPICache.promise
   };
 }; 
