@@ -4,6 +4,7 @@ declare global {
     var navCache: { instance: NodeCache };
     var graphCache: { instance: NodeCache };
     var vanityCache: { instance: NodeCache };
+    var pageCache: { instance: NodeCache };
 }
 
 if (!global.navCache?.instance) {
@@ -15,9 +16,13 @@ if (!global.graphCache?.instance) {
 if (!global.vanityCache?.instance) {
     global.vanityCache = { instance: new NodeCache({ stdTTL: 600, checkperiod: 60 }) };
 }
+if (!global.pageCache?.instance) {
+    global.pageCache = { instance: new NodeCache({ stdTTL: 300, checkperiod: 30 }) };
+}
 export const navCache: NodeCache = global.navCache.instance;
 export const graphCache: NodeCache = global.graphCache.instance;
 export const vanityCache: NodeCache = global.vanityCache.instance;
+export const pageCache: NodeCache = global.pageCache.instance;
 
 
 

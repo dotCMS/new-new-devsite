@@ -12,7 +12,7 @@ const Warn = ({ node, children, rawContent, ...props }: any) => {
       <MarkdownContent 
         content={rawContent}
         className="infoWarnContent"
-        disableInfoWarn={true}
+        disableBlockComponents={true}
       />
     );
   } else {
