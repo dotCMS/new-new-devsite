@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import { getFilteredOpenAPISpec } from '@/services/openapi/getFilteredOpenAPISpec'
 import type { OpenAPISpec } from '@/services/openapi/getOpenAPISpec'
@@ -70,11 +70,14 @@ const SingleEndpointSwaggerUI: React.FC<SingleEndpointSwaggerUIProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   
-  // Create unique key for this component instance
-  const componentKey = `${method}-${path}`.replace(/[^a-zA-Z0-9]/g, '-');
+  // Create unique key for this component instance using Base64 encoding to prevent collisions
+  const componentKey = React.useMemo(() => {
+    const keyString = `${method}:${path}`;
+    return btoa(keyString).replace(/[+/=]/g, '');
+  }, [method, path]);
 
-  // Request interceptor to add authentication headers and rewrite URLs
-  const requestInterceptor = (req: any) => {
+  // Memoize request interceptor to prevent unnecessary SwaggerUI reinitialization
+  const requestInterceptor = useCallback((req: any) => {
     // Don't modify requests that are loading the spec itself
     if (req.loadSpec) {
       return req;
@@ -96,7 +99,7 @@ const SingleEndpointSwaggerUI: React.FC<SingleEndpointSwaggerUIProps> = ({
     }
 
     return req;
-  };
+  }, []);
 
   useEffect(() => {
     setMounted(true);
