@@ -23,6 +23,11 @@ export interface OpenAPISpec {
   paths: Record<string, Record<string, any>>;
   components?: {
     schemas?: Record<string, any>;
+    responses?: Record<string, any>;
+    parameters?: Record<string, any>;
+    requestBodies?: Record<string, any>;
+    headers?: Record<string, any>;
+    securitySchemes?: Record<string, any>;
   };
 }
 
