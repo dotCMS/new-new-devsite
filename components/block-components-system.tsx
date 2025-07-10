@@ -36,47 +36,31 @@ export function extractBlockComponentContent(content: string): string {
   // Create regex pattern for all block components
   const componentPattern = componentNames.map(name => `${name}|${name.charAt(0).toUpperCase() + name.slice(1)}`).join('|');
   
-  // Handle both self-closing tags and regular tags
-  const selfClosingRegex = new RegExp(`<(${componentPattern})([^>]*?)\\s*\\/>`, 'gi');
-  const regularRegex = new RegExp(`<(${componentPattern})([^>]*?)>([\\s\\S]*?)<\\/(${componentPattern})>`, 'gi');
+  // Single regex to handle both self-closing and regular tags in one pass
+  const combinedRegex = new RegExp(
+    `<(${componentPattern})([^>]*?)(?:\\s*\\/>|>([\\s\\S]*?)<\\/(${componentPattern})>)`,
+    'gi'
+  );
   
-  let matchCount = 0;
-  
-  // First, handle self-closing tags
-  processed = processed.replace(selfClosingRegex, (match, tagName, attributes) => {
-    matchCount++;
-    const componentName = tagName.toLowerCase();
-    const config = BLOCK_COMPONENTS[componentName];
-    
-    if (config?.expectsRawContent) {
-      const id = `${componentName}_${Date.now()}_${Math.random()}`;
-      rawContentMap.set(id, ''); // Empty content for self-closing tags
-      return `<${componentName} data-content-id="${id}"${attributes}></${componentName}>`;
-    } else {
-      // For components that don't need raw content, convert to proper closing tag
-      return `<${componentName}${attributes}></${componentName}>`;
-    }
-  });
-  
-  // Then handle regular tags (with content)
-  processed = processed.replace(regularRegex, (match, openTag, attributes, innerContent, closeTag) => {
-    // Validate that opening and closing tags match
-    if (openTag.toLowerCase() !== closeTag.toLowerCase()) {
+  processed = processed.replace(combinedRegex, (match, openTag, attributes, innerContent, closeTag) => {
+    // If closeTag exists, validate that opening and closing tags match
+    if (closeTag && openTag.toLowerCase() !== closeTag.toLowerCase()) {
       // Return the original match if tags don't match - don't process as a component
       return match;
     }
     
-    matchCount++;
     const componentName = openTag.toLowerCase();
     const config = BLOCK_COMPONENTS[componentName];
     
     if (config?.expectsRawContent) {
       const id = `${componentName}_${Date.now()}_${Math.random()}`;
-      rawContentMap.set(id, innerContent.trim());
+      // Use innerContent if it exists (regular tag), otherwise empty string (self-closing tag)
+      rawContentMap.set(id, innerContent ? innerContent.trim() : '');
       return `<${componentName} data-content-id="${id}"${attributes}></${componentName}>`;
     } else {
-      // For components that don't need raw content, just normalize the tag name
-      return `<${componentName}${attributes}>${innerContent}</${componentName}>`;
+      // For components that don't need raw content, normalize to proper closing tag
+      const content = innerContent || '';
+      return `<${componentName}${attributes}>${content}</${componentName}>`;
     }
   });
   
