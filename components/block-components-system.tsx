@@ -2,7 +2,6 @@ import React from 'react';
 import { visit } from 'unist-util-visit';
 import Info from '@/components/mdx/Info';
 import Warn from '@/components/mdx/Warn';
-//import Note from '@/components/mdx/Note';
 import Endpoint from '@/components/mdx/Endpoint';
 
 // Store raw content for block-level components
@@ -18,7 +17,6 @@ export interface BlockComponentConfig {
 export const BLOCK_COMPONENTS: Record<string, BlockComponentConfig> = {
   info: { component: Info, expectsRawContent: true },
   warn: { component: Warn, expectsRawContent: true },
-  // note: { component: Note, expectsRawContent: true },
   endpoint: { component: Endpoint, expectsRawContent: false },
   // Add future components here, e.g.:
   // callout: { component: Callout, expectsRawContent: false },
@@ -27,6 +25,65 @@ export const BLOCK_COMPONENTS: Record<string, BlockComponentConfig> = {
 
 // Get list of component names for regex
 export const getBlockComponentNames = (): string[] => Object.keys(BLOCK_COMPONENTS);
+
+// Helper function to check if a position is inside a code block
+function isInsideCodeBlock(content: string, position: number): boolean {
+  const beforeMatch = content.slice(0, position);
+  
+  // State machine to track code block nesting
+  let inFencedBlock = false;
+  let inInlineCode = false;
+  let inIndentedBlock = false;
+  
+  const lines = beforeMatch.split('\n');
+  
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+    const line = lines[lineIndex];
+    
+    // Check for indented code blocks (4+ spaces at start of line)
+    // Only valid if not already in other code blocks
+    if (!inFencedBlock && !inInlineCode) {
+      const isIndented = line.match(/^    /);
+      const prevLine = lineIndex > 0 ? lines[lineIndex - 1] : '';
+      const isBlankLine = line.trim() === '';
+      
+      if (isIndented && !isBlankLine) {
+        inIndentedBlock = true;
+      } else if (!isIndented && !isBlankLine && inIndentedBlock) {
+        // Exit indented block when we hit a non-indented, non-blank line
+        inIndentedBlock = false;
+      }
+    }
+    
+    // Process character by character for inline and fenced blocks
+    for (let charIndex = 0; charIndex < line.length; charIndex++) {
+      const char = line[charIndex];
+      const remainingLine = line.slice(charIndex);
+      
+      // Check for fenced code blocks (```)
+      if (remainingLine.startsWith('```') && !inInlineCode) {
+        inFencedBlock = !inFencedBlock;
+        inIndentedBlock = false; // Fenced blocks override indented blocks
+        charIndex += 2; // Skip the next two backticks
+        continue;
+      }
+      
+      // Check for inline code blocks (`)
+      if (char === '`' && !inFencedBlock && !inIndentedBlock) {
+        inInlineCode = !inInlineCode;
+        continue;
+      }
+    }
+    
+    // Add newline character position if not the last line
+    if (lineIndex < lines.length - 1) {
+      // We're at the end of this line, about to process newline
+      continue;
+    }
+  }
+  
+  return inFencedBlock || inInlineCode || inIndentedBlock;
+}
 
 // Generalized preprocessing to extract block component content
 export function extractBlockComponentContent(content: string): string {
@@ -42,7 +99,12 @@ export function extractBlockComponentContent(content: string): string {
     'gi'
   );
   
-  processed = processed.replace(combinedRegex, (match, openTag, attributes, innerContent, closeTag) => {
+  processed = processed.replace(combinedRegex, (match, openTag, attributes, innerContent, closeTag, offset) => {
+    // Skip processing if this component is inside a code block
+    if (isInsideCodeBlock(content, offset)) {
+      return match;
+    }
+    
     // If closeTag exists, validate that opening and closing tags match
     if (closeTag && openTag.toLowerCase() !== closeTag.toLowerCase()) {
       // Return the original match if tags don't match - don't process as a component
