@@ -5,7 +5,7 @@ import MarkdownContent from '@/components/MarkdownContent'
 const markdownContent = `
 # Block Components Test Page
 
-Demoing the new SwaggerUI-style API endpoint block component:
+Demoing the custom block components capable of being dropped into markdown content:
 
 ## API Endpoints
 
@@ -40,30 +40,6 @@ The Info component works as expected!
 <Warn>
 And the Warn component too!
 </Warn>
-
-## Code Examples
-
-Here's how easy it is to use:
-
-\`\`\`markdown
-<!-- Basic endpoint (collapsed, read-only) -->
-<Endpoint method="GET" path="/api/v1/content" />
-
-<!-- Show the tag/category -->
-<Endpoint method="POST" path="/api/v1/content" showTag={true} />
-
-<!-- Enable interactive "Try it out" -->
-<Endpoint method="PUT" path="/api/v1/content/{id}" tryItOut={true} />
-
-<!-- Both tag and try it out -->
-<Endpoint method="DELETE" path="/api/v1/content/{id}" showTag={true} tryItOut={true} />
-\`\`\`
-
-The component automatically:
-- Fetches the OpenAPI specification
-- Finds the endpoint details
-- Renders a complete SwaggerUI-style documentation block
-- Starts collapsed and read-only unless configured otherwise
 `;
 
 export default function TestComponentsPage() {
