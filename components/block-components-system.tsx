@@ -1,8 +1,9 @@
 import React from 'react';
 import { visit } from 'unist-util-visit';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
 import Info from '@/components/mdx/Info';
 import Warn from '@/components/mdx/Warn';
-//import Note from '@/components/mdx/Note';
 import Endpoint from '@/components/mdx/Endpoint';
 
 // Store raw content for block-level components
@@ -18,7 +19,6 @@ export interface BlockComponentConfig {
 export const BLOCK_COMPONENTS: Record<string, BlockComponentConfig> = {
   info: { component: Info, expectsRawContent: true },
   warn: { component: Warn, expectsRawContent: true },
-  // note: { component: Note, expectsRawContent: true },
   endpoint: { component: Endpoint, expectsRawContent: false },
   // Add future components here, e.g.:
   // callout: { component: Callout, expectsRawContent: false },
@@ -27,6 +27,57 @@ export const BLOCK_COMPONENTS: Record<string, BlockComponentConfig> = {
 
 // Get list of component names for regex
 export const getBlockComponentNames = (): string[] => Object.keys(BLOCK_COMPONENTS);
+
+// Helper function to check if a position is inside a code block using remark-parse
+function isInsideCodeBlock(content: string, position: number): boolean {
+  try {
+    // Parse the markdown content using remark-parse
+    const processor = unified().use(remarkParse);
+    const tree = processor.parse(content);
+    
+    // Convert position to line/column coordinates
+    const lines = content.split('\n');
+    let currentPos = 0;
+    let targetLine = 0;
+    let targetColumn = 0;
+    
+    for (let i = 0; i < lines.length; i++) {
+      const lineLength = lines[i].length + 1; // +1 for newline
+      if (currentPos + lineLength > position) {
+        targetLine = i + 1; // remark uses 1-based line numbers
+        targetColumn = position - currentPos + 1; // remark uses 1-based column numbers
+        break;
+      }
+      currentPos += lineLength;
+    }
+    
+    // Check if the position is within any code block
+    let isInCodeBlock = false;
+    
+    visit(tree, ['code', 'inlineCode'], (node: any) => {
+      if (node.position && 
+          node.position.start && 
+          node.position.end) {
+        const startLine = node.position.start.line;
+        const startColumn = node.position.start.column;
+        const endLine = node.position.end.line;
+        const endColumn = node.position.end.column;
+        
+        // Check if target position is within this code block
+        if ((targetLine > startLine || (targetLine === startLine && targetColumn >= startColumn)) &&
+            (targetLine < endLine || (targetLine === endLine && targetColumn <= endColumn))) {
+          isInCodeBlock = true;
+        }
+      }
+    });
+    
+    return isInCodeBlock;
+  } catch (error) {
+    // If parsing fails, fall back to a simple heuristic
+    console.warn('Failed to parse markdown for code block detection:', error);
+    return false;
+  }
+}
 
 // Generalized preprocessing to extract block component content
 export function extractBlockComponentContent(content: string): string {
@@ -42,7 +93,12 @@ export function extractBlockComponentContent(content: string): string {
     'gi'
   );
   
-  processed = processed.replace(combinedRegex, (match, openTag, attributes, innerContent, closeTag) => {
+  processed = processed.replace(combinedRegex, (match, openTag, attributes, innerContent, closeTag, offset) => {
+    // Skip processing if this component is inside a code block
+    if (isInsideCodeBlock(content, offset)) {
+      return match;
+    }
+    
     // If closeTag exists, validate that opening and closing tags match
     if (closeTag && openTag.toLowerCase() !== closeTag.toLowerCase()) {
       // Return the original match if tags don't match - don't process as a component
