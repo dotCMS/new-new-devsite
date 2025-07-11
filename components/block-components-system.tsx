@@ -1,11 +1,7 @@
 import React from 'react';
 import { visit } from 'unist-util-visit';
-////////////////////////////////////////////////////////////
-// NOTE: If we have any further problems with code delimiter parsing, I vote we switch 
-//        to remark-parse rather than persisting in further reinventions of the wheel.
-//  import { unified } from 'unified';
-//  import remarkParse from 'remark-parse';
-////////////////////////////////////////////////////////////
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
 import Info from '@/components/mdx/Info';
 import Warn from '@/components/mdx/Warn';
 import Endpoint from '@/components/mdx/Endpoint';
@@ -32,82 +28,55 @@ export const BLOCK_COMPONENTS: Record<string, BlockComponentConfig> = {
 // Get list of component names for regex
 export const getBlockComponentNames = (): string[] => Object.keys(BLOCK_COMPONENTS);
 
-// Helper function to check if a position is inside a code block
+// Helper function to check if a position is inside a code block using remark-parse
 function isInsideCodeBlock(content: string, position: number): boolean {
-  const beforeMatch = content.slice(0, position);
-  
-  // State machine to track code block nesting
-  let inFencedBlock = false;
-  let inIndentedBlock = false;
-  
-  const lines = beforeMatch.split('\n');
-  
-  for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-    const line = lines[lineIndex];
+  try {
+    // Parse the markdown content using remark-parse
+    const processor = unified().use(remarkParse);
+    const tree = processor.parse(content);
     
-    // Reset inline code state at the start of each line (CommonMark spec)
-    let inInlineCode = false;
-    let inlineCodeDelimiter = '';
+    // Convert position to line/column coordinates
+    const lines = content.split('\n');
+    let currentPos = 0;
+    let targetLine = 0;
+    let targetColumn = 0;
     
-    // Check for indented code blocks (4+ spaces OR tab at start of line)
-    // Only valid if not already in other code blocks
-    if (!inFencedBlock && !inInlineCode) {
-      const isIndented = line.match(/^(    |\t)/);
-      const isBlankLine = line.trim() === '';
-      
-      if (isIndented && !isBlankLine) {
-        inIndentedBlock = true;
-      } else if (!isIndented && !isBlankLine && inIndentedBlock) {
-        // Exit indented block when we hit a non-indented, non-blank line
-        inIndentedBlock = false;
+    for (let i = 0; i < lines.length; i++) {
+      const lineLength = lines[i].length + 1; // +1 for newline
+      if (currentPos + lineLength > position) {
+        targetLine = i + 1; // remark uses 1-based line numbers
+        targetColumn = position - currentPos + 1; // remark uses 1-based column numbers
+        break;
       }
+      currentPos += lineLength;
     }
     
-    // Process character by character for inline and fenced blocks
-    for (let charIndex = 0; charIndex < line.length; charIndex++) {
-      const char = line[charIndex];
-      const remainingLine = line.slice(charIndex);
-      
-      // Check for fenced code blocks (```)
-      if (remainingLine.startsWith('```') && !inInlineCode) {
-        inFencedBlock = !inFencedBlock;
-        inIndentedBlock = false; // Fenced blocks override indented blocks
-        charIndex += 2; // Skip the next two backticks
-        continue;
-      }
-      
-      // Check for inline code blocks (support multi-backtick delimiters)
-      if (char === '`' && !inFencedBlock && !inIndentedBlock) {
-        // Count consecutive backticks
-        let backtickCount = 0;
-        for (let i = charIndex; i < line.length && line[i] === '`'; i++) {
-          backtickCount++;
-        }
+    // Check if the position is within any code block
+    let isInCodeBlock = false;
+    
+    visit(tree, ['code', 'inlineCode'], (node: any) => {
+      if (node.position && 
+          node.position.start && 
+          node.position.end) {
+        const startLine = node.position.start.line;
+        const startColumn = node.position.start.column;
+        const endLine = node.position.end.line;
+        const endColumn = node.position.end.column;
         
-        const backtickSequence = '`'.repeat(backtickCount);
-        
-        if (!inInlineCode) {
-          // Starting inline code block
-          inInlineCode = true;
-          inlineCodeDelimiter = backtickSequence;
-          charIndex += backtickCount - 1; // Skip the backticks (-1 because loop will increment)
-        } else if (backtickSequence === inlineCodeDelimiter) {
-          // Ending inline code block with matching delimiter
-          inInlineCode = false;
-          inlineCodeDelimiter = '';
-          charIndex += backtickCount - 1; // Skip the backticks (-1 because loop will increment)
+        // Check if target position is within this code block
+        if ((targetLine > startLine || (targetLine === startLine && targetColumn >= startColumn)) &&
+            (targetLine < endLine || (targetLine === endLine && targetColumn <= endColumn))) {
+          isInCodeBlock = true;
         }
-        continue;
       }
-    }
+    });
     
-    // If this is the last line, check if we're currently in inline code
-    if (lineIndex === lines.length - 1) {
-      return inFencedBlock || inIndentedBlock || inInlineCode;
-    }
+    return isInCodeBlock;
+  } catch (error) {
+    // If parsing fails, fall back to a simple heuristic
+    console.warn('Failed to parse markdown for code block detection:', error);
+    return false;
   }
-  
-  return inFencedBlock || inIndentedBlock;
 }
 
 // Generalized preprocessing to extract block component content
