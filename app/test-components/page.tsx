@@ -22,7 +22,8 @@ Dropping this component directly into your markdown content:
 \`<Endpoint method="GET" path="/api/v1/contenttype" />\`
 
 \`<Endpoint method="GET" path="/api/v1/contenttype" />
-a\'
+
+a\`
 
 \`<Endpoint method="GET" path="/api/v1/contenttype" />\`
 

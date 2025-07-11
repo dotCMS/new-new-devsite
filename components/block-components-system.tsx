@@ -43,10 +43,10 @@ function isInsideCodeBlock(content: string, position: number): boolean {
     let inInlineCode = false;
     let inlineCodeDelimiter = '';
     
-    // Check for indented code blocks (4+ spaces at start of line)
+    // Check for indented code blocks (4+ spaces OR tab at start of line)
     // Only valid if not already in other code blocks
     if (!inFencedBlock && !inInlineCode) {
-      const isIndented = line.match(/^    /);
+      const isIndented = line.match(/^(    |\t)/);
       const isBlankLine = line.trim() === '';
       
       if (isIndented && !isBlankLine) {
