@@ -1,5 +1,11 @@
 import React from 'react';
 import { visit } from 'unist-util-visit';
+////////////////////////////////////////////////////////////
+// NOTE: If we have any further problems with code delimiter parsing, I vote we switch 
+//        to remark-parse rather than persisting in further reinventions of the wheel.
+//  import { unified } from 'unified';
+//  import remarkParse from 'remark-parse';
+////////////////////////////////////////////////////////////
 import Info from '@/components/mdx/Info';
 import Warn from '@/components/mdx/Warn';
 import Endpoint from '@/components/mdx/Endpoint';

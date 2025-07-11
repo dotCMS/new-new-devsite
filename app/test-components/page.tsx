@@ -12,21 +12,8 @@ Demoing the new SwaggerUI-style API endpoint block component:
 Dropping this component directly into your markdown content:
 
 \`\`\`markdown
-\`\` d \'<Endpoint method="GET" path="/api/v1/contenttype" /> \` d \`\`
-\`\`\`
-
-\`\`\`markdown
 <Endpoint method="GET" path="/api/v1/contenttype" />
 \`\`\`
-
-\`<Endpoint method="GET" path="/api/v1/contenttype" />\`
-
-\`<Endpoint method="GET" path="/api/v1/contenttype" />
-
-a\`
-
-\`<Endpoint method="GET" path="/api/v1/contenttype" />\`
-
 
 Will give this output:
 
