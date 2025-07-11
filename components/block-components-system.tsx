@@ -32,7 +32,6 @@ function isInsideCodeBlock(content: string, position: number): boolean {
   
   // State machine to track code block nesting
   let inFencedBlock = false;
-  let inInlineCode = false;
   let inIndentedBlock = false;
   
   const lines = beforeMatch.split('\n');
@@ -40,11 +39,14 @@ function isInsideCodeBlock(content: string, position: number): boolean {
   for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
     const line = lines[lineIndex];
     
+    // Reset inline code state at the start of each line (CommonMark spec)
+    let inInlineCode = false;
+    let inlineCodeDelimiter = '';
+    
     // Check for indented code blocks (4+ spaces at start of line)
     // Only valid if not already in other code blocks
     if (!inFencedBlock && !inInlineCode) {
       const isIndented = line.match(/^    /);
-      const prevLine = lineIndex > 0 ? lines[lineIndex - 1] : '';
       const isBlankLine = line.trim() === '';
       
       if (isIndented && !isBlankLine) {
@@ -68,21 +70,38 @@ function isInsideCodeBlock(content: string, position: number): boolean {
         continue;
       }
       
-      // Check for inline code blocks (`)
+      // Check for inline code blocks (support multi-backtick delimiters)
       if (char === '`' && !inFencedBlock && !inIndentedBlock) {
-        inInlineCode = !inInlineCode;
+        // Count consecutive backticks
+        let backtickCount = 0;
+        for (let i = charIndex; i < line.length && line[i] === '`'; i++) {
+          backtickCount++;
+        }
+        
+        const backtickSequence = '`'.repeat(backtickCount);
+        
+        if (!inInlineCode) {
+          // Starting inline code block
+          inInlineCode = true;
+          inlineCodeDelimiter = backtickSequence;
+          charIndex += backtickCount - 1; // Skip the backticks (-1 because loop will increment)
+        } else if (backtickSequence === inlineCodeDelimiter) {
+          // Ending inline code block with matching delimiter
+          inInlineCode = false;
+          inlineCodeDelimiter = '';
+          charIndex += backtickCount - 1; // Skip the backticks (-1 because loop will increment)
+        }
         continue;
       }
     }
     
-    // Add newline character position if not the last line
-    if (lineIndex < lines.length - 1) {
-      // We're at the end of this line, about to process newline
-      continue;
+    // If this is the last line, check if we're currently in inline code
+    if (lineIndex === lines.length - 1) {
+      return inFencedBlock || inIndentedBlock || inInlineCode;
     }
   }
   
-  return inFencedBlock || inInlineCode || inIndentedBlock;
+  return inFencedBlock || inIndentedBlock;
 }
 
 // Generalized preprocessing to extract block component content
