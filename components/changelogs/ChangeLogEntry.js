@@ -13,7 +13,15 @@ const HEADER_HEIGHT = 80;
 
 export default function ChangeLogEntry({ item, index }) {
 
-  const releaseNotes = item?.releaseNotes;
+  // Replace Velocity template variables with actual values
+  const processReleaseNotes = (notes, version) => {
+    if (!notes) return notes;
+    
+    // Replace $!{version} with the actual version number
+    return notes.replace(/\$!?\{version\}/g, version || '');
+  };
+
+  const releaseNotes = processReleaseNotes(item?.releaseNotes, item?.minor);
   const useMarkdown = isMarkdownStrict(releaseNotes,2)
 
   const [copied, setCopied] = useState(false);
@@ -39,16 +47,17 @@ export default function ChangeLogEntry({ item, index }) {
           Available: {extractDateForTables(item?.releasedDate)}
         </div>
         <div className="text-sm text-muted-foreground">
-
+          {item?.dockerImage ? (
             <div className="flex items-center whitespace-nowrap min-w-0">
-              <span className="flex-shrink-0">docker tag : {item?.dockerImage.split(':')[1]}</span>
+              <span className="flex-shrink-0">docker tag : {item.dockerImage.split(':')[1]}</span>
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(item?.dockerImage);
+                  navigator.clipboard.writeText(item.dockerImage);
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
                 }}
                 className="inline-flex items-center ml-1 p-1 hover:bg-gray-100 rounded-md"
+                title="Copy docker image"
               >
                 {copied ? (
                   <Check className="w-4 h-4 text-green-500" />
@@ -56,14 +65,12 @@ export default function ChangeLogEntry({ item, index }) {
                   <Copy className="w-4 h-4" />
                 )}
               </button>
-
-              <div className="flex items-center whitespace-nowrap min-w-0 gap-2">
-
             </div>
-
-
+          ) : (
+            <div className="flex items-center whitespace-nowrap min-w-0">
+              <span className="flex-shrink-0 text-muted-foreground/60">docker tag : N/A</span>
             </div>
-
+          )}
         </div>
       </div>
 

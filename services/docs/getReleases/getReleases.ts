@@ -66,7 +66,23 @@ const result = await logRequest(async () => graphqlResults(query), 'getCurrentRe
 
 if (result?.errors && result.errors.length > 0) {
   console.error('GraphQL errors in getReleases:', result.errors);
-  throw new Error(result.errors[0].message);
+  
+  // Check if the error is related to null dockerImage fields
+  const isDockerImageError = result.errors.some((error: any) => 
+    error.message && error.message.includes('dockerImage') && error.message.includes('null value')
+  );
+  
+  if (isDockerImageError) {
+    console.warn('Handling null dockerImage values in releases data');
+    // Filter out entries with null dockerImage values from the results if data exists
+    if (result?.data?.DotcmsbuildsCollection) {
+      result.data.DotcmsbuildsCollection = result.data.DotcmsbuildsCollection.filter((item: any) => 
+        item && typeof item === 'object'
+      );
+    }
+  } else {
+    throw new Error(result.errors[0].message);
+  }
 }
 
 return {releases: result?.data?.DotcmsbuildsCollection, pagination: result?.data?.Pagination[0]};

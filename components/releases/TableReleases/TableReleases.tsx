@@ -136,13 +136,14 @@ export const TableReleases: FC<{
                         onClick={() => { DockerComposeYAML({ 
                           version: release.minor, 
                           lts: release.lts !== "3", 
-                          dockerTag: release.dockerImage.replace("dotcms/dotcms:", ""), 
+                          dockerTag: release.dockerImage?.replace("dotcms/dotcms:", "") || release.minor, 
                           cleanStarter: release.starterEmpty, 
                           demoStarter: release.starter, 
                           includeDemo: false 
                         })}}
                         className="px-1 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 w-0 grow
                                   rounded-md transition-colors bg-indigo-100 dark:bg-indigo-600"
+                        disabled={!release.dockerImage}
                       >
                         Clean
                       </button>
@@ -150,13 +151,14 @@ export const TableReleases: FC<{
                         onClick={() => { DockerComposeYAML({ 
                             version: release.minor, 
                             lts: release.lts !== "3", 
-                            dockerTag: release.dockerImage.replace("dotcms/dotcms:", ""), 
+                            dockerTag: release.dockerImage?.replace("dotcms/dotcms:", "") || release.minor, 
                             cleanStarter: release.starterEmpty, 
                             demoStarter: release.starter, 
                             includeDemo: true 
                           })}}
                         className="px-1 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 w-0 grow
                                   rounded-md transition-colors bg-purple-100 dark:bg-purple-600"
+                        disabled={!release.dockerImage}
                       >
                         Demo Site
                       </button>
