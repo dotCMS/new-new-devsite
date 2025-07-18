@@ -83,7 +83,16 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
                           </span>
                           <a
                             href={githubConfig.starterGuide}
-                            {...(githubConfig.starterGuide.startsWith('http') && !githubConfig.starterGuide.includes('dev.dotcms.com') ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                            {...(() => {
+                              try {
+                                const url = new URL(githubConfig.starterGuide, window.location.origin);
+                                const isExternal = url.hostname.toLowerCase() !== 'dev.dotcms.com' && url.hostname !== window.location.hostname;
+                                return isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {};
+                              } catch {
+                                // If URL parsing fails, treat as internal link
+                                return {};
+                              }
+                            })()}
                             className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline whitespace-nowrap ml-4"
                           >
                             View Integration Guide
