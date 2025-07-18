@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ExternalLink, Github } from "lucide-react";
+import { ExternalLink, Github, Zap } from "lucide-react";
 
 import Breadcrumbs from "@/components/navigation/Breadcrumbs";
 import MarkdownContent from "@/components/MarkdownContent";
@@ -54,21 +54,46 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
             {/* GitHub Source Alert */}
             <div className="not-markdown">
               <Alert className="mb-6">
-                <Github className="h-4 w-4" />
-                <AlertDescription className="flex items-center justify-between">
-                  <span>
-                    This documentation is automatically synchronized from the{" "}
-                    <strong>{githubConfig.repo}</strong> repository.
-                  </span>
-                  <a
-                    href={githubLibraryUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-                  >
-                    View on GitHub
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
+                <AlertDescription>
+                  <div className="flex items-start gap-2">
+                    <Github className="h-4 w-4 mt-0.5 shrink-0" />
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-sm">
+                        This documentation is automatically synchronized from the{" "}
+                        <strong>{githubConfig.repo}</strong> repository.
+                      </span>
+                      <a
+                        href={githubLibraryUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline whitespace-nowrap ml-4"
+                      >
+                        View on GitHub
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
+                  </div>
+                  {githubConfig.starterGuide && (
+                    <div className="mt-3 pt-3 border-t border-border/50">
+                      <div className="flex items-start gap-2">
+                        <Zap className="h-4 w-4 mt-0.5 shrink-0" />
+                        <div className="flex items-center justify-between w-full">
+                          <span className="text-sm">
+                            Get started quickly with detailed instructions and visual aids.
+                          </span>
+                          <a
+                            href={githubConfig.starterGuide}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline whitespace-nowrap ml-4"
+                          >
+                            View Integration Guide
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </AlertDescription>
               </Alert>
             </div>
