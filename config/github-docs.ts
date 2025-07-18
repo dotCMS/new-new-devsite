@@ -62,6 +62,42 @@ export const GITHUB_DOCS_MAP: Record<string, GitHubConfig> = {
     path: 'README.md',
     branch: 'main'
   },
+  'sdk-nextjs-example': {
+    owner: 'dotCMS',
+    repo: 'core',
+    path: 'examples/nextjs/README.md',
+    branch: 'main'
+  },
+  'sdk-angular-example': {
+    owner: 'dotCMS',
+    repo: 'core',
+    path: 'examples/angular/README.md',
+    branch: 'main'
+  },
+  'sdk-astro-example': {
+    owner: 'dotCMS',
+    repo: 'core',
+    path: 'examples/astro/README.md',
+    branch: 'main'
+  },
+  'sdk-laravel-example': {
+    owner: 'dotCMS',
+    repo: 'dotcms-php-sdk',
+    path: 'examples/dotcms-laravel/README.md',
+    branch: 'main'
+  },
+  'sdk-symfony-example': {
+    owner: 'dotCMS',
+    repo: 'dotcms-php-sdk',
+    path: 'examples/dotcms-symfony/README.md',
+    branch: 'main'
+  },
+  'sdk-dotnet-example': {
+    owner: 'dotCMS',
+    repo: 'dotnet-starter-example',
+    path: 'README.md',
+    branch: 'main'
+  },
   // Add more SDK mappings as needed
 };
 
