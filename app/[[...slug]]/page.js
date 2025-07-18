@@ -66,10 +66,11 @@ export async function generateMetadata({ params, searchParams }) {
 
 export default async function Page({ params, searchParams }) {
     const finalParams = await params;
-    const finalSearchParams = await searchParams;
+    // We dont need send the mode on the params
+    const { mode, ...finalSearchParams } = await searchParams;
     const headersList = await headers();
     const pathname = headersList.get("x-invoke-path") || "";
-
+    
     const getPageData = async () => {
         const path = finalParams?.slug?.join("/") || "/";
         const pageParams = getPageRequestParams({
