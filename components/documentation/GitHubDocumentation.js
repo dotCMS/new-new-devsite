@@ -85,11 +85,12 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
                             href={githubConfig.starterGuide}
                             {...(() => {
                               try {
-                                const url = new URL(githubConfig.starterGuide, window.location.origin);
-                                const isExternal = url.hostname.toLowerCase() !== 'dev.dotcms.com' && url.hostname !== window.location.hostname;
+                                // Simple and consistent logic: if it starts with http/https, treat as external
+                                // This works the same on server and client, preventing hydration mismatches
+                                const isExternal = /^https?:\/\//.test(githubConfig.starterGuide);
                                 return isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {};
                               } catch {
-                                // If URL parsing fails, treat as internal link
+                                // If anything fails, treat as internal link
                                 return {};
                               }
                             })()}
