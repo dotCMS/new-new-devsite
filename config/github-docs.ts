@@ -6,6 +6,7 @@ export interface GitHubConfig {
   repo: string;
   path: string;
   branch: string;
+  starterGuide?: string;
 }
 
 /**
@@ -18,13 +19,14 @@ export const GITHUB_DOCS_MAP: Record<string, GitHubConfig> = {
     owner: 'dotCMS',
     repo: 'core',
     path: 'core-web/libs/sdk/react/README.md',
-    branch: 'main'
+    branch: 'main',
   },
   'sdk-angular-library': {
     owner: 'dotCMS',
     repo: 'core',
     path: 'core-web/libs/sdk/angular/README.md',
-    branch: 'main'
+    branch: 'main',
+    starterGuide: '/getting-started/integrations/angular'
   },
   'sdk-client-library': {
     owner: 'dotCMS',
@@ -66,31 +68,36 @@ export const GITHUB_DOCS_MAP: Record<string, GitHubConfig> = {
     owner: 'dotCMS',
     repo: 'core',
     path: 'examples/nextjs/README.md',
-    branch: 'main'
+    branch: 'main',
+    starterGuide: '/getting-started/integrations/nextjs'
   },
   'sdk-angular-example': {
     owner: 'dotCMS',
     repo: 'core',
     path: 'examples/angular/README.md',
-    branch: 'main'
+    branch: 'main',
+    starterGuide: '/getting-started/integrations/angular'
   },
   'sdk-astro-example': {
     owner: 'dotCMS',
     repo: 'core',
     path: 'examples/astro/README.md',
-    branch: 'main'
+    branch: 'main',
+    starterGuide: '/getting-started/integrations/astro'
   },
   'sdk-laravel-example': {
     owner: 'dotCMS',
     repo: 'dotcms-php-sdk',
     path: 'examples/dotcms-laravel/README.md',
-    branch: 'main'
+    branch: 'main',
+    starterGuide: '/getting-started/integrations/laravel'
   },
   'sdk-symfony-example': {
     owner: 'dotCMS',
     repo: 'dotcms-php-sdk',
     path: 'examples/dotcms-symfony/README.md',
-    branch: 'main'
+    branch: 'main',
+    starterGuide: '/getting-started/integrations/symfony'
   },
   'sdk-dotnet-example': {
     owner: 'dotCMS',
