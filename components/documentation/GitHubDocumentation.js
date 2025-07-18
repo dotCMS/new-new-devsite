@@ -83,8 +83,7 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
                           </span>
                           <a
                             href={githubConfig.starterGuide}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            {...(githubConfig.starterGuide.startsWith('http') && !githubConfig.starterGuide.includes('dev.dotcms.com') ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                             className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline whitespace-nowrap ml-4"
                           >
                             View Integration Guide
