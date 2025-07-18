@@ -97,7 +97,14 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
                             className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline whitespace-nowrap ml-4"
                           >
                             View Integration Guide
-                            <ExternalLink className="h-3 w-3" />
+                            {(() => {
+                              try {
+                                const isExternal = /^https?:\/\//.test(githubConfig.starterGuide);
+                                return isExternal ? <ExternalLink className="h-3 w-3" /> : null;
+                              } catch {
+                                return null;
+                              }
+                            })()}
                           </a>
                         </div>
                       </div>
