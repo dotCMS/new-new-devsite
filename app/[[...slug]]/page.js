@@ -70,6 +70,9 @@ export default async function Page({ params, searchParams }) {
     const headersList = await headers();
     const pathname = headersList.get("x-invoke-path") || "";
 
+    // We dont need send the mode on the params
+    delete finalSearchParams.mode;
+    
     const getPageData = async () => {
         const path = finalParams?.slug?.join("/") || "/";
         const pageParams = getPageRequestParams({
