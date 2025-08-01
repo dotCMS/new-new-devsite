@@ -94,7 +94,7 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
   };
   const ltsMajVersion = sussOutLatestMajor(ltsMajorResult.DotcmsbuildsCollection[0], vLts);
   //console.log("sussed as:", ltsMajVersion);
-  const sortBy = 'Dotcmsbuilds.releasedDate desc';
+  const sortBy = 'Dotcmsbuilds.releasedDate desc, modDate desc';
   const query = assembleQuery(buildQuery, ltsQuery, ltsMajVersion, (singleVersion && !ltsPatchVersion) ? `+Dotcmsbuilds.minor:${singleVersion}` : "", (ltsMajVersion ? 20 : limit), page, sortBy);
   const result = await logRequest(async () => graphqlResults(query), 'getChangelog');
   
