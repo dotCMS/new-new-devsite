@@ -10,8 +10,13 @@ const getBaseUrlFromSwaggerUrl = (swaggerUrl: string): string => {
     return `${url.protocol}//${url.host}`;
   } catch (error) {
     console.error('Invalid SwaggerUrl format:', swaggerUrl, error);
-    // Fallback to the original value if URL parsing fails
-    return swaggerUrl;
+    // Fallback: try to extract base URL manually using string manipulation
+    const match = swaggerUrl.match(/^(https?:\/\/[^\/]+)/);
+    if (match) {
+      return match[1];
+    }
+    // Final fallback - assume it's already a base URL
+    return swaggerUrl.replace(/\/.*$/, '');
   }
 };
 
