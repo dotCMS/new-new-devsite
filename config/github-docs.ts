@@ -58,7 +58,7 @@ export const GITHUB_DOCS_MAP: Record<string, GitHubConfig> = {
     path: 'core-web/libs/sdk/uve/README.md',
     branch: 'main'
   },
-  'php-sdk': {
+  'sdk-php-library': {
     owner: 'dotCMS',
     repo: 'dotcms-php-sdk',
     path: 'README.md',
