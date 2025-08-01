@@ -3,7 +3,7 @@ import { type FC, useState, useEffect } from 'react'
 import SwaggerUI from 'swagger-ui-react'
 import { getOpenAPISpec } from '@/services/openapi/getOpenAPISpec'
 import type { OpenAPISpec } from '@/services/openapi/getOpenAPISpec'
-import { Config } from '@/util/config'
+import { createSwaggerRequestInterceptor } from '@/util/swaggerRequestInterceptor'
 
 import 'swagger-ui-react/swagger-ui.css'
 
@@ -30,29 +30,7 @@ const SwaggerUIComponent: FC = () => {
   }, []);
 
   // Request interceptor to add authentication headers and rewrite URLs
-  const requestInterceptor = (req: any) => {
-    // Don't modify requests that are loading the spec itself
-    if (req.loadSpec) {
-      return req;
-    }
-
-    // Rewrite API URLs to point to the backend server
-    const currentOrigin = window.location.origin;
-    if (req.url.startsWith(currentOrigin + '/api/')) {
-      // Replace frontend origin with backend origin
-      req.url = req.url.replace(currentOrigin, Config.DotCMSHost);
-    } else if (req.url.startsWith('/api/')) {
-      // Handle relative URLs
-      req.url = Config.DotCMSHost + req.url;
-    }
-
-    // Add authorization header
-    if (Config.AuthToken) {
-      req.headers.Authorization = `Bearer ${Config.AuthToken}`;
-    }
-
-    return req;
-  };
+  const requestInterceptor = createSwaggerRequestInterceptor();
 
   if (loading) {
     return (
