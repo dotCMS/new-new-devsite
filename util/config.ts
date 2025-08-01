@@ -14,7 +14,8 @@ export const Config = {
   CDNHost: normalizedCDNHost as string,
   GraphqlUrl: process.env.NEXT_PUBLIC_API_GRAPH_URL || ((normalizedDotCMSHost + '/api/v1/graphql') as string),
   AuthToken: process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN as string,
-  SwaggerUrl: process.env.NEXT_PUBLIC_API_SWAGGER_URL || ((normalizedDotCMSHost + '/api/openapi.json') as string),
+  //SwaggerUrl: ((process.env.NEXT_PUBLIC_API_SWAGGER_URL || normalizedDotCMSHost) + '/api/openapi.json') as string,
+  SwaggerUrl: 'https://demo.dotcms.com/api/openapi.json',
   LogRequestEnabled: true,
   LanguageId: 1 as number,
   Headers: {
