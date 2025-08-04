@@ -105,6 +105,12 @@ export const GITHUB_DOCS_MAP: Record<string, GitHubConfig> = {
     path: 'README.md',
     branch: 'main'
   },
+  'mcp-server': {
+    owner: 'dotCMS',
+    repo: 'core',
+    path: 'core-web/apps/mcp-server/README.md',
+    branch: 'main'
+  },
   // Add more SDK mappings as needed
 };
 
