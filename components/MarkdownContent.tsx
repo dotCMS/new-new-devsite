@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, createContext, useContext } from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import rehypeSlug from 'rehype-slug'
@@ -46,6 +46,9 @@ interface ChildrenProps {
 const HEADER_HEIGHT = 80;
 const BREADCRUMB_HEIGHT = 48; // 24px height + 24px bottom margin
 const TOTAL_OFFSET = HEADER_HEIGHT + BREADCRUMB_HEIGHT;
+
+// Context to track if we're inside a list item
+const ListItemContext = createContext(false);
 
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, disableBlockComponents = false }) => {
   const { theme } = useTheme();
@@ -161,13 +164,20 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, d
         </a>
       </h6>
     ),
-    p: ({ children }) => (
-      <p className="text-base leading-7 text-foreground mb-6">{children}</p>
-    ),
-    ul: ({ children }) => <ul className="list-disc pl-6 mb-6">{children}</ul>,
-    ol: ({ children }) => <ol className="list-decimal list-inside mb-4">{children}</ol>,
+    p: function ParagraphComponent({ children, ...props }) {
+      const isInListItem = useContext(ListItemContext);
+      return (
+        <p className={`text-base leading-7 text-foreground ${isInListItem ? 'mb-0' : 'mb-6'}`}>
+          {children}
+        </p>
+      );
+    },
+    ul: ({ children }) => <ul className="list-disc list-outside pl-6 mb-6">{children}</ul>,
+    ol: ({ children }) => <ol className="list-decimal list-outside pl-6 mb-4">{children}</ol>,
     li: ({ children }) => (
-      <li className="text-base leading-7 text-foreground mb-1">{children}</li>
+      <ListItemContext.Provider value={true}>
+        <li className="text-base leading-7 text-foreground mb-1">{children}</li>
+      </ListItemContext.Provider>
     ),
     a: ({ href, children, ...props }) => {
       const isInHeading = href?.startsWith('#');
