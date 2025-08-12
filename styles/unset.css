@@ -344,4 +344,17 @@ body {
     iframe {
         border: 2px inset;
     }
+
+    /* Link styling to match documentation theme and override inline styles */
+    a {
+        color: hsl(var(--primary)) !important;
+        text-decoration: underline !important;
+        background-color: transparent !important;
+        font-size: inherit !important;
+        
+        &:hover {
+            opacity: 0.8 !important;
+            text-decoration: none !important;
+        }
+    }
 }
