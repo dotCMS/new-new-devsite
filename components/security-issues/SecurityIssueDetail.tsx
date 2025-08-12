@@ -16,6 +16,7 @@ import { useState } from "react";
 import Link from "next/link";
 import PaginationBar from "@/components/PaginationBar";
 import { useSearchParams } from "next/navigation";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 import { SecurityOrderBy } from "@/services/docs/getSecurityIssues/types";
 import { useRouter } from "next/navigation";
@@ -63,146 +64,128 @@ export const SecurityIssueDetail: FC<{
 
   const issue = securityIssues[0];
 
-const thClasses = "px-6 py-4 bg-background text-sm font-semibold text-foreground align-top border-r border-border";
-const tdClasses = "p-4 text-foreground";
-
-
-
-
   return (
-    <div className="w-full">
+    <div className="markdown-content">
+      <h1 className="text-4xl font-bold mb-6">{issue.title}</h1>
 
-      <h2 className="text-3xl text-foreground">
-         {issue.title}
-      </h2>
-
-      <div>
+      <div className="mb-6">
         <Link
           href="known-security-issues"
-          className="transition-colors flex items-center text-muted-foreground hover:text-foreground py-4"
+          className="text-primary-purple hover:opacity-80 underline hover:no-underline flex items-center"
         >
           <svg
             viewBox="0 0 24 24"
-            width="24"
-            height="24"
-            className="mr-2 my-2"
+            width="16"
+            height="16"
+            className="mr-2"
             fill="currentColor"
           >
             <path d="M10.78 19.03a.75.75 0 0 1-1.06 0l-6.25-6.25a.75.75 0 0 1 0-1.06l6.25-6.25a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L5.81 11.5h14.44a.75.75 0 0 1 0 1.5H5.81l4.97 4.97a.75.75 0 0 1 0 1.06Z"></path>
-          </svg>{" "}
+          </svg>
           Back to Security Issues
         </Link>
       </div>
 
-      <div className="min-w-[50%] overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow mb-8">
-        <table className="w-full divide-y divide-border">
-            <tbody>
-            <tr>
-              <th className={thClasses}>
-                Issue:
-              </th>
-              <td className={tdClasses}>
-                {issue.issueNumber}
-              </td>
-            </tr>
-            <tr>    
-              <th className={thClasses}>
-                Published
-              </th>
-              <td className={tdClasses}>
-                {extractDateForTables(issue.publishDate)}
-              </td>
-            </tr>
-            <tr>
-            <th className={thClasses}>
-                Title:
-              </th>
-              <td className={tdClasses}>
-                {issue.title}
-              </td>
-            </tr>
-            <tr>
-              <th className={thClasses}>
-                Severity:
-              </th> 
-              <td className={tdClasses}>
-                {issue.severity == "4"
-                    ? "Critical"
-                    : issue.severity == "3"
-                    ? "High"
-                    : issue.severity == "2"
-                    ? "Medium"
-                    : "Low"}
-              </td>
-            </tr>
-            <tr>
-              <th className={thClasses}>
-                Requires Admin:
-              </th> 
-              <td className={tdClasses}>
-                {issue.requiresAdminAccess ? "Yes" : "No"}
-              </td>
-            </tr>
-
-
-            <tr>
-              <th className={thClasses}>
-                Fix Versions:
-              </th>
-              <td className={tdClasses}>
-                {issue.fixVersion}
-              </td>
-            </tr>
-            <tr>
-              <th className={thClasses}>
-                Credit:
-              </th>
-              <td className={tdClasses}>
-                {issue.credit}
-              </td>
-            </tr>
-            <tr>
-              <th className={thClasses}>
-                Description
-              </th>
-              <td className={tdClasses}>
-              <DangerousHtmlComponent  content={issue.description}/>
- 
-              </td>
-            </tr>   
-            <tr>
-              <th className={thClasses}>
-                Mitigation:
-              </th>
-              <td className={tdClasses}>
-                <DangerousHtmlComponent  content={issue.workaround}/>
-           
-              </td> 
-            </tr>
-            {issue.example && (
-            <tr>
-              <th className={thClasses}>
+      <Table className="border-border border border-collapse mb-6">
+        <TableBody>
+          <TableRow>
+            <TableHead className="text-[15px] font-semibold bg-muted px-4 border-border border-r last:border-r-0">
+              Issue:
+            </TableHead>
+            <TableCell className="text-base leading-7 text-foreground px-4 border-border border-r last:border-r-0">
+              {issue.issueNumber}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableHead className="text-[15px] font-semibold bg-muted px-4 border-border border-r last:border-r-0">
+              Published
+            </TableHead>
+            <TableCell className="text-base leading-7 text-foreground px-4 border-border border-r last:border-r-0">
+              {extractDateForTables(issue.publishDate)}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableHead className="text-[15px] font-semibold bg-muted px-4 border-border border-r last:border-r-0">
+              Title:
+            </TableHead>
+            <TableCell className="text-base leading-7 text-foreground px-4 border-border border-r last:border-r-0">
+              {issue.title}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableHead className="text-[15px] font-semibold bg-muted px-4 border-border border-r last:border-r-0">
+              Severity:
+            </TableHead>
+            <TableCell className="text-base leading-7 text-foreground px-4 border-border border-r last:border-r-0">
+              {issue.severity == "4"
+                  ? "Critical"
+                  : issue.severity == "3"
+                  ? "High"
+                  : issue.severity == "2"
+                  ? "Medium"
+                  : "Low"}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableHead className="text-[15px] font-semibold bg-muted px-4 border-border border-r last:border-r-0">
+              Requires Admin:
+            </TableHead>
+            <TableCell className="text-base leading-7 text-foreground px-4 border-border border-r last:border-r-0">
+              {issue.requiresAdminAccess ? "Yes" : "No"}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableHead className="text-[15px] font-semibold bg-muted px-4 border-border border-r last:border-r-0">
+              Fix Versions:
+            </TableHead>
+            <TableCell className="text-base leading-7 text-foreground px-4 border-border border-r last:border-r-0">
+              {issue.fixVersion}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableHead className="text-[15px] font-semibold bg-muted px-4 border-border border-r last:border-r-0">
+              Credit:
+            </TableHead>
+            <TableCell className="text-base leading-7 text-foreground px-4 border-border border-r last:border-r-0">
+              {issue.credit}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableHead className="text-[15px] font-semibold bg-muted px-4 border-border border-r last:border-r-0">
+              Description
+            </TableHead>
+            <TableCell className="text-base leading-7 text-foreground px-4 border-border border-r last:border-r-0">
+              <DangerousHtmlComponent content={issue.description}/>
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableHead className="text-[15px] font-semibold bg-muted px-4 border-border border-r last:border-r-0">
+              Mitigation:
+            </TableHead>
+            <TableCell className="text-base leading-7 text-foreground px-4 border-border border-r last:border-r-0">
+              <DangerousHtmlComponent content={issue.workaround}/>
+            </TableCell>
+          </TableRow>
+          {issue.example && (
+            <TableRow>
+              <TableHead className="text-[15px] font-semibold bg-muted px-4 border-border border-r last:border-r-0">
                 Example:
-              </th>
-              <td className={tdClasses}>
-              <DangerousHtmlComponent  content={issue.example}/>
-
-                </td> 
-            </tr>
-            )}
-            <tr>
-              <th className={thClasses}>
-                Issue Links:
-              </th>
-              <td className={tdClasses}>
-              <DangerousHtmlComponent  content={issue.issueLinks}/>
-   
-                </td>
-            </tr>
-            </tbody>
-        </table>
-
-      </div>
+              </TableHead>
+              <TableCell className="text-base leading-7 text-foreground px-4 border-border border-r last:border-r-0">
+                <DangerousHtmlComponent content={issue.example}/>
+              </TableCell>
+            </TableRow>
+          )}
+          <TableRow>
+            <TableHead className="text-[15px] font-semibold bg-muted px-4 border-border border-r last:border-r-0">
+              Issue Links:
+            </TableHead>
+            <TableCell className="text-base leading-7 text-foreground px-4 border-border border-r last:border-r-0">
+              <DangerousHtmlComponent content={issue.issueLinks}/>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
     </div>
   );
 };

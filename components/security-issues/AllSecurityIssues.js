@@ -65,6 +65,7 @@ export default function AllSecurityIssues({ sideNav, slug }) {
                                 orderBy={orderBy}
                                 page={page}
                                 limit={40}
+                                token={token}
                             />
                         )}
                    
@@ -74,6 +75,7 @@ export default function AllSecurityIssues({ sideNav, slug }) {
                             orderBy={orderBy}
                             page={page}
                             limit={40}
+                            token={token}
                         />
                        ) }
                     </div>
