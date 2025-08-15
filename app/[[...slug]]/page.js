@@ -7,6 +7,21 @@ import { client } from "@/util/dotcmsClient";
 import { getPageRequestParams } from "@dotcms/client";
 import { fetchNavData, fetchPageData } from "@/util/page.utils";
 import { BlockPageAsset } from "@/components/page-asset-with-content-block";
+
+// Enable ISR with a revalidation time of 60 seconds
+// This means the page will be regenerated at most once every 60 seconds
+// when a request comes in after the revalidation period
+export const revalidate = 60; // Revalidate every 60 seconds
+
+// Optional: Control dynamic behavior
+// 'force-static' ensures the page is statically generated at build time
+// and uses ISR for updates
+export const dynamic = 'force-static';
+
+// Optional: Configure runtime
+// Using Node.js runtime for better compatibility with ISR
+export const runtime = 'nodejs';
+
 /**
  * Generate metadata
  *
