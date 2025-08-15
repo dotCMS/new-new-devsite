@@ -26,7 +26,7 @@ export const getCacheKey = (key: string): string => {
     for (let i = 0; i < key.length; i++) {
         const char = key.charCodeAt(i);
         hash = ((hash << 5) - hash) + char;
-        hash = hash & hash; // Convert to 32bit integer
+        hash |= 0; // Convert to 32bit integer
     }
     
     // Return absolute value as string to avoid negative keys
