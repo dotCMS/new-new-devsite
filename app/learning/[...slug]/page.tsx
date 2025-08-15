@@ -9,6 +9,19 @@ import { extractAssetId } from "@/util/utils";
 import { Config } from "@/util/config";
 import Script from "next/script";
 
+// Enable ISR with a revalidation time of 60 seconds
+// This means the page will be regenerated at most once every 60 seconds
+// when a request comes in after the revalidation period
+export const revalidate = 60; // Revalidate every 60 seconds
+
+// Optional: Control dynamic behavior
+// 'force-static' ensures the page is statically generated at build time
+// and uses ISR for updates
+export const dynamic = 'force-static';
+
+// Optional: Configure runtime
+// Using Node.js runtime for better compatibility with ISR
+export const runtime = 'nodejs';
 
 export async function generateMetadata({ params , searchParams }: { params: Promise<{ slug: string }>, searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
     const finalParams = await params;
