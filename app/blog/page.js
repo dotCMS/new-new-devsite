@@ -7,20 +7,6 @@ import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import { getBlogListing } from "@/services/blog/getBlogListing";
 
-// Enable ISR with a revalidation time of 60 seconds
-// This means the page will be regenerated at most once every 60 seconds
-// when a request comes in after the revalidation period
-export const revalidate = 60; // Revalidate every 60 seconds
-
-// Optional: Control dynamic behavior
-// 'force-static' ensures the page is statically generated at build time
-// and uses ISR for updates
-export const dynamic = 'force-static';
-
-// Optional: Configure runtime
-// Using Node.js runtime for better compatibility with ISR
-export const runtime = 'nodejs';
-
 const getPath = (params) => {
     const defaultPath = "index";
     const path = "/blog/" + (params?.slug?.join("/") || defaultPath);
