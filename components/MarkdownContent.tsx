@@ -50,6 +50,9 @@ const TOTAL_OFFSET = HEADER_HEIGHT + BREADCRUMB_HEIGHT;
 // Context to track if we're inside a list item
 const ListItemContext = createContext(false);
 
+// Context to track if we're inside a heading
+const HeadingContext = createContext(false);
+
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, disableBlockComponents = false }) => {
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -60,24 +63,26 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, d
 
   const components: ExtendedComponents = {
     h1: ({ node, children, ...props }) => (
-      <h1 
-        className="text-4xl font-bold mt-6 mb-4 group flex items-center relative" 
-        style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
-        {...props}
-      >
-        {children}
-        <a 
-          href={`#${props.id}`}
-          onClick={smoothScroll}
-          className="absolute -left-5 opacity-0 group-hover:opacity-100 transition-opacity"
-          aria-label="Link to section"
+      <HeadingContext.Provider value={true}>
+        <h1 
+          className="text-4xl font-bold mt-6 mb-4 group flex items-center relative" 
+          style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
+          {...props}
         >
-          #
-        </a>
-      </h1>
+          {children}
+          <a 
+            href={`#${props.id}`}
+            onClick={smoothScroll}
+            className="absolute -left-5 opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label="Link to section"
+          >
+            #
+          </a>
+        </h1>
+      </HeadingContext.Provider>
     ),
     h2: ({ children, ...props }) => (
-      <>
+      <HeadingContext.Provider value={true}>
         <h2 
           className="text-3xl font-semibold text-foreground mt-12 mb-1 group flex items-center relative" 
           style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
@@ -94,75 +99,83 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, d
           </a>
         </h2>
         <hr className="border-t border-border mb-6" />
-      </>
+      </HeadingContext.Provider>
     ),
     h3: ({ children, ...props }) => (
-      <h3 
-        className="text-2xl font-semibold text-foreground mt-8 mb-4 group flex items-center relative" 
-        style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
-        {...props}
-      >
-        {children}
-        <a 
-          href={`#${props.id}`}
-          onClick={smoothScroll}
-          className="absolute -left-5 opacity-0 group-hover:opacity-100 transition-opacity"
-          aria-label="Link to section"
+      <HeadingContext.Provider value={true}>
+        <h3 
+          className="text-2xl font-semibold text-foreground mt-8 mb-4 group flex items-center relative" 
+          style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
+          {...props}
         >
-          #
-        </a>
-      </h3>
+          {children}
+          <a 
+            href={`#${props.id}`}
+            onClick={smoothScroll}
+            className="absolute -left-5 opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label="Link to section"
+          >
+            #
+          </a>
+        </h3>
+      </HeadingContext.Provider>
     ),
     h4: ({ children, ...props }) => (
-      <h4 
-        className="text-xl font-semibold text-foreground mt-6 mb-4 group flex items-center relative" 
-        style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
-        {...props}
-      >
-        {children}
-        <a 
-          href={`#${props.id}`}
-          onClick={smoothScroll}
-          className="absolute -left-5 opacity-0 group-hover:opacity-100 transition-opacity"
-          aria-label="Link to section"
+      <HeadingContext.Provider value={true}>
+        <h4 
+          className="text-xl font-semibold text-foreground mt-6 mb-4 group flex items-center relative" 
+          style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
+          {...props}
         >
-          #
-        </a>
-      </h4>
+          {children}
+          <a 
+            href={`#${props.id}`}
+            onClick={smoothScroll}
+            className="absolute -left-5 opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label="Link to section"
+          >
+            #
+          </a>
+        </h4>
+      </HeadingContext.Provider>
     ),
     h5: ({ children, ...props }) => (
-      <h5 
-        className="text-lg font-semibold text-foreground mt-4 mb-2 group flex items-center relative" 
-        style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
-        {...props}
-      >
-        {children}
-        <a 
-          href={`#${props.id}`}
-          onClick={smoothScroll}
-          className="absolute -left-5 opacity-0 group-hover:opacity-100 transition-opacity"
-          aria-label="Link to section"
+      <HeadingContext.Provider value={true}>
+        <h5 
+          className="text-lg font-semibold text-foreground mt-4 mb-2 group flex items-center relative" 
+          style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
+          {...props}
         >
-          #
-        </a>
-      </h5>
+          {children}
+          <a 
+            href={`#${props.id}`}
+            onClick={smoothScroll}
+            className="absolute -left-5 opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label="Link to section"
+          >
+            #
+          </a>
+        </h5>
+      </HeadingContext.Provider>
     ),
     h6: ({ children, ...props }) => (
-      <h6 
-        className="text-base font-medium mt-2 mb-1 group flex items-center relative" 
-        style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
-        {...props}
-      >
-        {children}
-        <a 
-          href={`#${props.id}`}
-          onClick={smoothScroll}
-          className="absolute -left-5 opacity-0 group-hover:opacity-100 transition-opacity"
-          aria-label="Link to section"
+      <HeadingContext.Provider value={true}>
+        <h6 
+          className="text-base font-medium mt-2 mb-1 group flex items-center relative" 
+          style={{ scrollMarginTop: `${HEADER_HEIGHT}px` }}
+          {...props}
         >
-          #
-        </a>
-      </h6>
+          {children}
+          <a 
+            href={`#${props.id}`}
+            onClick={smoothScroll}
+            className="absolute -left-5 opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label="Link to section"
+          >
+            #
+          </a>
+        </h6>
+      </HeadingContext.Provider>
     ),
     p: function ParagraphComponent({ children, ...props }) {
       const isInListItem = useContext(ListItemContext);
@@ -195,15 +208,18 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, d
       )
     },
 
-    code: ({ node, className, children, ...props }: any) => {
+    code: function CodeComponent({ node, className, children, ...props }: any) {
       const match = /language-(\w+)/.exec(className || '')
       const inline = !String(children).includes("\n");
       const highlight = match ? match[1] : "html";
 
+      // Check if code is inside a heading using React context
+      const isInHeading = useContext(HeadingContext);
+
       if (inline) {
         return (
           <code 
-            className="bg-muted text-foreground text-sm font-mono px-1 py-0.5 rounded whitespace-normal" 
+            className={`bg-muted text-foreground font-mono px-1 py-0.5 rounded whitespace-normal ${isInHeading ? '' : 'text-sm'}`}
             {...props}
           >
             {children}
@@ -215,7 +231,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, d
       if (!mounted) {
         return (
           <div className="mb-6 relative">
-            <pre className="rounded-lg py-2 border border-border bg-muted p-4 pt-8 pb-8 text-sm font-mono overflow-x-auto">
+            <pre className={`rounded-lg py-2 border border-border bg-muted p-4 pt-8 pb-8 font-mono overflow-x-auto ${isInHeading ? '' : 'text-sm'}`}>
               <code>{String(children).replace(/\n$/, '')}</code>
             </pre>
           </div>
