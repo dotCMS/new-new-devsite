@@ -185,8 +185,22 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, d
         </p>
       );
     },
-    ul: ({ children }) => <ul className="list-disc list-outside pl-6 mb-6">{children}</ul>,
-    ol: ({ children }) => <ol className="list-decimal list-outside pl-6 mb-4">{children}</ol>,
+    ul: function UnorderedListComponent({ children }) {
+      const isInListItem = useContext(ListItemContext);
+      return (
+        <ul className={`list-disc list-outside pl-6 ${isInListItem ? 'mb-1' : 'mb-6'}`}>
+          {children}
+        </ul>
+      );
+    },
+    ol: function OrderedListComponent({ children }) {
+      const isInListItem = useContext(ListItemContext);
+      return (
+        <ol className={`list-decimal list-outside pl-6 ${isInListItem ? 'mb-1' : 'mb-6'}`}>
+          {children}
+        </ol>
+      );
+    },
     li: ({ children }) => (
       <ListItemContext.Provider value={true}>
         <li className="text-base leading-7 text-foreground mb-1">{children}</li>
