@@ -19,6 +19,7 @@ import AllSecurityIssues from "@/components/security-issues/AllSecurityIssues";
 import RestApiPlayground from "@/components/playgrounds/RestApiPlayground/RestApiPlayground";
 import SwaggerUIComponent from "@/components/playgrounds/SwaggerUIComponent/SwaggerUIComponent";
 import Script from "next/script";
+import { getSecurityIssues } from "@/services/docs/getSecurityIssues/getSecurityIssues";
 
 /**
  * Process slug consistently across all functions
@@ -121,12 +122,27 @@ export async function generateMetadata({ params, searchParams }) {
         ? tags.includes('dot:meta-no-index') 
         : typeof tags === 'string' && tags.includes('dot:meta-no-index');
     
+    // Check if this is a security issue detail page
+    let title = pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title;
+    
+    if (slug === 'known-security-issues' && finalSearchParams.issueNumber) {
+        try {
+            const { securityIssues } = await getSecurityIssues(1, 1, undefined, false, finalSearchParams.issueNumber);
+            if (securityIssues && securityIssues.length > 0) {
+                title = `${securityIssues[0].issueNumber} | Known Security Issues`;
+            }
+        } catch (error) {
+            console.warn('Failed to fetch security issue for metadata:', error);
+            // Fall back to default title
+        }
+    }
+    
     const metadata = {
-        title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title),
+        title: title,
         description: pageAsset.urlContentMap._map.seoDescription,
         keywords: pageAsset.urlContentMap._map.tag,
         openGraph: {
-            title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title),
+            title: title,
             description: pageAsset.urlContentMap._map.seoDescription,
             keywords: pageAsset.urlContentMap._map.tag,
             url: `${hostname}${path}`,
