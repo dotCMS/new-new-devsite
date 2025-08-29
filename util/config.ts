@@ -1,5 +1,3 @@
-import { DotCMSAnalyticsConfig } from "@dotcms/analytics";
-
 // stripts the trailing slash from the host urls
 const normalizedDotCMSHost = process.env.NEXT_PUBLIC_DOTCMS_HOST?.endsWith('/')
   ? process.env.NEXT_PUBLIC_DOTCMS_HOST.slice(0, -1)
@@ -26,9 +24,3 @@ export const Config = {
   },
   AIModel: "gpt-4o-mini"
 } as const
-
-export const AnalyticsConfig = {
-  server: Config.DotCMSHost,
-  siteKey: process.env.NEXT_PUBLIC_DOTCMS_ANALYTICS_SITE_KEY!,
-  debug: process.env.NODE_ENV !== 'production',
-} as const satisfies DotCMSAnalyticsConfig;
