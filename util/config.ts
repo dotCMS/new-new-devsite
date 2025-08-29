@@ -24,3 +24,10 @@ export const Config = {
   },
   AIModel: "gpt-4o-mini"
 } as const
+
+
+export const AnalyticsConfig = {
+  server: Config.DotCMSHost,
+  siteKey: process.env.NEXT_PUBLIC_DOTCMS_ANALYTICS_SITE_KEY!,
+  debug: process.env.NODE_ENV !== 'production',
+} as const;
