@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@dotcms/analytics": "next",
+    "@dotcms/analytics": "1.0.5-next.1",
     "@dotcms/client": "latest",
     "@dotcms/react": "latest",
     "@hookform/resolvers": "^3.9.0",
