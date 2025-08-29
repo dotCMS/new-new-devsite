@@ -10,6 +10,9 @@ import MicrosoftClarity from '@/components/metrics/MicrosoftClarity';
 import { InitialScroll } from '@/components/InitialScroll';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { LeadboxerScript } from '@/components/metrics/Leadboxer';
+import { DotContentAnalytics } from "@dotcms/analytics/react";
+import { AnalyticsConfig } from '@/util/config';
+
 const inter = Inter({ 
   subsets: ['latin'],
   display: 'swap',
@@ -58,6 +61,7 @@ export const metadata: Metadata = {
   },
 };
 
+
 export default function RootLayout({
   children,
 }: {
@@ -85,6 +89,7 @@ export default function RootLayout({
             <Toaster />
           </ThemeProvider>
         </ErrorBoundary>
+        <DotContentAnalytics config={AnalyticsConfig} />
         <GoogleAnalytics gaId="G-CM1HLQW35G" />
         <MicrosoftClarity />
         <LeadboxerScript />
