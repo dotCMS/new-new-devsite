@@ -26,6 +26,7 @@ export default async function DevResourceHomePage({
   const page = Number(finalSearchParams?.page) || 1;
   const limit = Number(finalSearchParams?.limit) || 50;
 
+  // Home page
   if (type === "all") {
     const count = await getCountDevResources();
     
