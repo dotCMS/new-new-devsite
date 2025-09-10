@@ -11,12 +11,17 @@ import PaginationBar from '../PaginationBar';
 import { ErrorPage } from '../error';
 
 export default async function DevResourceListing({ devResources, pagination, tagFilter, type }: { devResources: any, pagination: any, tagFilter: string, type: string }) {
-    const myResources = DevResourceTypes.filter((resource) => resource.type === type);
+
+    // you are either video or everything else
+    const finalType = type === "video" ? "video" : "howto";
+
+
+    const myResources = DevResourceTypes.filter((resource) => resource.type === finalType);
     if (myResources.length === 0) {
         return <ErrorPage error={{message:"Resource not found",status:404}} />
     }
     const myResource = myResources[0]
-    const allTags = await getTagsByLuceneQuery(devResourceBaseQuery(type), 30);
+    const allTags = await getTagsByLuceneQuery(devResourceBaseQuery(finalType), 30);
     const tagFilterQueryParam = tagFilter && tagFilter.length > 0 ? "tagFilter=" + tagFilter : "";
     
     return (
@@ -35,7 +40,7 @@ export default async function DevResourceListing({ devResources, pagination, tag
                     <div className="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-gray-900/70 to-gray-900/30" />
                 </div>
                 <div className="container mx-auto px-4 h-full relative">
-                    <div className="flex flex-col justify-center h-full max-w-3xl px-8">
+                    <div className="flex flex-col justify-center h-full px-8">
                         <div className="text-white">
                             <div className="flex items-center gap-3 mb-4">
                                 <myResource.icon className="w-8 h-8" />
@@ -67,9 +72,9 @@ export default async function DevResourceListing({ devResources, pagination, tag
             <div className="container mx-auto px-4 pb-8">
                 <div className="flex flex-col lg:flex-row gap-8">
                     <div className="flex-1">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="flex flex-wrap justify-center gap-6">
                             {devResources.map((resource: any) => (
-                                <article key={resource.identifier} className="bg-card text-card-foreground rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border border-border">
+                                <article key={resource.identifier} className="bg-card text-card-foreground rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border border-border w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]">
                                     <div className="relative">
                                         {resource.image?.modDate ? (
                                         <Link href={`/learning/${resource.slug}`} prefetch={false} className="block">

@@ -8,14 +8,14 @@ export function DevResourceGrid(count: any) {
   return (
     <>
     <div className="mx-auto flex max-w-[980px] flex-col items-center gap-4 py-8 md:py-12 lg:py-16">
-    <h1 className="text-center text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+    <h1 className="text-center font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl">
       Learn dotCMS
     </h1>
     <p className="max-w-[750px] text-center text-lg text-muted-foreground sm:text-xl">
       Your hub for mastering dotCMS. Explore resources designed to help you succeed.
     </p>
   </div>
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 pb-16">
+    <div className="flex flex-wrap justify-center gap-6 pb-16">
         
       {DevResourceTypes.map((resource) => {
         const Icon = resource.icon
@@ -25,7 +25,7 @@ export function DevResourceGrid(count: any) {
                 <Link           
                 key={resource.type} 
                 href={`/blog`}
-                className="group"
+                className="group w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
                 prefetch={false}
               >
     
@@ -51,7 +51,7 @@ export function DevResourceGrid(count: any) {
           <Link 
             key={resource.type} 
             href={`/learning/?type=${resource.type}`}
-            className="group"
+            className="group w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
             prefetch={false}
           >
 
@@ -62,7 +62,7 @@ export function DevResourceGrid(count: any) {
               description={resource.description}
               imageIdentifier={resource.image}
               color="[#a21caf]"
-              count={count.count[resource.type] || 0}
+              count={0}
               links={[]}
             />
           </Link>
@@ -72,7 +72,7 @@ export function DevResourceGrid(count: any) {
       <Link 
         key="lms" 
         href={`https://dotcms.talentlms.com/plus/login`}
-        className="group"
+        className="group w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
         prefetch={false}
       >
         <FeatureCard
