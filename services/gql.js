@@ -155,7 +155,7 @@ export const graphqlResults = async (query, cacheTTL = 10) => {
 
 const axiosFetch = async (query, method) => {
     const queryHash = getCacheKey(query);
-    const graphUrl = Config.GraphqlUrl + "?dotcachekey=" + queryHash + "&qid=" + queryHash + "&dotcachettl=" + 600;
+    const graphUrl = Config.GraphqlUrl ;
     console.debug("Graphql " + method.toUpperCase() + ", url:" + graphUrl)
     try {
         return await axios({
