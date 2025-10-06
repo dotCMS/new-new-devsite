@@ -9,10 +9,10 @@ import NotFound from "@/app/not-found";
 import Breadcrumbs from "@/components/navigation/Breadcrumbs";
 import { DotBlockEditor } from "./shared/dotBlockEditor";
 import OnThisPage from "./navigation/OnThisPage";
-import NavTree from "./getting-started/NavTree";
+import RedesignedNavTree from "./navigation/RedesignedNavTree";
 import { UVEComponentsMap } from "./common-component-map";
 import NextBackButtons from "./navigation/NextBackButtons";
-export function BlockPageAsset({ pageAsset, nav, serverPath }) {
+export function BlockPageAsset({ pageAsset, nav, searchItems = [], serverPath }) {
   const { replace } = useRouter();
   const clientPath = usePathname();
 
@@ -40,7 +40,10 @@ export function BlockPageAsset({ pageAsset, nav, serverPath }) {
           {/* Left Navigation - Hide on mobile */}
           {showLeftNav && (
             <div id="left-nav" className="hidden lg:block w-72 h-[calc(100vh-4rem)] sticky top-16 overflow-y-auto">
-                <NavTree nav={nav} currentPath={pageAsset?.page?.url}/>
+                <RedesignedNavTree 
+                  currentPath={pageAsset?.page?.url}
+                  items={searchItems}
+                />
             </div>
           )}
 

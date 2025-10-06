@@ -12,7 +12,7 @@ import Footer from "@/components/footer";
 import Documentation from "@/components/documentation/Documentation";
 import GitHubDocumentation from "@/components/documentation/GitHubDocumentation";
 import ChangeLogList from "@/components/changelogs/ChangeLogList";
-import NavTree from "@/components/navigation/NavTree";
+import RedesignedNavTree from "@/components/navigation/RedesignedNavTree";
 import CurrentReleases from "@/components/releases/CurrentReleases";
 import AllReleases from "@/components/releases/AllReleases";
 import AllSecurityIssues from "@/components/security-issues/AllSecurityIssues";
@@ -291,10 +291,9 @@ export default async function Home({ searchParams, params }) {
                 <div className="flex flex-col lg:flex-row container mx-auto px-0">
                     {/* Left Navigation - Hide on mobile */}
                     <div className="hidden lg:block w-72 shrink-0">
-                        <NavTree
-                            items={sideNav[0]?.dotcmsdocumentationchildren || []}
+                        <RedesignedNavTree
                             currentPath={slug}
-                            resetNav={resetNav}
+                            items={sideNav[0]?.dotcmsdocumentationchildren || []}
                         />
                     </div>
 
