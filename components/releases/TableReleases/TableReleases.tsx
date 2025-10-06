@@ -57,7 +57,7 @@ export const TableReleases: FC<{
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-[400px] text-destructive">
-        Error loading changelogs: {error.message}
+        Error loading {downloadYAML ? "releases" : "changelogs"}: {error.message}
       </div>
     );
   }
