@@ -19,7 +19,7 @@ export const fetchPageData = async (params) => {
 };
 
 export const fetchNavData = async (dataIn) => {
-    const cacheTTL = dataIn.ttl || 600;
+    const cacheTTL = dataIn.ttl || 900;
     const cacheKey = getCacheKey(dataIn.path + dataIn.depth + dataIn.languageId);
 
     const cachedData = navCache.get(cacheKey);
