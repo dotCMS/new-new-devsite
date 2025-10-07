@@ -419,6 +419,10 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
   items = [],
   initialSections
 }) => {
+  // Indentation constants to align hierarchy consistently
+  const TOP_LEVEL_LEFT_PADDING = 12; // px
+  const NESTED_BASE_INDENT = 24; // px, ensures level 1 starts to the right of top-level
+  const NESTED_INDENT_STEP = 12; // px per level
   const [openSections, setOpenSections] = useState<string[]>([]);
   const [tagline, setTagline] = useState("dot dot dot");
   const [navigationSections, setNavigationSections] = useState<NavSection[]>(() => (initialSections as unknown as NavSection[]) || []);
@@ -548,7 +552,7 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
     const hasChildren = item.items && item.items.length > 0;
     const isActive = isCurrentPage(item.href);
     const childrenActive = hasChildren ? isParentActive(item.items!) : false;
-    const paddingLeft = `${(level + 1) * 12}px`;
+    const paddingLeft = `${NESTED_BASE_INDENT + level * NESTED_INDENT_STEP}px`;
 
     if (hasChildren) {
       const sectionId = `${item.title}-${level}`;
@@ -621,12 +625,13 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
       <div key={section.title} className="mb-4">
         <button
           className={cn(
-            "flex items-center justify-between w-full px-4 py-3 rounded-lg transition-colors",
+            "flex items-center justify-between w-full pr-4 py-3 rounded-lg transition-colors",
             "bg-muted/20 hover:bg-muted/40",
             "border border-border/30 hover:border-border/50",
             "font-semibold text-sm",
-            hasActiveChild ? "text-primary bg-primary/5 border-primary/20" : "text-foreground"
+            hasActiveChild ? "text-primary" : "text-foreground"
           )}
+          style={{ paddingLeft: `${TOP_LEVEL_LEFT_PADDING}px` }}
           onClick={handleToggle}
           type="button"
         >
