@@ -737,7 +737,7 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search documentation..."
+                placeholder="Quick search..."
                 value={searchQuery}
                 onChange={handleSearchChange}
                 onBlur={handleSearchBlur}
