@@ -577,7 +577,7 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
             onClick={handleToggleItem}
             type="button"
           >
-            <span className="flex items-center gap-2">
+            <span className="flex-1 min-w-0 text-left whitespace-normal break-words leading-snug">
               {item.title}
             </span>
             {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
@@ -605,7 +605,7 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
         )}
         style={{ paddingLeft }}
       >
-        {item.title}
+        <span className="block text-left whitespace-normal break-words leading-snug">{item.title}</span>
       </Link>
     );
   }, [openSections, toggleSection, isCurrentPage, isParentActive]);
@@ -635,7 +635,7 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
           onClick={handleToggle}
           type="button"
         >
-          <span>{section.title}</span>
+          <span className="flex-1 min-w-0 text-left whitespace-normal break-words leading-snug">{section.title}</span>
           {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </button>
         
