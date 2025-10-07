@@ -12,7 +12,7 @@ import OnThisPage from "./navigation/OnThisPage";
 import RedesignedNavTree from "./navigation/RedesignedNavTree";
 import { UVEComponentsMap } from "./common-component-map";
 import NextBackButtons from "./navigation/NextBackButtons";
-export function BlockPageAsset({ pageAsset, nav, searchItems = [], serverPath }) {
+export function BlockPageAsset({ pageAsset, nav, searchItems = [], serverPath, navSections }) {
   const { replace } = useRouter();
   const clientPath = usePathname();
 
@@ -33,7 +33,7 @@ export function BlockPageAsset({ pageAsset, nav, searchItems = [], serverPath })
 
   return (
     <div className="">
-      {pageAsset?.layout.header && <Header />}
+      {pageAsset?.layout.header && <Header navSections={navSections} />}
 
       
         <div id="main-content" className="grid grid-cols-1 lg:grid-cols-[auto_1fr_auto] container mx-auto px-0 w-full">
@@ -43,6 +43,7 @@ export function BlockPageAsset({ pageAsset, nav, searchItems = [], serverPath })
                 <RedesignedNavTree 
                   currentPath={pageAsset?.page?.url}
                   items={searchItems}
+                  initialSections={navSections}
                 />
             </div>
           )}

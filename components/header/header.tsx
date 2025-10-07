@@ -27,14 +27,16 @@ import DiscourseLink from "./DiscourseLink";
 import GithubLink from "./GithubLink";
 import { SearchModal } from "../chat/SearchModal";
 import RedesignedNavTree from "@/components/navigation/RedesignedNavTree";
+import type { NavSection } from "@/util/navTransform";
 import LogoWithArrow from "./Logo/LogoWithArrow";
 
 type HeaderProps = {
   sideNavItems?: any[];
   currentPath?: string;
+  navSections?: NavSection[];
 };
 
-export default function Header({ sideNavItems, currentPath }: HeaderProps) {
+export default function Header({ sideNavItems, currentPath, navSections }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showBackArrow, setShowBackArrow] = useState(false);
@@ -303,6 +305,7 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
                     currentPath={currentPath}
                     items={sideNavItems}
                     isMobile={true}
+                    initialSections={navSections}
                   />
                 </div>
               )}

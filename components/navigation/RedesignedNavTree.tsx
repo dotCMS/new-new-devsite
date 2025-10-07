@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ChevronDown, ChevronRight, BookOpen, HelpCircle, Search, X } from 'lucide-react';
 import { cn } from '@/util/utils';
 import { fetchNavData } from '@/util/page.utils';
+import { type NavSection as ServerNavSection } from '@/util/navTransform';
 
 // Types
 interface NavItem {
@@ -25,6 +26,7 @@ interface RedesignedNavTreeProps {
   isMobile?: boolean;
   className?: string;
   items?: any[]; // Rich old nav data for search
+  initialSections?: ServerNavSection[]; // Server-fetched, transformed nav sections
 }
 
 // Search-related interfaces
@@ -414,12 +416,13 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
   currentPath = '', 
   isMobile = false,
   className = '',
-  items = []
+  items = [],
+  initialSections
 }) => {
   const [openSections, setOpenSections] = useState<string[]>([]);
   const [tagline, setTagline] = useState("dot dot dot");
-  const [navigationSections, setNavigationSections] = useState<NavSection[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [navigationSections, setNavigationSections] = useState<NavSection[]>(() => (initialSections as unknown as NavSection[]) || []);
+  const [isLoading, setIsLoading] = useState(!initialSections);
   const [error, setError] = useState<string | null>(null);
   
   // Search state
@@ -453,22 +456,22 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
   // Show overlay when user is actively searching (2+ characters)
   const shouldShowOverlay = searchQuery.trim().length >= 2;
 
-  // Fetch navigation data from API
+  // Fetch navigation data from API only if no server-provided sections were given
   useEffect(() => {
+    if (initialSections && initialSections.length > 0) {
+      return;
+    }
     const fetchNavigationData = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        
         const response = await fetchNavData({
           path: '/docs/nav',
           depth: 4,
           languageId: 1
         });
-
         if (response.nav && response.nav.children) {
           const transformedSections = transformApiResponseToNavSections(response.nav.children);
-          
           if (transformedSections.length > 0) {
             setNavigationSections(transformedSections);
           } else {
@@ -486,9 +489,8 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
         setIsLoading(false);
       }
     };
-
     fetchNavigationData();
-  }, []);
+  }, [initialSections]);
 
   // Auto-expand sections containing the current page
   useEffect(() => {
