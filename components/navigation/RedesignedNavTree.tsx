@@ -223,7 +223,7 @@ function performSearch(items: SearchableItem[], query: string): SearchResult[] {
   // Sort by score (highest first) and limit results
   return results
     .sort((a, b) => b.score - a.score)
-    .slice(0, MAX_QUICK_SEARCH_RESULTS); // Show top MAX_SEARCH_RESULTS results (more space in overlay mode)
+    .slice(0, MAX_QUICK_SEARCH_RESULTS); // Show top MAX_QUICK_SEARCH_RESULTS results
 }
 
 // Highlight matching text in search results
