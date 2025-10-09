@@ -65,7 +65,7 @@ interface ApiNavItem {
   children: ApiNavItem[];
 }
 
-// No localStorage persistence - use simple auto-expand behavior
+const MAX_QUICK_SEARCH_RESULTS = 20;
 
 // Quippy taglines for the navigation header
 const NAVIGATION_TAGLINES = [
@@ -223,7 +223,7 @@ function performSearch(items: SearchableItem[], query: string): SearchResult[] {
   // Sort by score (highest first) and limit results
   return results
     .sort((a, b) => b.score - a.score)
-    .slice(0, 12); // Show top 12 results (more space in overlay mode)
+    .slice(0, MAX_QUICK_SEARCH_RESULTS); // Show top MAX_QUICK_SEARCH_RESULTS results
 }
 
 // Highlight matching text in search results
