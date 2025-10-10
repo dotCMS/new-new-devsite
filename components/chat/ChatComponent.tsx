@@ -275,7 +275,7 @@ export function ChatComponent() {
           prompt: query,
           operator: "cosine",
           threshold: ".25",
-          searchLimit: 10,
+          searchLimit: 20,
         }),
       });
 
