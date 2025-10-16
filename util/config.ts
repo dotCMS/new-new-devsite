@@ -28,6 +28,6 @@ export const Config = {
 
 export const AnalyticsConfig = {
   server: Config.DotCMSHost,
-  siteKey: process.env.NEXT_PUBLIC_DOTCMS_ANALYTICS_SITE_KEY!,
+  siteAuth: process.env.NEXT_PUBLIC_DOTCMS_ANALYTICS_SITE_KEY!,
   debug: process.env.NODE_ENV !== 'production',
 } as const;
