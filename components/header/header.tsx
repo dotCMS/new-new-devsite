@@ -26,15 +26,17 @@ import { useState, useEffect } from "react";
 import DiscourseLink from "./DiscourseLink";
 import GithubLink from "./GithubLink";
 import { SearchModal } from "../chat/SearchModal";
-import NavTree from "@/components/navigation/NavTree";
+import RedesignedNavTree from "@/components/navigation/RedesignedNavTree";
+import type { NavSection } from "@/util/navTransform";
 import LogoWithArrow from "./Logo/LogoWithArrow";
 
 type HeaderProps = {
   sideNavItems?: any[];
   currentPath?: string;
+  navSections?: NavSection[];
 };
 
-export default function Header({ sideNavItems, currentPath }: HeaderProps) {
+export default function Header({ sideNavItems, currentPath, navSections }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showBackArrow, setShowBackArrow] = useState(false);
@@ -253,8 +255,8 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
             >
               <Search className="h-4 w-4" />
               <span>
-                <span className="sm:hidden">Search...</span>
-                <span className="hidden sm:inline">Search Docs...</span>
+                <span className="sm:hidden">AI Search...</span>
+                <span className="hidden sm:inline">AI Search...</span>
               </span>
               <kbd className="hidden sm:flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
                 <span className="text-xs">⌘</span>
@@ -299,10 +301,11 @@ export default function Header({ sideNavItems, currentPath }: HeaderProps) {
                   <div className="text-sm font-medium leading-none text-muted-foreground mb-4 px-2">
                     Docs
                   </div>
-                  <NavTree
-                    items={sideNavItems}
+                  <RedesignedNavTree
                     currentPath={currentPath}
+                    items={sideNavItems}
                     isMobile={true}
+                    initialSections={navSections}
                   />
                 </div>
               )}

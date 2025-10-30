@@ -6,6 +6,8 @@ import { handleVanityUrlRedirect } from "@/util/vanityUrlHandler";
 import { client } from "@/util/dotcmsClient";
 import { getPageRequestParams } from "@dotcms/client";
 import { fetchNavData, fetchPageData } from "@/util/page.utils";
+import { getNavSections } from "@/services/docs/getNavSections";
+import { getSideNav } from "@/services/docs/getSideNav";
 import { BlockPageAsset } from "@/components/page-asset-with-content-block";
 /**
  * Generate metadata
@@ -108,16 +110,22 @@ export default async function Page({ params, searchParams }) {
 
         const folderNavPath = pathParts.length > 0 ? `/${pathParts[0]}` : "/"
 
-        const { nav, error: navError } = await fetchNavData({languageId: 1, path: folderNavPath, depth: 4});
+        const [navResult, searchData, navSections] = await Promise.all([
+            fetchNavData({languageId: 1, path: folderNavPath, depth: 4}),
+            getSideNav(),
+            getNavSections({ path: '/docs/nav', depth: 4, languageId: 1, ttlSeconds: 600 })
+        ]);
 
-
+        const { nav, error: navError } = navResult;
 
         return (
             <BlockPageAsset 
-            pageAsset ={pageAsset} 
+            pageAsset={pageAsset} 
             nav={nav}
+            searchItems={searchData[0]?.dotcmsdocumentationchildren || []}
             currentPath={pageAsset?.page?.url}
             serverPath={pathname}
+            navSections={navSections}
         />
         );
     }

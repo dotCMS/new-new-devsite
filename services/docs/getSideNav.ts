@@ -19,36 +19,50 @@ export const getSideNav = async () => {
             navTitle
             urlTitle
             modDate
+            tag
+            seoDescription
             dotcmsdocumentationchildren {
                 title
                 navTitle
                 urlTitle
                 modDate
+                tag
+                seoDescription
                 dotcmsdocumentationchildren {
                     title
                     navTitle
                     urlTitle
                     modDate
+                    tag
+                    seoDescription
                     dotcmsdocumentationchildren {
                         title
                         navTitle
                         urlTitle
                         modDate
+                        tag
+                        seoDescription
                         dotcmsdocumentationchildren {
                             title
                             navTitle
                             urlTitle
                             modDate
+                            tag
+                            seoDescription
                             dotcmsdocumentationchildren {
                                 title
                                 navTitle
                                 urlTitle
                                 modDate
+                                tag
+                                seoDescription
                                 dotcmsdocumentationchildren {
                                     title
                                     navTitle
                                     urlTitle
                                     modDate
+                                    tag
+                                    seoDescription
                                 }
                             }
                         }

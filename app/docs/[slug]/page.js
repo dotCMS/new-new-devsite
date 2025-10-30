@@ -12,7 +12,8 @@ import Footer from "@/components/footer";
 import Documentation from "@/components/documentation/Documentation";
 import GitHubDocumentation from "@/components/documentation/GitHubDocumentation";
 import ChangeLogList from "@/components/changelogs/ChangeLogList";
-import NavTree from "@/components/navigation/NavTree";
+import RedesignedNavTree from "@/components/navigation/RedesignedNavTree";
+import { getNavSections } from "@/services/docs/getNavSections";
 import CurrentReleases from "@/components/releases/CurrentReleases";
 import AllReleases from "@/components/releases/AllReleases";
 import AllSecurityIssues from "@/components/security-issues/AllSecurityIssues";
@@ -246,6 +247,7 @@ export default async function Home({ searchParams, params }) {
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
     const { pageAsset, sideNav } = await fetchPageData(path, finalSearchParams, slug);
+    const navSections = await getNavSections({ path: '/docs/nav', depth: 4, languageId: 1, ttlSeconds: 600 });
     
     // NOTE: Vanity URL redirects are now handled by middleware
     // If we reach this point, it's not a vanity URL or the redirect already happened
@@ -284,17 +286,17 @@ export default async function Home({ searchParams, params }) {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header sideNavItems={sideNav[0]?.dotcmsdocumentationchildren || []} currentPath={slug} />
+            <Header sideNavItems={sideNav[0]?.dotcmsdocumentationchildren || []} currentPath={slug} navSections={navSections} />
             <JsonLd pageData={data} path={path} hostname={hostname} />
             
             <div className="flex-1">
                 <div className="flex flex-col lg:flex-row container mx-auto px-0">
                     {/* Left Navigation - Hide on mobile */}
                     <div className="hidden lg:block w-72 shrink-0">
-                        <NavTree
-                            items={sideNav[0]?.dotcmsdocumentationchildren || []}
+                        <RedesignedNavTree
                             currentPath={slug}
-                            resetNav={resetNav}
+                            items={sideNav[0]?.dotcmsdocumentationchildren || []}
+                            initialSections={navSections}
                         />
                     </div>
 

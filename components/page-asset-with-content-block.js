@@ -9,10 +9,10 @@ import NotFound from "@/app/not-found";
 import Breadcrumbs from "@/components/navigation/Breadcrumbs";
 import { DotBlockEditor } from "./shared/dotBlockEditor";
 import OnThisPage from "./navigation/OnThisPage";
-import NavTree from "./getting-started/NavTree";
+import RedesignedNavTree from "./navigation/RedesignedNavTree";
 import { UVEComponentsMap } from "./common-component-map";
 import NextBackButtons from "./navigation/NextBackButtons";
-export function BlockPageAsset({ pageAsset, nav, serverPath }) {
+export function BlockPageAsset({ pageAsset, nav, searchItems = [], serverPath, navSections }) {
   const { replace } = useRouter();
   const clientPath = usePathname();
 
@@ -33,27 +33,33 @@ export function BlockPageAsset({ pageAsset, nav, serverPath }) {
 
   return (
     <div className="">
-      {pageAsset?.layout.header && <Header />}
+      {pageAsset?.layout.header && <Header navSections={navSections} />}
 
       
         <div id="main-content" className="grid grid-cols-1 lg:grid-cols-[auto_1fr_auto] container mx-auto px-0 w-full">
           {/* Left Navigation - Hide on mobile */}
           {showLeftNav && (
-            <div id="left-nav" className="hidden lg:block w-72 h-[calc(100vh-4rem)] sticky top-16 overflow-y-auto">
-                <NavTree nav={nav} currentPath={pageAsset?.page?.url}/>
+            <div id="left-nav" className="hidden lg:block w-72 shrink-0">
+                <RedesignedNavTree 
+                  currentPath={pageAsset?.page?.url}
+                  items={searchItems}
+                  initialSections={navSections}
+                />
             </div>
           )}
 
           {/* Main Content - Full width on mobile */}
-          <main id="content-here" className="min-w-0 px-4 pt-8 lg:px-8 [&_.container]:!p-0  border-l-2 border-gray-200">
-            <Breadcrumbs
-              items={Array.isArray(nav) ? nav : []}
-              slug={pageAsset.page.url}
-              childrenKey="children"
-              identifierKey="href"
-              basePath="/"
-            />
-            <h1 className="text-4xl font-bold mb-6">{pageAsset.page.title}</h1>
+          <main id="content-here" className="flex-1 min-w-0 py-8 lg:pb-12 px-0 sm:px-0 lg:px-8">
+            <div className="px-0 sm:px-0 lg:px-8">
+              <Breadcrumbs
+                items={Array.isArray(nav) ? nav : []}
+                slug={pageAsset.page.url}
+                childrenKey="children"
+                identifierKey="href"
+                basePath="/"
+              />
+              <h1 className="text-4xl font-bold mb-6">{pageAsset.page.title}</h1>
+            </div>
 
             {hasBlockContent && (
               <div className="prose dark:prose-invert mb-8">
