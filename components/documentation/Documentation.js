@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import Breadcrumbs from "@/components/navigation/Breadcrumbs";
 import MarkdownContent from "@/components/MarkdownContent";
 import OnThisPage from "../navigation/OnThisPage";
 import Warn from "../mdx/Warn";
 import Info from "../mdx/Info";
+import getDeprecations from "@/services/docs/getDeprecations/getDeprecations";
+import { DeprecationCard } from "../deprecations/DeprecationCard";
+
 
 function cleanMarkdown(markdownString, identifierString) {
   return markdownString
@@ -15,6 +18,41 @@ function cleanMarkdown(markdownString, identifierString) {
 }
 
 const Documentation = ({ contentlet, sideNav, slug }) => {
+  const [matchedDeprecation, setMatchedDeprecation] = useState(null);
+  const [deprecationsLoaded, setDeprecationsLoaded] = useState(false);
+
+  useEffect(() => {
+    async function findMatchingDeprecation() {
+      if (!contentlet?.tag?.includes("deprecated") || !contentlet?.urlTitle) {
+        setDeprecationsLoaded(true);
+        return;
+      }
+
+      try {
+        const deprecations = await getDeprecations({ ttlSeconds: 60 });
+        if (!deprecations || !Array.isArray(deprecations)) {
+          setDeprecationsLoaded(true);
+          return;
+        }
+
+        // Find deprecation where one of its docLinks has a matching urlTitle
+        const match = deprecations.find(dep => 
+          dep.docLinks && 
+          Array.isArray(dep.docLinks) && 
+          dep.docLinks.some(link => link.urlTitle === contentlet.urlTitle)
+        );
+
+        setMatchedDeprecation(match || null);
+      } catch (error) {
+        console.error("Error fetching deprecations:", error);
+      } finally {
+        setDeprecationsLoaded(true);
+      }
+    }
+
+    findMatchingDeprecation();
+  }, [contentlet?.urlTitle, contentlet?.tag]);
+
   if (!contentlet || !sideNav) {
     return <div>Loading...</div>;
   }
@@ -51,11 +89,15 @@ const Documentation = ({ contentlet, sideNav, slug }) => {
                 </span>
               )}
             </div>
-            {contentlet.tag.includes("deprecated")  && (
+            {contentlet.tag.includes("deprecated") && deprecationsLoaded && (
               <div className="mb-6">
-                <Warn>
-                  This function has been deprecated.
-                </Warn>
+                {matchedDeprecation ? (
+                  <DeprecationCard deprecation={matchedDeprecation} variant="inline" />
+                ) : (
+                  <Warn>
+                    This function has been deprecated.
+                  </Warn>
+                )}
               </div>
             )}
             <MarkdownContent content={documentation} />

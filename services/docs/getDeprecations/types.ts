@@ -6,13 +6,18 @@ type Block = {
     content?: ContentNode[]
 }
 
+type DocLink = {
+    title?: string;
+    urlTitle?: string;
+}
+
 export type TDeprecation = {
+    identifier?: string;
     title?: string
     dateDeprecated?: string
     dateRetired?: string
+    docLinks?: DocLink[];
     timeframeNote?: string
-    docLink?: string
-    additionalLinks?: string
     recommendation?: Block
     recLink?: string
     reason?: Block

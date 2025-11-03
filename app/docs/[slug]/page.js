@@ -21,6 +21,8 @@ import RestApiPlayground from "@/components/playgrounds/RestApiPlayground/RestAp
 import SwaggerUIComponent from "@/components/playgrounds/SwaggerUIComponent/SwaggerUIComponent";
 import Script from "next/script";
 import { getSecurityIssues } from "@/services/docs/getSecurityIssues/getSecurityIssues";
+import Deprecations from "@/components/deprecations/Deprecations";
+import getDeprecations from "@/services/docs/getDeprecations/getDeprecations";
 
 /**
  * Process slug consistently across all functions
@@ -264,6 +266,22 @@ export default async function Home({ searchParams, params }) {
         searchParams: finalSearchParams
     }
     
+    /* 
+      This pre-fetches deprecations server-side w/cache, similar to how we pre-fetch the nav.
+      This avoids a client-side fetch, which is slow enough to mess up the TOC even with caching.
+      I am open to other ideas, if we'd prefer a client-side approach — e.g., we could
+      add a mutation observer to the OnThisPage component that watches for new headings.
+      It's probably not worth the effort; I'm just sharing what was going through my head.
+    */
+    let prefetchedDeprecations = null;
+    if (slug === 'deprecations') {
+        try {
+            prefetchedDeprecations = await getDeprecations({ ttlSeconds: 60 });
+        } catch(e) {
+            prefetchedDeprecations = null;
+        }
+    }
+
     // Add more path-component mappings here as needed:
     // "path-name": (contentlet) => <ComponentName contentlet={contentlet} />,
     const componentMap = {
@@ -272,6 +290,7 @@ export default async function Home({ searchParams, params }) {
         "all-releases": (data) => <AllReleases  {...data} slug={slug} />,
         "previous-releases": (data) => <AllReleases  {...data} slug={slug} />,
         "known-security-issues": (data) => <AllSecurityIssues  {...data} slug={slug} />,
+        "deprecations": (data) => <Deprecations {...data} slug={slug} initialItems={prefetchedDeprecations || []} />,
         "rest-api-sampler": (data) => <RestApiPlayground {...data} slug={slug} />,
         "all-rest-apis": (data) => <SwaggerUIComponent {...data} slug={slug} />,
         default: (data) => {
