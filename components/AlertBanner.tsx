@@ -34,7 +34,7 @@ export function AlertBanner({
 
   return (
     <div className="sticky top-0 z-50 w-full">
-      <Alert className="rounded-none relative py-3 px-4 text-white border-none" style={{ backgroundColor: 'rgb(24, 24, 109)' }}>
+      <Alert className="rounded-none relative py-3 px-4 text-white border-none m-0" style={{ backgroundColor: 'rgb(24, 24, 109)' }}>
         <AlertDescription className="text-white w-full text-center">
           {message}
         </AlertDescription>
