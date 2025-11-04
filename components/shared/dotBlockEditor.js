@@ -3,6 +3,7 @@ import Link from "next/link";
 import { decode } from "html-entities";
 import { BlockEditorRenderer } from "@dotcms/react";
 import LinkCards from "../content-types/link-cards";
+import YoutubeComponent from "./Youtube";
 
 /**
  * Renders the text in bold.
@@ -178,6 +179,8 @@ export const DotBlockEditor = ({ customRenderers, ...props }) => {
             customRenderers={{
                 text: DecodeHTML,
                 dotVideo: VidContent,
+                youtube: YoutubeComponent,
+                Youtube: YoutubeComponent, // Handle dotContent type with contentType "Youtube"
                 ...mergedCustomRenderers,  // Move this before any other renderers
             }}
         />
