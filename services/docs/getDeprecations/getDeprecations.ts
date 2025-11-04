@@ -11,7 +11,7 @@ const getDeprecations = async (options: Options = {}): Promise<TDeprecation[] | 
   const query = `query Deprecations {
     DeprecationCollection(
       query: "+contentType:Deprecation +live:true"
-      sortBy: "Deprecation.dateDeprecated asc"
+      sortBy: "Deprecation.dateDeprecated desc"
       limit: 0
       offset: 0
     ) {
