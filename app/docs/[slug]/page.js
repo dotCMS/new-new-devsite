@@ -259,27 +259,32 @@ export default async function Home({ searchParams, params }) {
         notFound();
     }
     
+    // Fetch all deprecations once (uses 1hr cache)
+    let allDeprecations = null;
+    try {
+        allDeprecations = await getDeprecations();
+    } catch(e) {
+        console.error("Error fetching deprecations:", e);
+        allDeprecations = null;
+    }
+
+    // Find matching deprecation for this specific page (OR logic - always check)
+    let deprecationForPage = null;
+    if (allDeprecations && Array.isArray(allDeprecations)) {
+        deprecationForPage = allDeprecations.find(dep => 
+            dep.docLinks && 
+            Array.isArray(dep.docLinks) && 
+            dep.docLinks.some(link => link.urlTitle === slug)
+        ) || null;
+    }
+
     const data = {
         contentlet: pageAsset.urlContentMap._map,
         sideNav: sideNav,
         currentPath: slug,
-        searchParams: finalSearchParams
-    }
-    
-    /* 
-      This pre-fetches deprecations server-side w/cache, similar to how we pre-fetch the nav.
-      This avoids a client-side fetch, which is slow enough to mess up the TOC even with caching.
-      I am open to other ideas, if we'd prefer a client-side approach — e.g., we could
-      add a mutation observer to the OnThisPage component that watches for new headings.
-      It's probably not worth the effort; I'm just sharing what was going through my head.
-    */
-    let prefetchedDeprecations = null;
-    if (slug === 'deprecations') {
-        try {
-            prefetchedDeprecations = await getDeprecations({ ttlSeconds: 60 });
-        } catch(e) {
-            prefetchedDeprecations = null;
-        }
+        searchParams: finalSearchParams,
+        deprecation: deprecationForPage,
+        allDeprecations: slug === 'deprecations' ? allDeprecations : undefined
     }
 
     // Add more path-component mappings here as needed:
@@ -290,7 +295,7 @@ export default async function Home({ searchParams, params }) {
         "all-releases": (data) => <AllReleases  {...data} slug={slug} />,
         "previous-releases": (data) => <AllReleases  {...data} slug={slug} />,
         "known-security-issues": (data) => <AllSecurityIssues  {...data} slug={slug} />,
-        "deprecations": (data) => <Deprecations {...data} slug={slug} initialItems={prefetchedDeprecations || []} />,
+        "deprecations": (data) => <Deprecations {...data} slug={slug} initialItems={data.allDeprecations || []} />,
         "rest-api-sampler": (data) => <RestApiPlayground {...data} slug={slug} />,
         "all-rest-apis": (data) => <SwaggerUIComponent {...data} slug={slug} />,
         default: (data) => {

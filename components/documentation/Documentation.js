@@ -17,41 +17,9 @@ function cleanMarkdown(markdownString, identifierString) {
     .replaceAll("</br>", "<br>");
 }
 
-const Documentation = ({ contentlet, sideNav, slug }) => {
-  const [matchedDeprecation, setMatchedDeprecation] = useState(null);
-  const [deprecationsLoaded, setDeprecationsLoaded] = useState(false);
-
-  useEffect(() => {
-    async function findMatchingDeprecation() {
-      if (!contentlet?.tag?.includes("deprecated") || !contentlet?.urlTitle) {
-        setDeprecationsLoaded(true);
-        return;
-      }
-
-      try {
-        const deprecations = await getDeprecations({ ttlSeconds: 60 });
-        if (!deprecations || !Array.isArray(deprecations)) {
-          setDeprecationsLoaded(true);
-          return;
-        }
-
-        // Find deprecation where one of its docLinks has a matching urlTitle
-        const match = deprecations.find(dep => 
-          dep.docLinks && 
-          Array.isArray(dep.docLinks) && 
-          dep.docLinks.some(link => link.urlTitle === contentlet.urlTitle)
-        );
-
-        setMatchedDeprecation(match || null);
-      } catch (error) {
-        console.error("Error fetching deprecations:", error);
-      } finally {
-        setDeprecationsLoaded(true);
-      }
-    }
-
-    findMatchingDeprecation();
-  }, [contentlet?.urlTitle, contentlet?.tag]);
+const Documentation = ({ contentlet, sideNav, slug, deprecation }) => {
+  // Use server-provided deprecation match (no client fetch needed)
+  const matchedDeprecation = deprecation || null;
 
   if (!contentlet || !sideNav) {
     return <div>Loading...</div>;
@@ -89,7 +57,7 @@ const Documentation = ({ contentlet, sideNav, slug }) => {
                 </span>
               )}
             </div>
-            {contentlet.tag.includes("deprecated") && deprecationsLoaded && (
+            {(matchedDeprecation || contentlet.tag.includes("deprecated")) && (
               <div className="mb-6">
                 {matchedDeprecation ? (
                   <DeprecationCard deprecation={matchedDeprecation} variant="inline" />

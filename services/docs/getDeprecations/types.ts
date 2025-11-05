@@ -9,6 +9,7 @@ type Block = {
 type DocLink = {
     title?: string;
     urlTitle?: string;
+    tag?: string;
 }
 
 export type TDeprecation = {

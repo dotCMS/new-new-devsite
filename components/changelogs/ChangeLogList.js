@@ -199,7 +199,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
 
       {/* Right Sidebar - Hide on smaller screens */}
       <div className="w-64 shrink-0 hidden xl:block">
-        <div className="sticky top-16 pt-8 pl-8">
+        <div className="sticky top-16 pl-8">
           <div className="text-muted-foreground
                 overflow-y-auto p-4 px-2
                 [&::-webkit-scrollbar]:w-1.5
@@ -214,7 +214,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
                 className="block border-0 border-red-500 pl-3 pb-4 text-sm"
                 href={`?page=${currentPage - 1}${paramLts ? '&lts='+paramLts : ""}`}
               >
-                &larr; Newer 
+                 <ChevronLeft className="inline h-4 w-4" /> Newer 
               </a>
             )}
 
@@ -232,7 +232,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
                 className="block border-0 border-red-500 pl-3 pt-2 text-sm"
                 href={`?page=${currentPage + 1}${paramLts ? '&lts='+paramLts : ""}`}
               >
-                Older &rarr;
+                Older <ChevronRight className="inline h-4 w-4" />
               </a>
             )}
           </div>
