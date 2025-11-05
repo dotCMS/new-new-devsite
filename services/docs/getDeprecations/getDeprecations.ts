@@ -6,7 +6,7 @@ import type { TDeprecation } from './types';
 type Options = { ttlSeconds?: number };
 
 const getDeprecations = async (options: Options = {}): Promise<TDeprecation[] | null> => {
-  const ttlSeconds = options.ttlSeconds ?? 60;
+  const ttlSeconds = options.ttlSeconds ?? 3600; // 1 hour default
 
   const query = `query Deprecations {
     DeprecationCollection(
@@ -23,6 +23,7 @@ const getDeprecations = async (options: Options = {}): Promise<TDeprecation[] | 
       docLinks {
         title
         urlTitle
+        tag
       }
       recommendation {
         json
@@ -47,7 +48,6 @@ const getDeprecations = async (options: Options = {}): Promise<TDeprecation[] | 
     }
 
     const deprecations = result?.data?.DeprecationCollection || [];
-    console.log('deprecations:', deprecations);
     return deprecations;
   } catch (error) {
     console.error(`Error fetching deprecations: ${error}`);
