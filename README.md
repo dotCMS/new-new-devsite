@@ -2,7 +2,7 @@
 
 This is the latest and greatest version of the dotCMS documentation and dev site that powers https://dev.dotcms.com.  The site is built with NextJs 15 and the blood, sweat, tears and tokens from our AI friends Bolt.ai/Claude/Cursor/Cline &#129302;.
 
-
+This auto-deploys as needed.
 
 
 ### Building & Running the dev site locally
