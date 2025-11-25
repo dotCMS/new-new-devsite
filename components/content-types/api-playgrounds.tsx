@@ -61,10 +61,10 @@ export default function APIPlaygrounds(props: APIPlaygroundsProps) {
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white rounded-lg p-4 sm:p-6 shadow-lg lg:w-1/2 w-full">
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 shadow-lg lg:w-1/2 w-full">
                             <div className="space-y-6">
-                                <div className="flex items-center justify-between border-b pb-2">
-                                    <span className="font-medium">Authentication</span>
+                                <div className="flex items-center justify-between border-b dark:border-gray-700 pb-2">
+                                    <span className="font-medium dark:text-gray-100">Authentication</span>
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="16"
@@ -80,13 +80,13 @@ export default function APIPlaygrounds(props: APIPlaygroundsProps) {
                                         <path d="m6 9 6 6 6-6" />
                                     </svg>
                                 </div>
-                                <div className="font-mono text-sm bg-gray-50 p-4 rounded">
-                                    <div className="text-gray-600">Authorization:</div>
-                                    <div className="text-gray-400 break-all">Bearer {"<your-api-token>"}</div>
+                                <div className="font-mono text-sm bg-gray-50 dark:bg-gray-900 p-4 rounded">
+                                    <span className="text-gray-700 dark:text-gray-300">Authorization: </span>
+                                    <span className="text-gray-500 dark:text-gray-400 break-all inline-block">Bearer {"<your-api-token>"}</span>
                                 </div>
                                 <div className="space-y-2">
-                                    <div className="flex items-center justify-between border-b pb-2">
-                                        <span className="font-medium">Request Body</span>
+                                    <div className="flex items-center justify-between border-b dark:border-gray-700 pb-2">
+                                        <span className="font-medium dark:text-gray-100">Request Body</span>
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="16"
@@ -102,8 +102,8 @@ export default function APIPlaygrounds(props: APIPlaygroundsProps) {
                                             <path d="m6 9 6 6 6-6" />
                                         </svg>
                                     </div>
-                                    <pre className="bg-gray-50 p-4 rounded overflow-x-auto">
-                                        <code className="text-sm">
+                                    <pre className="bg-gray-50 dark:bg-gray-900 p-4 rounded overflow-x-auto">
+                                        <code className="text-sm dark:text-gray-300">
                                             {`{\n  "contentType": "Blog",\n  "title": "Getting Started with dotCMS",\n  "author": "John Doe",\n  "status": "PUBLISHED"\n}`}
                                         </code>
                                     </pre>
