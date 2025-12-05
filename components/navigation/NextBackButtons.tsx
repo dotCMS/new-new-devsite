@@ -9,8 +9,8 @@ import { Button } from '@/components/ui/button';
 interface NavItem {
   title: string;
   href: string;
-  type: string;
-  children?: NavItem[];
+  target?: string;
+  items?: NavItem[];
 }
 
 interface NextBackButtonsProps {
@@ -22,9 +22,8 @@ const NextBackButtons: React.FC<NextBackButtonsProps> = ({ navTree, currentSlug 
   const router = useRouter();
 
   const getFinalSlug = (item: NavItem) => {
-    if(item?.type === 'folder') {
-      return item.href + "/index";
-    }
+    // In the new structure, folders have href '#' and shouldn't be navigated to
+    // Only return hrefs for actual page links
     return item?.href;
   }
 
@@ -36,7 +35,7 @@ const NextBackButtons: React.FC<NextBackButtonsProps> = ({ navTree, currentSlug 
   ): { previous: NavItem | null; next: NavItem | null } => {
     const tree: NavItem[] = Array.isArray(treeIn) 
       ? treeIn 
-      : (treeIn?.children || []);
+      : (treeIn?.items || []);
     
     let previous: NavItem | null = null;
     let next: NavItem | null = null;
@@ -47,12 +46,14 @@ const NextBackButtons: React.FC<NextBackButtonsProps> = ({ navTree, currentSlug 
     const flattenNavTree = (items: NavItem[]): NavItem[] => {
       const flattenedItems: NavItem[] = [];
       for(let i = 0; i < items.length; i++) {
-        if(items[i].type != "folder") {
+        // Only include items that are actual pages (not folders with href '#')
+        if(items[i].href && items[i].href !== '#') {
             flattenedItems.push(items[i]);
         }
-        const children = items[i].children;
-        if(children && children.length > 0) {
-          flattenedItems.push(...flattenNavTree(children));
+        // Recursively process nested items
+        const nestedItems = items[i].items;
+        if(nestedItems && nestedItems.length > 0) {
+          flattenedItems.push(...flattenNavTree(nestedItems));
         }
       }
       return flattenedItems;  
@@ -81,9 +82,6 @@ const NextBackButtons: React.FC<NextBackButtonsProps> = ({ navTree, currentSlug 
     };
 
     const flattenedNavTree = flattenNavTree(tree);
-    for(let i = 0; i < flattenedNavTree.length; i++) {  
-        // Debugging log removed to prevent information leakage in production.
-    }
 
     traverse(flattenedNavTree);
     return { previous, next };

@@ -21,6 +21,8 @@ import RestApiPlayground from "@/components/playgrounds/RestApiPlayground/RestAp
 import SwaggerUIComponent from "@/components/playgrounds/SwaggerUIComponent/SwaggerUIComponent";
 import Script from "next/script";
 import { getSecurityIssues } from "@/services/docs/getSecurityIssues/getSecurityIssues";
+import Deprecations from "@/components/deprecations/Deprecations";
+import getDeprecations from "@/services/docs/getDeprecations/getDeprecations";
 
 /**
  * Process slug consistently across all functions
@@ -257,13 +259,34 @@ export default async function Home({ searchParams, params }) {
         notFound();
     }
     
+    // Fetch all deprecations once (uses 1hr cache)
+    let allDeprecations = null;
+    try {
+        allDeprecations = await getDeprecations();
+    } catch(e) {
+        console.error("Error fetching deprecations:", e);
+        allDeprecations = null;
+    }
+
+    // Find matching deprecation for this specific page (OR logic - always check)
+    let deprecationForPage = null;
+    if (allDeprecations && Array.isArray(allDeprecations)) {
+        deprecationForPage = allDeprecations.find(dep => 
+            dep.docLinks && 
+            Array.isArray(dep.docLinks) && 
+            dep.docLinks.some(link => link.urlTitle === slug)
+        ) || null;
+    }
+
     const data = {
         contentlet: pageAsset.urlContentMap._map,
         sideNav: sideNav,
         currentPath: slug,
-        searchParams: finalSearchParams
+        searchParams: finalSearchParams,
+        deprecation: deprecationForPage,
+        allDeprecations: slug === 'deprecations' ? allDeprecations : undefined
     }
-    
+
     // Add more path-component mappings here as needed:
     // "path-name": (contentlet) => <ComponentName contentlet={contentlet} />,
     const componentMap = {
@@ -272,6 +295,7 @@ export default async function Home({ searchParams, params }) {
         "all-releases": (data) => <AllReleases  {...data} slug={slug} />,
         "previous-releases": (data) => <AllReleases  {...data} slug={slug} />,
         "known-security-issues": (data) => <AllSecurityIssues  {...data} slug={slug} />,
+        "deprecations": (data) => <Deprecations {...data} slug={slug} initialItems={data.allDeprecations || []} />,
         "rest-api-sampler": (data) => <RestApiPlayground {...data} slug={slug} />,
         "all-rest-apis": (data) => <SwaggerUIComponent {...data} slug={slug} />,
         default: (data) => {

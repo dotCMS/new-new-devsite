@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import Breadcrumbs from "@/components/navigation/Breadcrumbs";
 import MarkdownContent from "@/components/MarkdownContent";
 import OnThisPage from "../navigation/OnThisPage";
 import Warn from "../mdx/Warn";
 import Info from "../mdx/Info";
+import getDeprecations from "@/services/docs/getDeprecations/getDeprecations";
+import { DeprecationCard } from "../deprecations/DeprecationCard";
+
 
 function cleanMarkdown(markdownString, identifierString) {
   return markdownString
@@ -14,7 +17,10 @@ function cleanMarkdown(markdownString, identifierString) {
     .replaceAll("</br>", "<br>");
 }
 
-const Documentation = ({ contentlet, sideNav, slug }) => {
+const Documentation = ({ contentlet, sideNav, slug, deprecation }) => {
+  // Use server-provided deprecation match (no client fetch needed)
+  const matchedDeprecation = deprecation || null;
+
   if (!contentlet || !sideNav) {
     return <div>Loading...</div>;
   }
@@ -51,11 +57,15 @@ const Documentation = ({ contentlet, sideNav, slug }) => {
                 </span>
               )}
             </div>
-            {contentlet.tag.includes("deprecated")  && (
+            {(matchedDeprecation || contentlet.tag.includes("deprecated")) && (
               <div className="mb-6">
-                <Warn>
-                  This function has been deprecated.
-                </Warn>
+                {matchedDeprecation ? (
+                  <DeprecationCard deprecation={matchedDeprecation} variant="inline" />
+                ) : (
+                  <Warn>
+                    This function has been deprecated.
+                  </Warn>
+                )}
               </div>
             )}
             <MarkdownContent content={documentation} />

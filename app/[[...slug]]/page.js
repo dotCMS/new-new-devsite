@@ -5,7 +5,7 @@ import { ErrorPage } from "@/components/error";
 import { handleVanityUrlRedirect } from "@/util/vanityUrlHandler";
 import { client } from "@/util/dotcmsClient";
 import { getPageRequestParams } from "@dotcms/client";
-import { fetchNavData, fetchPageData } from "@/util/page.utils";
+import { fetchPageData } from "@/util/page.utils";
 import { getNavSections } from "@/services/docs/getNavSections";
 import { getSideNav } from "@/services/docs/getSideNav";
 import { BlockPageAsset } from "@/components/page-asset-with-content-block";
@@ -104,24 +104,32 @@ export default async function Page({ params, searchParams }) {
     const isBlockPage = pageAsset?.page?.contentType==="BlockPage"
     if(isBlockPage) {
 
-        // Extract the correct folder path for navigation
-        const pathParts = pageAsset?.page?.url.split("/").filter(part => part.length > 0);
-
-
-        const folderNavPath = pathParts.length > 0 ? `/${pathParts[0]}` : "/"
-
-        const [navResult, searchData, navSections] = await Promise.all([
-            fetchNavData({languageId: 1, path: folderNavPath, depth: 4}),
+        // Fetch navigation data (reuse cached nav sections instead of separate API call)
+        const [searchData, navSections] = await Promise.all([
             getSideNav(),
             getNavSections({ path: '/docs/nav', depth: 4, languageId: 1, ttlSeconds: 600 })
         ]);
 
-        const { nav, error: navError } = navResult;
+        // Extract the first segment of the URL to find the matching nav section
+        const pathParts = pageAsset?.page?.url.split("/").filter(part => part.length > 0);
+        const firstSegment = pathParts.length > 0 ? pathParts[0] : "";
+        
+        // Find the nav section that matches the current page's top-level folder
+        // e.g., for "/getting-started/back-end/setup", find the "Getting Started" section
+        const matchingSection = navSections?.find(section => {
+            // Normalize section title to match URL segment
+            // e.g., "Getting Started" -> "getting-started"
+            const normalizedTitle = section.title.toLowerCase().replace(/\s+/g, '-');
+            return normalizedTitle === firstSegment;
+        });
+
+        // If no matching section found, fall back to empty array
+        const navItems = matchingSection?.items || [];
 
         return (
             <BlockPageAsset 
             pageAsset={pageAsset} 
-            nav={nav}
+            nav={navItems}
             searchItems={searchData[0]?.dotcmsdocumentationchildren || []}
             currentPath={pageAsset?.page?.url}
             serverPath={pathname}
