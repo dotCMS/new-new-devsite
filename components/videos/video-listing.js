@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { ArrowLeft, Calendar, Video, BookOpen } from 'lucide-react';
@@ -9,10 +9,7 @@ import PaginationBar from '../PaginationBar';
 import VideoImage from './VideoImage';
 
 const VideoCard = ({ post }) => {
-    const formattedDate = useMemo(() => 
-        format(new Date(post.publishDate), 'MMMM d, yyyy'),
-        [post.publishDate]
-    );
+    const formattedDate = format(new Date(post.publishDate), 'MMMM d, yyyy');
 
     // Prepare thumbnail data, handling both image and video thumbnails
     const videoData = {

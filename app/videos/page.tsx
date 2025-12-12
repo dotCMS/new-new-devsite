@@ -39,7 +39,7 @@ export default async function VideoPage({ searchParams, params }: { searchParams
     const tagFilter = finalParams["tagFilter"];
     const page = parseInt(finalParams["page"]) || 1;
     
-    const {videos,pagination} = await getVideoListing({tagFilter: tagFilter, page: page, pageSize: 9});
+    const {videos,pagination} = await getVideoListing({tagFilter: tagFilter, page: page, pageSize: 9,needBody:false,slug:""});
 
     return (
         <div className="flex flex-col min-h-screen">
