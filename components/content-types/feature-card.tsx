@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card"
     import Link from "next/link"
-import { LucideIcon, Code } from "lucide-react"
+import { LucideIcon, ExternalLink } from "lucide-react"
 import { DocLink } from "@/components/content-types/doc-link"
 import { Config } from "@/util/config";
 import Image from "next/image";
@@ -20,6 +20,10 @@ interface FeatureCardProps {
     color: string;
     links: DocLinkType[];
     count: number;
+    useIconOnly?: boolean;
+
+    imageUrl?: string;
+    externalLink?:boolean;
 }
 
 export default function FeatureCard({
@@ -30,22 +34,37 @@ export default function FeatureCard({
     imageIdentifier,
     color,
     count = 0,
-    links = []
+    links = [],
+    useIconOnly = false,
+    imageUrl,
+    externalLink = false
 }: FeatureCardProps) {
 
-    const imageUrl = imageIdentifier && (imageIdentifier.startsWith('http') || imageIdentifier.startsWith('/dA/')) ? imageIdentifier : `${Config.CDNHost}/dA/${imageIdentifier}/`;
     const myHref = href ? href :  "#";
+
+    const imageUrlAlt = imageIdentifier && (imageIdentifier.startsWith('http') || imageIdentifier.startsWith('/dA/')) ? imageIdentifier : `${Config.CDNHost}/dA/${imageIdentifier}/`;
+
 
     return (
         <div className="space-y-4">
-            <Link href={myHref} className="block">
+            <Link
+                href={myHref}
+                className="block"
+                target={externalLink ? "_blank" : undefined}
+                rel={externalLink ? "noopener noreferrer" : undefined}
+            >
                 <Card className={`overflow-hidden transition-all duration-300 group border border-border hover:border-${color} relative h-[300px]`}>
                     <CardContent className="p-6 relative z-10 h-full flex flex-col">
                         <div className="mb-4 flex items-center gap-2">
                             <Icon className={`h-6 w-6 transition-colors group-hover:text-${color}`} />
                             <div className="flex items-center gap-2">
-                                <h3 className={`text-xl font-semibold transition-colors group-hover:text-${color}`}>{title}</h3>
-                                {count !== 0 && (
+                                <h3 className={`text-xl font-semibold transition-colors group-hover:text-${color}`}>{title} 
+                                    {externalLink &&
+                                        <ExternalLink className="h-5 w-5 inline-block ml-2 mb-1" />
+                                    }
+
+                                </h3>
+                                {count >0 && (
                                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
                                         {count > 0 ? count : '+'}
                                     </span>
@@ -55,14 +74,37 @@ export default function FeatureCard({
                         <p className="mb-6 text-sm text-muted-foreground">
                             {description}
                         </p>
-                        <div className="mt-auto flex justify-center w-full">
-                            <Image
-                                src={`${imageUrl}`}
-                                alt={`${title} illustration`}
-                                width={400}
-                                height={150}
-                                className="rounded-lg object-cover"
-                            />
+                        <div className="mt-auto flex justify-center items-center w-full">
+                            {imageUrl ? (
+                                    <Image
+                                    src={`${imageUrl}`}
+                                    alt={`${title} illustration`}
+                                    width={200}
+                                    height={200}
+                                    className="rounded-lg object-cover"
+                                />
+                            ) : useIconOnly ? (
+                                <div className="relative" style={{ 
+                                    transform: 'rotateX(55deg) rotateZ(-45deg)', 
+                                    transformStyle: 'preserve-3d',
+                                }}>
+                                    <Icon 
+                                        className={`h-32 w-32 text-${color} opacity-20 group-hover:opacity-40 transition-all duration-300`} 
+                                        strokeWidth={1.5}
+                                        style={{
+                                            filter: 'drop-shadow(8px 8px 12px rgba(0, 0, 0, 0.15))'
+                                        }}
+                                    />
+                                </div>
+                            ) : (
+                                <Image
+                                    src={`${imageUrlAlt}`}
+                                    alt={`${title} illustration`}
+                                    width={400}
+                                    height={150}
+                                    className="rounded-lg object-cover"
+                                />
+                            )}
                         </div>
                     </CardContent>
                     <div
@@ -89,4 +131,4 @@ export default function FeatureCard({
             </div>
         </div>
     )
-} 
+}

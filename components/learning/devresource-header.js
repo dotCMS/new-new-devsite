@@ -15,8 +15,8 @@ import Link from 'next/link';
 
 export const DevResourceHeader = ({
     devResource,
-    myResource,
-    showImage = true
+    showImage = true,
+    linkback="/learning/listing"
 }) => {
     const formattedDate = format(new Date(devResource.publishDate), 'MMMM dd, yyyy');
     const pathname = usePathname();
@@ -33,11 +33,11 @@ export const DevResourceHeader = ({
             {/* Back Button Column */}
             <div>
                 <Link
-                    href={`/learning/?type=${devResource.type1}`}
+                    href={linkback}
                     prefetch={false}
                     className="transition-colors flex items-center text-muted-foreground hover:text-foreground"
                 >
-                    <svg viewBox="0 0 24 24" width="24" height="24" className="mr-2 my-2" fill="currentColor"><path d="M10.78 19.03a.75.75 0 0 1-1.06 0l-6.25-6.25a.75.75 0 0 1 0-1.06l6.25-6.25a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L5.81 11.5h14.44a.75.75 0 0 1 0 1.5H5.81l4.97 4.97a.75.75 0 0 1 0 1.06Z"></path></svg> Back to {myResource.title}
+                    <svg viewBox="0 0 24 24" width="24" height="24" className="mr-2 my-2" fill="currentColor"><path d="M10.78 19.03a.75.75 0 0 1-1.06 0l-6.25-6.25a.75.75 0 0 1 0-1.06l6.25-6.25a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L5.81 11.5h14.44a.75.75 0 0 1 0 1.5H5.81l4.97 4.97a.75.75 0 0 1 0 1.06Z"></path></svg> Back to List
                 </Link>
             </div>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-3 sm:mb-4">
@@ -73,7 +73,7 @@ export const DevResourceHeader = ({
                         {devResource.tags.map((tag, index) => (
                             <Link
                                 key={index}
-                                href={`/learning/?tagFilter=${encodeURIComponent(tag)}&type=${devResource.type1}`}
+                                href={`/learning/?tagFilter=${encodeURIComponent(tag)}`}
                                 className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground rounded-full text-xs sm:text-sm transition-colors"
                             >
                                 <TagIcon className="w-4 h-4" />

@@ -19,14 +19,16 @@ const sanitize = (param: string) => {
         : "";
 }
 export const devResourceBaseQuery = (type: string) => {
-    const finalType = sanitize(type) ? "+devresource.type1:" + sanitize(type) : "";
-    return `+contenttype:devresource +(conhost:SYSTEM_HOST  ||  conhost:173aff42881a55a562cec436180999cf ) +live:true ${finalType}`.replace(/\n/g, " ");
+
+    // you are either video or everything else
+    const finalType = "" //type === "video" ? "+devresource.type1:video":"-devresource.type1:video"
+    return `+contenttype:devresource +(conhost:SYSTEM_HOST  ||  conhost:173aff42881a55a562cec436180999cf ) -devresource.type1:video +live:true ${finalType}`.replace(/\n/g, " ");
 }
 
 export async function getDevResources({
     tagFilter="", 
     page=1, 
-    limit=50, 
+    limit=6, 
     type="", 
     slug="",
     needBody=false

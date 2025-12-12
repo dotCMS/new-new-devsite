@@ -96,10 +96,10 @@ const YoutubeComponent: React.FC<YoutubeProps> = ({ attrs }) => {
   // Always use 16:9 aspect ratio (YouTube standard)
   const aspectRatio = 56.25; // 9/16 * 100
 
-  // Container classes with spacing (left-aligned)
+  // Container classes with spacing (full width for better video display)
   const containerClasses = cn(
-    "relative group w-[90%]",
-    spacing === "nospace" ? "my-0" : "my-6"
+    "relative group w-full ",
+    spacing === "nospace" ? "my-0" : "my-8"
   );
 
   // Wrapper classes for responsive behavior

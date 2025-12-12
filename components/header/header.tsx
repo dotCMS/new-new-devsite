@@ -208,22 +208,22 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/docs/table-of-contents?n=0" legacyBehavior passHref>
-              <NavigationMenuLink
-                className={cn(navigationMenuTriggerStyle(), "px-3")}
-              >
-                Docs
-              </NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink asChild>
+              <Link href="/docs/table-of-contents?n=0">
+                <span className={cn(navigationMenuTriggerStyle(), "px-3")}>
+                  Docs
+                </span>
+              </Link>
+            </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/learning" legacyBehavior passHref>
-              <NavigationMenuLink
-                className={cn(navigationMenuTriggerStyle(), "px-3")}
-              >
-                Learning & Blogs
-              </NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink asChild>
+              <Link href="/learning">
+                <span className={cn(navigationMenuTriggerStyle(), "px-3")}>
+                  Learning & Blogs
+                </span>
+              </Link>
+            </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuLink asChild>

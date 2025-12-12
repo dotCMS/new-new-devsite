@@ -3,7 +3,10 @@
 const url = new URL(process.env.NEXT_PUBLIC_DOTCMS_HOST);
 
 const nextConfig = {
-    reactStrictMode: true, 
+    reactStrictMode: true,
+    // Fixes confusing dev/build behavior when Next infers the wrong repo root due to multiple lockfiles.
+    // Also helps make stack traces and tracing output more consistent.
+    outputFileTracingRoot: __dirname,
     async redirects() {
         return [
           {

@@ -28,7 +28,7 @@ const checkForType = (json, type) => {
     return traverse(json);
 }
 
-export default function DevResourceDetailPageComponent({ devResource }) {
+export default function DevResourceDetailPageComponent({ devResource,page=1,linkback="/learning/listing" }) {
     const myResources = DevResourceTypes.filter((resource) => resource.type === devResource.type1[0]);
     const myResource=(myResources.length>0)?myResources[0]:DevResourceTypes[0];
 
@@ -45,7 +45,7 @@ export default function DevResourceDetailPageComponent({ devResource }) {
                 <article className={`${hasHeadings ? 'xl:flex-1 max-w-4xl' : 'w-full max-w-none xl:max-w-none'}`}>
                     <main>
                         {/**    Dont show image if it is a video */}
-                        <DevResourceHeader devResource={devResource} myResource={myResource} showImage={!isVideo}/>
+                        <DevResourceHeader devResource={devResource}  showImage={!isVideo} linkback={linkback} />
                         <DevResourceComponent body={devResource.body} />
                     </main>
                 </article>

@@ -28,9 +28,9 @@ export default function LinkCards(props: LinkCardProps) {
     return (
         <div className="space-y-4 my-12">
             <h3 className="text-4xl font-bold text-center">{title}</h3>
-            <p className="text-muted-foreground max-w-3xl  text-center mx-auto">
+            <div className="text-muted-foreground max-w-3xl text-center mx-auto">
                 <MarkdownContent content={description} />
-            </p>
+            </div>
             <div className="flex flex-wrap gap-3 justify-center items-center">
                 {links.map((link, index) => {
                     // Additional safety check per link
@@ -81,4 +81,3 @@ export default function LinkCards(props: LinkCardProps) {
         </div>
     );
 }
-

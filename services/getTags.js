@@ -37,8 +37,12 @@ export async function getTagsByLuceneQuery(luceneQuery, limit) {
     if (luceneQuery.includes("\n")) {
         luceneQuery = luceneQuery.replace(/\n/g, " ");
     }
+
+    luceneQuery = luceneQuery.replace("/", "\\\\/");
+
     const query = getTagQuery(luceneQuery, limit);
     
+
 
     const res = await logRequest(async () => await fetch(ES_ENPOINT, {
         method: 'POST',
