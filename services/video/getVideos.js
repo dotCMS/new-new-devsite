@@ -2,7 +2,8 @@ import { graphqlResults } from "@/services/gql";
 import { logRequest } from "@/util/logRequest";
 
 export const VIDEO_LISTING_LUCENE_QUERY = `
-    +contenttype:video   
+    +contenttype:video 
+    -metadata.contenttype:video/quicktime 
     +(conhost:SYSTEM_HOST  ||  conhost:173aff42881a55a562cec436180999cf || categories:developers) 
     +live:true
 `.replace(/\n/g, " ").trim();
