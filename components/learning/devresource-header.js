@@ -15,7 +15,6 @@ import Link from 'next/link';
 
 export const DevResourceHeader = ({
     devResource,
-    myResource,
     showImage = true,
     linkback="/learning/listing"
 }) => {

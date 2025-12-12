@@ -21,7 +21,7 @@ export default async function DevResourceListingPage({
   const type = (finalSearchParams?.type as string) || "all";
   const tagFilter = (finalSearchParams?.tagFilter as string) || "";
   const page = Number(finalSearchParams?.page) || 1;
-  const limit = Number(finalSearchParams?.limit) || 6;
+  const limit = Number(finalSearchParams?.limit) || 20;
 
   const { devResources, pagination } = await getDevResources({
     tagFilter,
