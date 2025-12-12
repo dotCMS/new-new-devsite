@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card"
     import Link from "next/link"
-import { LucideIcon, Code } from "lucide-react"
+import { LucideIcon, ExternalLink } from "lucide-react"
 import { DocLink } from "@/components/content-types/doc-link"
 import { Config } from "@/util/config";
 import Image from "next/image";
@@ -21,8 +21,9 @@ interface FeatureCardProps {
     links: DocLinkType[];
     count: number;
     useIconOnly?: boolean;
-    isometricComponent?: React.ReactNode,
+
     imageUrl?: string;
+    externalLink?:boolean;
 }
 
 export default function FeatureCard({
@@ -36,7 +37,7 @@ export default function FeatureCard({
     links = [],
     useIconOnly = false,
     imageUrl,
-    isometricComponent
+    externalLink = false
 }: FeatureCardProps) {
 
     const myHref = href ? href :  "#";
@@ -46,13 +47,23 @@ export default function FeatureCard({
 
     return (
         <div className="space-y-4">
-            <Link href={myHref} className="block">
+            <Link
+                href={myHref}
+                className="block"
+                target={externalLink ? "_blank" : undefined}
+                rel={externalLink ? "noopener noreferrer" : undefined}
+            >
                 <Card className={`overflow-hidden transition-all duration-300 group border border-border hover:border-${color} relative h-[300px]`}>
                     <CardContent className="p-6 relative z-10 h-full flex flex-col">
                         <div className="mb-4 flex items-center gap-2">
                             <Icon className={`h-6 w-6 transition-colors group-hover:text-${color}`} />
                             <div className="flex items-center gap-2">
-                                <h3 className={`text-xl font-semibold transition-colors group-hover:text-${color}`}>{title}</h3>
+                                <h3 className={`text-xl font-semibold transition-colors group-hover:text-${color}`}>{title} 
+                                    {externalLink &&
+                                        <ExternalLink className="h-5 w-5 inline-block ml-2 mb-1" />
+                                    }
+
+                                </h3>
                                 {count >0 && (
                                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
                                         {count > 0 ? count : '+'}

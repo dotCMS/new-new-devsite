@@ -28,7 +28,7 @@ export const devResourceBaseQuery = (type: string) => {
 export async function getDevResources({
     tagFilter="", 
     page=1, 
-    limit=50, 
+    limit=6, 
     type="", 
     slug="",
     needBody=false

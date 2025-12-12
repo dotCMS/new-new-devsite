@@ -6,7 +6,7 @@ import {
   NewspaperIcon,
   PlayCircleIcon,
 } from "lucide-react";
-import { IsometricBlog, IsometricGuide, IsometricVideo, IsometricTraining } from "./IsometricIcons";
+// Note: isometric icons were removed from this route; FeatureCard uses its own imagery.
 export function DevResourceGrid(count: any) {
   return (
     <>
@@ -33,7 +33,7 @@ export function DevResourceGrid(count: any) {
         />
 
         <FeatureCard
-          href={`/learning/?type=howtos`}
+          href={`/learning/listing`}
           icon={BookOpenIcon}
           title="Guides, How-tos & Examples"
           description="Key concepts, best practices, code snippets and step-by-step walkthroughs to help you master dotCMS."
@@ -58,8 +58,9 @@ export function DevResourceGrid(count: any) {
         <FeatureCard
           href={`https://dotcms.talentlms.com/plus/login`}
           icon={GraduationCap}
-          title={"Training & Courses"}
+          title={"Training & Courses "}
           description={"Learn dotCMS with our training courses. "}
+          externalLink={true}
           color="[#a21caf]"
           count={-1}
           links={[]}
