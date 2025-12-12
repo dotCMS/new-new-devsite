@@ -5,18 +5,19 @@ import { graphqlResults, getGraphQLPageQuery } from "@/services/gql";
 import VideoListing from '@/components/videos/video-listing';
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
-import { getVideoListing } from "@/services/video/getVideoListing.js";
+import { getVideoListing } from "@/services/video/getVideos";
 
-const getPath = (params: any) => {
+const getVideo = (params: any) => {
     const defaultPath = "index";
     const path = "/videos/" + (params?.slug?.join("/") || defaultPath);
-
     return path;
 };
 
 async function fetchPage(path: string, searchParams: any) {
     const finalPath = await path;
     const finalSearchParams = await searchParams;
+
+        console.log("video slug:", finalPath)
     const pageRequestParams = getPageRequestParams({ path: finalPath, params: finalSearchParams });
     const query = getGraphQLPageQuery(pageRequestParams);
 
@@ -32,6 +33,25 @@ async function fetchPage(path: string, searchParams: any) {
     return pageAsset;
 }
 
+export default async function VideoPage({ searchParams, params }: { searchParams: any, params: any }) {
+    const finalParams = await searchParams;
+
+    const tagFilter = finalParams["tagFilter"];
+    const page = parseInt(finalParams["page"]) || 1;
+    
+    const {videos,pagination} = await getVideoListing({tagFilter: tagFilter, page: page, pageSize: 9});
+
+    return (
+        <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-1">
+                <VideoListing videos={videos} pagination={pagination} tagFilter={tagFilter}/>
+            </main>
+            <Footer />
+        </div>
+    );
+}
+
 /**
  * Generate metadata
  *
@@ -41,7 +61,7 @@ async function fetchPage(path: string, searchParams: any) {
  */
 export async function generateMetadata({ params, searchParams }: { params: any, searchParams: any }) {
     const finalParams = await params;
-    const path = getPath(finalParams);
+    const path = getVideo(finalParams);
     const pageAsset = await fetchPage(path, searchParams);
 
     const { urlContentMap } = pageAsset && pageAsset.urlContentMap ? pageAsset.urlContentMap : {};
@@ -71,25 +91,6 @@ export async function generateMetadata({ params, searchParams }: { params: any, 
 }
 
 
-
-export default async function VideoPage({ searchParams, params }: { searchParams: any, params: any }) {
-    const finalParams = await searchParams;
-
-    const tagFilter = finalParams["tagFilter"];
-    const page = parseInt(finalParams["page"]) || 1;
-    
-    const {videos,pagination} = await getVideoListing({tagFilter: tagFilter, page: page, pageSize: 9});
-
-    return (
-        <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex-1">
-                <VideoListing videos={videos} pagination={pagination} tagFilter={tagFilter}/>
-            </main>
-            <Footer />
-        </div>
-    );
-}
 
 
 

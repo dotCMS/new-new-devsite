@@ -1,18 +1,27 @@
 import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { ArrowLeft, Calendar } from 'lucide-react';
+import { ArrowLeft, Calendar, Video, BookOpen } from 'lucide-react';
 import TagCloud from '@/components/shared/TagCloud';
 import { getTagsByLuceneQuery } from "@/services/getTags";
-import { VIDEO_LISTING_LUCENE_QUERY } from '@/services/video/getVideoListing';
+import { VIDEO_LISTING_LUCENE_QUERY, DEVRESOURCE_VIDEO_LUCENE_QUERY } from '@/services/video/getVideos';
 import PaginationBar from '../PaginationBar';
 import VideoImage from './VideoImage';
 
 const VideoCard = ({ post }) => {
     const formattedDate = useMemo(() => 
-        format(new Date(post.postingDate), 'MMMM d, yyyy'),
-        [post.postingDate]
+        format(new Date(post.publishDate), 'MMMM d, yyyy'),
+        [post.publishDate]
     );
+
+    // Prepare thumbnail data, handling both image and video thumbnails
+    const videoData = {
+        ...post,
+        teaser: post.teaser || post.title,
+    };
+
+    // Route all video content (both Video and DevResource types) to the unified video detail page
+    const videoLink = `/videos/${post.slug || post.urlTitle}`;
 
     return (
         <article 
@@ -20,24 +29,38 @@ const VideoCard = ({ post }) => {
             aria-labelledby={`video-title-${post.identifier}`}
         >
             <Link 
-                href={`/videos/${post.urlTitle}`}
+                href={videoLink}
                 aria-labelledby={`video-title-${post.identifier}`}
                 className="hover:opacity-90 transition-opacity"
             >
-                <VideoImage post={post} />
+                <VideoImage post={videoData} />
             </Link>
             <div className="p-5 flex-1 flex flex-col">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                    <Calendar className="w-4 h-4" aria-hidden="true" />
-                    <time dateTime={post.postingDate}>
-                        {formattedDate}
-                    </time>
+                <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
+                    {/* Content Type Chip */}
+                    {post.contentType === 'video' ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded text-xs font-medium">
+                            <Video className="w-3 h-3" />
+                            Video
+                        </span>
+                    ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-xs font-medium">
+                            <BookOpen className="w-3 h-3" />
+                            DevResource
+                        </span>
+                    )}
+                    <span className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4" aria-hidden="true" />
+                        <time dateTime={post.publishDate}>
+                            {formattedDate}
+                        </time>
+                    </span>
                 </div>
                 <h2 
                     id={`video-title-${post.identifier}`}
                     className="text-xl font-bold mb-3 line-clamp-2"
                 >
-                    <Link href={`/videos/${post.urlTitle}`} className="hover:text-primary transition-colors">
+                    <Link href={videoLink} className="hover:text-primary transition-colors">
                         {post.title}
                     </Link>
                 </h2>
@@ -63,9 +86,48 @@ const VideoCard = ({ post }) => {
     );
 };
 
+/**
+ * Merge and deduplicate tag buckets from multiple sources
+ * Combines doc_count for duplicate tags
+ */
+const mergeTagBuckets = (tagBuckets1, tagBuckets2) => {
+    const tagMap = new Map();
+    
+    // Add tags from first source
+    for (const tag of tagBuckets1) {
+        tagMap.set(tag.key, { key: tag.key, doc_count: tag.doc_count });
+    }
+    
+    // Merge tags from second source
+    for (const tag of tagBuckets2) {
+        if (tagMap.has(tag.key)) {
+            // Add doc_count if tag exists
+            tagMap.get(tag.key).doc_count += tag.doc_count;
+        } else {
+            tagMap.set(tag.key, { key: tag.key, doc_count: tag.doc_count });
+        }
+    }
+    
+    // Convert back to array and sort by doc_count descending
+    return Array.from(tagMap.values())
+        .sort((a, b) => b.doc_count - a.doc_count);
+};
+
 export default async function VideoListing({ videos, pagination, tagFilter }) {
-    const allTags = await getTagsByLuceneQuery(VIDEO_LISTING_LUCENE_QUERY, 30);
+    // Fetch tags from both Video and DevResource content types
+    const [videoTags, devResourceTags] = await Promise.all([
+        getTagsByLuceneQuery(VIDEO_LISTING_LUCENE_QUERY, 30),
+        getTagsByLuceneQuery(DEVRESOURCE_VIDEO_LUCENE_QUERY, 30)
+    ]);
+    
+    // Merge tags from both sources
+    const allTags = mergeTagBuckets(videoTags, devResourceTags);
     const tagFilterQueryParam = tagFilter && tagFilter.length > 0 ? "tagFilter=" + tagFilter : "";
+
+    // Filter out specific tags that should not be displayed
+    // allTags is an array of bucket objects with { key: string, doc_count: number }
+    const hiddenTags = ['autoplay', 'loop', 'muted', 'nocontrols'];
+    const filteredTags = allTags.filter(tag => !hiddenTags.includes(tag.key.toLowerCase()));
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -108,7 +170,7 @@ export default async function VideoListing({ videos, pagination, tagFilter }) {
                 </main>
 
                 <aside className="lg:w-80 shrink-0" aria-label="Tag filters">
-                    <TagCloud tags={allTags} selectedTag={tagFilter}/>
+                    <TagCloud tags={filteredTags} selectedTag={tagFilter}/>
                 </aside>
             </div>
         </div>

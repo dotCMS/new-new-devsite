@@ -1,0 +1,101 @@
+query VideoContent {
+  VideoCollection(
+    query: "+contenttype:video +(conhost:SYSTEM_HOST || conhost:173aff42881a55a562cec436180999cf || categories:developers) +live:true  "
+    limit: 9
+    page: 1
+    sortBy: "video.publishDate desc"
+  ) {
+    title
+    urlTitle
+    categories {
+      name
+    }
+    tags
+    publishDate
+    imagePrimaryLoad
+    asset {
+      mime
+      title
+      idPath
+      size
+      name
+      width
+      height
+    }
+    thumbnail {
+      mime
+      title
+      idPath
+      size
+      name
+      width
+      height
+    }
+    author {
+      firstName
+      lastName
+      image {
+        title
+        idPath
+        width
+        height
+      }
+    }
+    seo
+    metaDescription
+    description {
+      json
+    }
+  }
+  Pagination {
+    fieldName
+    totalPages
+    totalRecords
+    pageRecords
+    hasNextPage
+    hasPreviousPage
+    pageSize
+    page
+    offset
+  }
+}
+
+query DevResources {
+  DevResourceCollection(
+    query: "+contenttype:devresource +(conhost:SYSTEM_HOST  ||  conhost:173aff42881a55a562cec436180999cf ) +live:true +devresource.type1:video"
+    limit: 9
+    page: 1
+    sortBy: "devresource.publishDate desc"
+  ) {
+    title
+    slug
+    type1
+    identifier
+    teaser
+    inode
+    tags
+    body {
+      json
+    }
+    image {
+      modDate
+      title
+      width
+      mime
+      idPath
+    }
+    altText
+    publishDate
+  }
+  Pagination {
+    fieldName
+    totalPages
+    totalRecords
+    pageRecords
+    hasNextPage
+    hasPreviousPage
+    pageSize
+    page
+    offset
+  }
+}

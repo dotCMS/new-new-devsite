@@ -151,6 +151,7 @@ export const VidContent = (props) => {
     muted={muted}
     playsInline
     title={title}
+    className="border-2 border-r-2 border-l-2 border-gray-200"
   >
     <track default="" kind="captions" srcLang="en" />
     {src && (

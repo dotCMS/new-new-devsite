@@ -4,11 +4,13 @@ import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import SocialMediaShare from '@/components/shared/socialMediaShare';
 import { cn } from '@/util/utils';
-import { Calendar, Tag as TagIcon } from 'lucide-react';
+import { Calendar, Tag as TagIcon, ArrowLeft, Video, BookOpen } from 'lucide-react';
 import { format } from "date-fns";
 import Link from 'next/link';
 import Image from 'next/image';
+
 function extractAssetId(uri) {
+    if (!uri) return null;
     const match = uri.match(/\/dA\/([^/]+)/);
     return match ? match[1] : null;
 }
@@ -16,15 +18,55 @@ function extractAssetId(uri) {
 export const DetailHeader = ({
     post,
 }) => {
-    const formattedDate = format(new Date(post.postingDate), 'MMMM dd, yyyy');
+    // Handle both publishDate and postingDate
+    const dateValue = post.publishDate || post.postingDate;
+    const formattedDate = dateValue ? format(new Date(dateValue), 'MMMM dd, yyyy') : '';
     const pathname = usePathname();
     const [url, setUrl] = useState('');
-    const imageUrl = post.image?.fileAsset?.versionPath;
+    const [imageExists, setImageExists] = useState(true);
+    
+    // Handle different image structures:
+    // - Video content type: post.thumbnail?.idPath or post.asset?.idPath
+    // - DevResource content type: post.image?.idPath
+    // - Legacy structure: post.image?.fileAsset?.versionPath
+    const imageIdPath = post.thumbnail?.idPath || 
+                        post.image?.idPath || 
+                        post.asset?.idPath || 
+                        post.image?.fileAsset?.versionPath;
+    const imageAssetId = extractAssetId(imageIdPath);
     
     useEffect(() => {
-        const urlString = new URL(pathname, `https://${post.host.hostname}`);
+        // Handle cases where host info may not be available
+        const hostname = post.host?.hostname || 'dev.dotcms.com';
+        const urlString = new URL(pathname, `https://${hostname}`);
         setUrl(urlString);
-    }, [pathname, post.host.hostname]);
+    }, [pathname, post.host?.hostname]);
+
+    // Check if the image exists (not a 404)
+    useEffect(() => {
+        if (!imageAssetId) {
+            setImageExists(false);
+            return;
+        }
+
+        const checkImageExists = async () => {
+            setImageExists(false);
+            return;
+            try {
+                const response = await fetch(`/dA/${imageAssetId}/thumbnail/70q/1000maxw`, {
+                    method: 'HEAD'
+                });
+                setImageExists(response.ok);
+            } catch (error) {
+                setImageExists(false);
+            }
+        };
+
+        checkImageExists();
+    }, [imageAssetId]);
+
+    // Get categories - may be null for DevResource content type
+    const categories = post.categories || [];
 
     return (
         <header className="mb-8">
@@ -34,23 +76,44 @@ export const DetailHeader = ({
                     href="/videos"
                     className="transition-colors flex items-center text-muted-foreground hover:text-foreground"
                 >
-                    <svg viewBox="0 0 24 24" width="24" height="24" className="mr-2 my-2" fill="currentColor"><path d="M10.78 19.03a.75.75 0 0 1-1.06 0l-6.25-6.25a.75.75 0 0 1 0-1.06l6.25-6.25a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L5.81 11.5h14.44a.75.75 0 0 1 0 1.5H5.81l4.97 4.97a.75.75 0 0 1 0 1.06Z"></path></svg> Back to Videos
+                    <ArrowLeft className="w-5 h-5 mr-2" /> Back to Videos
                 </Link>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4 mt-4">
                 {post.title}
             </h1>
 
+            {/* Teaser/Description */}
+            {post.teaser && (
+                <p className="text-lg text-muted-foreground mb-6">
+                    {post.teaser}
+                </p>
+            )}
+
             {/* Meta Information */}
-            <div className="flex flex-wrap gap-4 text-muted-foreground mb-6">
-                <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    <time dateTime={post.postingDate}>{formattedDate}</time>
-                </div>
-                {post.categories && (
+            <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-6">
+                {/* Content Type Chip */}
+                {post.contentType === 'video' ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium">
+                        <Video className="w-4 h-4" />
+                        Video
+                    </span>
+                ) : (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
+                        <BookOpen className="w-4 h-4" />
+                        DevResource
+                    </span>
+                )}
+                {formattedDate && (
+                    <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        <time dateTime={dateValue}>{formattedDate}</time>
+                    </div>
+                )}
+                {categories.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                        {post.categories.map((category) => (
-                            <span key={category.key} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-muted text-muted-foreground">
+                        {categories.map((category) => (
+                            <span key={category.key || category.name} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-muted text-muted-foreground">
                                 {category.name}
                             </span>
                         ))}
@@ -58,24 +121,26 @@ export const DetailHeader = ({
                 )}
             </div>
 
-            {/* Featured Image */}
-            {imageUrl && (
-                <figure className="mb-8">
+            {/* Featured Image - only show if image exists (not 404) */}
+            {imageAssetId && imageExists && (
+                <figure className="mb-4 sm:mb-8 max-h-[100px] sm:max-h-[200px] opacity-50 overflow-hidden">
                     <Image
-                        src={"/dA/" + extractAssetId(imageUrl) + "/70q/1000maxw"}
-                        alt={post.image?.description || post.title}
+                        src={`/dA/${imageAssetId}/thumbnail/70q/1000maxw`}
+                        alt={post.image?.description || post.altText || post.title}
                         width={1000}
                         height={400}
-                        className="w-full h-[400px] object-cover rounded-lg shadow-lg"
+                        className="w-full h-[200px] sm:h-[400px]  object-cover rounded-lg shadow-lg"
                     />
                 </figure>
             )}
 
-            {/* Tags */}
-            {post.tags && (
+            {/* Tags - filter out video control tags (autoplay, muted, nocontrols, loop) */}
+            {post.tags && post.tags.length > 0 && (
                 <div className="mb-8">
                     <div className="flex flex-wrap gap-2">
-                        {post.tags.map((tag, index) => (
+                        {post.tags
+                            .filter(tag => !['autoplay', 'muted', 'nocontrols', 'loop'].includes(tag.toLowerCase()))
+                            .map((tag, index) => (
                             <Link
                                 key={index}
                                 href={`/videos?tagFilter=${encodeURIComponent(tag)}`}
@@ -93,7 +158,7 @@ export const DetailHeader = ({
                 className={cn(
                     'flex justify-between items-center',
                     { 'mb-6': !!post.imageCredit },
-                    { 'mt-auto': !!post.categories.length || !!post.author }
+                    { 'mt-auto': categories.length > 0 || !!post.author }
                 )}>
                 {url && <SocialMediaShare url={url} />}
             </div>
