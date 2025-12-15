@@ -4,7 +4,7 @@ import { logRequest } from "@/util/logRequest";
 export const VIDEO_LISTING_LUCENE_QUERY = `
     +contenttype:video 
     -metadata.contenttype:video/quicktime 
-    +(conhost:SYSTEM_HOST  ||  conhost:173aff42881a55a562cec436180999cf || categories:developers) 
+    +(categories:developers || tags:developers) 
     +live:true
 `.replace(/\n/g, " ").trim();
 
@@ -44,6 +44,7 @@ const normalizeVideoItem = (video) => ({
     slug: video.urlTitle, // use urlTitle as slug for videos
     categories: video.categories,
     tags: video.tags,
+    hostName: video.host.hostName,
     publishDate: video.publishDate,
     // For videos, use thumbnail or asset for the image
     image: video.thumbnail || video.asset || null,
@@ -69,6 +70,7 @@ const normalizeDevResourceItem = (devResource) => ({
     tags: devResource.tags,
     publishDate: devResource.publishDate,
     image: devResource.image,
+    hostName: devResource.host.hostName,
     imagePrimaryLoad: null,
     thumbnail: devResource.image,
     asset: null,
@@ -105,6 +107,9 @@ const buildCombinedQuery = (tagFilter, fetchLimit, slug, needBody = false) => {
         ) {
             identifier
             inode
+            host {
+                hostName
+            }
             title
             urlTitle
             categories {
@@ -158,6 +163,9 @@ const buildCombinedQuery = (tagFilter, fetchLimit, slug, needBody = false) => {
             type1
             identifier
             teaser
+            host {
+                hostName
+            }
             inode
             tags
             ${needBody ? `body { json }` : ""}
@@ -207,6 +215,7 @@ export async function getVideoListing({ tagFilter, page = 1, pageSize = 9, slug 
     const fetchLimit = slug ? 1 : 100;
     
     const query = buildCombinedQuery(tagFilter, fetchLimit, slug, needBody);
+    
     
     //console.debug("Combined Video Query:", query);
     
