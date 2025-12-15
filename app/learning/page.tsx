@@ -8,7 +8,7 @@ import { getCountDevResources } from "@/services/learning/getDevResources";
 export const metadata: Metadata = {
   title: "dotCMS Learning Center",
   description:
-    "Explore tutorials, guides, examples, videos and knowledge base articles to master dotCMS",
+    "Explore videos, tutorials, guides, examples, videos and knowledge base articles to master dotCMS",
 };
 
 export default async function LearningHomePage({
