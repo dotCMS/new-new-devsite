@@ -83,18 +83,18 @@ export async function GET() {
 
     return new Response(markdown, {
       headers: {
-        "Content-Type": "text/markdown; charset=utf-8",
+        "Content-Type": "text/plain; charset=utf-8",
         "Cache-Control": "public, max-age=3600",
       },
     });
   } catch (error) {
     console.error("Error generating llms.txt:", error);
     return new Response(
-      `# Error\n\nFailed to generate llms.txt: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      `Error generating llms.txt: ${error instanceof Error ? error.message : 'Unknown error'}`,
       {
         status: 500,
         headers: {
-          "Content-Type": "text/markdown; charset=utf-8",
+          "Content-Type": "text/plain; charset=utf-8",
         },
       }
     );
