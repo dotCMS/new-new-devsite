@@ -76,7 +76,7 @@ export async function GET() {
     });
     
     if (!sections || !Array.isArray(sections) || sections.length === 0) {
-      throw new Error("Invalid or empty navigation sections returned from getNavSections()");
+      throw new Error("Failed to retrieve navigation sections: invalid or empty response.");
     }
 
     const markdown = generateLlmTxt(sections, Config.CDNHost);
