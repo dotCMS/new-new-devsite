@@ -27,15 +27,15 @@ async function fetchPage(path) {
  * Generate metadata
  *
  * @export
- * @param {*} { params, searchParams }
+ * @param {*} { params }
  * @return {*}
  */
-export async function generateMetadata({ params, searchParams }) {
+export async function generateMetadata({ params }) {
     const finalParams = await params;
     const path = getPath(finalParams);
     const pageAsset = await fetchPage(path);
 
-    if (!pageAsset?.urlContentMap?._map) {
+    if (!pageAsset?.urlContentMap?.inode) {
         return {
             title: "Blog | dotCMS Documentation",
             description: "dotCMS Developer Blog",
