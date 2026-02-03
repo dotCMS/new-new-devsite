@@ -12,10 +12,6 @@ export const BLOG_LISTING_LUCENE_QUERY = `
 
 
 export async function getBlogListing({tagFilter, page, pageSize}) {
-
-    //console.log("tagFilter", tagFilter);
-    //console.log("page", page);
-    //console.log("pageSize", pageSize);
     const finalTagFilter = tagFilter 
     ? `+tags:\\"` 
         + tagFilter

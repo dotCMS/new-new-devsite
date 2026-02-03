@@ -2,29 +2,29 @@
 
 import Header from "./header/header";
 import Footer from "./footer";
-import { usePathname, useRouter } from "next/navigation";
-import { DotcmsLayout } from "@dotcms/react";
-import { usePageAsset } from "../hooks/usePageAsset";
+import { useEditableDotCMSPage, DotCMSLayoutBody } from "@dotcms/react";
 import NotFound from "@/app/not-found";
 import Breadcrumbs from "@/components/navigation/Breadcrumbs";
 import { DotBlockEditor } from "./shared/dotBlockEditor";
+import { isJSON } from "@/util/utils";
 import OnThisPage from "./navigation/OnThisPage";
 import RedesignedNavTree from "./navigation/RedesignedNavTree";
-import { UVEComponentsMap } from "./common-component-map";
+import { pageComponents } from "@/components/content-types";
 import NextBackButtons from "./navigation/NextBackButtons";
-export function BlockPageAsset({ pageAsset, nav, searchItems = [], serverPath, navSections }) {
-  const { replace } = useRouter();
-  const clientPath = usePathname();
 
-  // Use server path for initial render, client path for subsequent updates
-  const pathname = serverPath || clientPath;
 
-  pageAsset = usePageAsset(pageAsset);
+export function BlockPageAsset({ pageContent, nav, searchItems = [], navSections }) {
+
+  const {pageAsset, content = {}} = useEditableDotCMSPage(pageContent);
+
+  const navigation = content.navigation;
 
   if (!pageAsset) {
     return <NotFound />;
   }
+
   const hasBlockContent = pageAsset?.page?.content;
+
   const showLeftNav = (
     pageAsset?.page?.show && pageAsset?.page?.show.indexOf("leftnav") !== -1
   );
@@ -33,8 +33,7 @@ export function BlockPageAsset({ pageAsset, nav, searchItems = [], serverPath, n
 
   return (
     <div className="">
-      {pageAsset?.layout.header && <Header navSections={navSections} />}
-
+      {pageAsset?.layout?.header && <Header navSections={navSections} navItems={navigation?.children} />}
       
         <div id="main-content" className="grid grid-cols-1 lg:grid-cols-[auto_1fr_auto] container mx-auto px-0 w-full">
           {/* Left Navigation - Hide on mobile */}
@@ -50,7 +49,7 @@ export function BlockPageAsset({ pageAsset, nav, searchItems = [], serverPath, n
 
           {/* Main Content - Full width on mobile */}
           <main id="content-here" className="flex-1 min-w-0 py-8 lg:pb-12 px-0 sm:px-0 lg:px-8">
-            <div className="px-0 sm:px-0 lg:px-8">
+            <div className="px-8">
               <Breadcrumbs
                 items={Array.isArray(nav) ? nav : []}
                 slug={pageAsset.page.url}
@@ -63,23 +62,21 @@ export function BlockPageAsset({ pageAsset, nav, searchItems = [], serverPath, n
 
             {hasBlockContent && (
               <div className="prose dark:prose-invert mb-8">
-                  <DotBlockEditor blocks={pageAsset.page.content} customRenderers={{}} />
+                  <DotBlockEditor 
+                    blocks={
+                      typeof pageAsset.page.content === 'string' && isJSON(pageAsset.page.content)
+                        ? JSON.parse(pageAsset.page.content)
+                        : pageAsset.page.content?.json || pageAsset.page.content
+                    } 
+                    customRenderers={{}} 
+                  />
               </div>
             )}
 
-            <DotcmsLayout
-              pageContext={{
-                pageAsset,
-                components: UVEComponentsMap,
-              }}
-              config={{
-                pathname,
-                editor: {
-                  params: {
-                    depth: 3,
-                  },
-                },
-              }}
+            <DotCMSLayoutBody
+              page={pageAsset}
+              components={pageComponents}
+              mode={process.env.NEXT_PUBLIC_DOTCMS_MODE}
             />
 
             <NextBackButtons navTree={nav} currentSlug={pageAsset?.page?.url} />
@@ -99,7 +96,7 @@ export function BlockPageAsset({ pageAsset, nav, searchItems = [], serverPath, n
         )}
        
         </div>
-        {pageAsset?.layout?.footer && <Footer />}
+        {pageAsset?.layout?.footer && <Footer {...content} />}
     </div>
   );
 }

@@ -2,19 +2,18 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import Link from "next/link"
 import { Globe } from "lucide-react"
-import { cn } from "@/util/utils"
 import MarkdownContent from "../MarkdownContent"
 
 interface LinkCardProps {
-  title: string;
-  description: string;
-  links: Array<{
-    url: string;
-    icon: string | { identifier: string };
     title: string;
-    disabled?: boolean;
-    comingSoon?: boolean;
-  }>;
+    description: string;
+    links: Array<{
+        identifier: string;
+        url: string;
+        icon: string | { fileName: string };
+        title: string;
+        comingSoon?: boolean;
+    }>;
 }
 
 export default function LinkCards(props: LinkCardProps) {
@@ -37,43 +36,32 @@ export default function LinkCards(props: LinkCardProps) {
                     if (!link?.url || !link?.title) return null;
 
                     return (
-                        <Button 
+                        <Button
                             key={index}
-                            variant="outline" 
-                            className={cn(
-                                "h-11 px-4 gap-2",
-                                link.disabled && "cursor-not-allowed opacity-60"
-                            )} 
-                            asChild={!link.disabled}
-                            disabled={link.disabled}
+                            variant="outline"
+                            className="h-11 px-4 gap-2"
+                            asChild
                         >
-                            {link.disabled && typeof link.icon === 'object' && link.icon?.identifier ? (
-                                <div>
-                                    <Image src={`/dA/${link.icon?.identifier}` || ''} alt={link.title} width={20} height={20} />
-                                    <span className="flex items-center gap-2">
-                                        {link.title}
-                                        {link.comingSoon && (
-                                            <span className="bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full">
-                                                Coming Soon
-                                            </span>
-                                        )}
-                                    </span>
-                                </div>
-                            ) : (
-                                <Link href={link.url}>
-                                    {typeof link.icon === 'object' && link.icon?.identifier ? (
-                                        <Image 
-                                            src={`/dA/${link.icon.identifier}`} 
-                                            alt={link.title} 
-                                            width={20} 
-                                            height={20} 
-                                        />
-                                    ) : (
-                                        <Globe className="h-5 w-5" />
-                                    )}
+                            <Link href={link.url}>
+                                {typeof link.icon === 'object' && link.icon?.fileName ? (
+                                    <Image
+                                        src={`/dA/${link.identifier}`}
+                                        alt={link.title}
+                                        width={20}
+                                        height={20}
+                                    />
+                                ) : (
+                                    <Globe className="h-5 w-5" />
+                                )}
+                                <span className="flex items-center gap-2">
                                     {link.title}
-                                </Link>
-                            )}
+                                    {link.comingSoon && (
+                                        <span className="bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full">
+                                            Coming Soon
+                                        </span>
+                                    )}
+                                </span>
+                            </Link>
                         </Button>
                     );
                 })}
