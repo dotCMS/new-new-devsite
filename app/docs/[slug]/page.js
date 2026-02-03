@@ -302,10 +302,8 @@ export default async function Home({ searchParams, params }) {
         "changelogs": (data) => <ChangeLogList {...data} slug={slug} />,
         "current-releases": (data) => <CurrentReleases  {...data} slug={slug} />,
         "all-releases": (data) => <AllReleases  {...data} slug={slug} />,
-        "previous-releases": (data) => <AllReleases  {...data} slug={slug} />,
         "known-security-issues": (data) => <AllSecurityIssues  {...data} slug={slug} />,
         "deprecations": (data) => <Deprecations {...data} slug={slug} initialItems={data.allDeprecations || []} />,
-        "rest-api-sampler": (data) => <RestApiPlayground {...data} slug={slug} />,
         "all-rest-apis": (data) => <SwaggerUIComponent {...data} slug={slug} />,
         default: (data) => {
             // Check if this is GitHub-sourced content
