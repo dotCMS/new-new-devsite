@@ -1,10 +1,10 @@
-//import { BlockEditorRenderer } from '@dotcms/react';
-import { ContentNode } from '@dotcms/react';
-//import { Block } from '@dotcms/react';
-
+// Block type for block editor content (recommendation and reason fields)
+// The actual structure can have a 'json' property or be the block structure directly
 type Block = {
-    content?: ContentNode[]
-}
+    json?: any;
+    content?: any[];
+    [key: string]: any;
+} | any;
 
 type DocLink = {
     title?: string;
