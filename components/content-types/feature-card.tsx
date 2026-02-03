@@ -41,9 +41,7 @@ export default function FeatureCard({
 }: FeatureCardProps) {
 
     const myHref = href ? href :  "#";
-
     const imageUrlAlt = imageIdentifier && (imageIdentifier.startsWith('http') || imageIdentifier.startsWith('/dA/')) ? imageIdentifier : `${Config.CDNHost}/dA/${imageIdentifier}/`;
-
 
     return (
         <div className="space-y-4">

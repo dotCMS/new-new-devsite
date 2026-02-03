@@ -1,7 +1,5 @@
 import { notFound } from "next/navigation";
-
-import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
-import { graphqlResults, getGraphQLPageQuery } from "@/services/gql";
+import { getDotCMSPage } from "@/util/getDotCMSPage";
 import VideoListing from '@/components/videos/video-listing';
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
@@ -13,23 +11,17 @@ const getVideo = (params: any) => {
     return path;
 };
 
-async function fetchPage(path: string, searchParams: any) {
+async function fetchPage(path: string) {
     const finalPath = await path;
-    const finalSearchParams = await searchParams;
-
-        console.log("video slug:", finalPath)
-    const pageRequestParams = getPageRequestParams({ path: finalPath, params: finalSearchParams });
-    const query = getGraphQLPageQuery(pageRequestParams);
-
-    const result = await graphqlResults(query);
+    const pageData = await getDotCMSPage(finalPath);
     
-    if (result.errors && result.errors.length > 0) {
-        console.error('GraphQL errors in videos page:', result.errors);
-        throw new Error(result.errors[0].message);
+    if (!pageData) {
+        notFound();
     }
     
-    const pageAsset = graphqlToPageEntity(result.data);
-
+    // TypeScript: Access pageAsset from the pageData response
+    const pageAsset = (pageData as any).pageAsset || pageData;
+    
     return pageAsset;
 }
 
@@ -62,32 +54,37 @@ export default async function VideoPage({ searchParams, params }: { searchParams
 export async function generateMetadata({ params, searchParams }: { params: any, searchParams: any }) {
     const finalParams = await params;
     const path = getVideo(finalParams);
-    const pageAsset = await fetchPage(path, searchParams);
+    const pageAsset = await fetchPage(path);
 
-    const { urlContentMap } = pageAsset && pageAsset.urlContentMap ? pageAsset.urlContentMap : {};
-    if (urlContentMap && urlContentMap._map) {
+    if (!pageAsset?.urlContentMap?._map) {
         return {
-            title: (urlContentMap._map || pageAsset.urlContentMap._map.title) + " | dotCMS Documentation",
-            description: pageAsset.urlContentMap._map.seoDescription,
-            keywords: pageAsset.urlContentMap._map.tag,
-            openGraph: {
-                title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title) + " | dotCMS Documentation",
-                description: pageAsset.urlContentMap._map.seoDescription,
-                keywords: pageAsset.urlContentMap._map.tag,
-            }
-        }
-    } else {
-        return {
-            title: pageAsset.title,
-            description: pageAsset.seoDescription,
+            title: "Videos | dotCMS Documentation",
+            description: "dotCMS Developer Videos",
             keywords: "dotcms developers Videos",
-            openGraph: {
-                title: pageAsset.title,
-                description: pageAsset.seoDescription,
-                keywords: "dotcms developers Videos",
-            }
         };
     }
+
+    const hostname = "https://dev.dotcms.com";
+    const title = pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title || "Videos";
+    const description = pageAsset.urlContentMap._map.seoDescription || "dotCMS Developer Videos";
+    const keywords = pageAsset.urlContentMap._map.tag || "dotcms developers Videos";
+
+    return {
+        title: `${title} | dotCMS Documentation`,
+        description: description,
+        keywords: keywords,
+        openGraph: {
+            title: `${title} | dotCMS Documentation`,
+            description: description,
+            keywords: keywords,
+            url: `${hostname}${path}`,
+            siteName: 'dotCMS Docs',
+        },
+        alternates: {
+            canonical: `${hostname}${path}`,
+        },
+        metadataBase: new URL(hostname),
+    };
 }
 
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { decode } from "html-entities";
-import { BlockEditorRenderer } from "@dotcms/react";
+import { DotCMSBlockEditorRenderer } from "@dotcms/react";
 import LinkCards from "../content-types/link-cards";
 import YoutubeComponent from "./Youtube";
 
@@ -127,17 +127,21 @@ const TextBlock = (props) => {
 };
 
 export const DecodeHTML = (props) => {
-  const { text } = props;
-
-  return <TextBlock {...props} text={decode(text)} />;
+  // Handle both old format (text prop) and new format (node prop from CustomRendererProps)
+  const text = props.text || props.node?.text || '';
+  const marks = props.marks || props.node?.marks || [];
+  
+  return <TextBlock {...props} text={decode(text)} marks={marks} />;
 };
 export const VidContent = (props) => {
-  const tags = props?.attrs?.data?.tags?.split(",") ||props?.attrs?.tags?.split(",") ||[];
-  const src = props.attrs.src;
-  const title = props.attrs.title;
-  const width = props.attrs.width;
-  const height = props.attrs.height;
-  const identifier = props.attrs.data.identifier;
+  // Handle both old format (props.attrs) and new format (props.node.attrs from CustomRendererProps)
+  const attrs = props.attrs || props.node?.attrs || {};
+  const tags = attrs?.data?.tags?.split(",") || attrs?.tags?.split(",") || [];
+  const src = attrs.src;
+  const title = attrs.title;
+  const width = attrs.width;
+  const height = attrs.height;
+  const identifier = attrs.data?.identifier;
   const controls = !tags.includes("nocontrols");
   const autoPlay = tags.includes("autoplay");
   const loop = tags.includes("loop");
@@ -169,13 +173,14 @@ const defaultRenderers = {
 };
 
 export const DotBlockEditor = ({ customRenderers, ...props }) => {
+
     const mergedCustomRenderers = {
         ...defaultRenderers,
         ...customRenderers
     };
 
     return (
-        <BlockEditorRenderer
+        <DotCMSBlockEditorRenderer
             {...props}
             customRenderers={{
                 text: DecodeHTML,
