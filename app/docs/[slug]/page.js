@@ -83,8 +83,9 @@ async function fetchPageData(path, slug) {
  * @param {*} { params, searchParams }
  * @return {*}
  */
-export async function generateMetadata({ params }) {
+export async function generateMetadata({ params, searchParams }) {
     const finalParams = await params;
+    const finalSearchParams = await searchParams;
     const slug = processSlug(finalParams.slug);
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
