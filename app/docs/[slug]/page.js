@@ -43,8 +43,6 @@ async function fetchPageData(path, slug) {
     
     const { pageAsset } = pageData;
 
-    const { pageAsset } = pageData;
-
     const sideNav = await getSideNav();
 
     // Check if this is a GitHub docs page
@@ -236,8 +234,6 @@ export default async function Home({ searchParams, params }) {
     if (!pageData || !pageData.pageAsset) {
         notFound();
     }
-
-    const { pageAsset } = pageData;
     
     const { pageAsset } = pageData;
     
