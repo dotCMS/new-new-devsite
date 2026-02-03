@@ -8,9 +8,6 @@ export interface DevResourceProps {
 export default function DevResourceComponent(props: DevResourceProps) {
 
   const { body, title, type1 } = props;
-
-  console.log('body', body);
-
   const customRenderers = {};
 
   return (

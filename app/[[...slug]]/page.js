@@ -1,4 +1,3 @@
-import { headers } from 'next/headers';
 import { PageAsset } from "@/components/page-asset";
 import { ErrorPage } from "@/components/error";
 import { getDotCMSPage } from "@/util/getDotCMSPage";
@@ -12,22 +11,20 @@ import { BlockPageAsset } from "@/components/page-asset-with-content-block";
  * @param {*} { params, searchParams }
  * @return {*}
  */
-export async function generateMetadata({ params, searchParams }) {
+export async function generateMetadata({ params }) {
     const finalParams = await params;
     const path = finalParams?.slug?.join("/") || "/";
 
     try {
-        const pageData = await getDotCMSPage(path);
-        if (!pageData) {
+        const pageContent = await getDotCMSPage(path);
+        if (!pageContent) {
             return {
                 title: "not found",
             };
         }
 
-        const page = pageData.page;
-
-        // NOTE: Vanity URL redirects are now handled by middleware
-        // If we reach this point, it's not a vanity URL or the redirect already happened
+        const { pageAsset } = pageContent;
+        const page = pageAsset.page;
 
         const title = page?.friendlyName || page?.title;
 
@@ -37,7 +34,7 @@ export async function generateMetadata({ params, searchParams }) {
 
         return {
             title: title,
-            "description": description,
+            description: description,
             url: `${hostname}${path}`,
             siteName: 'dotCMS Docs',
             keywords: keywords,
@@ -62,10 +59,8 @@ export async function generateMetadata({ params, searchParams }) {
     }
 }
 
-export default async function Page({ params, searchParams }) {
+export default async function Page({ params }) {
     const finalParams = await params;
-    const headersList = await headers();
-    const pathname = headersList.get("x-invoke-path") || "";
 
     const path = finalParams?.slug?.join("/") || "/";
     const pageContent = await getDotCMSPage(path);
@@ -76,15 +71,9 @@ export default async function Page({ params, searchParams }) {
     }
 
     const { pageAsset } = pageContent;
-
-
-    // NOTE: Vanity URL redirects are now handled by middleware
-    // If we reach this point, it's not a vanity URL or the redirect already happened
-
     const isBlockPage = pageAsset?.page?.contentType === "BlockPage"
 
     if (isBlockPage) {
-
         // Fetch navigation data (reuse cached nav sections instead of separate API call)
         const [searchData, navSections] = await Promise.all([
             getSideNav(),

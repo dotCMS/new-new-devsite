@@ -1,7 +1,5 @@
 import { notFound } from "next/navigation";
-
 import { getDotCMSPage } from "@/util/getDotCMSPage";
-
 import { getSideNav } from "@/services/docs/getSideNav"
 import { isGitHubDoc, getGitHubConfig } from "@/config/github-docs";
 import { getDocsContentWithGitHub } from "@/services/docs/getGitHubContent";
@@ -35,7 +33,7 @@ function processSlug(slug) {
     return processedSlug === 'table-of-contents' ? '' : processedSlug;
 }
 
-async function fetchPageData(path, searchParams, slug) {
+async function fetchPageData(path, slug) {
     const finalPath = await path;
     const {pageAsset} = await getDotCMSPage(finalPath);
    
@@ -85,20 +83,15 @@ async function fetchPageData(path, searchParams, slug) {
  * @param {*} { params, searchParams }
  * @return {*}
  */
-export async function generateMetadata({ params, searchParams }) {
+export async function generateMetadata({ params }) {
     const finalParams = await params;
-    const finalSearchParams = await searchParams;
-    // Use consistent slug processing
     const slug = processSlug(finalParams.slug);
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
-    const { pageAsset } = await fetchPageData(path, finalSearchParams, slug);
-    
-    // NOTE: Vanity URL redirects are now handled by middleware
-    // If we reach this point, it's not a vanity URL or the redirect already happened
+    const { pageAsset } = await fetchPageData(path, slug);
     
     // Check if urlContentMap exists before accessing _map
-    if (!pageAsset?.urlContentMap?._map) {
+    if (!pageAsset?.urlContentMap?.inode) {
         return {
             title: "Page Not Found",
             description: "The requested page could not be found"
@@ -106,13 +99,13 @@ export async function generateMetadata({ params, searchParams }) {
     }
     
     // Check if the page's tags include 'dot:meta-no-index'
-    const tags = pageAsset.urlContentMap._map.tag || [];
+    const tags = pageAsset.urlContentMap.tag || [];
     const shouldNoIndex = Array.isArray(tags) 
         ? tags.includes('dot:meta-no-index') 
         : typeof tags === 'string' && tags.includes('dot:meta-no-index');
     
     // Check if this is a security issue detail page
-    let title = pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title;
+    let title = pageAsset.urlContentMap.navTitle || pageAsset.urlContentMap.title;
     
     if (slug === 'known-security-issues' && finalSearchParams.issueNumber) {
         try {
@@ -128,19 +121,19 @@ export async function generateMetadata({ params, searchParams }) {
     
     const metadata = {
         title: title,
-        description: pageAsset.urlContentMap._map.seoDescription,
-        keywords: pageAsset.urlContentMap._map.tag,
+        description: pageAsset.urlContentMap.seoDescription,
+        keywords: pageAsset.urlContentMap.tag,
         openGraph: {
             title: title,
-            description: pageAsset.urlContentMap._map.seoDescription,
-            keywords: pageAsset.urlContentMap._map.tag,
+            description: pageAsset.urlContentMap.seoDescription,
+            keywords: pageAsset.urlContentMap.tag,
             url: `${hostname}${path}`,
             siteName: 'dotCMS Docs',
             images: [{
                 url: `${hostname}/dA/4b13a794db115b14ce79d30850712188/1024maxw/80q/}`,
                 width: 1200,
                 height: 630,
-                alt: pageAsset.urlContentMap._map.seoDescription || pageAsset.urlContentMap._map.navTitle,
+                alt: pageAsset.urlContentMap.seoDescription || pageAsset.urlContentMap.navTitle,
             }],
             locale: 'en_US',
             type: 'article',
@@ -234,7 +227,6 @@ export default async function Home({ searchParams, params }) {
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
     const { pageAsset } = await getDotCMSPage(path);
-
     
     if (!pageAsset) {
         notFound();
@@ -243,10 +235,7 @@ export default async function Home({ searchParams, params }) {
     const sideNav = await getSideNav();
     const navSections = await getNavSections({ path: '/docs/nav', depth: 4, languageId: 1, ttlSeconds: 600 });
     
-    // NOTE: Vanity URL redirects are now handled by middleware
-    // If we reach this point, it's not a vanity URL or the redirect already happened
-    
-    // Check if urlContentMap exists before accessing _map
+    // Check if urlContentMap exists
     if (!pageAsset?.urlContentMap?.inode) {
         notFound();
     }

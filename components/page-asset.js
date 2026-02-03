@@ -13,7 +13,6 @@ export function PageAsset({ pageContent }) {
         return null;
     }
 
-    console.log("editablePageAsset", pageAsset);
     return (
         <div className="flex flex-col gap-6 min-h-screen bg-slate-50">
             {pageAsset?.layout?.header && (

@@ -1,13 +1,14 @@
-import { getBlogDetailQuery } from "@/services/blog/getBlogDetail";
+import { notFound } from "next/navigation";
+import Script from "next/script";
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
-import { notFound } from "next/navigation";
+import { getBlogDetailQuery } from "@/services/blog/getBlogDetail";
 import BlogDetailComponent from "@/components/blogs/blog-detail";
 import { ErrorPage } from "@/components/error";
 import { extractAssetId } from "@/util/utils";
-import Script from "next/script";
 
-export async function generateMetadata({ params, searchParams }) {
+
+export async function generateMetadata({ params }) {
     const finalParams = await params;
     const slug = finalParams.slug
 
@@ -144,7 +145,7 @@ function JsonLd({ post, hostname }) {
     );
 }
 
-export default async function BlogPage({ searchParams, params }) {
+export default async function BlogPage({ params }) {
     const finalParams = await params;
     const slug = finalParams.slug
 
