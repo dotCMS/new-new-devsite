@@ -35,11 +35,13 @@ function processSlug(slug) {
 
 async function fetchPageData(path, slug) {
     const finalPath = await path;
-    const {pageAsset} = await getDotCMSPage(finalPath);
+    const pageData = await getDotCMSPage(finalPath);
    
-    if (!pageAsset) {
+    if (!pageData || !pageData.pageAsset) {
         notFound();
     }
+
+    const { pageAsset } = pageData;
 
     const sideNav = await getSideNav();
 
@@ -227,11 +229,13 @@ export default async function Home({ searchParams, params }) {
     const slug = processSlug(finalParams.slug);
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
-    const { pageAsset } = await getDotCMSPage(path);
+    const pageData = await getDotCMSPage(path);
     
-    if (!pageAsset) {
+    if (!pageData || !pageData.pageAsset) {
         notFound();
     }
+
+    const { pageAsset } = pageData;
     
     const sideNav = await getSideNav();
     const navSections = await getNavSections({ path: '/docs/nav', depth: 4, languageId: 1, ttlSeconds: 600 });
