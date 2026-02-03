@@ -1,5 +1,8 @@
 import { notFound } from "next/navigation";
 import { getDotCMSPage } from "@/util/getDotCMSPage";
+
+// ISR: Revalidate pages every 60 seconds
+export const revalidate = 60;
 import { getSideNav } from "@/services/docs/getSideNav"
 import { isGitHubDoc, getGitHubConfig } from "@/config/github-docs";
 import { getDocsContentWithGitHub } from "@/services/docs/getGitHubContent";

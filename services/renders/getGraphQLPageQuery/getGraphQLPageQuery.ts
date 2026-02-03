@@ -94,7 +94,7 @@ export const getGraphQLPageQuery = async ({
         method: 'POST',
         headers: Config.Headers,
         body: JSON.stringify({ query }),
-        cache: 'no-cache'
+        next: { revalidate: 60 }  // ISR: revalidate every 60 seconds
       }),
       'getGraphQLPageQuery'
     );
