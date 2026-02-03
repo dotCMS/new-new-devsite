@@ -1,62 +1,34 @@
 "use client";
 
-import WebPageContent from "./content-types/webPageContent";
+import { DotCMSLayoutBody, useEditableDotCMSPage } from "@dotcms/react";
+import { pageComponents } from "@/components/content-types";
 import Header from "./header/header";
 import Footer from "./footer";
-import Hero from "./content-types/hero";
-import Heading from "./content-types/heading";
-import LinkCards from "./content-types/link-cards"
-import APIPlaygrounds from "./content-types/api-playgrounds";
-import RelatedBlogs from "./content-types/related-blogs";
-import DevResourceComponent from "./learning/devresource-component";
-import { usePathname, useRouter } from "next/navigation";
-import { DotcmsLayout } from "@dotcms/react";
-import { usePageAsset } from "../hooks/usePageAsset";
-import NotFound from "@/app/not-found";
-import { UVEComponentsMap } from "./common-component-map";
 
-
-
-export function PageAsset({ pageAsset, nav, serverPath }) {
-    const { replace } = useRouter();
-    const clientPath = usePathname();
-    
-    // Use server path for initial render, client path for subsequent updates
-    const pathname = serverPath || clientPath;
-
-    pageAsset = usePageAsset(pageAsset);
+export function PageAsset({ pageContent }) {
+    const { pageAsset, content = {} } = useEditableDotCMSPage(pageContent);
+    const navigation = content.navigation;
 
     if (!pageAsset) {
-        return <NotFound />;
+        return null;
     }
 
+    console.log("editablePageAsset", pageAsset);
     return (
-        <div>
-            {pageAsset?.layout.header && (
-                <Header />
+        <div className="flex flex-col gap-6 min-h-screen bg-slate-50">
+            {pageAsset?.layout?.header && (
+                <Header navItems={navigation?.children} />
             )}
 
-            <main className="container mx-auto px-4">
-                <DotcmsLayout
-                    pageContext={{
-                        pageAsset,
-                        components: UVEComponentsMap
-                    }}
-                    config={{
-                        pathname,
-                        editor: {
-                            params: {
-                                depth: 3
-                            }
-                        }
-                    }}
+            <main className="container m-auto">
+                <DotCMSLayoutBody
+                    page={pageAsset}
+                    components={pageComponents}
+                    mode={process.env.NEXT_PUBLIC_DOTCMS_MODE}
                 />
             </main>
-            <div className="container mx-auto px-4">
-                {pageAsset?.content}
 
-            </div>
-            {pageAsset?.layout.footer && <Footer />}
+            {pageAsset?.layout?.footer && <Footer {...content} />}
         </div>
     );
 }

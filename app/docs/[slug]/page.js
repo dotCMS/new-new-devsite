@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
-
-import { graphqlResults , getGraphQLPageQuery} from "@/services/gql";
+import { getDotCMSPage } from "@/util/getDotCMSPage";
 
 import { getSideNav } from "@/services/docs/getSideNav"
 import { isGitHubDoc, getGitHubConfig } from "@/config/github-docs";
@@ -39,25 +37,13 @@ function processSlug(slug) {
 
 async function fetchPageData(path, searchParams, slug) {
     const finalPath = await path;
-    const finalSearchParams = await searchParams;
-    const pageRequestParams = getPageRequestParams({ path: finalPath, params: finalSearchParams });
-    const query = getGraphQLPageQuery(pageRequestParams);
-    
-    const [result, sideNav] = await Promise.all([
-        graphqlResults(query),
-        getSideNav()
-    ]);
-
-    if (result?.errors && result.errors.length > 0) {
-        console.error('GraphQL errors in docs page:', result.errors);
-        notFound();
-    }
-
-    let pageAsset = graphqlToPageEntity(result.data);
-
+    const {pageAsset} = await getDotCMSPage(finalPath);
+   
     if (!pageAsset) {
         notFound();
     }
+
+    const sideNav = await getSideNav();
 
     // Check if this is a GitHub docs page
     if (isGitHubDoc(slug)) {
@@ -89,7 +75,7 @@ async function fetchPageData(path, searchParams, slug) {
         }
     }
 
-    return { pageAsset, sideNav, query, currentPath: finalPath };
+    return { pageAsset, sideNav, currentPath: finalPath };
 }
 
 /**
@@ -243,20 +229,49 @@ export default async function Home({ searchParams, params }) {
     const finalParams = await params;
     const finalSearchParams = await searchParams;
 
-    const resetNav = finalSearchParams.n === "0";
     // Use consistent slug processing
     const slug = processSlug(finalParams.slug);
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
-    const { pageAsset, sideNav } = await fetchPageData(path, finalSearchParams, slug);
+    const { pageAsset } = await getDotCMSPage(path);
+
+    
+    if (!pageAsset) {
+        notFound();
+    }
+    
+    const sideNav = await getSideNav();
     const navSections = await getNavSections({ path: '/docs/nav', depth: 4, languageId: 1, ttlSeconds: 600 });
     
     // NOTE: Vanity URL redirects are now handled by middleware
     // If we reach this point, it's not a vanity URL or the redirect already happened
     
     // Check if urlContentMap exists before accessing _map
-    if (!pageAsset?.urlContentMap?._map) {
+    if (!pageAsset?.urlContentMap?.inode) {
         notFound();
+    }
+    
+    // Handle GitHub docs if needed (this sets githubSource flag)
+    if (isGitHubDoc(slug)) {
+        const githubConfig = getGitHubConfig(slug);
+        
+        if (githubConfig && pageAsset?.urlContentMap?.inode) {
+            const contentResult = await getDocsContentWithGitHub(
+                slug,
+                githubConfig,
+                () => pageAsset?.urlContentMap?._map?.documentation || ''
+            );
+
+            if (contentResult.source === 'github') {
+                if (!pageAsset.urlContentMap._map) {
+                    pageAsset.urlContentMap._map = {};
+                }
+                
+                pageAsset.urlContentMap._map.documentation = contentResult.content;
+                pageAsset.urlContentMap._map.githubSource = true;
+                pageAsset.urlContentMap._map.githubConfig = contentResult.config;
+            }
+        }
     }
     
     // Fetch all deprecations once (uses 1hr cache)
@@ -279,7 +294,7 @@ export default async function Home({ searchParams, params }) {
     }
 
     const data = {
-        contentlet: pageAsset.urlContentMap._map,
+        contentlet: pageAsset.urlContentMap,
         sideNav: sideNav,
         currentPath: slug,
         searchParams: finalSearchParams,
@@ -300,7 +315,8 @@ export default async function Home({ searchParams, params }) {
         "all-rest-apis": (data) => <SwaggerUIComponent {...data} slug={slug} />,
         default: (data) => {
             // Check if this is GitHub-sourced content
-            if (data.contentlet.githubSource) {
+            // githubSource is set on urlContentMap._map, so check _map property
+            if (data.contentlet._map?.githubSource) {
                 return <GitHubDocumentation {...data} slug={slug} />;
             }
             return <Documentation {...data} slug={slug} />;

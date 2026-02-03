@@ -1,7 +1,5 @@
 import { notFound } from "next/navigation";
-
-import { graphqlToPageEntity, getPageRequestParams } from "@dotcms/client";
-import { graphqlResults, getGraphQLPageQuery } from "@/services/gql";
+import { getDotCMSPage } from "@/util/getDotCMSPage";
 import BlogListing from '@/components/blogs/blog-listing';
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
@@ -14,20 +12,13 @@ const getPath = (params) => {
     return path;
 };
 
-async function fetchPage(path, searchParams) {
+async function fetchPage(path) {
     const finalPath = await path;
-    const finalSearchParams = await searchParams;
-    const pageRequestParams = getPageRequestParams({ path: finalPath, params: finalSearchParams });
-    const query = getGraphQLPageQuery(pageRequestParams);
+    const { pageAsset } = await getDotCMSPage(finalPath);
 
-    const result = await graphqlResults(query);
-    
-    if (result.errors && result.errors.length > 0) {
-        console.error('GraphQL errors in blog page:', result.errors);
-        throw new Error(result.errors[0].message);
+    if (!pageAsset) {
+        notFound();
     }
-    
-    const pageAsset = graphqlToPageEntity(result.data);
 
     return pageAsset;
 }
@@ -42,32 +33,37 @@ async function fetchPage(path, searchParams) {
 export async function generateMetadata({ params, searchParams }) {
     const finalParams = await params;
     const path = getPath(finalParams);
-    const pageAsset = await fetchPage(path, searchParams);
+    const pageAsset = await fetchPage(path);
 
-    const { urlContentMap } = pageAsset && pageAsset.urlContentMap ? pageAsset.urlContentMap : {};
-    if (urlContentMap && urlContentMap._map) {
+    if (!pageAsset?.urlContentMap?._map) {
         return {
-            title: (urlContentMap._map || pageAsset.urlContentMap._map.title) + " | dotCMS Documentation",
-            description: pageAsset.urlContentMap._map.seoDescription,
-            keywords: pageAsset.urlContentMap._map.tag,
-            openGraph: {
-                title: (pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title) + " | dotCMS Documentation",
-                description: pageAsset.urlContentMap._map.seoDescription,
-                keywords: pageAsset.urlContentMap._map.tag,
-            }
-        }
-    } else {
-        return {
-            title: pageAsset.title,
-            description: pageAsset.seoDescription,
+            title: "Blog | dotCMS Documentation",
+            description: "dotCMS Developer Blog",
             keywords: "dotcms developers Blog",
-            openGraph: {
-                title: pageAsset.title,
-                description: pageAsset.seoDescription,
-                keywords: "dotcms developers Blog",
-            }
         };
     }
+
+    const hostname = "https://dev.dotcms.com";
+    const title = pageAsset.urlContentMap._map.navTitle || pageAsset.urlContentMap._map.title || "Blog";
+    const description = pageAsset.urlContentMap._map.seoDescription || "dotCMS Developer Blog";
+    const keywords = pageAsset.urlContentMap._map.tag || "dotcms developers Blog";
+
+    return {
+        title: `${title} | dotCMS Documentation`,
+        description: description,
+        keywords: keywords,
+        openGraph: {
+            title: `${title} | dotCMS Documentation`,
+            description: description,
+            keywords: keywords,
+            url: `${hostname}${path}`,
+            siteName: 'dotCMS Docs',
+        },
+        alternates: {
+            canonical: `${hostname}${path}`,
+        },
+        metadataBase: new URL(hostname),
+    };
 }
 
 
@@ -77,14 +73,14 @@ export default async function BlogPage({ searchParams, params }) {
 
     const tagFilter = finalParams["tagFilter"];
     const page = parseInt(finalParams["page"]) || 1;
-    
-    const {blogs,pagination} = await getBlogListing({tagFilter: tagFilter, page: page, pageSize: 9});
+
+    const { blogs, pagination } = await getBlogListing({ tagFilter: tagFilter, page: page, pageSize: 9 });
 
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
             <main className="flex-1">
-                <BlogListing blogs={blogs} pagination={pagination} tagFilter={tagFilter}/>
+                <BlogListing blogs={blogs} pagination={pagination} tagFilter={tagFilter} />
             </main>
             <Footer />
         </div>

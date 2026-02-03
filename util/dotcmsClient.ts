@@ -1,4 +1,4 @@
-import { DotCmsClient } from "@dotcms/client";
+import { createDotCMSClient } from "@dotcms/client";
 import { Config } from "./config";
 // Check if required environment variables are set
 const dotcmsUrl = Config.DotCMSHost;
@@ -8,8 +8,9 @@ if (!dotcmsUrl || !authToken) {
   throw new Error("Missing required environment variables for DotCMS client initialization");
 }
 
+
 // Client for content fetching
-export const client = DotCmsClient.init({
+export const client = createDotCMSClient({
     dotcmsUrl: dotcmsUrl,
     authToken: authToken,
     siteId: "173aff42881a55a562cec436180999cf",

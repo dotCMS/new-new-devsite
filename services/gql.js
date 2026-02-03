@@ -18,6 +18,8 @@ export function getGraphQLPageQuery({ path, mode }) {
 
     const paramsString = params.length ? `, ${params.join(", ")}` : "";
 
+    console.log('path', path);
+
     return `
     {
         page(url: "${path}"${paramsString}, site:"173aff42881a55a562cec436180999cf") {

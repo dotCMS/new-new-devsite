@@ -14,7 +14,8 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
     return <div>Loading...</div>;
   }
 
-  const { githubConfig } = contentlet;
+  // githubConfig is stored in contentlet._map (since contentlet is urlContentMap)
+  const githubConfig = contentlet._map?.githubConfig || contentlet.githubConfig;
   
   // Check if githubConfig exists and has required properties
   if (!githubConfig || !githubConfig.owner || !githubConfig.repo || !githubConfig.branch || !githubConfig.path) {
@@ -31,7 +32,8 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
     : githubConfig.path;
   
   const githubLibraryUrl = `https://github.com/${githubConfig.owner}/${githubConfig.repo}/tree/${githubConfig.branch}/${pathWithoutReadme}`;
-  const documentation = contentlet.documentation;
+  // documentation is also in _map (since contentlet is urlContentMap)
+  const documentation = contentlet._map?.documentation || contentlet.documentation;
 
   return (
     <>
@@ -115,8 +117,8 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
             </div>
 
             <div className="flex items-center gap-3 mb-6">
-              <h1 className="text-4xl font-bold">{contentlet.title}</h1>
-              {contentlet.tag.includes("beta") && (
+              <h1 className="text-4xl font-bold">{contentlet._map?.title || contentlet.title}</h1>
+              {(contentlet._map?.tag || contentlet.tag)?.includes("beta") && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200 shrink-0">
                   <span className="w-2 h-2 bg-blue-400 rounded-full mr-2 animate-pulse"></span>
                   Beta Feature
@@ -124,7 +126,7 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
               )}
             </div>
             
-            {contentlet.tag && contentlet.tag.includes("deprecated") && (
+            {(contentlet._map?.tag || contentlet.tag) && (contentlet._map?.tag || contentlet.tag).includes("deprecated") && (
               <div className="mb-6">
                 <Warn>
                   This function has been deprecated.
