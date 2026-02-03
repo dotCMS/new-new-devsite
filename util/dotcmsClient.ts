@@ -15,7 +15,6 @@ export const client = createDotCMSClient({
     authToken: authToken,
     siteId: "173aff42881a55a562cec436180999cf",
     requestOptions: {
-        // In production you might want to deal with this differently
-        cache: "no-cache",
+        next: { revalidate: 60 }  // ISR: revalidate cached data every 60 seconds
     }
 });
