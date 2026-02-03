@@ -10,8 +10,8 @@ import MicrosoftClarity from '@/components/metrics/MicrosoftClarity';
 import { InitialScroll } from '@/components/InitialScroll';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { LeadboxerScript } from '@/components/metrics/Leadboxer';
-import { DotContentAnalytics } from "@dotcms/analytics/react";
 import { AnalyticsConfig } from '@/util/config';
+import { SegmentAnalytics } from '@/components/metrics/Analytics'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -66,6 +66,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
@@ -88,10 +89,11 @@ export default function RootLayout({
             <Toaster />
           </ThemeProvider>
         </ErrorBoundary>
-        <DotContentAnalytics config={AnalyticsConfig} />
+
         <GoogleAnalytics gaId="G-CM1HLQW35G" />
         <MicrosoftClarity />
         <LeadboxerScript />
+        <SegmentAnalytics />
         <SpeedInsights />
       </body>
     </html>
