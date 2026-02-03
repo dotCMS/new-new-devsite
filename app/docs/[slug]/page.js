@@ -37,10 +37,12 @@ async function fetchPageData(path, slug) {
     const finalPath = await path;
     const pageData = await getDotCMSPage(finalPath);
    
-    if (!pageData?.pageAsset) {
+    if (!pageData || !pageData.pageAsset) {
         notFound();
     }
     
+    const { pageAsset } = pageData;
+
     const { pageAsset } = pageData;
 
     const sideNav = await getSideNav();
@@ -231,9 +233,11 @@ export default async function Home({ searchParams, params }) {
     const hostname = "https://dev.dotcms.com";
     const pageData = await getDotCMSPage(path);
     
-    if (!pageData?.pageAsset) {
+    if (!pageData || !pageData.pageAsset) {
         notFound();
     }
+
+    const { pageAsset } = pageData;
     
     const { pageAsset } = pageData;
     
