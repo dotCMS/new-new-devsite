@@ -36,9 +36,10 @@ function processSlug(slug) {
 async function fetchPageData(path, slug) {
     const finalPath = await path;
     const pageData = await getDotCMSPage(finalPath);
-   
+
     if (!pageData || !pageData.pageAsset) {
         notFound();
+        return null; // Unreachable, but ensures code path terminates
     }
 
     const { pageAsset } = pageData;
@@ -230,9 +231,10 @@ export default async function Home({ searchParams, params }) {
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
     const pageData = await getDotCMSPage(path);
-    
+
     if (!pageData || !pageData.pageAsset) {
         notFound();
+        return null; // Unreachable, but ensures code path terminates
     }
 
     const { pageAsset } = pageData;
