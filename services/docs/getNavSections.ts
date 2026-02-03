@@ -47,9 +47,9 @@ export async function getNavSections(options: FetchOptions = {}): Promise<NavSec
     const res = await fetch(url, {
       method: 'GET',
       headers: Config.Headers,
-      // Ensure server-side request cache doesn't interfere; we manage our own cache
-      cache: 'no-store',
-      next: { revalidate: 0 },
+      // Use Next.js data cache with revalidation (works in serverless)
+      // In-memory navCache above provides request-level deduplication
+      next: { revalidate: ttlSeconds },
     });
 
     if (!res.ok) {
