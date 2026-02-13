@@ -23,6 +23,7 @@ import Link from "next/link";
 import * as React from "react";
 import { cn } from "@/util/utils";
 import { useState, useEffect } from "react";
+import ChatWithUsLink from "./ChatWithUsLink";
 import DiscourseLink from "./DiscourseLink";
 import GithubLink from "./GithubLink";
 import { SearchModal } from "../chat/SearchModal";
@@ -268,6 +269,7 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
               <GithubLink />
               <DiscourseLink />
               <ThemeToggle />
+              <ChatWithUsLink />
             </div>
 
             {/* Mobile menu button */}
