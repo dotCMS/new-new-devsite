@@ -220,10 +220,17 @@ function performSearch(items: SearchableItem[], query: string): SearchResult[] {
     }
   });
   
-  // Sort by score (highest first) and limit results
+  // Sort by score (highest first), deduplicate by urlTitle (keep highest-ranked only), then limit
+  const seen = new Set<string>();
   return results
     .sort((a, b) => b.score - a.score)
-    .slice(0, MAX_QUICK_SEARCH_RESULTS); // Show top MAX_QUICK_SEARCH_RESULTS results
+    .filter((r) => {
+      const key = r.item.urlTitle;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, MAX_QUICK_SEARCH_RESULTS);
 }
 
 // Highlight matching text in search results
