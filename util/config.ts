@@ -1,3 +1,5 @@
+import { envBool } from './utils';
+
 // stripts the trailing slash from the host urls
 const normalizedDotCMSHost = process.env.NEXT_PUBLIC_DOTCMS_HOST?.endsWith('/')
   ? process.env.NEXT_PUBLIC_DOTCMS_HOST.slice(0, -1)
@@ -25,9 +27,11 @@ export const Config = {
   AIModel: "gpt-4o-mini"
 } as const
 
-
 export const AnalyticsConfig = {
   server: Config.DotCMSHost,
-  siteAuth: process.env.NEXT_PUBLIC_DOTCMS_ANALYTICS_SITE_KEY!,
-  debug: process.env.NODE_ENV !== 'production',
-} as const;
+  siteAuth: process.env.NEXT_PUBLIC_DOTCMS_ANALYTICS_SITE_KEY ?? '',
+  debug: envBool(process.env.NEXT_PUBLIC_DOTCMS_ANALYTICS_DEBUG, process.env.NODE_ENV !== 'production'),
+  autoPageView: envBool(process.env.NEXT_PUBLIC_DOTCMS_ANALYTICS_AUTO_PAGE_VIEW, false),
+  impressions: envBool(process.env.NEXT_PUBLIC_DOTCMS_ANALYTICS_IMPRESSIONS, false),
+  clicks: envBool(process.env.NEXT_PUBLIC_DOTCMS_ANALYTICS_CLICKS, false),
+};

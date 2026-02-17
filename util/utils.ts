@@ -5,6 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/** Parse env as boolean; if unset, use fallback. */
+export function envBool(value: string | undefined, fallback: boolean): boolean {
+  if (value === undefined) return fallback;
+  return value === 'true' || value === '1';
+}
 
 export function extractAssetId(uri: string) {
     const match = uri.match(/\/dA\/([^/]+)/);
