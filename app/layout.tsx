@@ -84,11 +84,11 @@ export default function RootLayout({
               } 
             />
             <InitialScroll />
+            <DotContentAnalytics config={AnalyticsConfig} />
             {children}
             <Toaster />
           </ThemeProvider>
         </ErrorBoundary>
-        <DotContentAnalytics config={AnalyticsConfig} />
         <GoogleAnalytics gaId="G-CM1HLQW35G" />
         <MicrosoftClarity />
         <LeadboxerScript />
