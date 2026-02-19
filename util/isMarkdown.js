@@ -68,7 +68,7 @@ export function isMarkdownStrict(text, minPatterns = 2) {
     { type: 'header', pattern: /^#{1,6}\s/m },
     { type: 'emphasis', pattern: /[*_]{1,2}[^*_]+[*_]{1,2}/ },
     { type: 'link', pattern: /\[([^\]]+)\]\(([^)]+)\)/ },
-    { type: 'list', pattern: /^[\s]*[-+*]\d+\.\s/m },
+    { type: 'list', pattern: /^[\s]*([-+*]\s|\d+\.\s)/m },
     { type: 'code', pattern: /`[^`]+`|```[\s\S]*?```/ },
     { type: 'blockquote', pattern: /^>\s/m },
     { type: 'table', pattern: /\|[^|\n]+\|/ },
