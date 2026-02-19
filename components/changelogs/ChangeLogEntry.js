@@ -22,7 +22,7 @@ export default function ChangeLogEntry({ item, index }) {
   };
 
   const releaseNotes = processReleaseNotes(item?.releaseNotes, item?.minor);
-  const useMarkdown = isMarkdownStrict(releaseNotes,2)
+  const useMarkdown = isMarkdownStrict(releaseNotes, 1)
 
   const [copied, setCopied] = useState(false);
 
