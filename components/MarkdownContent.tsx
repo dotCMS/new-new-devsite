@@ -303,12 +303,12 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, d
       return <TableRow>{children}</TableRow>
     },
     th({ children }) {
-      return <TableHead className="text-[15px] font-semibold bg-muted px-4 border-border border-r last:border-r-0">
+      return <TableHead className="text-sm font-semibold bg-muted px-4 border-border border-r last:border-r-0">
         {children}
       </TableHead>
     },
     td({ children }) {
-      return <TableCell className="text-base leading-7 text-foreground px-4 border-border border-r last:border-r-0">
+      return <TableCell className="text-sm leading-7 text-foreground px-4 border-border border-r last:border-r-0">
         {children}
       </TableCell>
     },
