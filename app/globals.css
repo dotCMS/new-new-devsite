@@ -99,6 +99,20 @@
   td code {
     word-break: break-word;
   }
+
+  /* Table text one step smaller: 14px in cells, 12px for code in cells */
+  .prose td,
+  .prose th,
+  .markdown-content td,
+  .markdown-content th {
+    font-size: 0.875rem; /* 14px */
+  }
+  .prose td code,
+  .prose th code,
+  .markdown-content td code,
+  .markdown-content th code {
+    font-size: 0.75rem; /* 12px */
+  }
 }
 
 
