@@ -105,7 +105,6 @@ export function getGraphQLPageQuery({ path, mode }) {
     `;
 };
 
-
 /**
  * This method tries to use a graphql GET for a cached response before it uses a POST
  * If it gets no data in the GET, it falls back to the POST, which should load cache.
