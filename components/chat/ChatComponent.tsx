@@ -270,7 +270,7 @@ export function ChatComponent() {
           Authorization: `Bearer ${API_KEY}`,
         },
         body: JSON.stringify({
-          model: "gpt-5.2-codex",
+          model: "gpt-4o",
           indexName: "default",
           prompt: query,
           operator: "cosine",
