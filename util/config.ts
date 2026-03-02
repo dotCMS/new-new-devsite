@@ -24,7 +24,7 @@ export const Config = {
     Accept: 'application/json',
     Authorization: `Bearer ${process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN}`
   },
-  AIModel: "gpt-5.2-codex"
+  AIModel: "gpt-4o-mini"
 } as const
 
 export const AnalyticsConfig = {
