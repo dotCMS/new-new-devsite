@@ -22,16 +22,16 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         finalHeight = typeof props.height === 'string' ? parseInt(props.height, 10) : props.height;
       }
 
-      const { width, height, ...restProps } = props;
+      const { width, height, src, alt, ...restProps } = props;
 
       return (
-        <Image 
-          src={props.src || ''} 
-          alt={props.alt || ''} 
+        <Image
+          src={typeof src === 'string' ? src : ''}
+          alt={alt || ''}
           width={finalWidth}
           height={finalHeight}
-          className="rounded-lg" 
-          {...restProps} 
+          className="rounded-lg"
+          {...restProps}
         />
       );
     },

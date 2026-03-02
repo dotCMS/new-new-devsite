@@ -1,11 +1,14 @@
 /** @type {import('next').NextConfig} */
 
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 const url = new URL(process.env.NEXT_PUBLIC_DOTCMS_HOST);
 
 const nextConfig = {
     reactStrictMode: true,
-    // Fixes confusing dev/build behavior when Next infers the wrong repo root due to multiple lockfiles.
-    // Also helps make stack traces and tracing output more consistent.
     outputFileTracingRoot: __dirname,
     async redirects() {
         return [
@@ -35,7 +38,7 @@ const nextConfig = {
             },
             {
                 protocol: 'https',
-                hostname: '*.public.blob.vercel-storage.com', // temporary solution to allow images to be served from vercel
+                hostname: '*.public.blob.vercel-storage.com',
             },
             {
                 protocol: 'https',
@@ -55,7 +58,7 @@ const nextConfig = {
         dangerouslyAllowSVG: true,
         loader: 'custom',
         loaderFile: './util/imageLoader.ts',
-        
+
     },
 
     async rewrites() {
@@ -75,14 +78,13 @@ const nextConfig = {
                 }
             ],
             afterFiles: [
- 
+
             ]
         };
     },
     async headers() {
         return [
             {
-                // Apply to static assets (images, fonts, etc.)
                 source: '/static/:path*',
                 headers: [
                     {
@@ -92,7 +94,6 @@ const nextConfig = {
                 ],
             },
             {
-                // Apply to API routes (no browser caching)
                 source: '/api/:path*',
                 headers: [
                     {
@@ -106,8 +107,8 @@ const nextConfig = {
     },
       experimental: {
         largePageDataBytes: 128 * 100000,
-    
+
       }
 };
 
-module.exports = nextConfig;
+export default nextConfig;

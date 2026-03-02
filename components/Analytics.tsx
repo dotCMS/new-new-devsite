@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { GoogleAnalytics } from '@next/third-parties/google';
+import Script from 'next/script';
 import dynamic from 'next/dynamic';
 
 // Lazy load heavy analytics components
@@ -44,7 +44,10 @@ export default function Analytics() {
 
   return (
     <>
-      <GoogleAnalytics gaId="G-CM1HLQW35G" />
+      <Script src="https://www.googletagmanager.com/gtag/js?id=G-CM1HLQW35G" strategy="afterInteractive" />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-CM1HLQW35G');`}
+      </Script>
       <MicrosoftClarity />
       <LeadboxerScript />
     </>
