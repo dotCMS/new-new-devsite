@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState, useEffect } from "react";
-import Breadcrumbs from "@/components/navigation/Breadcrumbs.js";
+import Breadcrumbs from "@/components/navigation/Breadcrumbs";
 import type { TDeprecation } from "@/services/docs/getDeprecations/types";
 import OnThisPage from "../navigation/OnThisPage";
 import { DeprecationCard } from "./DeprecationCard";

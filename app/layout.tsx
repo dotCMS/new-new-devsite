@@ -4,7 +4,7 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/header/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import { GoogleAnalytics } from '@next/third-parties/google';
+import Script from 'next/script';
 import { AlertBanner } from '@/components/AlertBanner';
 import MicrosoftClarity from '@/components/metrics/MicrosoftClarity';
 import { InitialScroll } from '@/components/InitialScroll';
@@ -89,7 +89,10 @@ export default function RootLayout({
             <Toaster />
           </ThemeProvider>
         </ErrorBoundary>
-        <GoogleAnalytics gaId="G-CM1HLQW35G" />
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-CM1HLQW35G" strategy="afterInteractive" />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-CM1HLQW35G');`}
+        </Script>
         <MicrosoftClarity />
         <LeadboxerScript />
         <SpeedInsights />

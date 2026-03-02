@@ -13,7 +13,7 @@ import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 import { smoothScroll } from '@/util/smoothScroll'
 import Video from '@/components/mdx/Video'
 import { CopyButton } from './chat/CopyButton'
-import { a11yLight, dark, docco, a11yDark, vs } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
+import { a11yLight, dark, docco, a11yDark, vs } from 'react-syntax-highlighter/dist/esm/styles/hljs'
 import { useTheme } from "next-themes"
 import { Include } from '@/components/mdx/Include'
 import { remarkCustomId } from '@/util/remarkCustomId'

@@ -1,10 +1,11 @@
 'use client'
 import { type FC, useState, useEffect } from 'react'
-import SwaggerUI from 'swagger-ui-react'
+import dynamic from 'next/dynamic'
 import { getOpenAPISpec } from '@/services/openapi/getOpenAPISpec'
 import type { OpenAPISpec } from '@/services/openapi/getOpenAPISpec'
 import { createSwaggerRequestInterceptor } from '@/util/swaggerRequestInterceptor'
 
+const SwaggerUI = dynamic(() => import('swagger-ui-react'), { ssr: false })
 import 'swagger-ui-react/swagger-ui.css'
 
 const SwaggerUIComponent: FC = () => {
