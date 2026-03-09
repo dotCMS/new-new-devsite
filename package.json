@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@dotcms/analytics": "next",
+    "@dotcms/analytics": "1.2.5-next.6",
     "@dotcms/client": "next",
     "@dotcms/react": "next",
     "@dotcms/types": "next",
