@@ -148,15 +148,22 @@ function VideoContentlet({ node }) {
 }
 
 /**
- * dotVideo block renderer — matches marketing site pattern: pass attrs.data into Video component.
- * Custom renderer receives { node }; node.attrs.data holds the video/contentlet data.
+ * dotVideo block renderer — pass contentlet (attrs.data) plus resolved attrs (src, mimeType, etc.) into Video.
+ * Block editor may put the resolved URL in node.attrs.src; contentlet has asset/thumbnail etc.
  */
 export const VidContent = (props) => {
   const attrs = props.attrs || props.node?.attrs || {};
   const data = attrs.data ?? attrs;
+  const videoProps = {
+    ...data,
+    src: attrs.src ?? data.src,
+    mimeType: attrs.mimeType ?? data.mimeType,
+    width: attrs.width ?? data.width,
+    height: attrs.height ?? data.height,
+  };
   return (
     <div className="my-1">
-      <Video {...data} />
+      <Video {...videoProps} />
     </div>
   );
 };
