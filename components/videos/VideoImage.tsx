@@ -97,14 +97,16 @@ export default function VideoImage({ post }: VideoImageProps) {
         }
     }
 
-    // Show video frame if available
+    // Show video frame if available (data URL from canvas — use unoptimized)
     if (videoFrameUrl) {
         return (
             <div className="relative w-full h-48">
-                <img
+                <Image
                     src={videoFrameUrl}
                     alt={post.teaser || post.title}
-                    className="object-cover rounded-t-lg w-full h-full"
+                    fill
+                    className="object-cover rounded-t-lg"
+                    unoptimized
                 />
             </div>
         );

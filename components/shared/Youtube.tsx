@@ -3,23 +3,22 @@
 import React from 'react';
 import { cn } from '@/util/utils';
 
+/** Shape of attrs or attrs.data — both can carry YouTube URL and dimensions */
+interface YoutubeDataShape {
+  srcYoutube?: string;
+  src?: string;
+  width?: number;
+  height?: number;
+  widthYoutube?: number;
+  heightYoutube?: number;
+  start?: number;
+  title?: string;
+  paragraphSpacing?: string;
+  contentType?: string;
+}
+
 interface YoutubeProps {
-  attrs?: {
-    src?: string;
-    width?: number;
-    height?: number;
-    start?: number;
-    data?: {
-      srcYoutube?: string;
-      widthYoutube?: number;
-      heightYoutube?: number;
-      positionCenter?: string | boolean;
-      title?: string;
-      paragraphSpacing?: string;
-      contentType?: string;
-      [key: string]: any;
-    };
-  };
+  attrs?: YoutubeDataShape & { data?: YoutubeDataShape };
   /** Block editor passes { node }; attrs live on node.attrs */
   node?: { attrs?: YoutubeProps['attrs'] };
 }
@@ -89,7 +88,7 @@ const YoutubeComponent: React.FC<YoutubeProps> = (props) => {
   }
 
   // Handle dotContent format (Youtube content type) and dotVideo/Video with YouTube in data
-  const data = attrs.data ?? attrs;
+  const data: YoutubeDataShape = attrs.data ?? attrs;
   const youtubeUrl = data.srcYoutube ?? data.src ?? attrs.src;
   const width = data.widthYoutube ?? attrs.width ?? data.width;
   const height = data.heightYoutube ?? attrs.height ?? data.height;
