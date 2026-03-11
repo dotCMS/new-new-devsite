@@ -20,35 +20,43 @@ interface YoutubeProps {
       [key: string]: any;
     };
   };
+  /** Block editor passes { node }; attrs live on node.attrs */
+  node?: { attrs?: YoutubeProps['attrs'] };
 }
 
 /**
  * Extracts video ID and start time from YouTube URL and converts it to embed format
  */
 const getYoutubeEmbedUrl = (url: string, startTime?: number): string => {
-  if (!url) return '';
-  
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (!trimmed) return '';
+
+  // Bare video ID (e.g. from dotCMS thumbnail or API)
+  if (/^[\w-]{10,12}$/.test(trimmed)) {
+    const embedUrl = `https://www.youtube.com/embed/${trimmed}`;
+    return startTime ? `${embedUrl}?start=${startTime}` : embedUrl;
+  }
+
   // Extract video ID from various YouTube URL formats
   const patterns = [
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
     /youtube\.com\/watch\?.*v=([^&\n?#]+)/,
   ];
-  
   let videoId = '';
   for (const pattern of patterns) {
-    const match = url.match(pattern);
+    const match = trimmed.match(pattern);
     if (match && match[1]) {
       videoId = match[1];
       break;
     }
   }
-  
-  if (!videoId) return url;
+  if (!videoId) return trimmed;
   
   // Extract start time from URL if present (time_continue parameter)
   let extractedStartTime = startTime;
   if (!extractedStartTime) {
-    const timeMatch = url.match(/[?&]time_continue=(\d+)/);
+    const timeMatch = trimmed.match(/[?&]time_continue=(\d+)/);
     if (timeMatch && timeMatch[1]) {
       extractedStartTime = parseInt(timeMatch[1], 10);
     }
@@ -72,21 +80,22 @@ const getYoutubeEmbedUrl = (url: string, startTime?: number): string => {
 
 /**
  * YouTube component that handles both `youtube` type and `Youtube` content type
- * from the dotBlockEditor
+ * from the dotBlockEditor. Block editor passes { node }; we use node.attrs when attrs is missing.
  */
-const YoutubeComponent: React.FC<YoutubeProps> = ({ attrs }) => {
+const YoutubeComponent: React.FC<YoutubeProps> = (props) => {
+  const attrs = props.attrs ?? props.node?.attrs;
   if (!attrs) {
     return null;
   }
 
-  // Handle dotContent format (Youtube content type)
-  const isDotContent = attrs.data?.srcYoutube || attrs.data?.contentType === 'Youtube';
-  const youtubeUrl = isDotContent ? attrs.data?.srcYoutube : attrs.src;
-  const width = isDotContent ? attrs.data?.widthYoutube : attrs.width;
-  const height = isDotContent ? attrs.data?.heightYoutube : attrs.height;
-  const startTime = isDotContent ? undefined : attrs.start; // dotContent handles start time in URL
-  const title = isDotContent ? attrs.data?.title : undefined;
-  const spacing = isDotContent ? attrs.data?.paragraphSpacing : undefined;
+  // Handle dotContent format (Youtube content type) and dotVideo/Video with YouTube in data
+  const data = attrs.data ?? attrs;
+  const youtubeUrl = data.srcYoutube ?? data.src ?? attrs.src;
+  const width = data.widthYoutube ?? attrs.width ?? data.width;
+  const height = data.heightYoutube ?? attrs.height ?? data.height;
+  const startTime = attrs.start ?? data.start;
+  const title = data.title ?? attrs.title;
+  const spacing = data.paragraphSpacing ?? attrs.paragraphSpacing;
 
   if (!youtubeUrl) {
     return null;

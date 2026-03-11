@@ -3,6 +3,7 @@ import Link from "next/link";
 import { decode } from "html-entities";
 import { DotCMSBlockEditorRenderer } from "@dotcms/react";
 import LinkCards from "../content-types/link-cards";
+import Video from "../content-types/Video";
 import YoutubeComponent from "./Youtube";
 
 /**
@@ -133,39 +134,31 @@ export const DecodeHTML = (props) => {
   
   return <TextBlock {...props} text={decode(text)} marks={marks} />;
 };
+/**
+ * Renders a Video contentlet when the block editor embeds a Video content type (dotContent).
+ * Uses the same Video component with node.attrs.data (same data shape as dotVideo).
+ */
+function VideoContentlet({ node }) {
+  const data = node?.attrs?.data || {};
+  return (
+    <div className="my-1">
+      <Video {...data} />
+    </div>
+  );
+}
+
+/**
+ * dotVideo block renderer — matches marketing site pattern: pass attrs.data into Video component.
+ * Custom renderer receives { node }; node.attrs.data holds the video/contentlet data.
+ */
 export const VidContent = (props) => {
-  // Handle both old format (props.attrs) and new format (props.node.attrs from CustomRendererProps)
   const attrs = props.attrs || props.node?.attrs || {};
-  const tags = attrs?.data?.tags?.split(",") || attrs?.tags?.split(",") || [];
-  const src = attrs.src;
-  const title = attrs.title;
-  const width = attrs.width;
-  const height = attrs.height;
-  const identifier = attrs.data?.identifier;
-  const controls = !tags.includes("nocontrols");
-  const autoPlay = tags.includes("autoplay");
-  const loop = tags.includes("loop");
-  const muted = tags.includes("muted");
-  return <video
-    width={width}
-    height={height}
-    controls={controls}
-    autoPlay={autoPlay}
-    loop={loop}
-    muted={muted}
-    playsInline
-    title={title}
-    className="border-2 border-r-2 border-l-2 border-gray-200"
-  >
-    <track default="" kind="captions" srcLang="en" />
-    {src && (
-      <source 
-        src={src} 
-        type={`video/${src.split('.').pop()}`} 
-      />
-    )}
-    Your browser does not support the video tag.
-  </video>;
+  const data = attrs.data ?? attrs;
+  return (
+    <div className="my-1">
+      <Video {...data} />
+    </div>
+  );
 };
 
 const defaultRenderers = {
@@ -187,6 +180,7 @@ export const DotBlockEditor = ({ customRenderers, ...props }) => {
                 dotVideo: VidContent,
                 youtube: YoutubeComponent,
                 Youtube: YoutubeComponent, // Handle dotContent type with contentType "Youtube"
+                Video: VideoContentlet,   // Handle dotContent type with contentType "Video" (embedded in blog/block editor)
                 ...mergedCustomRenderers,  // Move this before any other renderers
             }}
         />
