@@ -50,14 +50,14 @@ const Documentation = ({ contentlet, sideNav, slug, deprecation }) => {
           <div className="markdown-content">
             <div className="flex items-center gap-3 mb-6">
               <h1 className="text-4xl font-bold">{contentlet.title}</h1>
-              {contentlet.tag.includes("beta") && (
+              {contentlet.tag?.includes("beta") && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200 shrink-0">
                   <span className="w-2 h-2 bg-blue-400 rounded-full mr-2 animate-pulse"></span>
                   Beta Feature
                 </span>
               )}
             </div>
-            {(matchedDeprecation || contentlet.tag.includes("deprecated")) && (
+            {(matchedDeprecation || contentlet.tag?.includes("deprecated")) && (
               <div className="mb-6">
                 {matchedDeprecation ? (
                   <DeprecationCard deprecation={matchedDeprecation} variant="inline" />
