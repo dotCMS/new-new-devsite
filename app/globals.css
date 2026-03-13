@@ -113,6 +113,26 @@
   .markdown-content th code {
     font-size: 0.75rem; /* 12px */
   }
+
+  /* Tables: stay within available width, no horizontal scroll */
+  .markdown-content table {
+    max-width: 100%;
+  }
+  /* Prefer word-boundary breaks; hyphenate when a word must break */
+  .markdown-content th,
+  .markdown-content td {
+    overflow-wrap: break-word;
+    word-break: normal;
+    hyphens: auto;
+  }
+  /* Inline code in cells: allow wrapping when needed, no hyphenation */
+  .markdown-content th code,
+  .markdown-content td code {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: none;
+    white-space: normal;
+  }
 }
 
 
