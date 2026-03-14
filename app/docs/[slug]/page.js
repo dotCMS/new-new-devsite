@@ -106,9 +106,9 @@ export async function generateMetadata({ params, searchParams }) {
     }
     
     // Check if the page's tags include 'dot:meta-no-index'
-    const tags = pageAsset.urlContentMap.tag || [];
-    const shouldNoIndex = Array.isArray(tags) 
-        ? tags.includes('dot:meta-no-index') 
+    const tags = pageAsset.urlContentMap?.tag ?? [];
+    const shouldNoIndex = Array.isArray(tags)
+        ? tags.includes('dot:meta-no-index')
         : typeof tags === 'string' && tags.includes('dot:meta-no-index');
     
     // Check if this is a security issue detail page
