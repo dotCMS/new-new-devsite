@@ -28,7 +28,7 @@ export default function ChapterFooter({ courseSlug, currentIndex, chapters }) {
 
       {isLast && (
         <div className="flex items-center justify-between rounded-lg border border-white/10 px-5 py-4">
-          <p className="text-sm font-medium text-white">You've completed the course!</p>
+          <p className="text-sm font-medium text-white">You&apos;ve completed the course!</p>
           <Link
             href={`/learn/${courseSlug}`}
             className="ml-6 shrink-0 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90"
