@@ -1,5 +1,5 @@
 import { getCourseDetail } from "@/services/courses/getCourse";
-import { DotCMSBlockEditorRenderer } from "@dotcms/react";
+import MarkdownContent from "@/components/MarkdownContent";
 import { notFound } from "next/navigation";
 import ChapterFooter from "../ChapterFooter";
 
@@ -18,11 +18,12 @@ export default async function ChapterPage({ params }) {
     <>
       <p className="text-sm text-white/50 mb-2">{course.title}</p>
       <h1 className="text-4xl font-bold mb-8">{chapterData.title}</h1>
-      <DotCMSBlockEditorRenderer
-        className="prose dark:prose-invert"
-        blocks={chapterData.content.json}
+      <MarkdownContent content={chapterData.content} />
+      <ChapterFooter
+        courseSlug={slug}
+        currentIndex={index}
+        chapters={course.chapters}
       />
-      <ChapterFooter courseSlug={slug} currentIndex={index} chapters={course.chapters} />
     </>
   );
 }
