@@ -76,7 +76,6 @@ services:
     image: dotcms/dotcms:${dockerTag}
     environment:
       CMS_JAVA_OPTS: '-Xmx1g '
-      JAVA_TOOL_OPTIONS: '-XX:UseSVE=0'
       LANG: 'C.UTF-8'
       TZ: 'UTC'
       DB_BASE_URL: "jdbc:postgresql://db/dotcms"
