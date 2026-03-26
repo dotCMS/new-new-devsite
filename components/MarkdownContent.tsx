@@ -43,7 +43,7 @@ const ListItemContext = createContext(false);
 const HeadingContext = createContext(false);
 
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, disableBlockComponents = false }) => {
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -253,14 +253,14 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, d
           <SyntaxHighlighter
             language={highlight}
             PreTag="div"
-            style={theme === 'dark' ? a11yDark : a11yLight}
+            style={resolvedTheme === 'dark' ? { ...a11yDark, hljs: { ...a11yDark.hljs, color: '#f8f8f2' } } : a11yLight}
             className="rounded-lg py-2 [&>pre]:!m-0 border border-border [&>pre]:!bg-muted"
             customStyle={{
               padding: '1rem',
               paddingTop: '2rem',
               paddingBottom: '2rem',
               fontSize: '14px',
-              backgroundColor: 'transparent', // Use transparent to let CSS handle the background
+              backgroundColor: 'transparent',
             }}
             {...props}
           >{String(children).replace(/\n$/, '')}</SyntaxHighlighter>
