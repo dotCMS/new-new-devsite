@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 export default function ChapterFooter({ courseSlug, currentIndex, chapters }) {
-  const isIntro = currentIndex === -1;
   const isLast = currentIndex === chapters.length - 1;
 
   const nextIndex = currentIndex + 1;

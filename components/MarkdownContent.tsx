@@ -9,7 +9,6 @@ import remarkGfm from 'remark-gfm'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Components } from 'react-markdown'
-import { ReactNode } from 'react'
 import { smoothScroll } from '@/util/smoothScroll'
 import { CopyButton } from './chat/CopyButton'
 import { a11yLight, a11yDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'

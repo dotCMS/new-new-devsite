@@ -1,9 +1,14 @@
 import { graphqlResults } from "@/services/gql";
 import { logRequest } from "@/util/logRequest";
 
+function escapeLuceneValue(value) {
+  return String(value).replace(/([+\-!(){}[\]^"~*?:\\/])/g, "\\$1");
+}
+
 export async function getCourseDetail({ slug }) {
+  const safeSlug = escapeLuceneValue(slug);
   const query = `query ContentAPI {
-  CourseE2eCollection(query: "+CourseE2e.urlTitle:${slug}") {
+  CourseE2eCollection(query: "+CourseE2e.urlTitle:${safeSlug}", limit: 1) {
     title,
     urlTitle
     introduction {
@@ -26,5 +31,8 @@ export async function getCourseDetail({ slug }) {
     throw new Error(result.errors[0].message);
   }
 
-  return { course: result.data.CourseE2eCollection[0] };
+  const collection = result?.data?.CourseE2eCollection;
+  const course = Array.isArray(collection) && collection.length > 0 ? collection[0] : null;
+
+  return { course };
 }

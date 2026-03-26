@@ -6,6 +6,7 @@ import ChapterFooter from "../ChapterFooter";
 export default async function ChapterPage({ params }) {
   const { slug, chapter } = await params;
   const { course } = await getCourseDetail({ slug });
+  if (!course) notFound();
 
   const match = chapter.match(/^chapter-(\d+)$/);
   if (!match) notFound();

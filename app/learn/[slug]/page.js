@@ -1,10 +1,12 @@
 import { getCourseDetail } from "@/services/courses/getCourse";
 import { DotCMSBlockEditorRenderer } from "@dotcms/react";
 import ChapterFooter from "./ChapterFooter";
+import { notFound } from "next/navigation";
 
 export default async function CoursePage({ params }) {
   const { slug } = await params;
   const { course } = await getCourseDetail({ slug });
+  if (!course) notFound();
 
   return (
     <>
