@@ -3,21 +3,21 @@
 import OnThisPage from "../navigation/OnThisPage";
 import ChangeLogEntry from "./ChangeLogEntry";
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { extractDateForTables } from '../../util/formatDate'
 import { useChangelog } from "@/hooks/useChangelog";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import Breadcrumbs from "../navigation/Breadcrumbs";
 import PaginationBar from "../PaginationBar";
 import Dropdown from "../shared/dropdown";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 
 export default function ChangeLogContainer({ sideNav, slug }) {
   //const router = useRouter(); // see removal of router in handleVersionChange
   const searchParams = useSearchParams();
   const paramLts = searchParams.get("lts");
-
-  const [singleVersion, setSingleVersion] = useState(searchParams.get("v"));
+  /** Always read from URL (useState initial value can miss ?v= on first paint). */
+  const vParam = searchParams.get("v") ?? "";
 
   let isLts = paramLts && paramLts !== "false";
   let vLts = "";
@@ -29,7 +29,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
   const { data, loading, error, hasNextPage, hasPrevPage } = useChangelog(
     currentPage,
     paramLts,
-    singleVersion,
+    vParam,
   );
 
   // Handle hash scrolling after data is loaded
@@ -191,6 +191,19 @@ export default function ChangeLogContainer({ sideNav, slug }) {
         {data.changelogs.map((item, index) => (
           <ChangeLogEntry key={item?.identifier || index} item={item} index={index} />
         ))}
+
+        {vParam && (
+          <p className="mt-8 pl-1 text-base leading-7 text-foreground">
+            Want to browse every release?{" "}
+            <Link
+              href="/docs/changelogs"
+              className="text-primary-purple hover:opacity-80 underline hover:no-underline"
+            >
+              Visit the full changelog
+            </Link>
+            .
+          </p>
+        )}
 
         <div className="mt-8 mb-12">
           <PaginationBar pagination={data.pagination} currentPage={data.pagination.page} additionalQueryParams={isLts ? `&lts=${isLts}` : ""} />
