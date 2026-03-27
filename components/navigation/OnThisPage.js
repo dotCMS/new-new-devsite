@@ -84,7 +84,11 @@ export const OnThisPage = ({
               className={`
                 ${item.level === 1 ? 'ml-0 font-bold' : ''}
                 ${item.level === 2 ? 'ml-2 font-semibold' : ''}
-                ${(item.level === 3 || item.level === 4) ? 'ml-4 font-normal text-muted-foreground' : ''}
+                ${item.level === 3 ? 'ml-4 font-normal text-muted-foreground' : ''}
+                ${item.level === 4 ? 'ml-6 font-normal text-muted-foreground' : ''}
+                ${item.level >= 5 ? 'ml-8 font-normal text-muted-foreground' : ''} 
+                // note: h5 headers not currently used in the selectors list; 
+                //        they're just included here for completeness
               `}
             >
               <Link 
