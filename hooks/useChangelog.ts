@@ -18,6 +18,10 @@ export function useChangelog(currentPage: number = 1, vLts: string = "false", si
   const [error, setError] = useState<Error | null>(null);
   const [page, setPage] = useState(currentPage);
 
+  useEffect(() => {
+    setPage(currentPage);
+  }, [currentPage]);
+
   const handleNextPage = () => setPage(prev => prev + 1);
   const handlePrevPage = () => setPage(prev => Math.max(1, prev - 1));
 
@@ -39,7 +43,7 @@ export function useChangelog(currentPage: number = 1, vLts: string = "false", si
     }
 
     fetchChangelog();
-  }, [page, vLts]);
+  }, [page, vLts, singleVersion]);
 
   return { 
     data, 

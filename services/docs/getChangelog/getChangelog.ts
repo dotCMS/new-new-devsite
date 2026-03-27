@@ -2,12 +2,19 @@ import { SIZE_PAGE } from './config';
 import { logRequest } from '@/util/logRequest'; 
 import {  graphqlResults } from '@/services/gql';
 
-export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "", limit = SIZE_PAGE }) => {
-  const assembleQuery = (buildQuery:string, ltsQuery:string, ltsMajVersion:string, singleVersion:string,
-                          limit:number, page:number, sortBy:string) => {
-    return `query ContentAPI {
+/** Escape a value for use inside Lucene quoted term (query_string). */
+function luceneQuotedTerm(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
+/**
+ * Embed full Lucene query in GraphQL string literal — inner " must be escaped.
+ */
+function assembleQuery(luceneQuery: string, limit: number, page: number, sortBy: string) {
+  const escaped = luceneQuery.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  return `query ContentAPI {
       DotcmsbuildsCollection(
-          query: "${buildQuery} ${ltsQuery} ${ltsMajVersion} ${singleVersion}"
+          query: "${escaped}"
           limit: ${limit}
           page: ${page}
           sortBy: "${sortBy}"
@@ -42,8 +49,9 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
           offset
       }
     }`;
-  };
-  
+}
+
+export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "", limit = SIZE_PAGE }) => {
   //Basic type info for querying any changelogs at all
   const buildQuery =
   '+contentType:Dotcmsbuilds +Dotcmsbuilds.released:true +Dotcmsbuilds.showInChangeLog:true +live:true';
@@ -51,7 +59,7 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
   //Build query components to grab one of each of the LTS major versions, for reference
   const ltsQueryMaj = '+Dotcmsbuilds.lts:1';
   const sortByEol = 'Dotcmsbuilds.eolDate desc';
-  const ltsMajorQuery = assembleQuery(buildQuery, ltsQueryMaj, "", "", limit, page, sortByEol);
+  const ltsMajorQuery = assembleQuery(`${buildQuery} ${ltsQueryMaj}`, limit, page, sortByEol);
   const ltsMajorResults =  await logRequest(async () => graphqlResults(ltsMajorQuery), 'getLTSMajorVersions');
   const ltsMajorResult = ltsMajorResults?.data;
 
@@ -61,9 +69,11 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
     throw new Error(ltsMajorResults.errors[0].message);
   }
 
-  //if singleVersion is provided, check if it's an LTS patch version
+  // If singleVersion is provided while already scoped to LTS (lts=…), detect patch lines
+  // (e.g. 23.1.2 under tag 23.1). Skip when v is used alone on "current" — otherwise short
+  // tags like "26" match calver minors such as 26.03.23-01 and we drop the minor filter.
   let ltsPatchVersion = "";
-  if(singleVersion){
+  if (singleVersion && vLts && vLts !== "false") {
     for(const item of ltsMajorResult.DotcmsbuildsCollection){
       for (const vTag of item.tags){
         if(singleVersion.startsWith(vTag) && singleVersion !== vTag){
@@ -95,7 +105,13 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
   const ltsMajVersion = sussOutLatestMajor(ltsMajorResult.DotcmsbuildsCollection[0], vLts);
   //console.log("sussed as:", ltsMajVersion);
   const sortBy = 'Dotcmsbuilds.releasedDate desc, Dotcmsbuilds.minor desc';
-  const query = assembleQuery(buildQuery, ltsQuery, ltsMajVersion, (singleVersion && !ltsPatchVersion) ? `+Dotcmsbuilds.minor:${singleVersion}` : "", (ltsMajVersion ? 20 : limit), page, sortBy);
+  // Quote minor so hyphens (e.g. 26.03.23-01) are not parsed as Lucene operators.
+  const minorClause =
+    singleVersion && !ltsPatchVersion
+      ? `+Dotcmsbuilds.minor:"${luceneQuotedTerm(singleVersion)}"`
+      : '';
+  const luceneQuery = `${buildQuery} ${ltsQuery} ${ltsMajVersion} ${minorClause}`.trim();
+  const query = assembleQuery(luceneQuery, ltsMajVersion ? 20 : limit, page, sortBy);
   const result = await logRequest(async () => graphqlResults(query), 'getChangelog');
   
   if (result?.errors && result.errors.length > 0) {
