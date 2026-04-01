@@ -68,6 +68,7 @@ export default function Hero(props: HeroProps) {
                     title={card1?.title}
                     description={card1?.description}
                     imageIdentifier={card1?.titleImage?.idPath || ""}
+                    imageCacheBust="v=2"
                     color="[#a21caf]"
                     count={0}
                     links={developerLinks}

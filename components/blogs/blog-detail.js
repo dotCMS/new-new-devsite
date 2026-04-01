@@ -14,13 +14,13 @@ export default function BlogDetailComponent({ post }) {
     const customRenderers = {};
 
     return (
-        <div className="container mx-auto">
+        <div className="container mx-auto w-full min-w-0 max-w-full">
             {/* Main Content Grid */}
-            <div className="flex gap-4 py-8 ">
+            <div className="flex w-full min-w-0 flex-col gap-4 py-8 xl:flex-row">
 
 
                 {/* Main Content */}
-                <article className="flex-1 px-4 max-w-4xl">
+                <article className="w-full min-w-0 max-w-4xl flex-1 px-4">
 
                     <DetailHeader post={post} />
                     
@@ -28,7 +28,7 @@ export default function BlogDetailComponent({ post }) {
                 </article>
 
                 {/* Right Sidebar */}
-                <div className="w-64 shrink-0 hidden xl:block">
+                <div className="hidden w-64 shrink-0 xl:block">
                     <div className="sticky top-16">
                         <Authors authors={post.author} />
                         <OnThisPage />
