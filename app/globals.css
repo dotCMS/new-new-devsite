@@ -133,6 +133,36 @@
     hyphens: none;
     white-space: normal;
   }
+
+  /* Prose / block editor (blogs, etc.): keep wide content inside the viewport */
+  .prose table {
+    max-width: 100%;
+  }
+  .prose th,
+  .prose td {
+    overflow-wrap: break-word;
+    word-break: normal;
+    hyphens: auto;
+  }
+  .prose td code,
+  .prose th code {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: none;
+    white-space: normal;
+  }
+  .prose img,
+  .prose video {
+    max-width: 100%;
+    height: auto;
+  }
+  .prose iframe {
+    max-width: 100%;
+  }
+  .prose pre {
+    max-width: 100%;
+    overflow-x: auto;
+  }
 }
 
 

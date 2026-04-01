@@ -95,6 +95,8 @@ const NavTree = React.memo(
       // Restore scroll position immediately
       navElement.scrollTop = savedScroll;
       setIsInitialSetupComplete(true);
+      // savedScroll is updated on every scroll; listing it would re-run this effect constantly.
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: mount + isMobile only
     }, [isMobile]);
 
     // Helper function to find active link with flexible matching

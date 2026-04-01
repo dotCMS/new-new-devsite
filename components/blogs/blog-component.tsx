@@ -12,7 +12,7 @@ export default function BlogComponent(props: BlogProps) {
   const customRenderers: any = {};
 
   return (
-    <div className="prose dark:prose-invert mb-6 sm:mb-8 break-words whitespace-normal overflow-hidden max-w-none">
+    <div className="prose dark:prose-invert mb-6 sm:mb-8 max-w-none min-w-0 w-full overflow-x-auto break-words whitespace-normal prose-img:max-w-full prose-pre:max-w-full prose-pre:overflow-x-auto">
         <DotBlockEditor blocks={body?.json || body} customRenderers={customRenderers} />
     </div>
   );

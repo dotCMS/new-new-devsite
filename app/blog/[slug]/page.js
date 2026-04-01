@@ -168,8 +168,8 @@ export default async function BlogPage({ params }) {
             <Header />
             <JsonLd post={post} hostname={hostname} />
             
-            <div className="flex flex-1">
-                <main className="flex-1">
+            <div className="flex min-h-0 min-w-0 w-full flex-1 flex-col">
+                <main className="min-w-0 w-full flex-1">
                     <BlogDetailComponent post={post} />
                 </main>
             </div>

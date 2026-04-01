@@ -302,14 +302,13 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, d
     },
     hr: () => <hr className="border-t border-border mb-6" />,
 
-    img: ({ src, alt, ...props }: any) => (
-      <img 
-        src={src} 
-        alt={alt} 
-        className="inline rounded-lg max-w-full h-auto"
-        {...props} 
-      />
-    ),
+    img: ({ src, alt, ...props }: any) =>
+      React.createElement('img', {
+        src,
+        alt,
+        className: 'inline rounded-lg max-w-full h-auto',
+        ...props,
+      }),
 
     video: ({ node, ...props }: any) => {
       if (!node?.children) return null;
