@@ -24,6 +24,8 @@ interface FeatureCardProps {
 
     imageUrl?: string;
     externalLink?:boolean;
+    /** e.g. `v=2` — appended as a cache-busting query on the resolved image URL */
+    imageCacheBust?: string;
 }
 
 export default function FeatureCard({
@@ -37,11 +39,14 @@ export default function FeatureCard({
     links = [],
     useIconOnly = false,
     imageUrl,
-    externalLink = false
+    externalLink = false,
+    imageCacheBust,
 }: FeatureCardProps) {
 
     const myHref = href ? href :  "#";
     const imageUrlAlt = imageIdentifier && (imageIdentifier.startsWith('http') || imageIdentifier.startsWith('/dA/')) ? imageIdentifier : `${Config.CDNHost}/dA/${imageIdentifier}/`;
+    const withImageBust = (url: string) =>
+        url && imageCacheBust ? `${url}${url.includes("?") ? "&" : "?"}${imageCacheBust}` : url;
 
     return (
         <div className="space-y-4">
@@ -75,7 +80,7 @@ export default function FeatureCard({
                         <div className="mt-auto flex justify-center items-center w-full">
                             {imageUrl ? (
                                     <Image
-                                    src={`${imageUrl}`}
+                                    src={withImageBust(`${imageUrl}`)}
                                     alt={`${title} illustration`}
                                     width={200}
                                     height={200}
@@ -96,7 +101,7 @@ export default function FeatureCard({
                                 </div>
                             ) : (
                                 <Image
-                                    src={`${imageUrlAlt}`}
+                                    src={withImageBust(`${imageUrlAlt}`)}
                                     alt={`${title} illustration`}
                                     width={400}
                                     height={150}
