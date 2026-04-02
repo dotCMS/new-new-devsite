@@ -16,11 +16,11 @@ export default function BlogDetailComponent({ post }) {
     return (
         <div className="container mx-auto w-full min-w-0 max-w-full">
             {/* Main Content Grid */}
-            <div className="flex w-full min-w-0 flex-col gap-4 py-8 xl:flex-row">
+            <div className="flex w-full min-w-0 flex-col gap-4 py-8 xl:flex-row xl:justify-center xl:gap-6">
 
 
                 {/* Main Content */}
-                <article className="w-full min-w-0 max-w-4xl flex-1 px-4">
+                <article className="mx-auto w-full min-w-0 max-w-4xl px-4 xl:mx-0 xl:shrink-0">
 
                     <DetailHeader post={post} />
                     
