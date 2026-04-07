@@ -46,6 +46,7 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
   // State for controlled navigation menu
   const [currentOpenMenu, setCurrentOpenMenu] = useState<string | undefined>(undefined);
   const GETTING_STARTED_NAV_ITEM_VALUE = "getting-started-nav";
+  const ACTIVITY_FEEDS_NAV_ITEM_VALUE = "activity-feeds-nav";
 
   const handleLogoMouseEnter = () => {
     if (hoverTimeout) {
@@ -139,6 +140,51 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
             Learning & Blogs
           </Link>
 
+          <div className="space-y-1 border-l-2 border-border pl-3 ml-1">
+            <p className="px-4 pt-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Activity Feeds
+            </p>
+            <Link
+              prefetch={false}
+              href="/docs/changelogs"
+              className={cn(
+                navigationMenuTriggerStyle(),
+                "w-full justify-start h-9 px-4"
+              )}
+            >
+              Changelogs
+            </Link>
+            <Link
+              prefetch={false}
+              href="/docs/known-security-issues"
+              className={cn(
+                navigationMenuTriggerStyle(),
+                "w-full justify-start h-9 px-4"
+              )}
+            >
+              Known security issues
+            </Link>
+            <Link
+              prefetch={false}
+              href="/docs/upgrading-important-changes"
+              className={cn(
+                navigationMenuTriggerStyle(),
+                "w-full justify-start h-9 px-4"
+              )}
+            >
+              Important / breaking changes
+            </Link>
+            <Link
+              prefetch={false}
+              href="/docs/deprecations"
+              className={cn(
+                navigationMenuTriggerStyle(),
+                "w-full justify-start h-9 px-4"
+              )}
+            >
+              Deprecations
+            </Link>
+          </div>
         </div>
       </nav>
     );
@@ -149,9 +195,12 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
       <NavigationMenu
         value={currentOpenMenu}
         onValueChange={(newValue) => {
-          // If Radix tries to set the "Getting Started" menu via onValueChange (e.g., due to hover/focus),
-          // we ignore it here because its opening is controlled exclusively by its onClick handler.
-          if (newValue === GETTING_STARTED_NAV_ITEM_VALUE) {
+          // If Radix tries to set these menus via onValueChange (e.g., due to hover/focus),
+          // we ignore because opening is controlled exclusively by onClick on each trigger.
+          if (
+            newValue === GETTING_STARTED_NAV_ITEM_VALUE ||
+            newValue === ACTIVITY_FEEDS_NAV_ITEM_VALUE
+          ) {
             return;
           }
           // For any other menu item opening, or for *any* menu closing (newValue is undefined),
@@ -161,7 +210,10 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
         delayDuration={300*1000} // Keep high delay as a fallback, primary logic is now in onValueChange
       >
         <NavigationMenuList className="space-x-1">
-          <NavigationMenuItem value={GETTING_STARTED_NAV_ITEM_VALUE}>
+          <NavigationMenuItem
+            value={GETTING_STARTED_NAV_ITEM_VALUE}
+            className="relative"
+          >
             <NavigationMenuTrigger
               className="px-3"
               onClick={(e) => {
@@ -225,6 +277,46 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
                 </span>
               </Link>
             </NavigationMenuLink>
+          </NavigationMenuItem>
+          <NavigationMenuItem
+            value={ACTIVITY_FEEDS_NAV_ITEM_VALUE}
+            className="relative"
+          >
+            <NavigationMenuTrigger
+              className="px-3"
+              onClick={(e) => {
+                e.preventDefault();
+                if (currentOpenMenu === ACTIVITY_FEEDS_NAV_ITEM_VALUE) {
+                  setCurrentOpenMenu(undefined);
+                } else {
+                  setCurrentOpenMenu(ACTIVITY_FEEDS_NAV_ITEM_VALUE);
+                }
+              }}
+            >
+              Activity Feeds
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid w-[360px] gap-3 p-4 sm:w-[400px] md:w-[520px] md:grid-cols-2">
+                <ListItem href="/docs/changelogs" title="Changelogs">
+                  Release notes and version history.
+                </ListItem>
+                <ListItem
+                  href="/docs/known-security-issues"
+                  title="Known security issues"
+                >
+                  Advisories and security-related updates.
+                </ListItem>
+                <ListItem
+                  href="/docs/upgrading-important-changes"
+                  title="Important / breaking changes"
+                >
+                  Must-read notes before you upgrade.
+                </ListItem>
+                <ListItem href="/docs/deprecations" title="Deprecations">
+                  Features and APIs slated for removal.
+                </ListItem>
+              </ul>
+            </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
