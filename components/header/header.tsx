@@ -184,6 +184,26 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
             >
               Deprecations
             </Link>
+            <Link
+              prefetch={false}
+              href="/docs/current-releases"
+              className={cn(
+                navigationMenuTriggerStyle(),
+                "w-full justify-start h-9 px-4"
+              )}
+            >
+              Current Releases
+            </Link>
+            <Link
+              prefetch={false}
+              href="/docs/all-releases"
+              className={cn(
+                navigationMenuTriggerStyle(),
+                "w-full justify-start h-9 px-4"
+              )}
+            >
+              All Releases
+            </Link>
           </div>
         </div>
       </nav>
@@ -313,7 +333,13 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
                   Must-read notes before you upgrade.
                 </ListItem>
                 <ListItem href="/docs/deprecations" title="Deprecations">
-                  Features and APIs slated for removal.
+                  Features, APIs, and other components slated for removal.
+                </ListItem>
+                <ListItem href="/docs/current-releases" title="Current Releases">
+                  Supported versions and what is shipping now.
+                </ListItem>
+                <ListItem href="/docs/all-releases" title="All Releases">
+                  Full list of dotCMS releases.
                 </ListItem>
               </ul>
             </NavigationMenuContent>
