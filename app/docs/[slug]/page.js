@@ -273,7 +273,7 @@ export default async function Home({ searchParams, params }) {
         }
     }
     
-    // Fetch all deprecations once (uses 1hr cache)
+    // Fetch all deprecations once (GraphQL response cached ~15m by default)
     let allDeprecations = null;
     try {
         allDeprecations = await getDeprecations();

@@ -6,7 +6,7 @@ import type { TDeprecation } from './types';
 type Options = { ttlSeconds?: number };
 
 const getDeprecations = async (options: Options = {}): Promise<TDeprecation[] | null> => {
-  const ttlSeconds = options.ttlSeconds ?? 3600; // 1 hour default
+  const ttlSeconds = options.ttlSeconds ?? 900; // 15 minutes default
 
   const query = `query Deprecations {
     DeprecationCollection(
