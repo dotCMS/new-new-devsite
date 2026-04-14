@@ -1,7 +1,16 @@
-import { getCourseDetail } from "@/services/courses/getCourse";
+import { courseTitleForMetadata, getCourseDetail } from "@/services/courses/getCourse";
 import ChapterFooter from "./ChapterFooter";
 import CourseIntroduction from "./CourseIntroduction";
 import { notFound } from "next/navigation";
+
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const { course } = await getCourseDetail({ slug });
+  if (!course) {
+    return { title: "Course not found" };
+  }
+  return { title: courseTitleForMetadata(course) };
+}
 
 export default async function CoursePage({ params }) {
   const { slug } = await params;

@@ -5,11 +5,28 @@ function escapeLuceneValue(value) {
   return String(value).replace(/([+\-!(){}[\]^"~*?:\\/])/g, "\\$1");
 }
 
+/** Backslashes and quotes must be escaped when embedding in a GraphQL "string" literal. */
+function escapeGraphqlStringLiteral(value) {
+  return String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+/** Prefer optional CMS `shortTitle` for browser tab / metadata when set. */
+export function courseTitleForMetadata(course) {
+  const short = course?.shortTitle;
+  if (typeof short === "string" && short.trim()) return short.trim();
+  if (short && typeof short === "object" && typeof short.value === "string" && short.value.trim()) {
+    return short.value.trim();
+  }
+  return course?.title ?? "";
+}
+
 export async function getCourseDetail({ slug }) {
-  const safeSlug = escapeLuceneValue(slug);
+  const luceneSlug = escapeLuceneValue(slug);
+  const safeSlug = escapeGraphqlStringLiteral(luceneSlug);
   const query = `query ContentAPI {
   CourseE2eCollection(query: "+CourseE2e.urlTitle:${safeSlug}", limit: 1) {
     title,
+    shortTitle
     urlTitle
     introduction {
       json
