@@ -2,6 +2,9 @@ import { getSideNav } from "@/services/docs/getSideNav";
 import { Config } from "@/util/config";
 import { getBlogListing } from "@/services/blog/getBlogListing";
 import { getDevResources } from "@/services/learning/getDevResources";
+
+/** Aggregates many GraphQL calls; never freeze this into a static build artifact. */
+export const dynamic = "force-dynamic";
 const extractHrefs = (obj) => {
   const baseURL = `${Config.CDNHost}/docs/`;
   let hrefs = [];

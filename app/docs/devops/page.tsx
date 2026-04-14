@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { PersonaLandingPage } from "@/components/persona-landing/PersonaLandingPage";
 
+/** CMS nav is fetched at request time so a slow or unavailable GraphQL during `next build` does not fail the deploy. */
+export const dynamic = "force-dynamic";
+
 const hostname = "https://dev.dotcms.com";
 
 export const metadata: Metadata = {
