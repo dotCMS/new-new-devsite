@@ -28,7 +28,7 @@ const DockerComposeYAML = (props: DockerComposeProps) => {
 
 services:
   db:
-    image: pgvector/pgvector:pg16
+    image: pgvector/pgvector:pg18
     command: postgres -c 'max_connections=400' -c 'shared_buffers=128MB'
     environment:
       POSTGRES_USER: 'dotcmsdbuser'
