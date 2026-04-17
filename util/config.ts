@@ -24,7 +24,8 @@ export const Config = {
     Accept: 'application/json',
     Authorization: `Bearer ${process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN}`
   },
-  AIModel: "gpt-4o-mini"
+  /** Used by chat completions + AI search. Override with NEXT_PUBLIC_DOTCMS_AI_MODEL. */
+  AIModel: (process.env.NEXT_PUBLIC_DOTCMS_AI_MODEL ?? 'gpt-5.2') as string,
 } as const
 
 export const AnalyticsConfig = {

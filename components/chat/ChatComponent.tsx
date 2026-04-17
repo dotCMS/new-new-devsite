@@ -296,7 +296,7 @@ async function fetchSearchForSources(
       Authorization: `Bearer ${API_KEY}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o",
+      model: Config.AIModel,
       indexName: "default",
       prompt: query,
       operator: "cosine",
