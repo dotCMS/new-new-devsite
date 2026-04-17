@@ -11,6 +11,9 @@ import Breadcrumbs from "../navigation/Breadcrumbs";
 import PaginationBar from "../PaginationBar";
 import Dropdown from "../shared/dropdown";
 import { useEffect } from "react";
+import { useAssistant } from "@/components/chat/AssistantProvider";
+import { useContentColumnWideLayout } from "@/hooks/useHeaderWideNav";
+import { cn } from "@/util/utils";
 
 export default function ChangeLogContainer({ sideNav, slug }) {
   //const router = useRouter(); // see removal of router in handleVersionChange
@@ -30,6 +33,12 @@ export default function ChangeLogContainer({ sideNav, slug }) {
     currentPage,
     paramLts,
     vParam,
+  );
+
+  const { open: assistantOpen, expanded: assistantExpanded } = useAssistant();
+  const showWideColumn = useContentColumnWideLayout(
+    assistantOpen,
+    assistantExpanded
   );
 
   // Handle hash scrolling after data is loaded
@@ -89,7 +98,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
   }
   let thisMajorVersion;
   return (
-    <div className="flex flex-col lg:flex-row w-full max-w-[1400px] mx-auto">
+    <div className="flex flex-col lg:flex-row w-full min-w-0 max-w-[1400px] mx-auto">
       {/* Main Content Area */}
       <main className="flex-1 min-w-0 py-8 lg:pb-12 px-0 sm:px-0 lg:px-8
         [&::-webkit-scrollbar]:w-1.5
@@ -210,8 +219,13 @@ export default function ChangeLogContainer({ sideNav, slug }) {
         </div>
       </main>
 
-      {/* Right Sidebar - Hide on smaller screens */}
-      <div className="w-64 shrink-0 hidden xl:block">
+      {/* Right Sidebar — effective width (viewport − assistant rail) */}
+      <div
+        className={cn(
+          "w-64 shrink-0",
+          showWideColumn ? "block" : "hidden"
+        )}
+      >
         <div className="sticky top-16 pl-8">
           <div className="text-muted-foreground
                 overflow-y-auto p-4 px-2

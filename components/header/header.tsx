@@ -1,6 +1,6 @@
 "use client";
 
-import { Code2, Menu, Search, X, ExternalLink } from "lucide-react";
+import { Code2, Menu, Sparkles, X } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import {
   NavigationMenu,
@@ -18,10 +18,12 @@ import { useState, useEffect } from "react";
 import ChatWithUsLink from "./ChatWithUsLink";
 import DiscourseLink from "./DiscourseLink";
 import GithubLink from "./GithubLink";
-import { SearchModal } from "../chat/SearchModal";
+import { useAssistant } from "../chat/AssistantProvider";
+import { useHeaderWideNav } from "@/hooks/useHeaderWideNav";
 import RedesignedNavTree from "@/components/navigation/RedesignedNavTree";
 import type { NavSection } from "@/util/navTransform";
 import LogoWithArrow from "./Logo/LogoWithArrow";
+import { DocsQuickSearch } from "./DocsQuickSearch";
 
 type HeaderProps = {
   sideNavItems?: any[];
@@ -107,7 +109,7 @@ function HeaderDesktopNavMenu({ currentOpenMenu, setCurrentOpenMenu }: HeaderDes
         <NavigationMenuItem>
           <NavigationMenuLink asChild>
             <Link href="/learning">
-              <span className={cn(navigationMenuTriggerStyle(), "px-3")}>Learning & Blogs</span>
+              <span className={cn(navigationMenuTriggerStyle(), "px-3")}>Learn</span>
             </Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
@@ -148,17 +150,6 @@ function HeaderDesktopNavMenu({ currentOpenMenu, setCurrentOpenMenu }: HeaderDes
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuLink asChild>
-            <a
-              href="https://community.dotcms.com/"
-              target="dotCMSCommunity"
-              className={navigationMenuTriggerStyle()}
-            >
-              Community <ExternalLink className="h-3 w-3 inline-block ml-1" />
-            </a>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
   );
@@ -189,7 +180,7 @@ function HeaderMobileNavLinks() {
           href="/learning"
           className={cn(navigationMenuTriggerStyle(), "w-full justify-start h-9 px-4")}
         >
-          Learning & Blogs
+          Learn
         </Link>
 
         <div className="space-y-1 border-l-2 border-border pl-3 ml-1">
@@ -268,7 +259,9 @@ ListItem.displayName = "ListItem";
 
 export default function Header({ sideNavItems, currentPath, navSections }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { open: isAssistantOpen, toggleOpen, expanded: assistantExpanded } =
+    useAssistant();
+  const showWideNav = useHeaderWideNav(isAssistantOpen, assistantExpanded);
   const [showBackArrow, setShowBackArrow] = useState(false);
   const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
 
@@ -287,23 +280,6 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
     }, 2000);
     setHoverTimeout(timeout);
   };
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Check for Command/Control + K
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault(); // Prevent default browser behavior
-        setIsSearchOpen((prev) => !prev);
-      }
-      // Close on escape
-      if (e.key === "Escape") {
-        setIsSearchOpen(false);
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, []);
 
   // useEffect for cleaning up the logo hover timeout
   useEffect(() => {
@@ -329,37 +305,58 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
     };
   }, [isMobileMenuOpen]);
 
+  useEffect(() => {
+    if (showWideNav) setIsMobileMenuOpen(false);
+  }, [showWideNav]);
+
   return (
     <header className="sticky top-0 z-50 w-full">
       <div className="border-b bg-background">
-        <div className="flex h-16 items-center px-4 container mx-auto">
+        <div className="flex h-16 items-center gap-3 px-4 container mx-auto min-w-0">
           <LogoWithArrow />
           
-          <div className="hidden lg:flex items-center space-x-2">
+          <div
+            className={cn(
+              "items-center space-x-2 min-w-0",
+              showWideNav ? "flex" : "hidden"
+            )}
+          >
             <HeaderDesktopNavMenu
               currentOpenMenu={currentOpenMenu}
               setCurrentOpenMenu={setCurrentOpenMenu}
             />
           </div>
 
-          {/* Right side items */}
-          <div className="flex items-center space-x-2 ml-auto">
+          {/* Docs quick search + Ask AI */}
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:gap-3">
+            <DocsQuickSearch
+              items={sideNavItems && sideNavItems.length > 0 ? sideNavItems : undefined}
+              className="max-w-lg"
+            />
             <button
-              onClick={() => setIsSearchOpen(true)}
-              className="flex items-center gap-2 rounded-md bg-secondary px-3 py-1.5 text-sm text-muted-foreground hover:bg-secondary/80"
+              type="button"
+              onClick={toggleOpen}
+              className={cn(
+                "flex h-9 shrink-0 items-center gap-2 rounded-xl border px-3 text-sm transition-colors",
+                isAssistantOpen
+                  ? "border-primary/35 bg-primary/10 text-foreground shadow-[0_0_0_1px_rgba(59,130,246,0.12)] ring-2 ring-primary/20"
+                  : "border-border/70 bg-muted/45 text-muted-foreground hover:bg-muted/70 hover:text-foreground"
+              )}
             >
-              <Search className="h-4 w-4" />
-              <span>
-                <span className="sm:hidden">AI Search...</span>
-                <span className="hidden sm:inline">AI Search...</span>
-              </span>
-              <kbd className="hidden sm:flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
-                <span className="text-xs">⌘</span>
-                <span className="text-xs">K</span>
-              </kbd>
+              <span>Ask AI</span>
+              <Sparkles className="h-4 w-4 shrink-0 text-primary" />
             </button>
+          </div>
 
-            <div className="hidden lg:flex items-center space-x-2">
+          {/* Right side items */}
+          <div className="flex items-center space-x-2 shrink-0">
+
+            <div
+              className={cn(
+                "items-center space-x-2",
+                showWideNav ? "flex" : "hidden"
+              )}
+            >
               <GithubLink />
               <DiscourseLink />
               <ThemeToggle />
@@ -368,7 +365,8 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
 
             {/* Mobile menu button */}
             <button
-              className="lg:hidden p-2"
+              type="button"
+              className={cn("p-2", showWideNav && "hidden")}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
@@ -382,8 +380,8 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
       </div>
 
       {/* Mobile Navigation Menu */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 top-16 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      {isMobileMenuOpen && !showWideNav && (
+        <div className="fixed inset-0 top-16 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
           <div className="container h-full mx-auto px-4 py-4 overflow-y-auto">
             <div className="flex flex-col h-full">
               {/* Main Navigation Links */}
@@ -399,7 +397,6 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
                   </div>
                   <RedesignedNavTree
                     currentPath={currentPath}
-                    items={sideNavItems}
                     isMobile={true}
                     initialSections={navSections}
                   />
@@ -419,10 +416,6 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
         </div>
       )}
 
-      <SearchModal
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-      />
     </header>
   );
 }

@@ -1,15 +1,20 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+  useCallback,
+} from "react";
 import { Button } from "@/components/ui/button";
 import {
   Loader2,
-  Trash2,
-  Bot,
-  UserCircle,
-  Search,
-  MessageSquare,
+  ArrowUp,
+  Sparkles,
   X,
+  Copy,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -17,177 +22,426 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { cn } from "@/util/utils";
 import { CopyButton } from "@/components/chat/CopyButton";
 import { Config } from "@/util/config";
-import { Toggle } from "@/components/ui/toggle";
-import { SearchResult } from "@/components/chat/SearchResult";
+import {
+  formatDocSourcePath,
+  sourceHrefToDisplay,
+} from "@/components/chat/sourceLinks";
 
-const truncateText = (text: string, maxLength: number) => {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + "...";
+export type DocSource = {
+  id: number;
+  title: string;
+  href: string;
+  displayUrl: string;
 };
 
 interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: number;
-  isSearchResult?: boolean;
-  mode?: "ai" | "search"; // Track which mode the message was from
+  sources?: DocSource[];
 }
 
 const RECENT_QUESTIONS_KEY = "recent-questions";
-const MODE_STORAGE_KEY = "dotai-last-mode";
 const API_KEY = Config.AuthToken;
 const API_ENDPOINT = Config.DotCMSHost;
 
-export function ChatComponent() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [input, setInput] = useState("");
-  const [currentStreamingMessage, setCurrentStreamingMessage] = useState("");
-  const [mode, setMode] = useState<"ai" | "search">(() => {
-    // Try to get the last mode from localStorage, default to "search"
-    const savedMode = localStorage.getItem(MODE_STORAGE_KEY);
-    return savedMode === "ai" || savedMode === "search" ? savedMode : "search";
-  });
-  const [recentQuestions, setRecentQuestions] = useState<string[]>([]);
-  const abortControllerRef = useRef<AbortController | null>(null);
+const PreDefinedQuestions = [
+  "What are the system requirements for dotCMS?",
+  "How do I create a new content type in dotCMS?",
+  "How do I search content using rest api?",
+];
 
-  // Add refs for the messages container and form
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const lastUserMessageRef = useRef<HTMLDivElement>(null);
+/** Max sources shown under a reply (after filtering). Not the same as API `searchLimit`. */
+const MAX_SOURCES = 4;
 
-  // Focus input when modal opens
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+export type ChatComponentHandle = {
+  reset: () => void;
+};
 
-  // Helper function to handle example question clicks
-  const handleExampleClick = (question: string) => {
-    setInput(question);
-    setTimeout(() => {
-      formRef.current?.requestSubmit();
-    }, 100);
+type ChatComponentProps = {
+  /** When the assistant panel opens, focus the input */
+  isPanelOpen?: boolean;
+};
+
+/** Turn [1] [2] into markdown links so we can render numbered citation badges. */
+function linkifyCitationMarkers(md: string): string {
+  return md.replace(/\[(\d+)\](?!\()/g, (_m, num) => `[${num}](#cite-${num})`);
+}
+
+function CitationBadge({
+  n,
+  className,
+}: {
+  n: number;
+  className?: string;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center justify-center min-w-[1.125rem] h-4 px-[3px] rounded border border-border/90 bg-muted text-[10px] font-semibold text-muted-foreground tabular-nums leading-none",
+        className
+      )}
+    >
+      {n}
+    </span>
+  );
+}
+
+function SourcesFooter({ sources }: { sources: DocSource[] }) {
+  if (sources.length === 0) return null;
+  return (
+    <div className="mt-5 pt-4 border-t border-border/50 space-y-3 min-w-0">
+      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        Sources
+      </p>
+      <ul className="space-y-3 list-none m-0 p-0">
+        {sources.map((s) => (
+          <li key={`${s.id}-${s.href}`}>
+            <a
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex w-full gap-2.5 text-sm no-underline text-inherit rounded-md px-2 py-1.5 -mx-2 transition-colors hover:bg-muted/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <CitationBadge
+                n={s.id}
+                className="mt-0.5 shrink-0 transition-colors group-hover:bg-muted-foreground/22 group-hover:border-muted-foreground/30"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-foreground leading-snug">{s.title}</p>
+                <p className="text-xs text-muted-foreground break-all mt-0.5">
+                  {s.displayUrl}
+                </p>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function MessageActionsRow({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    void navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  const PreDefinedQuestions = [
-    "What are the system requirements for dotCMS?",
-    "How do I create a new content type in dotCMS?",
-    "How do I search content using rest api?",
-  ];
+  return (
+    <div className="flex items-center gap-0.5 mt-4 pt-3 border-t border-border/50 min-w-0">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="h-8 gap-1.5 text-muted-foreground"
+        aria-label="Copy response"
+        onClick={copy}
+      >
+        <Copy className={cn("h-3.5 w-3.5 shrink-0", copied && "text-green-600")} />
+        Copy
+      </Button>
+    </div>
+  );
+}
 
-  // Load recent questions from storage
-  useEffect(() => {
-    const savedRecentQuestions = localStorage.getItem(RECENT_QUESTIONS_KEY);
-    if (savedRecentQuestions) {
-      setRecentQuestions(JSON.parse(savedRecentQuestions));
+function AssistantMarkdown({ content }: { content: string }) {
+  const prepared = linkifyCitationMarkers(content);
+
+  return (
+    <div
+      className={cn(
+        "prose prose-sm dark:prose-invert max-w-none",
+        // Nested lists: prose stacks margin on `p` + margin on `ul`/`ol` — collapse to one tight gap
+        "[&_li>p:has(+ul)]:mb-0 [&_li>p:has(+ol)]:mb-0",
+        "[&_li>ul]:!mt-1.5 [&_li>ol]:!mt-1.5"
+      )}
+    >
+      <ReactMarkdown
+        components={{
+          code: ({ inline, className, children, ...props }: any) => {
+            const match = /language-(\w+)/.exec(className || "");
+            const codeContent = String(children).replace(/\n$/, "");
+
+            return !inline && match ? (
+              <div className="relative">
+                <CopyButton text={codeContent} />
+                <SyntaxHighlighter
+                  {...props}
+                  style={vscDarkPlus}
+                  language={match[1]}
+                  PreTag="div"
+                  customStyle={{
+                    margin: 0,
+                    padding: "1rem",
+                    maxWidth: "100%",
+                    overflowX: "auto",
+                    backgroundColor: "rgb(30, 41, 59)",
+                    borderRadius: "0.5rem",
+                  }}
+                >
+                  {codeContent}
+                </SyntaxHighlighter>
+              </div>
+            ) : (
+              <code {...props} className={className}>
+                {children}
+              </code>
+            );
+          },
+          a: ({ href, children, ...props }: any) => {
+            if (typeof href === "string" && href.startsWith("#cite-")) {
+              const num = Number.parseInt(href.replace("#cite-", ""), 10);
+              if (!Number.isNaN(num)) {
+                return (
+                  <CitationBadge n={num} className="mx-0.5 align-baseline" />
+                );
+              }
+            }
+            return (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-2"
+                {...props}
+              >
+                {children}
+              </a>
+            );
+          },
+        }}
+      >
+        {prepared}
+      </ReactMarkdown>
+    </div>
+  );
+}
+
+/** Best embedding distance for a hit: lower = closer match (same as AI search `matches[].distance`). */
+function bestMatchDistance(
+  matches: { distance?: unknown }[] | undefined
+): number {
+  if (!matches?.length) return Number.POSITIVE_INFINITY;
+  let best = Number.POSITIVE_INFINITY;
+  for (const m of matches) {
+    const d = m.distance;
+    if (typeof d === "number" && !Number.isNaN(d) && d < best) best = d;
+  }
+  return best;
+}
+
+function mapSearchJsonToSources(data: unknown): DocSource[] {
+  if (!data || typeof data !== "object") return [];
+  const dotCMSResults = (data as { dotCMSResults?: unknown[] }).dotCMSResults;
+  if (!Array.isArray(dotCMSResults)) return [];
+
+  type Row = {
+    distance: number;
+    title: string;
+    href: string;
+    displayUrl: string;
+  };
+
+  const byHref = new Map<string, Row>();
+
+  for (const raw of dotCMSResults) {
+    const result = raw as Record<string, unknown>;
+    const matches = result.matches as { distance?: unknown }[] | undefined;
+    if (!matches?.length) continue;
+
+    const rawUrl =
+      (result.urlMap as string) ||
+      (result.url as string) ||
+      (result.slug as string) ||
+      (result.urlTitle as string) ||
+      "";
+    if (typeof rawUrl === "string" && rawUrl.startsWith("/content.")) {
+      continue;
     }
-  }, []);
 
-  // Scroll for new messages based on mode
-  useEffect(() => {
-    if (messages.length > 0) {
-      // Don't auto-scroll for search results, as they can be many
-      if (mode === "ai" || !messages[messages.length - 1].isSearchResult) {
-        scrollToBottom();
-      }
+    const distance = bestMatchDistance(matches);
+    const title = (result.title as string) || "Untitled";
+    const contentType = (result.contentType as string) || "";
+    const href = formatDocSourcePath(contentType, rawUrl);
+    const displayUrl = sourceHrefToDisplay(href);
+
+    const prev = byHref.get(href);
+    if (!prev || distance < prev.distance) {
+      byHref.set(href, { distance, title, href, displayUrl });
     }
-  }, [messages, mode]);
+  }
 
-  // Filter messages based on current mode
-  const filteredMessages = messages.filter(
-    (msg) => !msg.mode || msg.mode === mode
+  const ranked = Array.from(byHref.values()).sort(
+    (a, b) => a.distance - b.distance
   );
 
-  // Scroll to bottom function
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  return ranked.slice(0, MAX_SOURCES).map((row, i) => ({
+    id: i + 1,
+    title: row.title,
+    href: row.href,
+    displayUrl: row.displayUrl,
+  }));
+}
 
-  // Scroll when streaming messages only
-  useEffect(() => {
-    if (currentStreamingMessage) {
-      scrollToBottom();
-    }
-  }, [currentStreamingMessage]);
+async function fetchSearchForSources(
+  query: string,
+  signal: AbortSignal
+): Promise<unknown> {
+  const response = await fetch(`${API_ENDPOINT}/api/v1/ai/search`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "gpt-4o",
+      indexName: "default",
+      prompt: query,
+      operator: "cosine",
+      threshold: ".25",
+      searchLimit: 20,
+    }),
+    signal,
+  });
+  if (!response.ok) throw new Error("Search request failed");
+  return response.json();
+}
 
-  async function sendMessage(e: React.FormEvent) {
-    e.preventDefault();
-    if (!input.trim()) return;
-    const inputTrimmed = input.trim();
+export const ChatComponent = forwardRef<ChatComponentHandle, ChatComponentProps>(
+  function ChatComponent({ isPanelOpen = true }, ref) {
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [input, setInput] = useState("");
+    const [currentStreamingMessage, setCurrentStreamingMessage] = useState("");
+    const [recentQuestions, setRecentQuestions] = useState<string[]>([]);
+    const abortControllerRef = useRef<AbortController | null>(null);
 
-    // Add user message
-    const userMessage: Message = {
-      role: "user",
-      content: inputTrimmed,
-      timestamp: Date.now(),
-      mode: "ai",
-    };
-    setMessages((prev) => [...prev, userMessage]);
-    setLoading(true);
-    setInput("");
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const formRef = useRef<HTMLFormElement>(null);
+    const inputRef = useRef<HTMLTextAreaElement>(null);
 
-    // Create new AbortController for this request
-    abortControllerRef.current = new AbortController();
+    useEffect(() => {
+      if (isPanelOpen) {
+        inputRef.current?.focus();
+      }
+    }, [isPanelOpen]);
 
-    try {
-      // Format chat history for context - only include AI conversation messages
-      const aiConversation = messages.filter(
-        (msg) => !msg.isSearchResult && (!msg.mode || msg.mode === "ai")
-      );
-      const chatHistory = aiConversation
-        .map(
-          (msg) =>
-            `${msg.role === "user" ? "Human" : "Assistant"}: ${msg.content}`
-        )
-        .join("\n");
-      const fullPrompt = `${chatHistory}\nHuman: ${inputTrimmed}`;
-
-      const response = await fetch(`${API_ENDPOINT}/api/v1/ai/completions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${API_KEY}`,
-        },
-        body: JSON.stringify({
-          indexName: "default",
-          prompt: fullPrompt,
-          model: Config.AIModel,
-          temperature: "1",
-          responseLengthTokens: "1500",
-          operator: "cosine",
-          threshold: ".25",
-          stream: true,
-        }),
-        signal: abortControllerRef.current.signal,
-      });
-
-      if (!response.ok) throw new Error("Network response was not ok");
-      var finalMessage = "";
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("No reader available");
-
-      // Read the data
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        // Convert the chunk to text
-        const chunk = new TextDecoder().decode(value);
-
-        // Split the chunk into individual SSE messages
-        const messageChunks = chunk
-          .split("\n")
-          .filter((line) => line.startsWith("data: "))
-          .map((line) => line.slice(6)); // Remove 'data: ' prefix
-
-        if (chunk.includes("[DONE]")) {
-          break;
+    useEffect(() => {
+      const saved = localStorage.getItem(RECENT_QUESTIONS_KEY);
+      if (saved) {
+        try {
+          setRecentQuestions(JSON.parse(saved));
+        } catch {
+          /* ignore */
         }
+      }
+    }, []);
 
-        for (const message of messageChunks) {
+    const scrollToBottom = useCallback(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, []);
+
+    useEffect(() => {
+      if (messages.length > 0) scrollToBottom();
+    }, [messages, scrollToBottom]);
+
+    useEffect(() => {
+      if (currentStreamingMessage) scrollToBottom();
+    }, [currentStreamingMessage, scrollToBottom]);
+
+    useEffect(() => {
+      if (loading && !currentStreamingMessage) scrollToBottom();
+    }, [loading, currentStreamingMessage, scrollToBottom]);
+
+    const clearHistory = useCallback(() => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+      setCurrentStreamingMessage("");
+      setMessages([]);
+      setInput("");
+    }, []);
+
+    useImperativeHandle(ref, () => ({ reset: clearHistory }), [clearHistory]);
+
+    const handleExampleClick = (question: string) => {
+      setInput(question);
+      setTimeout(() => {
+        formRef.current?.requestSubmit();
+      }, 100);
+    };
+
+    async function sendMessage(e: React.FormEvent) {
+      e.preventDefault();
+      if (!input.trim()) return;
+      const inputTrimmed = input.trim();
+
+      const userMessage: Message = {
+        role: "user",
+        content: inputTrimmed,
+        timestamp: Date.now(),
+      };
+      setMessages((prev) => [...prev, userMessage]);
+      setLoading(true);
+      setInput("");
+      setCurrentStreamingMessage("");
+
+      abortControllerRef.current = new AbortController();
+      const signal = abortControllerRef.current.signal;
+
+      const searchPromise = fetchSearchForSources(inputTrimmed, signal)
+        .then((json) => mapSearchJsonToSources(json))
+        .catch(() => [] as DocSource[]);
+
+      try {
+        const aiConversation = messages;
+        const chatHistory = aiConversation
+          .map(
+            (msg) =>
+              `${msg.role === "user" ? "Human" : "Assistant"}: ${msg.content}`
+          )
+          .join("\n");
+        const fullPrompt = `${chatHistory}\nHuman: ${inputTrimmed}`;
+
+        const response = await fetch(`${API_ENDPOINT}/api/v1/ai/completions`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${API_KEY}`,
+          },
+          body: JSON.stringify({
+            indexName: "default",
+            prompt: fullPrompt,
+            model: Config.AIModel,
+            temperature: "1",
+            responseLengthTokens: "1500",
+            operator: "cosine",
+            threshold: ".25",
+            stream: true,
+          }),
+          signal,
+        });
+
+        if (!response.ok) throw new Error("Network response was not ok");
+        let finalMessage = "";
+        const reader = response.body?.getReader();
+        if (!reader) throw new Error("No reader available");
+
+        const decoder = new TextDecoder();
+        let sseBuffer = "";
+
+        const processSseLine = (rawLine: string) => {
+          const trimmed = rawLine.trim();
+          if (!trimmed.startsWith("data:")) return;
+
+          const payload = trimmed.slice(5).replace(/^\s+/, "");
+          if (payload === "" || payload === "[DONE]") return;
+
           try {
-            const parsed = JSON.parse(message);
+            const parsed = JSON.parse(payload);
             if (
               parsed.choices &&
               parsed.choices[0].delta &&
@@ -198,598 +452,300 @@ export function ChatComponent() {
               );
               finalMessage = finalMessage + parsed.choices[0].delta.content;
             }
-          } catch (e) {
-            console.error("Error parsing SSE message:", e);
-            break;
+          } catch {
+            // Malformed or partial JSON; skip this line.
+          }
+        };
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          sseBuffer += decoder.decode(value, { stream: true });
+          const lines = sseBuffer.split("\n");
+          sseBuffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            processSseLine(line);
           }
         }
-      }
 
-      // After streaming is complete, add the full message to the messages array
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: finalMessage,
-          timestamp: Date.now(),
-          mode: "ai",
-        },
-      ]);
+        if (sseBuffer.trim()) {
+          processSseLine(sseBuffer);
+        }
 
-      // Clear the streaming message after adding it
-      setCurrentStreamingMessage("");
-    } catch (error) {
-      // Only show error if not aborted
-      if (!(error instanceof DOMException && error.name === "AbortError")) {
-        console.error("Error:", error);
+        const sources = await searchPromise;
+
         setMessages((prev) => [
           ...prev,
           {
             role: "assistant",
-            content: "Sorry, there was an error processing your request.",
+            content: finalMessage,
             timestamp: Date.now(),
-            mode: "ai",
+            sources,
           },
         ]);
+
+        setCurrentStreamingMessage("");
+      } catch (error) {
+        if (!(error instanceof DOMException && error.name === "AbortError")) {
+          console.error("Error:", error);
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              content: "Sorry, there was an error processing your request.",
+              timestamp: Date.now(),
+            },
+          ]);
+        }
+      } finally {
+        setLoading(false);
+        abortControllerRef.current = null;
       }
-    } finally {
-      setLoading(false);
-      abortControllerRef.current = null;
     }
-  }
 
-  const clearHistory = () => {
-    // Abort any ongoing streaming response
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
-    }
-    setCurrentStreamingMessage("");
-    setMessages([]);
-    setInput("");
-  };
+    const storeRecentQuestion = (question: string) => {
+      if (!question.trim()) return;
 
-  async function handleSearch(query: string) {
-    setLoading(true);
-    /*
-    // Add user message for search
-    setMessages(prev => [...prev, {
-      role: "user",
-      content: query,
-      timestamp: Date.now(),
-      mode: "search"
-    }])
-    
-    */
-
-    try {
-      const response = await fetch(`${API_ENDPOINT}/api/v1/ai/search`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-4o",
-          indexName: "default",
-          prompt: query,
-          operator: "cosine",
-          threshold: ".25",
-          searchLimit: 20,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Network response was not ok");
-      const data = await response.json();
-
-      // Check if there are results
-      if (!data.dotCMSResults || data.dotCMSResults.length === 0) {
-        // Add a "no results" message
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content: "No search results found. Please try different keywords.",
-            timestamp: Date.now(),
-            mode: "search",
-          },
-        ]);
-        return;
-      }
-
-      // Format search results - include all content types
-      const searchResults = data.dotCMSResults
-        .map((result: any) => {
-          // Ensure we have matches
-          if (!result.matches || !result.matches.length) {
-            return null;
-          }
-
-          return {
-            role: "assistant" as const,
-            content: JSON.stringify({
-              title: result.title || "Untitled Result",
-              matches: result.matches || [],
-              content: result.matches[0]?.extractedText
-                ? truncateText(result.matches[0].extractedText, 200)
-                : "No preview available",
-              inode: result.inode,
-              url:
-                result.urlMap ||
-                result.url ||
-                result.slug ||
-                result.urlTitle ||
-                "",
-              score: result.matches[0]?.distance
-                ? parseFloat(result.matches[0].distance)
-                : 0,
-              contentType: result.contentType || "documentation",
-              modDate: result.modDate,
-            }),
-            timestamp: Date.now(),
-            isSearchResult: true,
-            mode: "search" as const,
-          };
-        })
-        .filter(Boolean); // Remove any null items
-
-      // Add search results to messages
-      setMessages((prev) => [...prev, ...searchResults]);
-
-      // Scroll to the last user message after adding search results
-      setTimeout(() => {
-        lastUserMessageRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
-    } catch (error) {
-      console.error("Error:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "Sorry, there was an error processing your search request.",
-          timestamp: Date.now(),
-          mode: "search",
-        },
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // Store recent questions when a user asks something
-  const storeRecentQuestion = (question: string) => {
-    // Don't store empty questions
-    if (!question.trim()) return;
-
-    setRecentQuestions((prev) => {
-      let updated: string[];
-      // Only append if in a conversation (filteredMessages.length > 0 && mode === "ai")
-      if (
-        filteredMessages.length > 0 &&
-        mode === "ai" &&
-        prev.length > 0 &&
-        !PreDefinedQuestions.includes(prev[0])
-      ) {
-        // Append the follow-up to the most recent question
-        updated = [prev[0] + " " + question, ...prev.slice(1)].slice(0, 5);
-      } else {
-        // Check if the question is in the predefined list
-        if (PreDefinedQuestions.includes(question)) {
-          updated = prev;
-        } else if (prev.includes(question)) {
-          // If the same question exists, remove it from its current position
-          // and add it to the top of the history
-          updated = [question, ...prev.filter((q) => q !== question)].slice(
-            0,
-            5
-          );
+      setRecentQuestions((prev) => {
+        let updated: string[];
+        if (
+          messages.length > 0 &&
+          prev.length > 0 &&
+          !PreDefinedQuestions.includes(prev[0])
+        ) {
+          updated = [prev[0] + " " + question, ...prev.slice(1)].slice(0, 5);
         } else {
-          // Add new question to the top
-          updated = [question, ...prev].slice(0, 5);
+          if (PreDefinedQuestions.includes(question)) {
+            updated = prev;
+          } else if (prev.includes(question)) {
+            updated = [question, ...prev.filter((q) => q !== question)].slice(
+              0,
+              5
+            );
+          } else {
+            updated = [question, ...prev].slice(0, 5);
+          }
         }
-      }
-      localStorage.setItem(RECENT_QUESTIONS_KEY, JSON.stringify(updated));
-      return updated;
-    });
-  };
+        localStorage.setItem(RECENT_QUESTIONS_KEY, JSON.stringify(updated));
+        return updated;
+      });
+    };
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    if (loading) return;
-    if (!input.trim()) return;
-
-    // Store the question
-    storeRecentQuestion(input.trim());
-
-    if (mode === "search") {
-      setMessages([]);
-      await handleSearch(input.trim());
-    } else {
+    async function handleSubmit(e: React.FormEvent) {
+      e.preventDefault();
+      if (loading) return;
+      if (!input.trim()) return;
+      storeRecentQuestion(input.trim());
       await sendMessage(e);
     }
-  }
 
-  const handleModeChange = (pressed: boolean) => {
-    // Abort any ongoing streaming response
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
-    }
+    const showEmpty = messages.length === 0 && !currentStreamingMessage;
 
-    //setCurrentStreamingMessage("")
-    //setMessages([])
-    const newMode = pressed ? "search" : "ai";
-    setMode(newMode);
+    return (
+      <div className="flex flex-col h-full min-h-0 w-full">
+        <div className="flex flex-1 min-h-0 flex-col overflow-y-auto px-4 rounded-lg">
+          <p className="shrink-0 text-[11px] leading-relaxed text-muted-foreground/90 mb-4 px-0.5">
+            Responses are generated using AI and may contain mistakes.
+          </p>
 
-    if (newMode === "search" && input.trim() == "") {
-      setInput(recentQuestions[0]);
-      setTimeout(() => {
-        //formRef.current?.requestSubmit();
-      }, 100);
-    }
-    // Save the mode preference to localStorage
-    localStorage.setItem(MODE_STORAGE_KEY, newMode);
+          {showEmpty && !loading && (
+            <>
+              <div
+                className="min-h-0 flex-1"
+                aria-hidden
+              />
+              <div className="shrink-0 space-y-6 pb-2">
+                <div>
+                  <p className="text-sm text-foreground/90 mb-1">
+                    Hi, I&apos;m an AI assistant with access to documentation
+                    and other content.
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Tip: You can toggle this pane with{" "}
+                    <kbd className="pointer-events-none inline-flex h-5 items-center gap-0.5 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium">
+                      <span>⌘</span>
+                      <span>/</span>
+                    </kbd>{" "}
+                    or{" "}
+                    <kbd className="pointer-events-none inline-flex h-5 items-center gap-0.5 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium">
+                      <span>⌘</span>
+                      <span>K</span>
+                    </kbd>
+                    .
+                  </p>
+                </div>
 
-    // Don't auto-submit when changing modes - let the user press Enter
-  };
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    Try asking
+                  </p>
+                  <div className="space-y-1.5">
+                    {(() => {
+                      const questionsToShow: string[] = [];
+                      recentQuestions.forEach((q) => questionsToShow.push(q));
+                      if (questionsToShow.length < 5) {
+                        PreDefinedQuestions.filter(
+                          (q) => !questionsToShow.includes(q)
+                        )
+                          .slice(0, 5 - questionsToShow.length)
+                          .forEach((q) => questionsToShow.push(q));
+                      }
+                      return questionsToShow.map((question, index) => (
+                        <div
+                          key={index}
+                          className="flex items-start justify-between gap-2 rounded-lg border border-border/60 bg-muted/30 px-3 py-2.5 text-sm"
+                        >
+                          <button
+                            type="button"
+                            className="flex-1 text-left text-foreground/90 hover:text-foreground transition-colors"
+                            onClick={() => handleExampleClick(question)}
+                          >
+                            {question}
+                          </button>
+                          {recentQuestions.includes(question) &&
+                            !PreDefinedQuestions.includes(question) && (
+                              <button
+                                type="button"
+                                className="shrink-0 p-1 rounded-md hover:bg-muted"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setRecentQuestions((prev) => {
+                                    const updated = prev.filter(
+                                      (q) => q !== question
+                                    );
+                                    localStorage.setItem(
+                                      RECENT_QUESTIONS_KEY,
+                                      JSON.stringify(updated)
+                                    );
+                                    return updated;
+                                  });
+                                }}
+                                aria-label="Remove from history"
+                              >
+                                <X className="h-3.5 w-3.5 text-muted-foreground" />
+                              </button>
+                            )}
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
 
-  const handleChatAboutResults = () => {
-    handleModeChange(false);
-    // Get the last user message (which should be the search query)
-    const lastUserMessage = filteredMessages.findLast((m) => m.role === "user");
-    if (lastUserMessage) {
-      setInput(lastUserMessage.content);
-      // Submit the form after a short delay to ensure mode switch is complete
-      setTimeout(() => {
-        formRef.current?.requestSubmit();
-      }, 100);
-    }
-  };
+          <div className="space-y-0 pb-2">
+            {messages.map((message, index) =>
+              message.role === "user" ? (
+                <div
+                  key={`${message.timestamp}-${index}`}
+                  className="py-4 border-b border-border/30"
+                >
+                  <div className="flex w-full flex-col items-end gap-1.5 text-right">
+                    <p className="text-xs font-medium text-muted-foreground">
+                      You
+                    </p>
+                    <p className="text-sm text-foreground/95 leading-relaxed rounded-2xl bg-muted/70 border border-border/50 px-3.5 py-2.5 w-fit max-w-[min(100%,85%)] text-left">
+                      {message.content}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <article
+                  key={`${message.timestamp}-${index}`}
+                  className="py-5 border-b border-border/30 last:border-b-0"
+                >
+                  <div className="flex gap-3 items-start">
+                    <Sparkles
+                      className="h-4 w-4 text-primary shrink-0 mt-0.5"
+                      aria-hidden
+                    />
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <p className="text-xs font-medium text-muted-foreground">
+                        Assistant
+                      </p>
+                      <AssistantMarkdown content={message.content} />
+                    </div>
+                  </div>
+                  {message.sources && message.sources.length > 0 && (
+                    <SourcesFooter sources={message.sources} />
+                  )}
+                  {message.content.trim() ? (
+                    <MessageActionsRow text={message.content} />
+                  ) : null}
+                </article>
+              )
+            )}
 
-  return (
-    <div className="flex flex-col h-full relative max-w-4xl mx-auto w-full">
-      <form
-        ref={formRef}
-        onSubmit={handleSubmit}
-        className="p-2 sm:p-4 border-b flex gap-2 sm:gap-4 items-center"
-      >
-        <div className="flex-1 relative">
-          <input
-            ref={inputRef}
-            className="w-full p-2 pr-8 bg-background border rounded-md text-sm sm:text-base"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault(); // Prevent form submission on Enter key
-                handleSubmit(e);
-              }
-            }}
-            placeholder={
-              mode === "search"
-                ? "Search the dev site..."
-                : filteredMessages.length > 0 && mode === "ai"
-                ? "Ask a follow up..."
-                : "Ask a question..."
-            }
-            disabled={loading}
-          />
-          {(input || filteredMessages.length > 0) && (
-            <button
-              type="button"
-              onClick={clearHistory}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full"
+            {loading && !currentStreamingMessage && (
+              <div className="py-5 border-b border-border/30 border-dashed">
+                <p className="text-sm text-muted-foreground/75">Thinking…</p>
+              </div>
+            )}
+
+            {currentStreamingMessage && (
+              <article className="py-5 border-b border-border/30 border-dashed">
+                <div className="flex gap-3 items-start">
+                  <Sparkles
+                    className="h-4 w-4 text-primary shrink-0 mt-0.5"
+                    aria-hidden
+                  />
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground">
+                      Assistant
+                    </p>
+                    <AssistantMarkdown content={currentStreamingMessage} />
+                  </div>
+                </div>
+              </article>
+            )}
+          </div>
+          <div ref={messagesEndRef} />
+        </div>
+
+        <form
+          ref={formRef}
+          onSubmit={handleSubmit}
+          className="shrink-0 pt-3"
+        >
+          <div className="relative rounded-2xl border border-border bg-muted/20 focus-within:ring-2 focus-within:ring-ring/30 focus-within:border-primary/30 transition-shadow">
+            <textarea
+              ref={inputRef}
+              rows={2}
+              className="w-full resize-none bg-transparent px-4 py-3 pr-14 text-sm outline-none placeholder:text-muted-foreground min-h-[3.25rem] max-h-40 rounded-2xl"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
+              placeholder="Ask AI a question…"
+              disabled={loading}
+            />
+            <Button
+              type="submit"
+              size="icon"
+              disabled={loading || !input.trim()}
+              className="absolute right-2 bottom-2 h-9 w-9 rounded-full shadow-sm"
+              aria-label="Send message"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <X className="h-4 w-4 text-muted-foreground" />
+                <ArrowUp className="h-4 w-4" />
               )}
-              <span className="sr-only">Clear search</span>
-            </button>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant={mode === "search" ? "default" : "secondary"}
-            size="sm"
-            onClick={() => handleModeChange(true)}
-            className="gap-2"
-          >
-            <Search className="h-4 w-4" />
-            Search
-          </Button>
-
-          <Button
-            variant={mode === "ai" ? "default" : "secondary"}
-            size="sm"
-            onClick={() => handleModeChange(false)}
-            className="gap-2"
-          >
-            <MessageSquare className="h-4 w-4" />
-            AI Chat
-          </Button>
-        </div>
-      </form>
-
-      <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4">
-        {filteredMessages.length === 0 && (
-          <>
-            {loading ? (
-              <div className="flex flex-col items-center justify-center h-full space-y-4">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">
-                  Searching documentation...
-                </p>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                <Bot className="w-16 h-16 text-primary" />
-                <h2 className="text-2xl font-semibold">
-                  Welcome to dotAI Assistant
-                </h2>
-                <p className="text-muted-foreground max-w-md">
-                  I can answer your questions or help you find information about
-                  the dotCMS platform. Here are some previous questions:
-                </p>
-                <div className="space-y-2 text-left w-full max-w-md px-2 sm:px-0">
-                  {(() => {
-                    // Always show up to 5 questions total
-                    const questionsToShow: string[] = [];
-
-                    // Add all recent questions first (up to 5)
-                    if (recentQuestions.length > 0) {
-                      recentQuestions.forEach((question) => {
-                        questionsToShow.push(question);
-                      });
-                    }
-
-                    // Fill remaining slots with predefined questions to reach a total of 5
-                    if (questionsToShow.length < 5) {
-                      // Filter out predefined questions that match recent ones to avoid duplicates
-                      const filteredPredefined = PreDefinedQuestions.filter(
-                        (q) => !questionsToShow.includes(q)
-                      );
-
-                      // Add unique predefined questions to fill the remaining slots (up to 5 total)
-                      filteredPredefined
-                        .slice(0, 5 - questionsToShow.length)
-                        .forEach((question) => {
-                          questionsToShow.push(question);
-                        });
-                    }
-
-                    // Render the questions
-                    return questionsToShow.map((question, index) => (
-                      <div
-                        key={index}
-                        className="flex items-start justify-between p-2 sm:p-3 rounded-lg bg-muted/50 text-sm sm:text-base mb-1"
-                      >
-                        <span
-                          className="flex-1 cursor-pointer text-center"
-                          onClick={() => handleExampleClick(question)}
-                        >
-                          {question}
-                        </span>
-                        {recentQuestions.includes(question) &&
-                          !PreDefinedQuestions.includes(question) && (
-                            <button
-                              type="button"
-                              className="ml-2 mt-0.5 p-1 hover:bg-muted rounded-full"
-                              style={{ alignSelf: "flex-start" }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setRecentQuestions((prev) => {
-                                  const updated = prev.filter(
-                                    (q) => q !== question
-                                  );
-                                  localStorage.setItem(
-                                    RECENT_QUESTIONS_KEY,
-                                    JSON.stringify(updated)
-                                  );
-                                  return updated;
-                                });
-                              }}
-                              aria-label="Remove from history"
-                            >
-                              <X className="h-4 w-4 text-muted-foreground" />
-                            </button>
-                          )}
-                      </div>
-                    ));
-                  })()}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-        {filteredMessages
-          .filter((m) => m.isSearchResult)
-          .filter((m) => m.content && !JSON.parse(m.content).url.startsWith("/content."))
-          .map((message, index) => (
-            <div
-              key={index}
-              ref={message.role === "user" ? lastUserMessageRef : undefined}
-              className={cn(
-                "flex items-start gap-2 sm:gap-4 rounded-lg p-2 sm:p-4",
-                message.role === "user"
-                  ? "bg-muted/50"
-                  : message.isSearchResult
-                  ? "bg-blue-500/10"
-                  : "bg-primary/10"
-              )}
-            >
-              <SearchResult {...JSON.parse(message.content)} />
-            </div>
-          ))}
-
-        {filteredMessages
-          .filter((m) => !m.isSearchResult)
-          .map((message, index) => (
-            <div
-              key={index}
-              ref={message.role === "user" ? lastUserMessageRef : undefined}
-              className={cn(
-                "flex items-start gap-2 sm:gap-4 rounded-lg p-2 sm:p-4",
-                message.role === "user"
-                  ? "bg-muted/50"
-                  : message.isSearchResult
-                  ? "bg-blue-500/10"
-                  : "bg-primary/10"
-              )}
-            >
-              {message.role === "user" ? (
-                <UserCircle className="w-6 h-6 sm:w-8 sm:h-8" />
-              ) : (
-                <Bot className="w-6 h-6 sm:w-8 sm:h-8" />
-              )}
-              <div className="flex-1 space-y-2 overflow-hidden">
-                <p
-                  className={`text-sm ${
-                    message.role === "user" ? "font-bold" : "font-medium "
-                  }`}
-                >
-                  {message.role === "user"
-                    ? "You"
-                    : message.isSearchResult
-                    ? "Search Result"
-                    : "dotAI Assistant"}
-                </p>
-                {message.isSearchResult ? (
-                  <SearchResult {...JSON.parse(message.content)} />
-                ) : (
-                  <div className="prose prose-sm dark:prose-invert max-w-none">
-                    <ReactMarkdown
-                      components={{
-                        code: ({
-                          node,
-                          inline,
-                          className,
-                          children,
-                          ...props
-                        }: {
-                          node?: any;
-                          inline?: boolean;
-                          className?: string;
-                          children?: React.ReactNode;
-                          [key: string]: any;
-                        }) => {
-                          const match = /language-(\w+)/.exec(className || "");
-                          const codeContent = String(children).replace(
-                            /\n$/,
-                            ""
-                          );
-
-                          return !inline && match ? (
-                            <div className="relative">
-                              <CopyButton text={codeContent} />
-                              <SyntaxHighlighter
-                                {...props}
-                                style={vscDarkPlus}
-                                language={match[1]}
-                                PreTag="div"
-                                customStyle={{
-                                  margin: 0,
-                                  padding: "1rem",
-                                  maxWidth: "100%",
-                                  overflowX: "auto",
-                                  backgroundColor: "rgb(30, 41, 59)",
-                                  borderRadius: "0.5rem",
-                                }}
-                              >
-                                {codeContent}
-                              </SyntaxHighlighter>
-                            </div>
-                          ) : (
-                            <code {...props} className={className}>
-                              {children}
-                            </code>
-                          );
-                        },
-                      }}
-                    >
-                      {message.content}
-                    </ReactMarkdown>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        {mode === "search" &&
-          filteredMessages.length > 0 &&
-          filteredMessages.some((m) => m.isSearchResult) && (
-            <div className="flex justify-center pt-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleChatAboutResults}
-                className="gap-2"
-              >
-                <MessageSquare className="h-4 w-4" />
-                Chat about these results
-              </Button>
-            </div>
-          )}
-        {currentStreamingMessage && mode === "ai" && (
-          <div className="flex items-start gap-4 rounded-lg p-4 bg-primary/10">
-            <Bot className="w-8 h-8" />
-            <div className="flex-1 space-y-2 overflow-hidden">
-              <p className="text-sm font-medium">dotAI Assistant</p>
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                <ReactMarkdown
-                  components={{
-                    code({
-                      node,
-                      inline,
-                      className,
-                      children,
-                      ...props
-                    }: {
-                      node?: any;
-                      inline?: boolean;
-                      className?: string;
-                      children?: React.ReactNode;
-                      [key: string]: any;
-                    }) {
-                      const match = /language-(\w+)/.exec(className || "");
-                      const codeContent = String(children).replace(/\n$/, "");
-                      return !inline && match ? (
-                        <div className="relative">
-                          <CopyButton text={codeContent} />
-                          <SyntaxHighlighter
-                            {...props}
-                            style={vscDarkPlus}
-                            language={match[1]}
-                            PreTag="div"
-                            customStyle={{
-                              margin: 0,
-                              maxWidth: "100%",
-                              overflowX: "auto",
-                              backgroundColor: "rgb(30, 41, 59)",
-                              borderRadius: "0.5rem",
-                              padding: "1rem",
-                            }}
-                          >
-                            {String(children).replace(/\n$/, "")}
-                          </SyntaxHighlighter>
-                        </div>
-                      ) : (
-                        <code {...props} className={className}>
-                          {children}
-                        </code>
-                      );
-                    },
-                  }}
-                >
-                  {currentStreamingMessage}
-                </ReactMarkdown>
-              </div>
-            </div>
+            </Button>
           </div>
-        )}
-        <div ref={messagesEndRef} />
+          <p className="text-[10px] text-muted-foreground mt-2 px-0.5">
+            <span className="opacity-80">Enter</span> to send ·{" "}
+            <span className="opacity-80">Shift+Enter</span> for newline
+          </p>
+        </form>
       </div>
-    </div>
-  );
-}
+    );
+  }
+);
