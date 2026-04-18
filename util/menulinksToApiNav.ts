@@ -95,6 +95,7 @@ function rowToApiNavLeaf(row: MenuLinkRow): ApiNavItem {
       code: null,
       href,
       target,
+      linkKind: "EXTERNAL",
     };
   }
 
@@ -110,6 +111,7 @@ function rowToApiNavLeaf(row: MenuLinkRow): ApiNavItem {
         code: null,
         href: rawCode.startsWith("http") ? rawCode : `https://${rawCode}`,
         target: "_blank",
+        linkKind: "CODE",
       };
     }
     return {
@@ -121,6 +123,7 @@ function rowToApiNavLeaf(row: MenuLinkRow): ApiNavItem {
       code: rawCode || null,
       href: undefined,
       target: targetRaw === "_blank" ? "_blank" : undefined,
+      linkKind: "CODE",
     };
   }
 
@@ -138,6 +141,7 @@ function rowToApiNavLeaf(row: MenuLinkRow): ApiNavItem {
       code: code || null,
       href: href || undefined,
       target: targetRaw === "_blank" ? "_blank" : undefined,
+      linkKind: "INTERNAL",
     };
   }
 
@@ -149,6 +153,7 @@ function rowToApiNavLeaf(row: MenuLinkRow): ApiNavItem {
     children: [],
     code: (row.linkCode ?? "").trim() || null,
     href: undefined,
+    linkKind: "CODE",
   };
 }
 

@@ -13,6 +13,8 @@ export interface NavSection {
   items: NavItem[];
 }
 
+export type ApiNavLinkKind = 'INTERNAL' | 'CODE' | 'EXTERNAL';
+
 export interface ApiNavItem {
   type: 'folder' | 'link' | 'page';
   title: string;
@@ -27,6 +29,11 @@ export interface ApiNavItem {
    * `code` matches the active doc slug.
    */
   showOnMenu?: boolean;
+  /**
+   * From menulinks `linkType`. INTERNAL site paths must not be forced under `/docs/`
+   * in {@link processLinkHref}. Omitted for legacy/fallback payloads (treated like CODE).
+   */
+  linkKind?: ApiNavLinkKind;
 }
 
 /** Segment after `docs/` from a page URL, for matching `ApiNavItem.code` (e.g. `docs/a/b` → `a/b`). */
@@ -120,7 +127,34 @@ export function filterApiNavKeepAllLeaves(items: ApiNavItem[]): ApiNavItem[] {
 }
 
 export function processLinkHref(linkData: ApiNavItem): string {
-  if (linkData.code && linkData.code.trim() !== '') {
+  const isInternal = linkData.linkKind === 'INTERNAL';
+
+  if (isInternal) {
+    const href = linkData.href?.trim();
+    if (href) {
+      if (href.startsWith('https://') || href.startsWith('http://')) {
+        try {
+          const url = new URL(href);
+          return url.pathname + url.search + url.hash;
+        } catch {
+          return href;
+        }
+      }
+      try {
+        const url = new URL(href, 'http://internal.local');
+        return url.pathname + url.search + url.hash;
+      } catch {
+        return href.startsWith('/') ? href : `/${href}`;
+      }
+    }
+    const code = linkData.code?.trim();
+    if (code) {
+      return code.startsWith('/') ? code : `/${code}`;
+    }
+    return '#';
+  }
+
+  if (linkData.code?.trim()) {
     return `/docs/${linkData.code}`;
   }
 
