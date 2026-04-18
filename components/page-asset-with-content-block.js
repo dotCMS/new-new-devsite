@@ -13,7 +13,7 @@ import { pageComponents } from "@/components/content-types";
 import NextBackButtons from "./navigation/NextBackButtons";
 
 
-export function BlockPageAsset({ pageContent, nav, searchItems = [], navSections }) {
+export function BlockPageAsset({ pageContent, nav, searchItems = [], navSections, navSectionsAllForPaths, navMenuSlug }) {
 
   const {pageAsset, content = {}} = useEditableDotCMSPage(pageContent);
 
@@ -33,16 +33,20 @@ export function BlockPageAsset({ pageContent, nav, searchItems = [], navSections
 
   return (
     <div className="">
-      {pageAsset?.layout?.header && <Header navSections={navSections} navItems={navigation?.children} />}
+      {pageAsset?.layout?.header && (
+        <Header navSections={navSections} navSectionsAllForPaths={navSectionsAllForPaths} navItems={navigation?.children} navMenuSlug={navMenuSlug} />
+      )}
       
         <div id="main-content" className="grid grid-cols-1 lg:grid-cols-[auto_1fr_auto] container mx-auto px-0 w-full">
           {/* Left Navigation - Hide on mobile */}
           {showLeftNav && (
             <div id="left-nav" className="hidden lg:block w-72 shrink-0">
-                <RedesignedNavTree 
+                <RedesignedNavTree
                   currentPath={pageAsset?.page?.url}
+                  navMenuSlug={navMenuSlug}
                   items={searchItems}
                   initialSections={navSections}
+                  initialSectionsAllForPaths={navSectionsAllForPaths}
                 />
             </div>
           )}

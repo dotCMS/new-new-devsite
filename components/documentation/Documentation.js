@@ -17,7 +17,7 @@ function cleanMarkdown(markdownString, identifierString) {
     .replaceAll("</br>", "<br>");
 }
 
-const Documentation = ({ contentlet, sideNav, slug, deprecation }) => {
+const Documentation = ({ contentlet, sideNav, navSections, slug, deprecation }) => {
   // Use server-provided deprecation match (no client fetch needed)
   const matchedDeprecation = deprecation || null;
 
@@ -43,6 +43,7 @@ const Documentation = ({ contentlet, sideNav, slug, deprecation }) => {
         >
           <Breadcrumbs
             items={sideNav[0]?.dotcmsdocumentationchildren || []}
+            navSections={navSections}
             slug={slug}
             childrenKey="dotcmsdocumentationchildren"
           />

@@ -5,7 +5,7 @@ import { TableReleases } from "./TableReleases/TableReleases";
 import { DockerComposeYAML } from "./DockerComposeYAML/DockerComposeYAML";
 import React, { useState } from 'react';
 
-export default function CurrentReleases({ sideNav, slug }) {
+export default function CurrentReleases({ sideNav, navSections, slug }) {
   const [selectedRelease, setSelectedRelease] = useState(null);
 
   return (
@@ -21,6 +21,7 @@ export default function CurrentReleases({ sideNav, slug }) {
       >
         <Breadcrumbs
           items={sideNav[0]?.dotcmsdocumentationchildren || []}
+          navSections={navSections}
           slug={slug}
           childrenKey="dotcmsdocumentationchildren"
         />

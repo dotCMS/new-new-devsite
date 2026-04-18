@@ -12,7 +12,7 @@ import PaginationBar from "../PaginationBar";
 import Dropdown from "../shared/dropdown";
 import { useEffect } from "react";
 
-export default function ChangeLogContainer({ sideNav, slug }) {
+export default function ChangeLogContainer({ sideNav, navSections, slug }) {
   //const router = useRouter(); // see removal of router in handleVersionChange
   const searchParams = useSearchParams();
   const paramLts = searchParams.get("lts");
@@ -100,6 +100,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
       >
         <Breadcrumbs
           items={sideNav[0]?.dotcmsdocumentationchildren || []}
+          navSections={navSections}
           slug={slug}
           childrenKey="dotcmsdocumentationchildren"
         />

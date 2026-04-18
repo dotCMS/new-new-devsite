@@ -13,6 +13,7 @@ import GitHubDocumentation from "@/components/documentation/GitHubDocumentation"
 import ChangeLogList from "@/components/changelogs/ChangeLogList";
 import RedesignedNavTree from "@/components/navigation/RedesignedNavTree";
 import { getNavSections } from "@/services/docs/getNavSections";
+import { Config } from "@/util/config";
 import CurrentReleases from "@/components/releases/CurrentReleases";
 import AllReleases from "@/components/releases/AllReleases";
 import AllSecurityIssues from "@/components/security-issues/AllSecurityIssues";
@@ -241,14 +242,27 @@ export default async function Home({ searchParams, params }) {
     }
 
     const { pageAsset } = pageData;
-    
-    const sideNav = await getSideNav();
-    const navSections = await getNavSections({ path: '/docs/nav', depth: 4, languageId: 1, ttlSeconds: 600 });
-    
-    // Check if urlContentMap exists
+
+    // Check if urlContentMap exists (nav filter must use CMS urlTitle when it differs from the route param)
     if (!pageAsset?.urlContentMap?.inode) {
         notFound();
     }
+
+    const uc = pageAsset.urlContentMap;
+    const urlTitleFromCms = uc.urlTitle ?? uc._map?.urlTitle;
+    const rawNavKey =
+        urlTitleFromCms != null && String(urlTitleFromCms).trim() !== ''
+            ? urlTitleFromCms
+            : finalParams.slug;
+    const navMenuKey = processSlug(rawNavKey) || undefined;
+
+    const sideNav = await getSideNav();
+    const { sections: navSections, sectionsAllForPaths: navSectionsAllForPaths } = await getNavSections({
+        path: '/docs/nav',
+        depth: Config.NavMenuDepth,
+        languageId: 1,
+        currentSlug: navMenuKey,
+    });
     
     // Handle GitHub docs if needed (this sets githubSource flag)
     if (isGitHubDoc(slug)) {
@@ -295,6 +309,8 @@ export default async function Home({ searchParams, params }) {
     const data = {
         contentlet: pageAsset.urlContentMap,
         sideNav: sideNav,
+        navSections,
+        navSectionsAllForPaths,
         currentPath: slug,
         searchParams: finalSearchParams,
         deprecation: deprecationForPage,
@@ -325,7 +341,13 @@ export default async function Home({ searchParams, params }) {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header sideNavItems={sideNav[0]?.dotcmsdocumentationchildren || []} currentPath={slug} navSections={navSections} />
+            <Header
+                sideNavItems={sideNav[0]?.dotcmsdocumentationchildren || []}
+                currentPath={slug}
+                navMenuSlug={navMenuKey}
+                navSections={navSections}
+                navSectionsAllForPaths={navSectionsAllForPaths}
+            />
             <JsonLd pageData={data} path={path} hostname={hostname} />
             
             <div className="flex-1">
@@ -334,8 +356,10 @@ export default async function Home({ searchParams, params }) {
                     <div className="hidden lg:block w-72 shrink-0">
                         <RedesignedNavTree
                             currentPath={slug}
+                            navMenuSlug={navMenuKey}
                             items={sideNav[0]?.dotcmsdocumentationchildren || []}
                             initialSections={navSections}
+                            initialSectionsAllForPaths={navSectionsAllForPaths}
                         />
                     </div>
 

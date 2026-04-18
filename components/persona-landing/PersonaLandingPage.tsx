@@ -5,6 +5,7 @@ import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import RedesignedNavTree from "@/components/navigation/RedesignedNavTree";
 import { getNavSections } from "@/services/docs/getNavSections";
+import { Config } from "@/util/config";
 import { getSideNav } from "@/services/docs/getSideNav";
 import { cn } from "@/util/utils";
 import { PERSONAS, type PersonaId } from "./persona-data";
@@ -73,10 +74,12 @@ type Props = {
 
 export async function PersonaLandingPage({ personaId }: Props) {
     const persona = PERSONAS[personaId];
-    const [sideNav, navSections] = await Promise.all([
+    const [sideNav, navBundle] = await Promise.all([
         getSideNav(),
-        getNavSections({ path: "/docs/nav", depth: 4, languageId: 1, ttlSeconds: 600 }),
+        getNavSections({ path: "/docs/nav", depth: Config.NavMenuDepth, languageId: 1 }),
     ]);
+    const navSections = navBundle.sections;
+    const navSectionsAllForPaths = navBundle.sectionsAllForPaths;
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -84,6 +87,7 @@ export async function PersonaLandingPage({ personaId }: Props) {
                 sideNavItems={sideNav[0]?.dotcmsdocumentationchildren || []}
                 currentPath={personaId}
                 navSections={navSections}
+                navSectionsAllForPaths={navSectionsAllForPaths}
             />
 
             <div className="flex-1">
@@ -93,6 +97,7 @@ export async function PersonaLandingPage({ personaId }: Props) {
                             currentPath={personaId}
                             items={sideNav[0]?.dotcmsdocumentationchildren || []}
                             initialSections={navSections}
+                            initialSectionsAllForPaths={navSectionsAllForPaths}
                         />
                     </div>
 

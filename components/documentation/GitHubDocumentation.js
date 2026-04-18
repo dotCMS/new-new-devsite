@@ -9,7 +9,7 @@ import OnThisPage from "../navigation/OnThisPage";
 import Warn from "../mdx/Warn";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
+const GitHubDocumentation = ({ contentlet, sideNav, navSections, slug }) => {
   if (!contentlet || !sideNav) {
     return <div>Loading...</div>;
   }
@@ -48,6 +48,7 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
         >
           <Breadcrumbs
             items={sideNav[0]?.dotcmsdocumentationchildren || []}
+            navSections={navSections}
             slug={slug}
             childrenKey="dotcmsdocumentationchildren"
           />

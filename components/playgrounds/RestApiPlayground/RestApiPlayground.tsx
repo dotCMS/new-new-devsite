@@ -7,13 +7,16 @@ import { type TFetchFn } from './types'
 import React, { useEffect, useRef } from "react";
 import Breadcrumbs from "@/components/navigation/Breadcrumbs";
 
+import type { NavSection } from "@/util/navTransform";
+
 type RestApiPlaygroundProps = {
     contentlet: any; // Replace 'any' with proper type if known
     sideNav: any;    // Replace 'any' with proper type if known
+    navSections?: NavSection[];
     slug: string;
 };
 
-export const RestApiPlayground = ({ contentlet, sideNav, slug }: RestApiPlaygroundProps) => {
+export const RestApiPlayground = ({ contentlet, sideNav, navSections, slug }: RestApiPlaygroundProps) => {
     const [selectedOption, setSelectedOption] = useState(OPTIONS[0]);
     const [result, setResult] = useState<Record<string, unknown> | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
@@ -50,7 +53,9 @@ export const RestApiPlayground = ({ contentlet, sideNav, slug }: RestApiPlaygrou
             >
                 <Breadcrumbs
                     items={sideNav[0]?.dotcmsdocumentationchildren || []}
+                    navSections={navSections}
                     slug={slug}
+                    childrenKey="dotcmsdocumentationchildren"
                 />
                 <h1 className='text-4xl font-bold text-foreground mb-8'>REST API Sampler</h1>
 

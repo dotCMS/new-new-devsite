@@ -69,9 +69,9 @@ function generateLlmTxt(sections: NavSection[], baseUrl: string): string {
 
 export async function GET() {
   try {
-    const sections = await getNavSections({
+    const { sections } = await getNavSections({
       path: '/docs/nav',
-      depth: 4,
+      depth: Config.NavMenuDepth,
       languageId: 1
     });
     

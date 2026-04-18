@@ -4,8 +4,14 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { ChevronDown, ChevronRight, BookOpen, HelpCircle, Search, X } from 'lucide-react';
 import { cn } from '@/util/utils';
+import { Config } from '@/util/config';
 import { fetchNavData } from '@/util/page.utils';
-import { type NavSection as ServerNavSection } from '@/util/navTransform';
+import {
+  type ApiNavItem,
+  type NavSection as ServerNavSection,
+  canonicalNavFilterKey,
+  transformApiResponseToNavSections,
+} from '@/util/navTransform';
 
 // Types
 interface NavItem {
@@ -23,10 +29,14 @@ interface NavSection {
 
 interface RedesignedNavTreeProps {
   currentPath?: string;
+  /** Docs slug for `showOnMenu` filtering when nav is loaded client-side via `fetchNavData`. */
+  navMenuSlug?: string;
   isMobile?: boolean;
   className?: string;
   items?: any[]; // Rich old nav data for search
   initialSections?: ServerNavSection[]; // Server-fetched, transformed nav sections
+  /** Full menulinks tree (includes `showOnMenu: false`) for quick-search breadcrumb trails only. */
+  initialSectionsAllForPaths?: ServerNavSection[];
 }
 
 // Search-related interfaces
@@ -40,6 +50,22 @@ interface SearchableItem {
   parentPath?: string[];
 }
 
+function pickFirstNonEmptyString(
+  ...vals: (string | null | undefined)[]
+): string {
+  for (const v of vals) {
+    if (v == null) continue;
+    const s = String(v).trim();
+    if (s) return s;
+  }
+  return '';
+}
+
+/** Quick-search result heading: prefer CMS `title`, then `navTitle` (merged row already prefers CMS over menulinks). */
+function getSearchResultHeadline(item: SearchableItem): string {
+  return pickFirstNonEmptyString(item.title, item.navTitle);
+}
+
 interface SearchResult {
   item: SearchableItem;
   score: number;
@@ -51,17 +77,6 @@ interface NavApiResponse {
 }
 
 interface NavEntity {
-  children: ApiNavItem[];
-}
-
-interface ApiNavItem {
-  type: 'folder' | 'link';
-  title: string;
-  href?: string;
-  code?: string | null;
-  folder?: string;
-  order: number;
-  target?: string;
   children: ApiNavItem[];
 }
 
@@ -110,11 +125,11 @@ function flattenItems(items: any[], parentPath: string[] = []): SearchableItem[]
     // Handle documentation API structure (getSideNav data)
     if (item.urlTitle) {
       const searchableItem: SearchableItem = {
-        title: item.title || item.navTitle || '',
-        navTitle: item.navTitle,
+        title: item.title != null ? String(item.title).trim() : '',
+        navTitle: item.navTitle != null ? String(item.navTitle).trim() : '',
         urlTitle: item.urlTitle,
         tag: item.tag,
-        seoDescription: item.seoDescription,
+        seoDescription: item.seoDescription != null ? String(item.seoDescription).trim() : '',
         path: `/docs/${item.urlTitle}`,
         parentPath: [...parentPath]
       };
@@ -151,54 +166,232 @@ function flattenItems(items: any[], parentPath: string[] = []): SearchableItem[]
   return flattened;
 }
 
+/** Slug segment after `/docs/` for internal doc links (menulinks + left nav). */
+function docsSlugFromDocsNavHref(href: string | undefined | null): string | null {
+  if (!href || href === '#') return null;
+  let pathname = href.split('?')[0].replace(/\/+$/, '');
+  try {
+    if (href.startsWith('http://') || href.startsWith('https://')) {
+      pathname = new URL(href).pathname.replace(/\/+$/, '');
+    }
+  } catch {
+    return null;
+  }
+  if (!pathname.startsWith('/docs/')) return null;
+  const slug = pathname.slice('/docs/'.length);
+  return slug ? slug : null;
+}
+
+/**
+ * Canonical doc slug → breadcrumb segment titles from the menulinks tree (section + folders above the link).
+ * Used to show the same trail as the left nav under quick-search hits.
+ */
+function buildMenulinkSlugToParentPathMap(sections: NavSection[]): Map<string, string[]> {
+  const map = new Map<string, string[]>();
+  if (!sections?.length) return map;
+
+  const walk = (navItems: NavItem[], parentPath: string[]) => {
+    for (const item of navItems) {
+      const slug = item.href ? docsSlugFromDocsNavHref(item.href) : null;
+      if (slug) {
+        map.set(canonicalNavFilterKey(slug), [...parentPath]);
+      }
+      if (item.items?.length) {
+        walk(item.items, [...parentPath, item.title]);
+      }
+    }
+  };
+
+  for (const sec of sections) {
+    walk(sec.items, [sec.title]);
+  }
+  return map;
+}
+
+/** Overlay menulinks breadcrumb trail on search rows (fills docs-only rows and slug-merge gaps). */
+function applyMenulinkParentPathsToSearchRows(
+  rows: SearchableItem[],
+  sections: NavSection[]
+): SearchableItem[] {
+  const slugToPath = buildMenulinkSlugToParentPathMap(sections);
+  if (slugToPath.size === 0) return rows;
+
+  return rows.map((row) => {
+    const path = slugToPath.get(canonicalNavFilterKey(row.urlTitle));
+    if (!path || path.length === 0) return row;
+    return { ...row, parentPath: path };
+  });
+}
+
+/** Build quick-search rows from the same menulinks tree as the left nav (covers gaps if CMS list is empty). */
+function flattenNavSectionsForSearch(sections: NavSection[]): SearchableItem[] {
+  const out: SearchableItem[] = [];
+  if (!sections?.length) return out;
+
+  const walk = (navItems: NavItem[], parentPath: string[]) => {
+    for (const item of navItems) {
+      const slug = item.href ? docsSlugFromDocsNavHref(item.href) : null;
+      if (slug) {
+        const path = item.href!.split('?')[0];
+        out.push({
+          title: item.title,
+          navTitle: item.title,
+          urlTitle: slug,
+          tag: [],
+          seoDescription: '',
+          path: path.startsWith('/') ? path : `/docs/${slug}`,
+          parentPath: [...parentPath],
+        });
+      }
+      if (item.items?.length) {
+        walk(item.items, [...parentPath, item.title]);
+      }
+    }
+  };
+
+  for (const sec of sections) {
+    walk(sec.items, [sec.title]);
+  }
+  return out;
+}
+
+/**
+ * Merge menulinks-derived rows with CMS flat list. Never let a sparse GraphQL row wipe menulinks
+ * fields (spread used to replace rich `seoDescription` with `""`, killing matches like "sav" → Pages).
+ * Headline order: CMS title → CMS navTitle → menulinks labels.
+ */
+function mergeSearchableCorpus(
+  navDerived: SearchableItem[],
+  docsDerived: SearchableItem[]
+): SearchableItem[] {
+  const map = new Map<string, SearchableItem>();
+
+  for (const item of navDerived) {
+    map.set(canonicalNavFilterKey(item.urlTitle), { ...item });
+  }
+
+  for (const item of docsDerived) {
+    const k = canonicalNavFilterKey(item.urlTitle);
+    const prev = map.get(k);
+    if (!prev) {
+      map.set(k, { ...item });
+      continue;
+    }
+
+    map.set(k, {
+      urlTitle: item.urlTitle,
+      path: pickFirstNonEmptyString(item.path, prev.path) || `/docs/${item.urlTitle}`,
+      title: pickFirstNonEmptyString(
+        item.title,
+        item.navTitle,
+        prev.title,
+        prev.navTitle
+      ),
+      navTitle: pickFirstNonEmptyString(item.navTitle, prev.navTitle),
+      seoDescription: pickFirstNonEmptyString(item.seoDescription, prev.seoDescription),
+      tag:
+        item.tag && item.tag.length > 0
+          ? item.tag
+          : prev.tag && prev.tag.length > 0
+            ? prev.tag
+            : [],
+      parentPath:
+        item.parentPath && item.parentPath.length > 0
+          ? item.parentPath
+          : prev.parentPath,
+    });
+  }
+
+  return [...map.values()];
+}
+
+/**
+ * Lowercase + collapse whitespace (NBSP, tabs, double spaces) so substring and token
+ * checks match what authors type vs what CMS stores (common cause of "0 hits" on multi-word queries).
+ */
+function normalizeMatchText(raw: string | null | undefined): string {
+  if (raw == null) return '';
+  const s = typeof raw === 'string' ? raw : String(raw);
+  return s
+    .trim()
+    .toLowerCase()
+    .replace(/\u00a0/g, ' ')
+    .replace(/[\t\n\r\f\v]+/g, ' ')
+    .replace(/\s+/g, ' ');
+}
+
 // Calculate search score for an item
 function calculateScore(item: SearchableItem, query: string): { score: number; matchedFields: string[] } {
-  const lowerQuery = query.toLowerCase();
+  const normalizedQuery = normalizeMatchText(query);
+  if (!normalizedQuery || normalizedQuery.length < 2) {
+    return { score: 0, matchedFields: [] };
+  }
+
   let totalScore = 0;
   const matchedFields: string[] = [];
-  
+
   // Helper function to calculate field score
   const scoreField = (fieldValue: string | string[] | undefined, fieldName: string, weight: number) => {
-    if (!fieldValue) return 0;
-    
+    if (fieldValue == null) return 0;
+
     const values = Array.isArray(fieldValue) ? fieldValue : [fieldValue];
     let fieldScore = 0;
-    
-    values.forEach(value => {
-      const lowerValue = value.toLowerCase();
-      
+
+    values.forEach((value) => {
+      const lowerValue = normalizeMatchText(String(value));
+      if (!lowerValue) return;
+
       // Exact match gets full weight
-      if (lowerValue === lowerQuery) {
+      if (lowerValue === normalizedQuery) {
         fieldScore += weight;
         matchedFields.push(fieldName);
       }
       // Starts with query gets 80% weight
-      else if (lowerValue.startsWith(lowerQuery)) {
+      else if (lowerValue.startsWith(normalizedQuery)) {
         fieldScore += weight * 0.8;
         matchedFields.push(fieldName);
       }
       // Contains query gets 60% weight
-      else if (lowerValue.includes(lowerQuery)) {
+      else if (lowerValue.includes(normalizedQuery)) {
         fieldScore += weight * 0.6;
         matchedFields.push(fieldName);
       }
-      // Fuzzy match gets 30% weight (simple word boundary check)
-      else if (lowerValue.split(/\s+/).some(word => word.includes(lowerQuery))) {
+      // Fuzzy: any single word in the field fully contains the whole query (legacy single-token-ish)
+      else if (lowerValue.split(/\s+/).some((word) => word.includes(normalizedQuery))) {
         fieldScore += weight * 0.3;
         matchedFields.push(fieldName);
       }
     });
-    
+
     return fieldScore;
   };
-  
+
   // Score each field
   totalScore += scoreField(item.title, 'title', SEARCH_WEIGHTS.title);
   totalScore += scoreField(item.navTitle, 'navTitle', SEARCH_WEIGHTS.navTitle);
   totalScore += scoreField(item.urlTitle, 'urlTitle', SEARCH_WEIGHTS.urlTitle);
   totalScore += scoreField(item.tag, 'tag', SEARCH_WEIGHTS.tag);
   totalScore += scoreField(item.seoDescription, 'seoDescription', SEARCH_WEIGHTS.seoDescription);
-  
+
+  // Multi-word fallback: every (significant) token appears somewhere in the combined doc text.
+  // Substring across fields fails when words sit in different fields; whitespace normalization fixes CMS odd spaces.
+  if (totalScore === 0 && normalizedQuery.includes(' ')) {
+    const tokens = normalizedQuery.split(' ').filter(Boolean);
+    if (tokens.length >= 2) {
+      const longTokens = tokens.filter((t) => t.length >= 2);
+      const required = longTokens.length >= 2 ? longTokens : tokens;
+      const haystack = normalizeMatchText(
+        [item.title, item.navTitle, item.urlTitle, item.seoDescription, ...(item.tag ?? [])]
+          .filter((x) => x != null && String(x).trim() !== '')
+          .join(' ')
+      );
+      if (required.every((t) => haystack.includes(t))) {
+        totalScore += 52;
+        matchedFields.push('tokenMatch');
+      }
+    }
+  }
+
   return { score: totalScore, matchedFields: Array.from(new Set(matchedFields)) };
 }
 
@@ -225,7 +418,7 @@ function performSearch(items: SearchableItem[], query: string): SearchResult[] {
   return results
     .sort((a, b) => b.score - a.score)
     .filter((r) => {
-      const key = r.item.urlTitle;
+      const key = canonicalNavFilterKey(r.item.urlTitle);
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
@@ -273,94 +466,6 @@ function highlightMatch(text: string, query: string): React.ReactNode {
   }
   
   return <>{parts}</>;
-}
-
-// Transform API response to navigation sections
-function transformApiResponseToNavSections(apiData: ApiNavItem[]): NavSection[] {
-  if (!apiData || !Array.isArray(apiData)) {
-    return [];
-  }
-
-  // Simple transformation without visual metadata
-  return apiData
-    .filter(item => item.type === 'folder')
-    .sort((a, b) => a.order - b.order)
-    .map(section => ({
-      title: section.title,
-      items: transformApiItemsToNavItems(section.children || [])
-    }));
-}
-
-// Helper function to process link data according to user's rules
-function processLinkHref(linkData: ApiNavItem): string {
-  // If code is non-null, use /docs/{code}
-  if (linkData.code && linkData.code.trim() !== '') {
-    return `/docs/${linkData.code}`;
-  }
-  
-  // If code is null but href starts with https://, use that
-  if (linkData.href) {
-    if (linkData.href.startsWith('https://')) {
-      return linkData.href;
-    }
-    
-    // Otherwise, strip domain to make it relative
-    try {
-      const url = new URL(linkData.href);
-      return url.pathname + url.search + url.hash;
-    } catch (e) {
-      // If it's not a valid URL, treat it as already relative
-      return linkData.href;
-    }
-  }
-  
-  return '#'; // Fallback
-}
-
-// Transform API items (mixed folders and links) to navigation items
-function transformApiItemsToNavItems(items: ApiNavItem[]): NavItem[] {
-  if (!items || !Array.isArray(items)) {
-    return [];
-  }
-
-  return items
-    .sort((a, b) => a.order - b.order)
-    .map(item => {
-      if (item.type === 'folder') {
-        // Handle folder items
-        const navItem: NavItem = {
-          title: item.title,
-          href: '#'
-        };
-
-        // Recursively process children
-        if (item.children && item.children.length > 0) {
-          navItem.items = transformApiItemsToNavItems(item.children);
-        }
-
-        return navItem;
-      } else if (item.type === 'link') {
-        // Handle link items
-        const navItem: NavItem = {
-          title: item.title,
-          href: processLinkHref(item)
-        };
-
-        // Add target="_blank" if specified in the API
-        if (item.target === '_blank') {
-          navItem.target = '_blank';
-        }
-
-        return navItem;
-      }
-
-      // Fallback for unknown types
-      return {
-        title: item.title,
-        href: '#'
-      };
-    })
-    .filter(Boolean); // Remove any undefined items
 }
 
 // Helper function to find sections that should be auto-expanded
@@ -421,10 +526,12 @@ function isCurrentPageMatch(href: string, currentPath: string): boolean {
 
 const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({ 
   currentPath = '', 
+  navMenuSlug,
   isMobile = false,
   className = '',
   items = [],
-  initialSections
+  initialSections,
+  initialSectionsAllForPaths,
 }) => {
   // Indentation constants to align hierarchy consistently
   const TOP_LEVEL_LEFT_PADDING = 12; // px
@@ -433,6 +540,11 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
   const [openSections, setOpenSections] = useState<string[]>([]);
   const [tagline, setTagline] = useState("dot dot dot");
   const [navigationSections, setNavigationSections] = useState<NavSection[]>(() => (initialSections as unknown as NavSection[]) || []);
+  const [navigationSectionsForPaths, setNavigationSectionsForPaths] = useState<NavSection[]>(() => {
+    const full = (initialSectionsAllForPaths as unknown as NavSection[]) || [];
+    if (full.length > 0) return full;
+    return (initialSections as unknown as NavSection[]) || [];
+  });
   const [isLoading, setIsLoading] = useState(!initialSections);
   const [error, setError] = useState<string | null>(null);
   
@@ -445,10 +557,35 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
     setTagline(getRandomTagline());
   }, []);
 
-  // Flatten items for search (memoized for performance)
+  // Server re-fetches nav per slug; props update on client navigation but useState only uses the
+  // initializer on mount — keep local tree in sync.
+  useEffect(() => {
+    if (initialSections && initialSections.length > 0) {
+      setNavigationSections(initialSections as unknown as NavSection[]);
+      setIsLoading(false);
+      setError(null);
+    }
+  }, [initialSections]);
+
+  useEffect(() => {
+    if (initialSectionsAllForPaths && initialSectionsAllForPaths.length > 0) {
+      setNavigationSectionsForPaths(initialSectionsAllForPaths as unknown as NavSection[]);
+    }
+  }, [initialSectionsAllForPaths]);
+
+  const menulinksFull =
+    navigationSectionsForPaths.length > 0
+      ? navigationSectionsForPaths
+      : navigationSections;
+
+  // Flatten CMS doc list + menulinks tree so quick search stays available (flat GraphQL uses a non-zero limit).
+  // `menulinksFull` includes `showOnMenu: false` rows so quick-search cards get breadcrumb trails for every linked doc.
   const searchableItems = useMemo(() => {
-    return flattenItems(items);
-  }, [items]);
+    const fromDocs = flattenItems(items);
+    const fromNav = flattenNavSectionsForSearch(menulinksFull);
+    const merged = mergeSearchableCorpus(fromNav, fromDocs);
+    return applyMenulinkParentPathsToSearchRows(merged, menulinksFull);
+  }, [items, menulinksFull]);
 
   // Handle search with debouncing
   useEffect(() => {
@@ -478,11 +615,14 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
         setError(null);
         const response = await fetchNavData({
           path: '/docs/nav',
-          depth: 4,
-          languageId: 1
+          depth: Config.NavMenuDepth,
+          languageId: 1,
+          navMenuSlug,
         });
         if (response.nav && response.nav.children) {
-          const transformedSections = transformApiResponseToNavSections(response.nav.children);
+          const transformedSections = transformApiResponseToNavSections(
+            response.nav.children as ApiNavItem[]
+          );
           if (transformedSections.length > 0) {
             setNavigationSections(transformedSections);
           } else {
@@ -493,6 +633,13 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
           console.warn('No children in API response');
           setError('Invalid navigation structure');
         }
+        if (response.navAllForPaths?.children?.length) {
+          setNavigationSectionsForPaths(
+            transformApiResponseToNavSections(
+              response.navAllForPaths.children as ApiNavItem[]
+            )
+          );
+        }
       } catch (err) {
         console.error('Error fetching navigation data:', err);
         setError('Failed to load navigation');
@@ -501,7 +648,7 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
       }
     };
     fetchNavigationData();
-  }, [initialSections]);
+  }, [initialSections, navMenuSlug]);
 
   // Auto-expand sections containing the current page
   useEffect(() => {
@@ -692,7 +839,7 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
           >
             <div className="flex flex-col space-y-2">
               <div className="font-semibold text-sm text-foreground">
-                {highlightMatch(result.item.title, searchQuery)}
+                {highlightMatch(getSearchResultHeadline(result.item), searchQuery)}
               </div>
               
               {result.item.parentPath && result.item.parentPath.length > 0 && (

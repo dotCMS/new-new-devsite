@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState, useEffect } from "react";
-import Breadcrumbs from "@/components/navigation/Breadcrumbs.js";
+import Breadcrumbs from "@/components/navigation/Breadcrumbs";
 import type { TDeprecation } from "@/services/docs/getDeprecations/types";
 import OnThisPage from "../navigation/OnThisPage";
 import { DeprecationCard } from "./DeprecationCard";
@@ -16,9 +16,11 @@ import {
 } from "@/components/ui/pagination";
 import { useDeprecations, type StatusFilter } from "@/hooks/useDeprecations";
 import { useSearchParams, useRouter } from "next/navigation";
+import type { NavSection } from "@/util/navTransform";
 
 type Props = {
   sideNav: any[];
+  navSections?: NavSection[];
   slug: string;
   initialItems?: TDeprecation[];
 };
@@ -57,7 +59,7 @@ function isValidDeprecation(item: TDeprecation): boolean {
   );
 }
 
-export default function Deprecations({ sideNav, slug, initialItems }: Props) {
+export default function Deprecations({ sideNav, navSections, slug, initialItems }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -133,7 +135,9 @@ export default function Deprecations({ sideNav, slug, initialItems }: Props) {
       >
         <Breadcrumbs
           items={sideNav[0]?.dotcmsdocumentationchildren || []}
+          navSections={navSections}
           slug={slug}
+          childrenKey="dotcmsdocumentationchildren"
         />
 
         <div className="markdown-content">
