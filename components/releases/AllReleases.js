@@ -8,7 +8,7 @@ import { Search } from "lucide-react";
 import { useState, useEffect } from "react";
 import { FilterReleases } from "@/services/docs/getReleases/types";
 
-export default function AllReleases({ sideNav, slug }) {
+export default function AllReleases({ sideNav, navSections, slug }) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [version, setVersion] = useState("");
@@ -60,6 +60,7 @@ export default function AllReleases({ sideNav, slug }) {
                 >
                     <Breadcrumbs
                         items={sideNav[0]?.dotcmsdocumentationchildren || []}
+                        navSections={navSections}
                         slug={slug}
                         childrenKey="dotcmsdocumentationchildren"
                     />

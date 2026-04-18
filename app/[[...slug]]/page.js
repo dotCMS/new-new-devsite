@@ -2,6 +2,8 @@ import { PageAsset } from "@/components/page-asset";
 import { ErrorPage } from "@/components/error";
 import { getDotCMSPage } from "@/util/getDotCMSPage";
 import { getNavSections } from "@/services/docs/getNavSections";
+import { Config } from "@/util/config";
+import { docsUrlToMenuSlug } from "@/util/navTransform";
 import { getSideNav } from "@/services/docs/getSideNav";
 import { BlockPageAsset } from "@/components/page-asset-with-content-block";
 /**
@@ -75,10 +77,18 @@ export default async function Page({ params }) {
 
     if (isBlockPage) {
         // Fetch navigation data (reuse cached nav sections instead of separate API call)
-        const [searchData, navSections] = await Promise.all([
+        const menuSlug = docsUrlToMenuSlug(path);
+        const [searchData, navBundle] = await Promise.all([
             getSideNav(),
-            getNavSections({ path: '/docs/nav', depth: 4, languageId: 1, ttlSeconds: 600 })
+            getNavSections({
+                path: '/docs/nav',
+                depth: Config.NavMenuDepth,
+                languageId: 1,
+                currentSlug: menuSlug,
+            }),
         ]);
+        const navSections = navBundle.sections;
+        const navSectionsAllForPaths = navBundle.sectionsAllForPaths;
 
         // Extract the first segment of the URL to find the matching nav section
         const pathParts = pageAsset?.page?.url.split("/").filter(part => part.length > 0);
@@ -86,7 +96,7 @@ export default async function Page({ params }) {
 
         // Find the nav section that matches the current page's top-level folder
         // e.g., for "/getting-started/back-end/setup", find the "Getting Started" section
-        const matchingSection = navSections?.find(section => {
+        const matchingSection = navSections.find(section => {
             // Normalize section title to match URL segment
             // e.g., "Getting Started" -> "getting-started"
             const normalizedTitle = section.title.toLowerCase().replace(/\s+/g, '-');
@@ -102,6 +112,8 @@ export default async function Page({ params }) {
                 nav={navItems}
                 searchItems={searchData[0]?.dotcmsdocumentationchildren || []}
                 navSections={navSections}
+                navSectionsAllForPaths={navSectionsAllForPaths}
+                navMenuSlug={menuSlug}
             />
         );
     }

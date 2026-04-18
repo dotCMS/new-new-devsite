@@ -10,7 +10,7 @@ declare global {
 // Only initialize caches on the server side using globalThis
 if (typeof globalThis !== 'undefined' && typeof window === 'undefined') {
     if (!(globalThis as any).navCache?.instance) {
-        (globalThis as any).navCache = { instance: new NodeCache({ stdTTL: 3600, checkperiod: 120 }) };
+        (globalThis as any).navCache = { instance: new NodeCache({ stdTTL: 1200, checkperiod: 120 }) };
     }
     if (!(globalThis as any).graphCache?.instance) {
         (globalThis as any).graphCache = { instance: new NodeCache({ stdTTL: 600, checkperiod: 30 }) };
@@ -22,7 +22,7 @@ if (typeof globalThis !== 'undefined' && typeof window === 'undefined') {
         (globalThis as any).pageCache = { instance: new NodeCache({ stdTTL: 300, checkperiod: 30 }) };
     }
 }
-export const navCache: NodeCache = (globalThis as any).navCache?.instance || new NodeCache({ stdTTL: 3600, checkperiod: 120 });
+export const navCache: NodeCache = (globalThis as any).navCache?.instance || new NodeCache({ stdTTL: 1200, checkperiod: 120 });
 export const graphCache: NodeCache = (globalThis as any).graphCache?.instance || new NodeCache({ stdTTL: 600, checkperiod: 30 });
 export const vanityCache: NodeCache = (globalThis as any).vanityCache?.instance || new NodeCache({ stdTTL: 600, checkperiod: 60 });
 export const pageCache: NodeCache = (globalThis as any).pageCache?.instance || new NodeCache({ stdTTL: 300, checkperiod: 30 });

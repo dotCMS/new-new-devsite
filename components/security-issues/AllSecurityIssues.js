@@ -8,7 +8,7 @@ import { Search } from "lucide-react";
 import { useState, useEffect } from "react";
 import { SecurityOrderBy,TSecurityIssue } from '@/services/docs/getSecurityIssues/types';
 import { SecurityIssueDetail } from "./SecurityIssueDetail";
-export default function AllSecurityIssues({ sideNav, slug }) {
+export default function AllSecurityIssues({ sideNav, navSections, slug }) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [page, setPage] = useState(1);
@@ -52,6 +52,7 @@ export default function AllSecurityIssues({ sideNav, slug }) {
                 >
                     <Breadcrumbs
                         items={breadcrumbs}
+                        navSections={navSections}
                         slug={slug}
                         appendItems={appendItems}
                         childrenKey="dotcmsdocumentationchildren"

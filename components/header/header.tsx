@@ -26,7 +26,11 @@ import LogoWithArrow from "./Logo/LogoWithArrow";
 type HeaderProps = {
   sideNavItems?: any[];
   currentPath?: string;
+  /** Docs slug for menulinks nav filtering on client refetch; omit on persona / non-docs. */
+  navMenuSlug?: string;
   navSections?: NavSection[];
+  /** Full menulinks tree for quick-search breadcrumbs (includes `showOnMenu: false`). */
+  navSectionsAllForPaths?: NavSection[];
 };
 
 const GETTING_STARTED_NAV_ITEM_VALUE = "getting-started-nav";
@@ -37,7 +41,35 @@ type HeaderDesktopNavMenuProps = {
   setCurrentOpenMenu: React.Dispatch<React.SetStateAction<string | undefined>>;
 };
 
-/** Module-level component so Radix useId order matches between SSR and hydration (avoid defining components inside Header). */
+/**
+ * Radix NavigationMenu generates `useId`-based ids that can differ between SSR and the
+ * client’s first paint (Next 15 + streaming). Render the real menu only after mount so
+ * hydration compares a stable placeholder to itself, then swap in Radix.
+ */
+function DeferredHeaderDesktopNavMenu(props: HeaderDesktopNavMenuProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  if (!mounted) {
+    return (
+      <nav
+        className="flex h-10 min-h-10 min-w-[min(100%,36rem)] items-center gap-2"
+        aria-label="Main menu"
+        aria-busy="true"
+      >
+        <span className="inline-block h-9 w-28 rounded-md bg-muted/40" />
+        <span className="inline-block h-9 w-14 rounded-md bg-muted/30" />
+        <span className="inline-block h-9 w-36 rounded-md bg-muted/30" />
+        <span className="inline-block h-9 w-24 rounded-md bg-muted/40" />
+        <span className="inline-block h-9 w-24 rounded-md bg-muted/40" />
+      </nav>
+    );
+  }
+  return <HeaderDesktopNavMenu {...props} />;
+}
+
+/** Module-level component so Radix collection order stays stable (avoid defining inside Header). */
 function HeaderDesktopNavMenu({ currentOpenMenu, setCurrentOpenMenu }: HeaderDesktopNavMenuProps) {
   return (
     <NavigationMenu
@@ -266,7 +298,7 @@ const ListItem = React.forwardRef<
 });
 ListItem.displayName = "ListItem";
 
-export default function Header({ sideNavItems, currentPath, navSections }: HeaderProps) {
+export default function Header({ sideNavItems, currentPath, navSections, navSectionsAllForPaths, navMenuSlug }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showBackArrow, setShowBackArrow] = useState(false);
@@ -336,7 +368,7 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
           <LogoWithArrow />
           
           <div className="hidden lg:flex items-center space-x-2">
-            <HeaderDesktopNavMenu
+            <DeferredHeaderDesktopNavMenu
               currentOpenMenu={currentOpenMenu}
               setCurrentOpenMenu={setCurrentOpenMenu}
             />
@@ -399,9 +431,11 @@ export default function Header({ sideNavItems, currentPath, navSections }: Heade
                   </div>
                   <RedesignedNavTree
                     currentPath={currentPath}
+                    navMenuSlug={navMenuSlug}
                     items={sideNavItems}
                     isMobile={true}
                     initialSections={navSections}
+                    initialSectionsAllForPaths={navSectionsAllForPaths}
                   />
                 </div>
               )}

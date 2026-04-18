@@ -1,15 +1,13 @@
 /**
  * Persona hub pages: curated doc links and section narratives.
  *
- * `href` values use the same `code` slugs as the docs nav API (`/api/v1/nav/docs/nav`),
+ * `href` values use the same `code` slugs as docs nav (menulinks → `filterApiNavForMenuAndSlug`),
  * which resolve to `/docs/{code}` (see `util/navTransform.ts` and QuickSearch in
  * `RedesignedNavTree.tsx`). Align with `components/navigation/fallback.json` when the API
  * is unavailable.
  *
- * Set DOTCMS_NAV_DEBUG=1 to log nav payloads from `getNavSections` / `getSideNav`.
- *
  * Section narratives synthesize `seoDescription` text from the DotcmsDocumentation tree
- * (same GraphQL as `getSideNav`). Reword lightly for flow; update when CMS metadata changes.
+ * (same flat `DotcmsDocumentation` fields as `getSideNav` quick-search data). Reword when CMS metadata changes.
  */
 
 export type PersonaId = "developer" | "authoring" | "devops";
