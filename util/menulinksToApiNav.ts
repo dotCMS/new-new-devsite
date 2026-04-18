@@ -177,14 +177,127 @@ function getOrCreateFolderChild(parent: ApiNavItem, segmentKey: string, orderHin
   return f;
 }
 
+function compareNavSiblings(a: ApiNavItem, b: ApiNavItem): number {
+  if (a.order !== b.order) return a.order - b.order;
+  return a.title.localeCompare(b.title);
+}
+
 function sortTreeRecursive(node: ApiNavItem): void {
-  node.children.sort((a, b) => {
-    if (a.order !== b.order) return a.order - b.order;
-    return a.title.localeCompare(b.title);
-  });
+  node.children.sort(compareNavSiblings);
   for (const c of node.children) {
     if (c.type === "folder") sortTreeRecursive(c);
   }
+}
+
+/** Re-sort siblings after mutating folder `order` (e.g. Nav API overlay). */
+export function resortMenulinksDerivedTree(items: ApiNavItem[]): void {
+  items.sort(compareNavSiblings);
+  for (const c of items) {
+    if (c.type === "folder") sortTreeRecursive(c);
+  }
+}
+
+export type NavFolderOverlayEntry = { order: number; title: string };
+
+/** Path under `navRoot`: `development/apis` (no leading slash, lowercased). */
+export function navHrefToFolderOverlayKey(
+  href: string | undefined,
+  navRoot: string
+): string | null {
+  const h = href?.trim();
+  if (!h) return null;
+  let pathname = h;
+  if (/^https?:\/\//i.test(h) || h.startsWith("//")) {
+    try {
+      pathname = new URL(h.startsWith("//") ? `https:${h}` : h).pathname;
+    } catch {
+      return null;
+    }
+  }
+  const p = pathname.replace(/\/+$/, "");
+  const root = navRoot.trim().replace(/\/+$/, "");
+  const normRoot = root.toLowerCase();
+  const idx = p.toLowerCase().indexOf(normRoot);
+  if (idx === -1) return null;
+  const rest = p.slice(idx + root.length).replace(/^\/+/, "").replace(/\/+$/, "");
+  return rest.length > 0 ? rest.toLowerCase() : null;
+}
+
+function collectNavFolderOverlay(
+  nodes: ApiNavItem[] | undefined,
+  navRoot: string,
+  out: Map<string, NavFolderOverlayEntry>
+): void {
+  if (!nodes?.length) return;
+  for (const n of nodes) {
+    if (n.type === "folder") {
+      const key = navHrefToFolderOverlayKey(n.href, navRoot);
+      if (key) {
+        out.set(key, {
+          order: Number(n.order) || 0,
+          title: (n.title ?? "").trim(),
+        });
+      }
+      collectNavFolderOverlay(n.children, navRoot, out);
+    }
+  }
+}
+
+/**
+ * Folder path → CMS `order` and display title from `GET /api/v1/nav` (menulinks-only trees lack
+ * Nav Tool folder metadata; synthetic titles would otherwise come from slug segments, e.g. "Apis").
+ */
+export function extractNavApiFolderOverlay(
+  navApiJson: unknown,
+  navRoot: string
+): Map<string, NavFolderOverlayEntry> {
+  const out = new Map<string, NavFolderOverlayEntry>();
+  if (!navApiJson || typeof navApiJson !== "object") return out;
+  const children = (navApiJson as { entity?: { children?: ApiNavItem[] } }).entity?.children;
+  if (Array.isArray(children)) {
+    collectNavFolderOverlay(children, navRoot, out);
+  }
+  return out;
+}
+
+/** Mutates menulinks-built folders whose `code` is `.nav.<segment>` (see {@link folderMarker}). */
+export function applyNavFolderOverlayToMenulinksTree(
+  items: ApiNavItem[],
+  overlay: Map<string, NavFolderOverlayEntry>
+): void {
+  const walk = (nodes: ApiNavItem[], pathPrefix: string): void => {
+    for (const node of nodes) {
+      if (node.type !== "folder") continue;
+      const code = node.code ?? "";
+      if (!code.startsWith(".nav.")) {
+        walk(node.children ?? [], pathPrefix);
+        continue;
+      }
+      const seg = code.slice(".nav.".length);
+      const key = pathPrefix ? `${pathPrefix}/${seg}` : seg;
+      const low = key.toLowerCase();
+      const meta = overlay.get(low);
+      if (meta) {
+        node.order = meta.order;
+        if (meta.title) node.title = meta.title;
+      }
+      walk(node.children ?? [], low);
+    }
+  };
+  walk(items, "");
+}
+
+/** Same path pattern as legacy `getNavSections`: `/api/v1/nav/docs/nav?depth=…&languageId=…`. */
+export function buildNavApiUrl(
+  dotcmsHost: string,
+  navPath: string,
+  depth: number,
+  languageId: number
+): string {
+  const base = dotcmsHost.replace(/\/+$/, "");
+  const p = navPath.startsWith("/") ? navPath : `/${navPath}`;
+  const d = Math.max(1, depth);
+  return `${base}/api/v1/nav${p}?depth=${d}&languageId=${languageId}`;
 }
 
 /**

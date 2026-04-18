@@ -1,7 +1,14 @@
 import { Config } from "./config";
 import { client } from "./dotcmsClient";
 import { navCache, getCacheKey } from "./cacheService";
-import { buildMenulinksUrl, navPayloadToApiNavTree } from "./menulinksToApiNav";
+import {
+    applyNavFolderOverlayToMenulinksTree,
+    buildMenulinksUrl,
+    buildNavApiUrl,
+    extractNavApiFolderOverlay,
+    navPayloadToApiNavTree,
+    resortMenulinksDerivedTree,
+} from "./menulinksToApiNav";
 import { filterApiNavForMenuAndSlug, filterApiNavKeepAllLeaves } from "./navTransform";
 
 export const fetchPageData = async (params) => {
@@ -27,26 +34,45 @@ export const fetchNavData = async (dataIn) => {
     const depth = dataIn.depth ?? Config.NavMenuDepth;
     const navMenuSlug = dataIn.navMenuSlug ?? dataIn.currentSlug;
 
+    const navOverlayDepth = Config.NavFolderOverlayDepth;
+    const languageId = Config.LanguageId ?? 1;
     const rawCacheKey = getCacheKey(
-        `menulinks|${Config.NavSiteId}|${folderPath}|${depth}|tree`
+        `menulinks|${Config.NavSiteId}|${folderPath}|${depth}|nav${navOverlayDepth}|tree`
     );
 
     let tree = navCache.get(rawCacheKey);
 
     const menulinksUrl = buildMenulinksUrl(Config.DotCMSHost, Config.NavSiteId, folderPath, depth);
+    const navUrl = buildNavApiUrl(Config.DotCMSHost, folderPath, navOverlayDepth, languageId);
 
     try {
         if (!tree) {
-            const res = await fetch(menulinksUrl, {
-                method: "GET",
-                headers: Config.Headers,
-            });
-            if (!res.ok) {
-                console.warn("Menulinks fetch failed:", res.status, menulinksUrl);
+            const [mlRes, navRes] = await Promise.all([
+                fetch(menulinksUrl, {
+                    method: "GET",
+                    headers: Config.Headers,
+                }),
+                fetch(navUrl, {
+                    method: "GET",
+                    headers: Config.Headers,
+                }),
+            ]);
+            if (!mlRes.ok) {
+                console.warn("Menulinks fetch failed:", mlRes.status, menulinksUrl);
                 return { nav: null, navAllForPaths: null };
             }
-            const json = await res.json();
+            const json = await mlRes.json();
             tree = navPayloadToApiNavTree(json, folderPath);
+            if (navRes.ok) {
+                try {
+                    const navJson = await navRes.json();
+                    const overlay = extractNavApiFolderOverlay(navJson, folderPath);
+                    applyNavFolderOverlayToMenulinksTree(tree, overlay);
+                    resortMenulinksDerivedTree(tree);
+                } catch (navErr) {
+                    console.warn("Nav folder overlay failed — using menulinks-only folders", navErr);
+                }
+            }
             if (tree && tree.length > 0) {
                 navCache.set(rawCacheKey, tree, cacheTTL);
             }
