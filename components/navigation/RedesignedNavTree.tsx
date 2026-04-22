@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ChevronDown, ChevronRight, BookOpen, HelpCircle, Search, X } from 'lucide-react';
+import { ChevronDown, ChevronRight, BookOpen, HelpCircle } from 'lucide-react';
 import { cn } from '@/util/utils';
 import { fetchNavData } from '@/util/page.utils';
 import { type NavSection as ServerNavSection } from '@/util/navTransform';
@@ -25,25 +25,7 @@ interface RedesignedNavTreeProps {
   currentPath?: string;
   isMobile?: boolean;
   className?: string;
-  items?: any[]; // Rich old nav data for search
   initialSections?: ServerNavSection[]; // Server-fetched, transformed nav sections
-}
-
-// Search-related interfaces
-interface SearchableItem {
-  title: string;
-  navTitle?: string;
-  urlTitle: string;
-  tag?: string[];
-  seoDescription?: string;
-  path: string;
-  parentPath?: string[];
-}
-
-interface SearchResult {
-  item: SearchableItem;
-  score: number;
-  matchedFields: string[];
 }
 
 interface NavApiResponse {
@@ -64,8 +46,6 @@ interface ApiNavItem {
   target?: string;
   children: ApiNavItem[];
 }
-
-const MAX_QUICK_SEARCH_RESULTS = 20;
 
 // Quippy taglines for the navigation header
 const NAVIGATION_TAGLINES = [
@@ -89,190 +69,6 @@ const NAVIGATION_TAGLINES = [
 function getRandomTagline(): string {
   const randomIndex = Math.floor(Math.random() * NAVIGATION_TAGLINES.length);
   return NAVIGATION_TAGLINES[randomIndex];
-}
-
-// Search functionality
-const SEARCH_WEIGHTS = {
-  title: 100,
-  navTitle: 90,
-  urlTitle: 60,
-  tag: 50,
-  seoDescription: 20
-};
-
-// Flatten nested items structure for search (handles both docs and nav API data)
-function flattenItems(items: any[], parentPath: string[] = []): SearchableItem[] {
-  const flattened: SearchableItem[] = [];
-  
-  if (!items || !Array.isArray(items)) return flattened;
-  
-  items.forEach(item => {
-    // Handle documentation API structure (getSideNav data)
-    if (item.urlTitle) {
-      const searchableItem: SearchableItem = {
-        title: item.title || item.navTitle || '',
-        navTitle: item.navTitle,
-        urlTitle: item.urlTitle,
-        tag: item.tag,
-        seoDescription: item.seoDescription,
-        path: `/docs/${item.urlTitle}`,
-        parentPath: [...parentPath]
-      };
-      
-      flattened.push(searchableItem);
-    }
-    
-    // Handle navigation API structure (fetchNavData data) - links and pages
-    else if ((item.type === 'link' || item.type === 'page') && (item.code || item.href)) {
-      const urlTitle = item.code || (item.href ? item.href.split('/').pop() : '');
-      if (urlTitle) {
-        const searchableItem: SearchableItem = {
-          title: item.title || '',
-          navTitle: item.title,
-          urlTitle: urlTitle,
-          tag: item.tag || [],
-          seoDescription: item.seoDescription || '',
-          path: item.code ? `/docs/${item.code}` : item.href || '#',
-          parentPath: [...parentPath]
-        };
-        
-        flattened.push(searchableItem);
-      }
-    }
-    
-    // Recursively process children (both API structures)
-    const children = item.dotcmsdocumentationchildren || item.children;
-    if (children && children.length > 0) {
-      const childPath = item.title ? [...parentPath, item.title] : parentPath;
-      flattened.push(...flattenItems(children, childPath));
-    }
-  });
-  
-  return flattened;
-}
-
-// Calculate search score for an item
-function calculateScore(item: SearchableItem, query: string): { score: number; matchedFields: string[] } {
-  const lowerQuery = query.toLowerCase();
-  let totalScore = 0;
-  const matchedFields: string[] = [];
-  
-  // Helper function to calculate field score
-  const scoreField = (fieldValue: string | string[] | undefined, fieldName: string, weight: number) => {
-    if (!fieldValue) return 0;
-    
-    const values = Array.isArray(fieldValue) ? fieldValue : [fieldValue];
-    let fieldScore = 0;
-    
-    values.forEach(value => {
-      const lowerValue = value.toLowerCase();
-      
-      // Exact match gets full weight
-      if (lowerValue === lowerQuery) {
-        fieldScore += weight;
-        matchedFields.push(fieldName);
-      }
-      // Starts with query gets 80% weight
-      else if (lowerValue.startsWith(lowerQuery)) {
-        fieldScore += weight * 0.8;
-        matchedFields.push(fieldName);
-      }
-      // Contains query gets 60% weight
-      else if (lowerValue.includes(lowerQuery)) {
-        fieldScore += weight * 0.6;
-        matchedFields.push(fieldName);
-      }
-      // Fuzzy match gets 30% weight (simple word boundary check)
-      else if (lowerValue.split(/\s+/).some(word => word.includes(lowerQuery))) {
-        fieldScore += weight * 0.3;
-        matchedFields.push(fieldName);
-      }
-    });
-    
-    return fieldScore;
-  };
-  
-  // Score each field
-  totalScore += scoreField(item.title, 'title', SEARCH_WEIGHTS.title);
-  totalScore += scoreField(item.navTitle, 'navTitle', SEARCH_WEIGHTS.navTitle);
-  totalScore += scoreField(item.urlTitle, 'urlTitle', SEARCH_WEIGHTS.urlTitle);
-  totalScore += scoreField(item.tag, 'tag', SEARCH_WEIGHTS.tag);
-  totalScore += scoreField(item.seoDescription, 'seoDescription', SEARCH_WEIGHTS.seoDescription);
-  
-  return { score: totalScore, matchedFields: Array.from(new Set(matchedFields)) };
-}
-
-// Perform search
-function performSearch(items: SearchableItem[], query: string): SearchResult[] {
-  if (!query.trim() || query.length < 2) return [];
-  
-  const results: SearchResult[] = [];
-  
-  items.forEach(item => {
-    const { score, matchedFields } = calculateScore(item, query);
-    
-    if (score > 0) {
-      results.push({
-        item,
-        score,
-        matchedFields
-      });
-    }
-  });
-  
-  // Sort by score (highest first), deduplicate by urlTitle (keep highest-ranked only), then limit
-  const seen = new Set<string>();
-  return results
-    .sort((a, b) => b.score - a.score)
-    .filter((r) => {
-      const key = r.item.urlTitle;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    })
-    .slice(0, MAX_QUICK_SEARCH_RESULTS);
-}
-
-// Highlight matching text in search results
-function highlightMatch(text: string, query: string): React.ReactNode {
-  if (!query.trim()) return text;
-  
-  const lowerText = text.toLowerCase();
-  const lowerQuery = query.toLowerCase();
-  
-  if (!lowerText.includes(lowerQuery)) return text;
-  
-  const parts: React.ReactNode[] = [];
-  let lastIndex = 0;
-  
-  // Find all matches
-  let index = lowerText.indexOf(lowerQuery, lastIndex);
-  while (index !== -1) {
-    // Add text before match
-    if (index > lastIndex) {
-      parts.push(text.slice(lastIndex, index));
-    }
-    
-    // Add highlighted match
-    parts.push(
-      <mark 
-        key={`match-${index}`} 
-        className="bg-primary/20 text-primary font-medium rounded px-0.5"
-      >
-        {text.slice(index, index + query.length)}
-      </mark>
-    );
-    
-    lastIndex = index + query.length;
-    index = lowerText.indexOf(lowerQuery, lastIndex);
-  }
-  
-  // Add remaining text
-  if (lastIndex < text.length) {
-    parts.push(text.slice(lastIndex));
-  }
-  
-  return <>{parts}</>;
 }
 
 // Transform API response to navigation sections
@@ -423,7 +219,6 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
   currentPath = '', 
   isMobile = false,
   className = '',
-  items = [],
   initialSections
 }) => {
   // Indentation constants to align hierarchy consistently
@@ -435,37 +230,11 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
   const [navigationSections, setNavigationSections] = useState<NavSection[]>(() => (initialSections as unknown as NavSection[]) || []);
   const [isLoading, setIsLoading] = useState(!initialSections);
   const [error, setError] = useState<string | null>(null);
-  
-  // Search state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
   // Set random tagline on client-side to avoid hydration mismatch
   useEffect(() => {
     setTagline(getRandomTagline());
   }, []);
-
-  // Flatten items for search (memoized for performance)
-  const searchableItems = useMemo(() => {
-    return flattenItems(items);
-  }, [items]);
-
-  // Handle search with debouncing
-  useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      if (searchQuery.trim().length >= 2) {
-        const results = performSearch(searchableItems, searchQuery);
-        setSearchResults(results);
-      } else {
-        setSearchResults([]);
-      }
-    }, 200);
-
-    return () => clearTimeout(debounceTimer);
-  }, [searchQuery, searchableItems]);
-
-  // Show overlay when user is actively searching (2+ characters)
-  const shouldShowOverlay = searchQuery.trim().length >= 2;
 
   // Fetch navigation data from API only if no server-provided sections were given
   useEffect(() => {
@@ -510,30 +279,6 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
       setOpenSections(sectionsToExpand);
     }
   }, [navigationSections, currentPath]);
-
-  // Search handlers
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  }, []);
-
-  const handleSearchClear = useCallback(() => {
-    setSearchQuery('');
-    setSearchResults([]);
-  }, []);
-
-  const handleSuggestionSelect = useCallback((result: SearchResult) => {
-    setSearchQuery('');
-    setSearchResults([]);
-    // Navigation will be handled by Next.js Link component
-  }, []);
-
-  const handleSearchBlur = useCallback(() => {
-    // Don't auto-hide overlay on blur to allow scrolling through results
-  }, []);
-
-  const handleSearchFocus = useCallback(() => {
-    // Focus handler - overlay shows automatically when there are results
-  }, []);
 
   const toggleSection = useCallback((sectionId: string) => {
     setOpenSections((prev: string[]) => 
@@ -655,64 +400,6 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
     );
   }, [openSections, toggleSection, isParentActive, renderNavItem]);
 
-  // Render search results for overlay mode
-  const renderSearchOverlay = useCallback(() => {
-    if (searchResults.length === 0) {
-      return (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <Search className="w-12 h-12 text-muted-foreground mb-4" />
-          <div className="text-lg font-semibold text-foreground mb-2">
-            No results found
-          </div>
-          <div className="text-sm text-muted-foreground">
-            No results found for &quot;{searchQuery}&quot;
-          </div>
-          <div className="text-xs text-muted-foreground mt-2">
-            Try different keywords or check spelling
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="space-y-1">
-        <div className="text-xs text-muted-foreground px-3 py-2 sticky top-0 bg-background border-b border-border/50">
-          Found {searchResults.length} result{searchResults.length === 1 ? '' : 's'} for &quot;{searchQuery}&quot;
-        </div>
-        
-        {searchResults.map((result, index) => (
-          <Link
-            key={`${result.item.urlTitle}-${index}`}
-            href={result.item.path}
-            onClick={() => handleSuggestionSelect(result)}
-            className={cn(
-              "block mx-3 p-4 rounded-lg hover:bg-muted transition-colors border border-border/30 hover:border-border",
-              "focus:outline-none focus:bg-muted focus:border-primary"
-            )}
-          >
-            <div className="flex flex-col space-y-2">
-              <div className="font-semibold text-sm text-foreground">
-                {highlightMatch(result.item.title, searchQuery)}
-              </div>
-              
-              {result.item.parentPath && result.item.parentPath.length > 0 && (
-                <div className="text-xs text-primary font-medium">
-                  {result.item.parentPath.join(' › ')}
-                </div>
-              )}
-              
-              {result.item.seoDescription && (
-                <div className="text-sm text-muted-foreground line-clamp-3">
-                  {highlightMatch(result.item.seoDescription, searchQuery)}
-                </div>
-              )}
-            </div>
-          </Link>
-        ))}
-      </div>
-    );
-  }, [searchResults, searchQuery, handleSuggestionSelect]);
-
   const mobileStyles = isMobile
     ? "pt-4"
     : "max-h-[calc(100vh-4rem)] sticky top-16 pt-8";
@@ -744,44 +431,9 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
           </div>
         </div>
 
-        {/* Search Section */}
-        {searchableItems.length > 0 && (
-          <div className="mb-6 px-3 relative">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Quick search..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                onBlur={handleSearchBlur}
-                onFocus={handleSearchFocus}
-                className={cn(
-                  "w-full pl-10 pr-10 py-2 text-sm rounded-lg border",
-                  "bg-background border-border",
-                  "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary",
-                  "placeholder:text-muted-foreground",
-                  shouldShowOverlay && "ring-2 ring-primary/20 border-primary bg-primary/5"
-                )}
-              />
-              {searchQuery && (
-                <button
-                  onClick={handleSearchClear}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Content Area: Either Search Results (Overlay Mode) or Navigation Sections */}
+        {/* Navigation sections */}
         <div>
-          {shouldShowOverlay ? (
-            // Search Overlay Mode - Replace entire navigation with search results
-            renderSearchOverlay()
-          ) : isLoading ? (
+          {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
               <span className="ml-2 text-sm text-muted-foreground">Loading navigation...</span>

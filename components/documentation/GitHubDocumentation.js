@@ -3,6 +3,9 @@
 import React from "react";
 import { ExternalLink, Github, Zap } from "lucide-react";
 
+import { useAssistant } from "@/components/chat/AssistantProvider";
+import { useContentColumnWideLayout } from "@/hooks/useHeaderWideNav";
+import { cn } from "@/util/utils";
 import Breadcrumbs from "@/components/navigation/Breadcrumbs";
 import MarkdownContent from "@/components/MarkdownContent";
 import OnThisPage from "../navigation/OnThisPage";
@@ -10,6 +13,12 @@ import Warn from "../mdx/Warn";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
+  const { open: assistantOpen, expanded: assistantExpanded } = useAssistant();
+  const showWideColumn = useContentColumnWideLayout(
+    assistantOpen,
+    assistantExpanded
+  );
+
   if (!contentlet || !sideNav) {
     return <div>Loading...</div>;
   }
@@ -37,7 +46,7 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
 
   return (
     <>
-      <div className="flex flex-col lg:flex-row w-full max-w-[1400px] mx-auto">
+      <div className="flex flex-col lg:flex-row w-full min-w-0 max-w-[1400px] mx-auto">
         {/* Main Content Area */}
         <main className="flex-1 min-w-0 py-8 lg:pb-12 px-0 sm:px-0 lg:px-8
           [&::-webkit-scrollbar]:w-1.5
@@ -178,8 +187,13 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
           </div>
         </main>
 
-        {/* Right Sidebar - Hide on smaller screens */}
-        <div className="w-64 shrink-0 hidden xl:block">
+        {/* Right Sidebar — effective width (viewport − assistant), not raw xl breakpoint */}
+        <div
+          className={cn(
+            "w-64 shrink-0",
+            showWideColumn ? "block" : "hidden"
+          )}
+        >
           <div className="sticky top-16 pt-8 pl-8
                 overflow-y-auto p-4 px-2
                 [&::-webkit-scrollbar]:w-1.5

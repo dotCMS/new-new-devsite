@@ -12,6 +12,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { LeadboxerScript } from '@/components/metrics/Leadboxer';
 import { DotContentAnalytics } from "@dotcms/analytics/react";
 import { AnalyticsConfig } from '@/util/config';
+import { AssistantProvider } from '@/components/chat/AssistantProvider';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -76,17 +77,19 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <AlertBanner 
-              message={
-                <>
-                  dotCMS is now licensed under the BSL 1.1 and is free to use in many cases. <a href="https://www.dotcms.com/bsl-faq" className="underline font-medium hover:text-blue-200">Learn more here</a>.
-                </>
-              } 
-            />
-            <InitialScroll />
-            <DotContentAnalytics config={AnalyticsConfig} />
-            {children}
-            <Toaster />
+            <AssistantProvider>
+              <AlertBanner 
+                message={
+                  <>
+                    dotCMS is now licensed under the BSL 1.1 and is free to use in many cases. <a href="https://www.dotcms.com/bsl-faq" className="underline font-medium hover:text-blue-200">Learn more here</a>.
+                  </>
+                } 
+              />
+              <InitialScroll />
+              <DotContentAnalytics config={AnalyticsConfig} />
+              {children}
+              <Toaster />
+            </AssistantProvider>
           </ThemeProvider>
         </ErrorBoundary>
         <GoogleAnalytics gaId="G-CM1HLQW35G" />

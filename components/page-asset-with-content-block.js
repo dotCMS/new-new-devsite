@@ -11,11 +11,19 @@ import OnThisPage from "./navigation/OnThisPage";
 import RedesignedNavTree from "./navigation/RedesignedNavTree";
 import { pageComponents } from "@/components/content-types";
 import NextBackButtons from "./navigation/NextBackButtons";
+import { useAssistant } from "@/components/chat/AssistantProvider";
+import { useContentColumnWideLayout } from "@/hooks/useHeaderWideNav";
+import { cn } from "@/util/utils";
 
 
 export function BlockPageAsset({ pageContent, nav, searchItems = [], navSections }) {
 
   const {pageAsset, content = {}} = useEditableDotCMSPage(pageContent);
+  const { open: assistantOpen, expanded: assistantExpanded } = useAssistant();
+  const showWideColumn = useContentColumnWideLayout(
+    assistantOpen,
+    assistantExpanded
+  );
 
   const navigation = content.navigation;
 
@@ -33,15 +41,20 @@ export function BlockPageAsset({ pageContent, nav, searchItems = [], navSections
 
   return (
     <div className="">
-      {pageAsset?.layout?.header && <Header navSections={navSections} navItems={navigation?.children} />}
+      {pageAsset?.layout?.header && (
+        <Header
+          sideNavItems={searchItems}
+          currentPath={pageAsset?.page?.url}
+          navSections={navSections}
+        />
+      )}
       
-        <div id="main-content" className="grid grid-cols-1 lg:grid-cols-[auto_1fr_auto] container mx-auto px-0 w-full">
+        <div id="main-content" className="grid grid-cols-1 lg:grid-cols-[auto_1fr_auto] container mx-auto px-0 w-full min-w-0">
           {/* Left Navigation - Hide on mobile */}
           {showLeftNav && (
             <div id="left-nav" className="hidden lg:block w-72 shrink-0">
                 <RedesignedNavTree 
                   currentPath={pageAsset?.page?.url}
-                  items={searchItems}
                   initialSections={navSections}
                 />
             </div>
@@ -83,14 +96,17 @@ export function BlockPageAsset({ pageContent, nav, searchItems = [], navSections
           </main>
         
         {showPageToc && (
-            <div id="right-toc" className="w-64 hidden xl:block sticky top-16
-                overflow-y-auto p-4
-                [&::-webkit-scrollbar]:w-1.5
-                [&::-webkit-scrollbar-track]:bg-transparent
-                [&::-webkit-scrollbar-thumb]:bg-muted-foreground/10
-                [&::-webkit-scrollbar-thumb]:rounded-full
-                hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20
-                h-[calc(100vh-4rem)]">
+            <div
+              id="right-toc"
+              className={cn(
+                "w-64 sticky top-16 overflow-y-auto p-4",
+                "[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent",
+                "[&::-webkit-scrollbar-thumb]:bg-muted-foreground/10 [&::-webkit-scrollbar-thumb]:rounded-full",
+                "hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/20",
+                "h-[calc(100vh-4rem)]",
+                showWideColumn ? "block" : "hidden"
+              )}
+            >
             <OnThisPage selectors="main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4" />
           </div>
         )}

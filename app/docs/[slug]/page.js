@@ -329,12 +329,11 @@ export default async function Home({ searchParams, params }) {
             <JsonLd pageData={data} path={path} hostname={hostname} />
             
             <div className="flex-1">
-                <div className="flex flex-col lg:flex-row container mx-auto px-0">
+                <div className="flex flex-col lg:flex-row container mx-auto min-w-0 px-0">
                     {/* Left Navigation - Hide on mobile */}
                     <div className="hidden lg:block w-72 shrink-0">
                         <RedesignedNavTree
                             currentPath={slug}
-                            items={sideNav[0]?.dotcmsdocumentationchildren || []}
                             initialSections={navSections}
                         />
                     </div>

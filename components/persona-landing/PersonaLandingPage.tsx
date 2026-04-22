@@ -87,11 +87,10 @@ export async function PersonaLandingPage({ personaId }: Props) {
             />
 
             <div className="flex-1">
-                <div className="flex flex-col lg:flex-row container mx-auto px-0">
+                <div className="flex flex-col lg:flex-row container mx-auto min-w-0 px-0">
                     <div className="hidden lg:block w-72 shrink-0">
                         <RedesignedNavTree
                             currentPath={personaId}
-                            items={sideNav[0]?.dotcmsdocumentationchildren || []}
                             initialSections={navSections}
                         />
                     </div>
