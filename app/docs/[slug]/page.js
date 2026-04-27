@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getDotCMSPage } from "@/util/getDotCMSPage";
 
@@ -6,12 +7,11 @@ export const revalidate = 60;
 import { getSideNav } from "@/services/docs/getSideNav"
 import { isGitHubDoc, getGitHubConfig } from "@/config/github-docs";
 import { getDocsContentWithGitHub } from "@/services/docs/getGitHubContent";
-import Header from "@/components/header/header";
 import Footer from "@/components/footer";
+import { DocsPageShell } from "@/components/docs/DocsPageShell";
 import Documentation from "@/components/documentation/Documentation";
 import GitHubDocumentation from "@/components/documentation/GitHubDocumentation";
 import ChangeLogList from "@/components/changelogs/ChangeLogList";
-import RedesignedNavTree from "@/components/navigation/RedesignedNavTree";
 import { getNavSections } from "@/services/docs/getNavSections";
 import CurrentReleases from "@/components/releases/CurrentReleases";
 import AllReleases from "@/components/releases/AllReleases";
@@ -340,25 +340,22 @@ export default async function Home({ searchParams, params }) {
         <div className="flex flex-col min-h-screen">
             <Header sideNavItems={data.sideNav[0]?.dotcmsdocumentationchildren || []} currentPath={slug} navSections={navSections} />
             <JsonLd pageData={data} path={path} hostname={hostname} />
-            
-            <div className="flex-1">
-                <div className="flex flex-col lg:flex-row container mx-auto min-w-0 px-0">
-                    {/* Left Navigation - Hide on mobile */}
-                    <div className="hidden lg:block w-72 shrink-0">
-                        <RedesignedNavTree
-                            currentPath={slug}
-                            initialSections={navSections}
-                        />
-                    </div>
-
-                    {/* Main Content - Full width on mobile */}
-                    <main className="flex-1 min-w-0 px-6 sm:px-6 lg:px-8">
-                        {(componentMap[slug] || componentMap.default)(data)}
-                    </main>
-                </div>
-            </div>
-
-            {pageAsset.layout.footer && <Footer />}
+            <Suspense
+                fallback={
+                    <div className="min-h-[50vh] w-full animate-pulse bg-muted/15" />
+                }
+            >
+                <DocsPageShell
+                    sideNavItems={sideNav[0]?.dotcmsdocumentationchildren || []}
+                    currentPath={slug}
+                    navSections={navSections}
+                    footer={
+                        pageAsset.layout.footer ? <Footer variant="content" /> : null
+                    }
+                >
+                    {(componentMap[slug] || componentMap.default)(data)}
+                </DocsPageShell>
+            </Suspense>
         </div>
     );
 
