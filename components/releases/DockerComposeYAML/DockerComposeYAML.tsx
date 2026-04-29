@@ -1,25 +1,26 @@
 //import React, { useState, useEffect } from 'react';
 
-/*  
-* This is a temporary version of this function to generate the YAML file for the Docker Compose file.
-* A real version would need to fetch the baseYaml value from https://dotcms.com/run/clean. 
-* This is not possible in a dev environment due to CORS, and will need a bit of testing once deployed.
-* However, we still need SOMETHING to get us started, so this is a stopgap measure.
-*/
+/*
+ * This is a temporary version of this function to generate the YAML file for the Docker Compose file.
+ * A real version would need to fetch the baseYaml value from https://dotcms.com/run/clean.
+ * This is not possible in a dev environment due to CORS, and will need a bit of testing once deployed.
+ * However, we still need SOMETHING to get us started, so this is a stopgap measure.
+ */
 type DockerComposeProps = {
-    version: string;
-    lts: boolean;
-    dockerTag: string;
-    cleanStarter: string;
-    demoStarter: string;
-    includeDemo: boolean;
+  version: string;
+  lts: boolean;
+  dockerTag: string;
+  cleanStarter: string;
+  demoStarter: string;
+  includeDemo: boolean;
 };
 
 const DockerComposeYAML = (props: DockerComposeProps) => {
-    const { version, lts, dockerTag, cleanStarter, demoStarter, includeDemo } = props;
-    const cleanStarterURL = `https://repo.dotcms.com/artifactory/libs-release-local/com/dotcms/starter/empty_${cleanStarter}/starter-empty_${cleanStarter}.zip`
-    const demoStarterURL = `https://repo.dotcms.com/artifactory/libs-release-local/com/dotcms/starter/${demoStarter}/starter-${demoStarter}.zip`
-    const outputYaml = `
+  const { version, lts, dockerTag, cleanStarter, demoStarter, includeDemo } =
+    props;
+  const cleanStarterURL = `https://repo.dotcms.com/artifactory/libs-release-local/com/dotcms/starter/empty_${cleanStarter}/starter-empty_${cleanStarter}.zip`;
+  const demoStarterURL = `https://repo.dotcms.com/artifactory/libs-release-local/com/dotcms/starter/${demoStarter}/starter-${demoStarter}.zip`;
+  const outputYaml = `
 # This Docker Compose file is used to spin up a local dotCMS container using Docker.
 # Simply place this file in the desired working directory and run 'docker compose up' to get started.
 # Version: ${version}${lts ? " LTS" : ""}
@@ -35,7 +36,7 @@ services:
       POSTGRES_PASSWORD: 'password'
       POSTGRES_DB: 'dotcms'
     volumes:
-      - dbdata:/var/lib/postgresql/data
+      - dbdata:/var/lib/postgresql
     networks:
       - db_net
     healthcheck:
@@ -111,20 +112,19 @@ volumes:
   cms-shared:
   dbdata:
   opensearch-data:`;
-    const blob = new Blob([outputYaml], { type: 'text/yaml' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'docker-compose.yml';
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-    return null; // Temporary return until implemented
+  const blob = new Blob([outputYaml], { type: "text/yaml" });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "docker-compose.yml";
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+  return null; // Temporary return until implemented
 };
 
 export default DockerComposeYAML;
-
 
 /*
 // Define types for the build data
@@ -337,3 +337,4 @@ export function DockerComposeYAML2({ selectedRelease }: { selectedRelease: strin
 
 //export DockerComposeYAML2;
 */
+
