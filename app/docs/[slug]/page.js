@@ -22,6 +22,7 @@ import Script from "next/script";
 import { getSecurityIssues } from "@/services/docs/getSecurityIssues/getSecurityIssues";
 import Deprecations from "@/components/deprecations/Deprecations";
 import getDeprecations from "@/services/docs/getDeprecations/getDeprecations";
+import { JavadocEmbeddedDocs } from "@/components/javadocs/JavadocEmbeddedDocs";
 
 /**
  * Process slug consistently across all functions
@@ -237,72 +238,76 @@ export default async function Home({ searchParams, params }) {
 
     if (!pageData || !pageData.pageAsset) {
         notFound();
-        return null; // Unreachable, but ensures code path terminates
+        return null;
     }
 
     const { pageAsset } = pageData;
-    
+
     const sideNav = await getSideNav();
-    const navSections = await getNavSections({ path: '/docs/nav', depth: 4, languageId: 1, ttlSeconds: 600 });
-    
-    // Check if urlContentMap exists
+    const navSections = await getNavSections({
+        path: "/docs/nav",
+        depth: 4,
+        languageId: 1,
+        ttlSeconds: 600,
+    });
+
     if (!pageAsset?.urlContentMap?.inode) {
         notFound();
     }
-    
-    // Handle GitHub docs if needed (this sets githubSource flag)
+
     if (isGitHubDoc(slug)) {
         const githubConfig = getGitHubConfig(slug);
-        
+
         if (githubConfig && pageAsset?.urlContentMap?.inode) {
             const contentResult = await getDocsContentWithGitHub(
                 slug,
                 githubConfig,
-                () => pageAsset?.urlContentMap?._map?.documentation || ''
+                () => pageAsset?.urlContentMap?._map?.documentation || ""
             );
 
-            if (contentResult.source === 'github') {
+            if (contentResult.source === "github") {
                 if (!pageAsset.urlContentMap._map) {
                     pageAsset.urlContentMap._map = {};
                 }
-                
-                pageAsset.urlContentMap._map.documentation = contentResult.content;
+
+                pageAsset.urlContentMap._map.documentation =
+                    contentResult.content;
                 pageAsset.urlContentMap._map.githubSource = true;
-                pageAsset.urlContentMap._map.githubConfig = contentResult.config;
+                pageAsset.urlContentMap._map.githubConfig =
+                    contentResult.config;
             }
         }
     }
-    
-    // Fetch all deprecations once (GraphQL response cached ~15m by default)
+
     let allDeprecations = null;
     try {
         allDeprecations = await getDeprecations();
-    } catch(e) {
+    } catch (e) {
         console.error("Error fetching deprecations:", e);
         allDeprecations = null;
     }
 
-    // Find matching deprecation for this specific page (OR logic - always check)
     let deprecationForPage = null;
     if (allDeprecations && Array.isArray(allDeprecations)) {
-        deprecationForPage = allDeprecations.find(dep => 
-            dep.docLinks && 
-            Array.isArray(dep.docLinks) && 
-            dep.docLinks.some(link => link.urlTitle === slug)
-        ) || null;
+        deprecationForPage =
+            allDeprecations.find(
+                (dep) =>
+                    dep.docLinks &&
+                    Array.isArray(dep.docLinks) &&
+                    dep.docLinks.some((link) => link.urlTitle === slug)
+            ) || null;
     }
 
     const data = {
         contentlet: pageAsset.urlContentMap,
-        sideNav: sideNav,
+        sideNav,
         currentPath: slug,
         searchParams: finalSearchParams,
         deprecation: deprecationForPage,
-        allDeprecations: slug === 'deprecations' ? allDeprecations : undefined
-    }
+        allDeprecations: slug === "deprecations" ? allDeprecations : undefined,
+    };
 
-    // Add more path-component mappings here as needed:
-    // "path-name": (contentlet) => <ComponentName contentlet={contentlet} />,
+    // Add more path-component mappings here as needed.
     const componentMap = {
         "changelogs": (data) => <ChangeLogList {...data} slug={slug} />,
         "current-releases": (data) => <CurrentReleases  {...data} slug={slug} />,
@@ -312,6 +317,14 @@ export default async function Home({ searchParams, params }) {
         "deprecations": (data) => <Deprecations {...data} slug={slug} initialItems={data.allDeprecations || []} />,
         "rest-api-sampler": (data) => <RestApiPlayground {...data} slug={slug} />,
         "all-rest-apis": (data) => <SwaggerUIComponent {...data} slug={slug} />,
+        "javadocs": (data) => (
+            <JavadocEmbeddedDocs
+                contentlet={data.contentlet}
+                sideNav={data.sideNav}
+                slug={slug}
+                searchParams={data.searchParams}
+            />
+        ),
         default: (data) => {
             // Check if this is GitHub-sourced content
             // githubSource is set on urlContentMap._map, so check _map property
@@ -325,7 +338,7 @@ export default async function Home({ searchParams, params }) {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header sideNavItems={sideNav[0]?.dotcmsdocumentationchildren || []} currentPath={slug} navSections={navSections} />
+            <Header sideNavItems={data.sideNav[0]?.dotcmsdocumentationchildren || []} currentPath={slug} navSections={navSections} />
             <JsonLd pageData={data} path={path} hostname={hostname} />
             
             <div className="flex-1">
