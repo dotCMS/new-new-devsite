@@ -64,11 +64,11 @@ export function JavadocEmbeddedDocsClient({
   }, []);
 
   return (
-    <div className="flex flex-col gap-6 py-6 w-full min-w-0">
+    <div className="flex w-full min-w-0 flex-col pt-8 pb-8 lg:pb-12">
       <Breadcrumbs items={sideNavItems as never[]} slug={slug} />
 
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground lg:min-w-0 lg:flex-1">
+      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
+        <h1 className="text-4xl font-bold tracking-tight text-foreground lg:min-w-0 lg:flex-1">
           {title}
         </h1>
 
@@ -85,54 +85,56 @@ export function JavadocEmbeddedDocsClient({
             </a>
           ) : null}
 
-          <div className="flex flex-col gap-2 w-full sm:w-72">
-          <Label htmlFor="javadoc-version" className="text-sm font-medium">
-            Javadoc version
-          </Label>
-          {versions.length > 0 ? (
-            <Select
-              value={selectedVersion ?? undefined}
-              onValueChange={onVersionChange}
-            >
-              <SelectTrigger id="javadoc-version" className="w-full">
-                <SelectValue placeholder="Select a version" />
-              </SelectTrigger>
-              <SelectContent>
-                {versions.map((v) => (
-                  <SelectItem key={v} value={v}>
-                    {v}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : (
-            <div className="space-y-2 rounded-md border border-dashed border-border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">No versions in the list yet</p>
-              <p>{versionListHelp(versionListStatus)}</p>
-              <p className="text-xs leading-relaxed">
-                In S3, the <span className="text-foreground">bucket</span> is the
-                top-level store (one name), not a folder inside something else.
-                If Cyberduck shows{' '}
-                <code className="rounded bg-muted px-1 py-0.5 text-foreground">
-                  /static.dotcms.com
-                </code>{' '}
-                at the root, set{' '}
-                <code className="rounded bg-muted px-1 py-0.5 text-foreground">
-                  JAVADOCS_S3_BUCKET=static.dotcms.com
-                </code>{' '}
-                (no leading slash). Version folders live under keys like{' '}
-                <code className="rounded bg-muted px-1 py-0.5 text-foreground">
-                  docs/26.04.28-02/…
-                </code>{' '}
-                inside that bucket.
-              </p>
-            </div>
-          )}
+          <div className="flex w-full flex-col gap-2 sm:w-72">
+            <Label htmlFor="javadoc-version" className="text-sm font-medium">
+              Javadoc version
+            </Label>
+            {versions.length > 0 ? (
+              <Select
+                value={selectedVersion ?? undefined}
+                onValueChange={onVersionChange}
+              >
+                <SelectTrigger id="javadoc-version" className="w-full">
+                  <SelectValue placeholder="Select a version" />
+                </SelectTrigger>
+                <SelectContent>
+                  {versions.map((v) => (
+                    <SelectItem key={v} value={v}>
+                      {v}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="space-y-2 rounded-md border border-dashed border-border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
+                <p className="font-medium text-foreground">
+                  No versions in the list yet
+                </p>
+                <p>{versionListHelp(versionListStatus)}</p>
+                <p className="text-xs leading-relaxed">
+                  In S3, the <span className="text-foreground">bucket</span> is the
+                  top-level store (one name), not a folder inside something else.
+                  If Cyberduck shows{' '}
+                  <code className="rounded bg-muted px-1 py-0.5 text-foreground">
+                    /static.dotcms.com
+                  </code>{' '}
+                  at the root, set{' '}
+                  <code className="rounded bg-muted px-1 py-0.5 text-foreground">
+                    JAVADOCS_S3_BUCKET=static.dotcms.com
+                  </code>{' '}
+                  (no leading slash). Version folders live under keys like{' '}
+                  <code className="rounded bg-muted px-1 py-0.5 text-foreground">
+                    docs/26.04.28-02/…
+                  </code>{' '}
+                  inside that bucket.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="relative w-full rounded-lg border border-border bg-muted/20 overflow-hidden shadow-sm min-h-[70vh] h-[min(85vh,1200px)]">
+      <div className="relative h-[min(85vh,1200px)] min-h-[70vh] w-full overflow-hidden rounded-lg border border-border bg-muted/20 shadow-sm">
         {iframeSrc ? (
           <iframe
             key={iframeSrc}
