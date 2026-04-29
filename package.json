@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1038.0",
     "@dotcms/analytics": "1.2.5-next.6",
     "@dotcms/client": "next",
     "@dotcms/react": "^1.2.6-next.2",
