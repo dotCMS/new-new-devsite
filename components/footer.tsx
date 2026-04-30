@@ -58,6 +58,9 @@ export default function Footer() {
           <Link href="https://www.dotcms.com/contact-us" prefetch={false}   target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground">
             Contact
           </Link>
+          <Link href="/docs/privacy-policy" className="text-sm text-muted-foreground hover:text-foreground">
+            Privacy Policy
+          </Link>
         </nav>
 
         <p className="text-sm text-muted-foreground">
