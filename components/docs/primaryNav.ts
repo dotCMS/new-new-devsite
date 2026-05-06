@@ -11,7 +11,7 @@ export type PrimaryDocTabId = (typeof PRIMARY_DOC_TABS)[number];
 export const PRIMARY_DOC_LABEL: Record<PrimaryDocTabId, string> = {
   overview: "Overview",
   build: "Build",
-  content: "Content",
+  content: "Author",
   manage: "Manage",
   reference: "Reference",
 };

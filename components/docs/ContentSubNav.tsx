@@ -31,7 +31,7 @@ export function ContentSubNav({ className }: ContentSubNavProps) {
       <div className="mx-auto flex w-full min-w-0 items-stretch gap-0 px-4 sm:px-6 lg:px-8">
         <div className="flex shrink-0 items-center py-2.5 pr-3 sm:pr-4">
           <span className="text-[11px] font-bold uppercase leading-none tracking-widest text-muted-foreground">
-            Content
+            Author
           </span>
         </div>
         <div
@@ -40,7 +40,7 @@ export function ContentSubNav({ className }: ContentSubNavProps) {
         />
         <nav
           className="flex min-w-0 flex-1 items-end gap-0 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          aria-label="Content sections"
+          aria-label="Author sections"
         >
           {CONTENT_SUB_TABS.map((id) => {
             const href = hrefForContentSubNav(pathname, id);

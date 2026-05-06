@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "@/util/utils";
 import type { BuildSubTabId } from "./buildNav";
+import { DocsSidebarFilter } from "./DocsSidebarFilter";
 import {
   buildNavBySubTab,
   firstActiveId,
@@ -85,31 +86,34 @@ export function BuildSectionNav({
       )}
     >
       <div
-        className={cn("min-h-0", isMobile && scrollClass, "pt-6 sm:pt-7")}
+        className={cn("min-h-0", isMobile && scrollClass, "pt-0")}
       >
-        {sections.map((section, sectionIndex) => (
-          <div
-            key={section.id}
-            className={cn(
-              paddingX,
-              sectionIndex > 0 && "mt-7 border-t border-border/50 pt-6"
-            )}
-          >
-            <h2 className="pl-2.5 text-[10px] font-bold uppercase leading-tight tracking-wider text-foreground/80">
-              {section.title}
-            </h2>
-            <ul className="mt-1.5 space-y-0 pb-0.5">
-              {section.items.map((item) => (
-                <NavRow
-                  key={item.id}
-                  item={item}
-                  isActive={activeId === item.id}
-                  onSelect={setActiveId}
-                />
-              ))}
-            </ul>
-          </div>
-        ))}
+        <DocsSidebarFilter />
+        <div className="pt-4">
+          {sections.map((section, sectionIndex) => (
+            <div
+              key={section.id}
+              className={cn(
+                paddingX,
+                sectionIndex > 0 && "mt-7 border-t border-border/50 pt-6"
+              )}
+            >
+              <h2 className="pl-2.5 text-[10px] font-bold uppercase leading-tight tracking-wider text-foreground/80">
+                {section.title}
+              </h2>
+              <ul className="mt-1.5 space-y-0 pb-0.5">
+                {section.items.map((item) => (
+                  <NavRow
+                    key={item.id}
+                    item={item}
+                    isActive={activeId === item.id}
+                    onSelect={setActiveId}
+                  />
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
         <div className={cn("h-4", paddingX)} aria-hidden />
       </div>
     </div>
