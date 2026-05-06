@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/util/utils";
+import { DocsSidebarFilter } from "./DocsSidebarFilter";
 import {
   referenceNavBlocks,
   firstReferenceActiveId,
@@ -77,50 +78,53 @@ export function ReferenceSectionNav({
       )}
     >
       <div
-        className={cn("min-h-0", isMobile && scrollClass, "pt-6 sm:pt-7")}
+        className={cn("min-h-0", isMobile && scrollClass, "pt-0")}
       >
-        {blocks.map((block, blockIndex) => {
-          if (block.kind === "section") {
+        <DocsSidebarFilter />
+        <div className="pt-4">
+          {blocks.map((block, blockIndex) => {
+            if (block.kind === "section") {
+              return (
+                <div
+                  key={block.id}
+                  className={cn(
+                    paddingX,
+                    blockIndex > 0 && "mt-7 border-t border-border/50 pt-6"
+                  )}
+                >
+                  <h2 className="pl-2.5 text-[10px] font-bold uppercase leading-tight tracking-wider text-foreground/80">
+                    {block.title}
+                  </h2>
+                  <ul className="mt-1.5 space-y-0 pb-0.5">
+                    {block.items.map((item) => (
+                      <NavRow
+                        key={item.id}
+                        item={item}
+                        isActive={activeId === item.id}
+                        onSelect={setActiveId}
+                      />
+                    ))}
+                  </ul>
+                </div>
+              );
+            }
+
             return (
               <div
-                key={block.id}
-                className={cn(
-                  paddingX,
-                  blockIndex > 0 && "mt-7 border-t border-border/50 pt-6"
-                )}
+                key={block.item.id}
+                className={cn(paddingX, blockIndex > 0 && "mt-4")}
               >
-                <h2 className="pl-2.5 text-[10px] font-bold uppercase leading-tight tracking-wider text-foreground/80">
-                  {block.title}
-                </h2>
-                <ul className="mt-1.5 space-y-0 pb-0.5">
-                  {block.items.map((item) => (
-                    <NavRow
-                      key={item.id}
-                      item={item}
-                      isActive={activeId === item.id}
-                      onSelect={setActiveId}
-                    />
-                  ))}
+                <ul className="space-y-0 pb-0.5">
+                  <NavRow
+                    item={block.item}
+                    isActive={activeId === block.item.id}
+                    onSelect={setActiveId}
+                  />
                 </ul>
               </div>
             );
-          }
-
-          return (
-            <div
-              key={block.item.id}
-              className={cn(paddingX, blockIndex > 0 && "mt-4")}
-            >
-              <ul className="space-y-0 pb-0.5">
-                <NavRow
-                  item={block.item}
-                  isActive={activeId === block.item.id}
-                  onSelect={setActiveId}
-                />
-              </ul>
-            </div>
-          );
-        })}
+          })}
+        </div>
         <div className={cn("h-4", paddingX)} aria-hidden />
       </div>
     </div>

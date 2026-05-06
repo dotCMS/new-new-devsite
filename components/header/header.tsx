@@ -79,7 +79,7 @@ function HeaderPrimaryNav({
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20",
               "hover:bg-muted/70",
               isActive
-                ? "font-semibold text-foreground"
+                ? "bg-muted/70 font-semibold text-foreground shadow-sm ring-1 ring-border/60"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -121,7 +121,7 @@ function HeaderMobileNavLinks({
                 "flex h-9 w-full items-center justify-start rounded-md px-4 text-left text-sm font-medium transition-colors",
                 "hover:bg-muted/70",
                 isActive
-                  ? "font-semibold text-foreground"
+                  ? "bg-muted/70 font-semibold text-foreground ring-1 ring-border/60"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -177,25 +177,20 @@ export default function Header({
     <header className="sticky top-0 z-50 w-full">
       <div className="w-full border-b bg-background">
         <div className="relative mx-auto flex h-16 w-full min-w-0 max-w-[100vw] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-          {/* Left — logo stays at the start */}
+          {/* Left — logo and primary nav */}
           <div className="relative z-20 min-w-0 shrink-0">
             <LogoWithArrow />
           </div>
 
-          {/* Center — primary nav truly centered in the header (Shopify-style) */}
           {showWideNav && (
-            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-              <div className="pointer-events-auto max-w-[min(100%,calc(100vw-2rem))] sm:max-w-[min(100%,calc(100vw-4rem))]">
-                <HeaderPrimaryNav
-                  className="justify-center overflow-x-auto"
-                  activeTabOnDocs={docsPrimaryTab}
-                  pathname={pathname}
-                />
-              </div>
-            </div>
+            <HeaderPrimaryNav
+              className="ml-3 flex-1 justify-start overflow-x-auto sm:ml-5 lg:ml-8"
+              activeTabOnDocs={docsPrimaryTab}
+              pathname={pathname}
+            />
           )}
 
-          {/* Right — search, Ask AI, utilities (above center layer for hit targets) */}
+          {/* Right — search, Ask AI, utilities */}
           <div className="relative z-20 flex min-w-0 shrink-0 items-center justify-end gap-2 sm:gap-3">
             <DocsQuickSearch
               items={sideNavItems && sideNavItems.length > 0 ? sideNavItems : undefined}

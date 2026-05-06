@@ -338,7 +338,6 @@ export default async function Home({ searchParams, params }) {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header sideNavItems={data.sideNav[0]?.dotcmsdocumentationchildren || []} currentPath={slug} navSections={navSections} />
             <JsonLd pageData={data} path={path} hostname={hostname} />
             <Suspense
                 fallback={
