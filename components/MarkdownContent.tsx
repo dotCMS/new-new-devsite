@@ -10,6 +10,7 @@ import SyntaxHighlighter from 'react-syntax-highlighter'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Components } from 'react-markdown'
 import { smoothScroll } from '@/util/smoothScroll'
+import { cn } from '@/util/utils'
 import { CopyButton } from './chat/CopyButton'
 import { a11yLight, a11yDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 import { useTheme } from "next-themes"
@@ -34,6 +35,14 @@ type ExtendedComponents = Components & {
 
 const HEADER_HEIGHT = 80;
 const BREADCRUMB_HEIGHT = 48; // 24px height + 24px bottom margin
+
+/** rehype-autolink-headings adds this class; only those # links should match heading chrome, not prose fragment links */
+function isHeadingAutolinkClass(className: unknown): boolean {
+  if (!className) return false
+  if (typeof className === 'string') return className.split(/\s+/).includes('anchor')
+  if (Array.isArray(className)) return className.some((c) => isHeadingAutolinkClass(c))
+  return false
+}
 
 // Context to track if we're inside a list item
 const ListItemContext = createContext(false);
@@ -194,16 +203,21 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, d
         <li className="text-base leading-7 text-foreground mb-1">{children}</li>
       </ListItemContext.Provider>
     ),
-    a: ({ href, children, ...props }) => {
-      const isInHeading = href?.startsWith('#');
+    a: ({ href, children, className, ...props }) => {
+      const isHashFragment = Boolean(href?.startsWith('#'))
+      const isHeadingAutolink = isHashFragment && isHeadingAutolinkClass(className)
+      const proseLinkClass =
+        'text-primary-purple hover:opacity-80 underline hover:no-underline'
 
       return (
         <a
           href={href}
-          className={isInHeading 
-            ? `text-foreground` 
-            : `text-primary-purple hover:opacity-80 underline hover:no-underline`}
-          onClick={(e) => isInHeading ? smoothScroll(e) : undefined}
+          className={cn(
+            className,
+            isHeadingAutolink ? 'text-foreground' : proseLinkClass
+          )}
+          onClick={(e) => (isHashFragment ? smoothScroll(e) : undefined)}
+          {...props}
         >
           {children}
         </a>
