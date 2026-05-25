@@ -19,13 +19,16 @@ import {
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import { useContentAnalytics } from "@dotcms/analytics/react";
 import { cn } from "@/util/utils";
 import { CopyButton } from "@/components/chat/CopyButton";
-import { Config } from "@/util/config";
+import { AnalyticsConfig, Config } from "@/util/config";
 import {
   formatDocSourcePath,
   sourceHrefToDisplay,
 } from "@/components/chat/sourceLinks";
+
+const CONVERSION_EVENT = "ai-chat-question-sent";
 
 export type DocSource = {
   id: number;
@@ -317,6 +320,7 @@ export const ChatComponent = forwardRef<ChatComponentHandle, ChatComponentProps>
     const [currentStreamingMessage, setCurrentStreamingMessage] = useState("");
     const [recentQuestions, setRecentQuestions] = useState<string[]>([]);
     const abortControllerRef = useRef<AbortController | null>(null);
+    const { conversion } = useContentAnalytics(AnalyticsConfig);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const formRef = useRef<HTMLFormElement>(null);
@@ -537,6 +541,7 @@ export const ChatComponent = forwardRef<ChatComponentHandle, ChatComponentProps>
       e.preventDefault();
       if (loading) return;
       if (!input.trim()) return;
+      conversion(CONVERSION_EVENT);
       storeRecentQuestion(input.trim());
       await sendMessage(e);
     }

@@ -3,13 +3,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Search, X } from "lucide-react";
+import { useContentAnalytics } from "@dotcms/analytics/react";
 import { cn } from "@/util/utils";
+import { AnalyticsConfig } from "@/util/config";
 import {
   flattenItems,
   performSearch,
   highlightMatch,
   type SearchResult,
 } from "@/util/docsSearch";
+
+const CONVERSION_EVENT = "search-bar-result-click";
 
 type DocsQuickSearchProps = {
   /** When set and non-empty, used directly (no extra request). */
@@ -24,6 +28,7 @@ export function DocsQuickSearch({ items: itemsProp, className }: DocsQuickSearch
   const [remoteItems, setRemoteItems] = useState<any[] | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { conversion } = useContentAnalytics(AnalyticsConfig);
 
   const hasInlineTree = Array.isArray(itemsProp) && itemsProp.length > 0;
 
@@ -112,10 +117,11 @@ export function DocsQuickSearch({ items: itemsProp, className }: DocsQuickSearch
   }, []);
 
   const handleSuggestionSelect = useCallback(() => {
+    conversion(CONVERSION_EVENT);
     setSearchQuery("");
     setSearchResults([]);
     setPanelOpen(false);
-  }, []);
+  }, [conversion]);
 
   return (
     <div ref={rootRef} className={cn("relative min-w-0 flex-1 max-w-lg", className)}>
