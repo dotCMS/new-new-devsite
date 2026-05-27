@@ -131,7 +131,7 @@ export const SecurityIssueDetail: FC<{
               Requires Admin:
             </TableHead>
             <TableCell className="text-base leading-7 text-foreground px-4 border-border border-r last:border-r-0">
-              {issue.requiresAdminAccess ? "Yes" : "No"}
+              {issue.requiresAdminAccess === "true" ? "Yes" : "No"}
             </TableCell>
           </TableRow>
           <TableRow>
