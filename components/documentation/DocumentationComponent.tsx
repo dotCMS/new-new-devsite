@@ -3,15 +3,7 @@
 
 import MarkdownContent from "@/components/MarkdownContent";
 import Warn from "../mdx/Warn";
-
-function cleanMarkdown(markdownString: string | undefined | null, identifierString: string) {
-  if (!markdownString) {
-    return "";
-  }
-  return markdownString
-    .replaceAll("${docImage}", "/dA/" + identifierString + "/diagram")
-    .replaceAll("</br>", "<br>");
-}
+import { cleanMarkdown } from "./cleanMarkdown";
 
 export default function DocumentationComponent(contentlet: any ) {
 
@@ -21,7 +13,7 @@ export default function DocumentationComponent(contentlet: any ) {
 
   const documentation = cleanMarkdown(
     contentlet.documentation,
-    contentlet.identifier
+    contentlet.inode
   );
 
   return (

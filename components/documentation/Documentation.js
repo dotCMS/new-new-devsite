@@ -12,13 +12,7 @@ import Warn from "../mdx/Warn";
 import Info from "../mdx/Info";
 import getDeprecations from "@/services/docs/getDeprecations/getDeprecations";
 import { DeprecationCard } from "../deprecations/DeprecationCard";
-
-
-function cleanMarkdown(markdownString, identifierString) {
-  return markdownString
-    .replaceAll("${docImage}", "/dA/" + identifierString + "/diagram")
-    .replaceAll("</br>", "<br>");
-}
+import { cleanMarkdown } from "./cleanMarkdown";
 
 const Documentation = ({ contentlet, sideNav, slug, deprecation }) => {
   const { open: assistantOpen, expanded: assistantExpanded } = useAssistant();
@@ -36,7 +30,7 @@ const Documentation = ({ contentlet, sideNav, slug, deprecation }) => {
 
   const documentation = cleanMarkdown(
     contentlet.documentation,
-    contentlet.identifier
+    contentlet.inode
   );
 
   return (
