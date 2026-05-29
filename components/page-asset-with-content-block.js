@@ -16,7 +16,7 @@ import { useContentColumnWideLayout } from "@/hooks/useHeaderWideNav";
 import { cn } from "@/util/utils";
 
 
-export function BlockPageAsset({ pageContent, nav, searchItems = [], navSections }) {
+export function BlockPageAsset({ pageContent, nav, searchItems = [], navSections, buildNavigation }) {
 
   const {pageAsset, content = {}} = useEditableDotCMSPage(pageContent);
   const { open: assistantOpen, expanded: assistantExpanded } = useAssistant();
@@ -46,6 +46,7 @@ export function BlockPageAsset({ pageContent, nav, searchItems = [], navSections
           sideNavItems={searchItems}
           currentPath={pageAsset?.page?.url}
           navSections={navSections}
+          primaryNavItems={buildNavigation?.primaryTabs}
         />
       )}
       

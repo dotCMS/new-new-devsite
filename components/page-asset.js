@@ -5,7 +5,7 @@ import { pageComponents } from "@/components/content-types";
 import Header from "./header/header";
 import Footer from "./footer";
 
-export function PageAsset({ pageContent }) {
+export function PageAsset({ pageContent, buildNavigation }) {
     const { pageAsset, content = {} } = useEditableDotCMSPage(pageContent);
     const navigation = content.navigation;
 
@@ -16,7 +16,10 @@ export function PageAsset({ pageContent }) {
     return (
         <div className="flex flex-col gap-6 min-h-screen bg-background">
             {pageAsset?.layout?.header && (
-                <Header navItems={navigation?.children} />
+                <Header
+                    navItems={navigation?.children}
+                    primaryNavItems={buildNavigation?.primaryTabs}
+                />
             )}
 
             <main className="container m-auto">

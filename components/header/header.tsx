@@ -6,7 +6,7 @@ import * as React from "react";
 import { cn } from "@/util/utils";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import ChatWithUsLink from "./ChatWithUsLink";
 import DiscourseLink from "./DiscourseLink";
 import GithubLink from "./GithubLink";
@@ -16,63 +16,47 @@ import RedesignedNavTree from "@/components/navigation/RedesignedNavTree";
 import type { NavSection } from "@/util/navTransform";
 import LogoWithArrow from "./Logo/LogoWithArrow";
 import { DocsQuickSearch } from "./DocsQuickSearch";
-import {
-  PRIMARY_DOC_TABS,
-  PRIMARY_DOC_LABEL,
-  type PrimaryDocTabId,
-  hrefForPrimaryTab,
-} from "@/components/docs/primaryNav";
-import { OverviewSectionNav } from "@/components/docs/OverviewSectionNav";
-import { BuildSubNav } from "@/components/docs/BuildSubNav";
-import { BuildSectionNav } from "@/components/docs/BuildSectionNav";
-import { ContentSubNav } from "@/components/docs/ContentSubNav";
-import { ContentSectionNav } from "@/components/docs/ContentSectionNav";
-import { ManageSubNav } from "@/components/docs/ManageSubNav";
-import { ManageSectionNav } from "@/components/docs/ManageSectionNav";
-import { ReferenceSectionNav } from "@/components/docs/ReferenceSectionNav";
-import { parseBuildSubFromSearchParam } from "@/components/docs/buildNav";
-import { parseContentSubFromSearchParam } from "@/components/docs/contentNav";
-import { parseManageSubFromSearchParam } from "@/components/docs/manageNav";
+import type { DynamicBuildSubTab } from "@/services/docs/getDotCMSBuildNavigation";
 
 type HeaderProps = {
   sideNavItems?: any[];
   currentPath?: string;
   navSections?: NavSection[];
-  /**
-   * Which primary tab is active (from `?primary=` on /docs/...). Only the docs
-   * layout passes this; when omitted, no tab is highlighted.
-   */
-  docsPrimaryTab?: PrimaryDocTabId;
+  primaryNavItems?: DynamicBuildSubTab[];
 };
 
 type HeaderPrimaryNavProps = {
   className?: string;
-  /** Active tab when on `/docs/...` (from URL + shell). */
-  activeTabOnDocs?: PrimaryDocTabId;
   pathname: string | null;
+  primaryNavItems?: DynamicBuildSubTab[];
 };
 
 function HeaderPrimaryNav({
   className,
-  activeTabOnDocs,
   pathname,
+  primaryNavItems,
 }: HeaderPrimaryNavProps) {
+  if (primaryNavItems === undefined) {
+    return null;
+  }
+
   return (
     <nav
       className={cn("flex min-w-0 items-center gap-0.5 sm:gap-1", className)}
       aria-label="Main"
     >
-      {PRIMARY_DOC_TABS.map((id) => {
-        const href = hrefForPrimaryTab(pathname, id);
-        const isActive =
-          pathname?.startsWith("/docs") && activeTabOnDocs != null
-            ? activeTabOnDocs === id
-            : false;
+      {primaryNavItems.length === 0 ? (
+        <span className="px-3 py-1.5 text-sm font-medium text-destructive">
+          No primary navigation returned from dotCMS.
+        </span>
+      ) : primaryNavItems.map((item) => {
+        const isActive = Boolean(
+          pathname && pathname.startsWith(item.activeHref || item.href)
+        );
         return (
           <Link
-            key={id}
-            href={href}
-            scroll={false}
+            key={item.id}
+            href={item.href}
             className={cn(
               "shrink-0 rounded-md px-3 py-1.5 text-sm font-medium sm:px-3.5",
               "transition-[color,background-color,box-shadow] duration-150",
@@ -83,7 +67,7 @@ function HeaderPrimaryNav({
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
-            {PRIMARY_DOC_LABEL[id]}
+            {item.label}
           </Link>
         );
       })}
@@ -92,30 +76,35 @@ function HeaderPrimaryNav({
 }
 
 type HeaderMobileNavLinksProps = {
-  activeTabOnDocs?: PrimaryDocTabId;
   pathname: string | null;
   onAfterNavigate: () => void;
+  primaryNavItems?: DynamicBuildSubTab[];
 };
 
 function HeaderMobileNavLinks({
-  activeTabOnDocs,
   pathname,
   onAfterNavigate,
+  primaryNavItems,
 }: HeaderMobileNavLinksProps) {
+  if (primaryNavItems === undefined) {
+    return null;
+  }
+
   return (
     <nav className="flex flex-col" aria-label="Main">
       <div className="space-y-1">
-        {PRIMARY_DOC_TABS.map((id) => {
-          const href = hrefForPrimaryTab(pathname, id);
-          const isActive =
-            pathname?.startsWith("/docs") && activeTabOnDocs != null
-              ? activeTabOnDocs === id
-              : false;
+        {primaryNavItems.length === 0 ? (
+          <span className="block px-4 py-2 text-sm font-medium text-destructive">
+            No primary navigation returned from dotCMS.
+          </span>
+        ) : primaryNavItems.map((item) => {
+          const isActive = Boolean(
+            pathname && pathname.startsWith(item.activeHref || item.href)
+          );
           return (
             <Link
-              key={id}
-              href={href}
-              scroll={false}
+              key={item.id}
+              href={item.href}
               onClick={() => onAfterNavigate()}
               className={cn(
                 "flex h-9 w-full items-center justify-start rounded-md px-4 text-left text-sm font-medium transition-colors",
@@ -125,7 +114,7 @@ function HeaderMobileNavLinks({
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              {PRIMARY_DOC_LABEL[id]}
+              {item.label}
             </Link>
           );
         })}
@@ -138,17 +127,9 @@ export default function Header({
   sideNavItems,
   currentPath,
   navSections,
-  docsPrimaryTab,
+  primaryNavItems,
 }: HeaderProps) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const docsBuildSub = parseBuildSubFromSearchParam(searchParams.get("build"));
-  const docsContentSub = parseContentSubFromSearchParam(
-    searchParams.get("content")
-  );
-  const docsManageSub = parseManageSubFromSearchParam(
-    searchParams.get("manage")
-  );
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { open: isAssistantOpen, toggleOpen, expanded: assistantExpanded } =
     useAssistant();
@@ -185,8 +166,8 @@ export default function Header({
           {showWideNav && (
             <HeaderPrimaryNav
               className="ml-3 flex-1 justify-start overflow-x-auto sm:ml-5 lg:ml-8"
-              activeTabOnDocs={docsPrimaryTab}
               pathname={pathname}
+              primaryNavItems={primaryNavItems}
             />
           )}
 
@@ -245,61 +226,11 @@ export default function Header({
               {/* Main Navigation Links */}
               <div className="py-4">
                 <HeaderMobileNavLinks
-                  activeTabOnDocs={docsPrimaryTab}
                   pathname={pathname}
+                  primaryNavItems={primaryNavItems}
                   onAfterNavigate={() => setIsMobileMenuOpen(false)}
                 />
               </div>
-
-              {sideNavItems && isOnDocs && docsPrimaryTab != null && (
-                <div className="mt-4 flex-1 border-t pt-4">
-                  <div className="mb-2 px-2 text-sm font-medium leading-none text-muted-foreground">
-                    {docsPrimaryTab === "overview"
-                      ? "Overview"
-                      : docsPrimaryTab === "build"
-                        ? "Build"
-                        : docsPrimaryTab === "content"
-                          ? "Content"
-                          : docsPrimaryTab === "manage"
-                            ? "Manage"
-                            : docsPrimaryTab === "reference"
-                              ? "Reference"
-                              : "Docs"}
-                  </div>
-                  {docsPrimaryTab === "build" && (
-                    <div className="mb-4 w-full min-w-0 -mx-1 sm:-mx-2">
-                      <BuildSubNav className="rounded-md border border-border/40" />
-                    </div>
-                  )}
-                  {docsPrimaryTab === "content" && (
-                    <div className="mb-4 w-full min-w-0 -mx-1 sm:-mx-2">
-                      <ContentSubNav className="rounded-md border border-border/40" />
-                    </div>
-                  )}
-                  {docsPrimaryTab === "manage" && (
-                    <div className="mb-4 w-full min-w-0 -mx-1 sm:-mx-2">
-                      <ManageSubNav className="rounded-md border border-border/40" />
-                    </div>
-                  )}
-                  {docsPrimaryTab === "overview" ? (
-                    <OverviewSectionNav isMobile />
-                  ) : docsPrimaryTab === "build" ? (
-                    <BuildSectionNav isMobile buildSub={docsBuildSub} />
-                  ) : docsPrimaryTab === "content" ? (
-                    <ContentSectionNav isMobile contentSub={docsContentSub} />
-                  ) : docsPrimaryTab === "manage" ? (
-                    <ManageSectionNav isMobile manageSub={docsManageSub} />
-                  ) : docsPrimaryTab === "reference" ? (
-                    <ReferenceSectionNav isMobile />
-                  ) : (
-                    <RedesignedNavTree
-                      currentPath={currentPath}
-                      isMobile={true}
-                      initialSections={navSections}
-                    />
-                  )}
-                </div>
-              )}
 
               {sideNavItems && !isOnDocs && (
                 <div className="mt-4 flex-1 border-t pt-4">

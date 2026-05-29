@@ -1,5 +1,9 @@
 import { cache } from "react";
 import { client } from "./dotcmsClient";
+import {
+    buildNavigationQuery,
+    buildNavPropsFragment,
+} from "@/services/docs/getDotCMSBuildNavigation";
 
 export const getDotCMSPage = cache(async (path: string) => {
     try {
@@ -130,7 +134,11 @@ export const getDotCMSPage = cache(async (path: string) => {
                             }
                         }
                     }
-                `
+                `,
+                content: {
+                    buildNavigation: buildNavigationQuery(),
+                },
+                fragments: [buildNavPropsFragment],
             }
         });
 

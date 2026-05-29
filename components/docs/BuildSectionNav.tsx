@@ -1,75 +1,98 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { cn } from "@/util/utils";
-import type { BuildSubTabId } from "./buildNav";
 import { DocsSidebarFilter } from "./DocsSidebarFilter";
 import {
-  buildNavBySubTab,
-  firstActiveId,
   type BuildNavLink,
+  type BuildNavSection,
 } from "./buildNavData";
+import type {
+  DynamicBuildNavigation,
+  DynamicBuildSubTab,
+} from "@/services/docs/getDotCMSBuildNavigation";
 
 const SIDEBAR_BG = "bg-[#F6F6F7] dark:bg-muted/25";
+const EMPTY_BUILD_TABS: DynamicBuildSubTab[] = [];
+const EMPTY_BUILD_NAV_BY_SUB_TAB: Record<string, BuildNavSection[]> = {};
 
 type NavRowProps = {
   item: BuildNavLink;
   isActive: boolean;
-  onSelect: (id: string) => void;
 };
 
-function NavRow({ item, isActive, onSelect }: NavRowProps) {
+function NavRow({ item, isActive }: NavRowProps) {
+  const rowClassName = cn(
+    "flex w-full min-w-0 items-center gap-2 text-left text-sm",
+    "py-1.5 pl-2.5",
+    "-mr-3 pr-3",
+    "text-muted-foreground transition-colors",
+    !isActive && "hover:bg-muted/80 hover:text-foreground",
+    isActive && [
+      "font-semibold text-foreground",
+      "rounded-xl bg-background shadow-sm",
+      "hover:bg-background",
+    ],
+  );
+
+  const content = (
+    <>
+      <span
+        className={cn(
+          "h-4 w-1 shrink-0 rounded-full",
+          isActive ? "bg-primary-purple" : "bg-transparent"
+        )}
+        aria-hidden
+      />
+      <span className="min-w-0 flex-1">{item.label}</span>
+    </>
+  );
+
   return (
     <li className="list-none">
-      <button
-        type="button"
-        onClick={() => onSelect(item.id)}
-        className={cn(
-          "flex w-full min-w-0 items-center gap-2 text-left text-sm",
-          "py-1.5 pl-2.5",
-          "-mr-3 pr-3",
-          "text-muted-foreground transition-colors",
-          !isActive && "hover:bg-muted/80 hover:text-foreground",
-          isActive && [
-            "font-semibold text-foreground",
-            "rounded-xl bg-background shadow-sm",
-            "hover:bg-background",
-          ],
-        )}
-      >
-        <span
-          className={cn(
-            "h-4 w-1 shrink-0 rounded-full",
-            isActive ? "bg-primary-purple" : "bg-transparent"
-          )}
-          aria-hidden
-        />
-        <span className="min-w-0 flex-1">{item.label}</span>
-      </button>
+      {item.href ? (
+        <Link href={item.href} target={item.target} className={rowClassName}>
+          {content}
+        </Link>
+      ) : (
+        <span className={rowClassName}>{content}</span>
+      )}
     </li>
   );
 }
 
 type BuildSectionNavProps = {
-  buildSub: BuildSubTabId;
+  buildSub?: string;
   className?: string;
   isMobile?: boolean;
+  buildNavigation?: DynamicBuildNavigation;
 };
 
 export function BuildSectionNav({
   buildSub,
   className,
   isMobile = false,
+  buildNavigation,
 }: BuildSectionNavProps) {
-  const sections = buildNavBySubTab[buildSub];
-  const [activeId, setActiveId] = React.useState<string | null>(() =>
-    firstActiveId(sections) || null
+  const pathname = usePathname();
+  const tabs = buildNavigation?.tabs ?? EMPTY_BUILD_TABS;
+  const dynamicNavBySubTab =
+    buildNavigation?.navBySubTab ?? EMPTY_BUILD_NAV_BY_SUB_TAB;
+  const status = Object.keys(dynamicNavBySubTab).length > 0 ? "ready" : "empty";
+  const activeTab = React.useMemo(
+    () =>
+      tabs
+        .filter((tab) => pathname?.startsWith(tab.activeHref || tab.href))
+        .sort(
+          (a, b) =>
+            (b.activeHref || b.href).length - (a.activeHref || a.href).length
+        )[0],
+    [pathname, tabs]
   );
-
-  React.useEffect(() => {
-    const next = buildNavBySubTab[buildSub];
-    setActiveId(firstActiveId(next) || null);
-  }, [buildSub]);
+  const activeSubTab = activeTab?.id ?? buildSub ?? "";
+  const sections = dynamicNavBySubTab[activeSubTab] ?? [];
 
   const paddingX = isMobile ? "pl-5 pr-3" : "pl-6 pr-3 sm:pl-7";
   const scrollClass = isMobile ? "max-h-[50vh] overflow-y-auto" : "";
@@ -90,7 +113,17 @@ export function BuildSectionNav({
       >
         <DocsSidebarFilter />
         <div className="pt-4">
-          {sections.map((section, sectionIndex) => (
+          {status === "empty" && (
+            <div className={cn(paddingX, "text-sm font-medium text-destructive")}>
+              No Build navigation returned from dotCMS.
+            </div>
+          )}
+          {status === "ready" && sections.length === 0 && (
+            <div className={cn(paddingX, "text-sm font-medium text-destructive")}>
+              No Build side nav found for <code>{activeSubTab || pathname}</code>.
+            </div>
+          )}
+          {status === "ready" && sections.map((section, sectionIndex) => (
             <div
               key={section.id}
               className={cn(
@@ -106,8 +139,7 @@ export function BuildSectionNav({
                   <NavRow
                     key={item.id}
                     item={item}
-                    isActive={activeId === item.id}
-                    onSelect={setActiveId}
+                      isActive={pathname === item.href}
                   />
                 ))}
               </ul>

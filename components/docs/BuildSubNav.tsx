@@ -1,18 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { cn } from "@/util/utils";
-import { BUILD_SUB_TABS, BUILD_SUB_LABEL, hrefForDocsContext, parseBuildSubFromSearchParam } from "./buildNav";
+import type { DynamicBuildNavigation } from "@/services/docs/getDotCMSBuildNavigation";
 
 type BuildSubNavProps = {
   className?: string;
+  buildNavigation?: DynamicBuildNavigation;
 };
 
-export function BuildSubNav({ className }: BuildSubNavProps) {
+export function BuildSubNav({ className, buildNavigation }: BuildSubNavProps) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const buildSub = parseBuildSubFromSearchParam(searchParams.get("build"));
+  const tabs = buildNavigation?.tabs ?? [];
+  const status = tabs.length > 0 ? "ready" : "empty";
 
   return (
     <div
@@ -32,14 +33,19 @@ export function BuildSubNav({ className }: BuildSubNavProps) {
           className="flex min-w-0 flex-1 items-end gap-0 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           aria-label="Build sections"
         >
-          {BUILD_SUB_TABS.map((id) => {
-            const href = hrefForDocsContext(pathname, "build", id);
-            const isActive = buildSub === id;
+          {status === "empty" && (
+            <span className="px-3 py-2.5 text-sm font-medium text-destructive">
+              No Build navigation returned from dotCMS.
+            </span>
+          )}
+          {status === "ready" && tabs.map((tab) => {
+            const isActive = Boolean(
+              pathname && pathname.startsWith(tab.activeHref || tab.href)
+            );
             return (
               <Link
-                key={id}
-                href={href}
-                scroll={false}
+                key={tab.id}
+                href={tab.href}
                 className={cn(
                   "shrink-0 border-b-2 px-3 py-2.5 text-sm transition-colors sm:px-3.5",
                   "hover:text-foreground",
@@ -48,7 +54,7 @@ export function BuildSubNav({ className }: BuildSubNavProps) {
                     : "border-transparent text-muted-foreground"
                 )}
               >
-                {BUILD_SUB_LABEL[id]}
+                {tab.label}
               </Link>
             );
           })}

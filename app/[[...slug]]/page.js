@@ -4,6 +4,8 @@ import { getDotCMSPage } from "@/util/getDotCMSPage";
 import { getNavSections } from "@/services/docs/getNavSections";
 import { getSideNav } from "@/services/docs/getSideNav";
 import { BlockPageAsset } from "@/components/page-asset-with-content-block";
+import { DynamicBuildPageAsset } from "@/components/docs/DynamicBuildPageAsset";
+import { transformDotCMSBuildNavigation } from "@/services/docs/getDotCMSBuildNavigation";
 /**
  * Generate metadata
  *
@@ -72,6 +74,19 @@ export default async function Page({ params }) {
 
     const { pageAsset } = pageContent;
     const isBlockPage = pageAsset?.page?.contentType === "BlockPage"
+    const isTestingBuildPage = pageAsset?.page?.url?.startsWith("/testing-devresource/build") || path.startsWith("testing-devresource/build");
+    const buildNavigation = transformDotCMSBuildNavigation(
+        pageContent?.content?.buildNavigation
+    );
+
+    if (isTestingBuildPage) {
+        return (
+            <DynamicBuildPageAsset
+                pageContent={pageContent}
+                buildNavigation={buildNavigation}
+            />
+        );
+    }
 
     if (isBlockPage) {
         // Fetch navigation data (reuse cached nav sections instead of separate API call)
@@ -102,6 +117,7 @@ export default async function Page({ params }) {
                 nav={navItems}
                 searchItems={searchData[0]?.dotcmsdocumentationchildren || []}
                 navSections={navSections}
+                buildNavigation={buildNavigation}
             />
         );
     }
@@ -109,6 +125,7 @@ export default async function Page({ params }) {
     return (
         <PageAsset
             pageContent={pageContent}
+            buildNavigation={buildNavigation}
         />
     );
 }
