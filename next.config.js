@@ -34,7 +34,7 @@ const nextConfig = {
           },
           {
             source: '/learn',
-            destination: '/learning/courses',
+            destination: '/learning',
             permanent: true,
           },
           {
