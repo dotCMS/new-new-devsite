@@ -3,6 +3,7 @@ import MarkdownContent from "@/components/MarkdownContent";
 import { notFound } from "next/navigation";
 import ChapterFooter from "../ChapterFooter";
 import LessonVideo from "../LessonVideo";
+import { getVideoChapters } from "@/util/bunny";
 
 export async function generateMetadata({ params }) {
   const { slug, chapter } = await params;
@@ -40,11 +41,19 @@ export default async function ChapterPage({ params }) {
   const chapterData = course.chapters[index];
   if (!chapterData) notFound();
 
+  const videoChapters = chapterData.bunnyVideoId
+    ? await getVideoChapters(chapterData.bunnyVideoId)
+    : [];
+
   return (
     <>
       <p className="text-sm text-white/50 mb-2">{course.title}</p>
       <h1 className="text-4xl font-bold mb-8">{chapterData.title}</h1>
-      <LessonVideo videoId={chapterData.bunnyVideoId} title={chapterData.title} />
+      <LessonVideo
+        videoId={chapterData.bunnyVideoId}
+        title={chapterData.title}
+        chapters={videoChapters}
+      />
       <MarkdownContent content={chapterData.content} />
       <ChapterFooter
         courseSlug={slug}
