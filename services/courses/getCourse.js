@@ -10,14 +10,52 @@ function escapeGraphqlStringLiteral(value) {
   return String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
-/** Prefer optional CMS `shortTitle` for browser tab / metadata when set. */
-export function courseTitleForMetadata(course) {
+/**
+ * Normalize the CMS `shortTitle`, which may be a plain string or an object
+ * like `{ value: "..." }`. Returns "" when not set.
+ */
+export function courseShortTitle(course) {
   const short = course?.shortTitle;
-  if (typeof short === "string" && short.trim()) return short.trim();
-  if (short && typeof short === "object" && typeof short.value === "string" && short.value.trim()) {
+  if (typeof short === "string") return short.trim();
+  if (short && typeof short === "object" && typeof short.value === "string") {
     return short.value.trim();
   }
-  return course?.title ?? "";
+  return "";
+}
+
+/** Prefer optional CMS `shortTitle` for browser tab / metadata when set. */
+export function courseTitleForMetadata(course) {
+  return courseShortTitle(course) || (course?.title ?? "");
+}
+
+export async function getCourses() {
+  // Explicit high limit: the landing page lists all courses without
+  // pagination, so we must override the API's default collection cap.
+  const query = `query ContentAPI {
+  CourseE2eCollection(limit: 1000) {
+    title
+    shortTitle
+    urlTitle
+    chapters {
+      title
+    }
+  }
+}`;
+
+  const result = await logRequest(
+    async () => graphqlResults(query),
+    "getCourses",
+  );
+
+  if (result?.errors && result.errors.length > 0) {
+    console.error("GraphQL errors in getCourses:", result.errors);
+    throw new Error(result.errors[0].message);
+  }
+
+  const collection = result?.data?.CourseE2eCollection;
+  const courses = Array.isArray(collection) ? collection : [];
+
+  return { courses };
 }
 
 export async function getCourseDetail({ slug }) {
@@ -34,6 +72,7 @@ export async function getCourseDetail({ slug }) {
     chapters {
       title
       content
+      bunnyVideoId
     }
   }
 }`;
