@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
-import { getCourses } from "@/services/courses/getCourse";
+import { getCourses, courseShortTitle } from "@/services/courses/getCourse";
 
 export const metadata = {
   title: "Courses | dotCMS Documentation",
@@ -58,9 +58,9 @@ export default async function Courses() {
                       <h2 className="text-xl font-semibold transition-colors group-hover:text-primary">
                         {course.title}
                       </h2>
-                      {course.shortTitle ? (
+                      {courseShortTitle(course) ? (
                         <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
-                          {course.shortTitle}
+                          {courseShortTitle(course)}
                         </p>
                       ) : null}
                       <p className="mt-4 text-sm font-medium text-muted-foreground">
