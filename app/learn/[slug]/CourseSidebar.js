@@ -10,7 +10,6 @@ export default function CourseSidebar({ course, courseSlug }) {
 
   return (
     <aside className="w-72 shrink-0 border-r border-border p-6 overflow-y-auto">
-      <p className="text-sm text-muted-foreground mb-4">{course.title}</p>
       <nav>
         <ol className="space-y-1">
           <li>
