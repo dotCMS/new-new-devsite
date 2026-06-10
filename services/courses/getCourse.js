@@ -20,6 +20,34 @@ export function courseTitleForMetadata(course) {
   return course?.title ?? "";
 }
 
+export async function getCourses() {
+  const query = `query ContentAPI {
+  CourseE2eCollection {
+    title
+    shortTitle
+    urlTitle
+    chapters {
+      title
+    }
+  }
+}`;
+
+  const result = await logRequest(
+    async () => graphqlResults(query),
+    "getCourses",
+  );
+
+  if (result?.errors && result.errors.length > 0) {
+    console.error("GraphQL errors in getCourses:", result.errors);
+    throw new Error(result.errors[0].message);
+  }
+
+  const collection = result?.data?.CourseE2eCollection;
+  const courses = Array.isArray(collection) ? collection : [];
+
+  return { courses };
+}
+
 export async function getCourseDetail({ slug }) {
   const luceneSlug = escapeLuceneValue(slug);
   const safeSlug = escapeGraphqlStringLiteral(luceneSlug);
