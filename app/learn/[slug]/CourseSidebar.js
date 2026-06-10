@@ -10,7 +10,7 @@ export default function CourseSidebar({ course, courseSlug }) {
 
   return (
     <aside className="w-72 shrink-0 border-r border-border p-6 overflow-y-auto">
-      <nav>
+      <nav aria-label={course.title ? `${course.title} chapters` : "Course chapters"}>
         <ol className="space-y-1">
           <li>
             <Link
