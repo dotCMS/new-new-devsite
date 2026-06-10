@@ -5,7 +5,7 @@ export default function ChapterFooter({ courseSlug, currentIndex, chapters }) {
 
   const nextIndex = currentIndex + 1;
   const nextChapter = chapters[nextIndex];
-  const nextHref = nextChapter ? `/learn/${courseSlug}/chapter-${nextIndex + 1}` : null;
+  const nextHref = nextChapter ? `/learning/courses/${courseSlug}/chapter-${nextIndex + 1}` : null;
 
   return (
     <div className="mt-16 space-y-4">
@@ -29,7 +29,7 @@ export default function ChapterFooter({ courseSlug, currentIndex, chapters }) {
         <div className="flex items-center justify-between rounded-lg border border-white/10 px-5 py-4">
           <p className="text-sm font-medium text-white">You&apos;ve completed the course!</p>
           <Link
-            href={`/learn/${courseSlug}`}
+            href={`/learning/courses/${courseSlug}`}
             className="ml-6 shrink-0 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90"
           >
             Back to Overview

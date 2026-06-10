@@ -19,7 +19,7 @@ export default function CourseSidebar({ course, courseSlug }) {
   const pathname = usePathname();
   const { chapters, currentTime, seek } = usePlayer();
 
-  const introActive = pathname === `/learn/${courseSlug}`;
+  const introActive = pathname === `/learning/courses/${courseSlug}`;
   const activeChIndex = activeChapterIndex(chapters, currentTime);
 
   return (
@@ -28,7 +28,7 @@ export default function CourseSidebar({ course, courseSlug }) {
         <ol className="space-y-1">
           <li>
             <Link
-              href={`/learn/${courseSlug}`}
+              href={`/learning/courses/${courseSlug}`}
               className={`flex w-full items-center gap-3 rounded px-2 py-1.5 transition-colors hover:bg-accent ${introActive ? "bg-primary/20" : ""}`}
             >
               <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded border text-xs transition-colors ${introActive ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>
@@ -41,13 +41,13 @@ export default function CourseSidebar({ course, courseSlug }) {
           </li>
           {course.chapters.map((chapter, index) => {
             const chapterSlug = `chapter-${index + 1}`;
-            const isActive = pathname === `/learn/${courseSlug}/${chapterSlug}`;
+            const isActive = pathname === `/learning/courses/${courseSlug}/${chapterSlug}`;
             // The active lesson shows its video chapters as an accordion body.
             const showChapters = isActive && chapters.length > 0;
             return (
               <li key={index}>
                 <Link
-                  href={`/learn/${courseSlug}/${chapterSlug}`}
+                  href={`/learning/courses/${courseSlug}/${chapterSlug}`}
                   className={`flex w-full items-center gap-3 rounded px-2 py-1.5 transition-colors hover:bg-accent ${isActive ? "bg-primary/20" : ""}`}
                 >
                   <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded border text-xs transition-colors ${isActive ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>
