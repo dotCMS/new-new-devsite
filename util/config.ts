@@ -26,6 +26,8 @@ export const Config = {
   },
   /** Used by chat completions + AI search. Override with NEXT_PUBLIC_DOTCMS_AI_MODEL. */
   AIModel: (process.env.NEXT_PUBLIC_DOTCMS_AI_MODEL ?? 'gpt-5.2') as string,
+  /** Bunny Stream library ID for embedding course lesson videos (public, used in the iframe URL). */
+  BunnyLibraryId: (process.env.NEXT_PUBLIC_BUNNY_STREAM_LIBRARY_ID ?? '666358') as string,
 } as const
 
 export const AnalyticsConfig = {

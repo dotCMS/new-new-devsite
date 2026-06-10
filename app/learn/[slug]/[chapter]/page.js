@@ -2,6 +2,7 @@ import { courseTitleForMetadata, getCourseDetail } from "@/services/courses/getC
 import MarkdownContent from "@/components/MarkdownContent";
 import { notFound } from "next/navigation";
 import ChapterFooter from "../ChapterFooter";
+import LessonVideo from "../LessonVideo";
 
 export async function generateMetadata({ params }) {
   const { slug, chapter } = await params;
@@ -43,6 +44,7 @@ export default async function ChapterPage({ params }) {
     <>
       <p className="text-sm text-white/50 mb-2">{course.title}</p>
       <h1 className="text-4xl font-bold mb-8">{chapterData.title}</h1>
+      <LessonVideo videoId={chapterData.bunnyVideoId} title={chapterData.title} />
       <MarkdownContent content={chapterData.content} />
       <ChapterFooter
         courseSlug={slug}

@@ -62,6 +62,7 @@ export async function getCourseDetail({ slug }) {
     chapters {
       title
       content
+      bunnyVideoId
     }
   }
 }`;
