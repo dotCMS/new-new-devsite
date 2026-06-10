@@ -23,7 +23,7 @@ export default function CourseSidebar({ course, courseSlug }) {
   const activeChIndex = activeChapterIndex(chapters, currentTime);
 
   return (
-    <aside className="w-72 shrink-0 border-r border-border p-6 overflow-y-auto">
+    <aside className="w-80 shrink-0 border-r border-border p-6 overflow-y-auto">
       <nav aria-label={course.title ? `${course.title} chapters` : "Course chapters"}>
         <ol className="space-y-1">
           <li>

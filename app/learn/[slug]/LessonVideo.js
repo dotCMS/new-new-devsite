@@ -43,7 +43,7 @@ export default function LessonVideo({ videoId, title, chapters = [] }) {
     // Breakout wrapper: the video grows wider than the text column (up to
     // ~2x), stays centered on the same axis as the text, and shrinks to fit
     // narrow screens.
-    <div className="relative left-1/2 mb-8 w-[max(100%,min(90vw_-_18rem,1100px))] -translate-x-1/2">
+    <div className="relative left-1/2 mb-8 w-[max(100%,min(90vw_-_20rem,1100px))] -translate-x-1/2">
       <div
         className="relative w-full overflow-hidden rounded-lg bg-black"
         style={{ aspectRatio: "16 / 9" }}
