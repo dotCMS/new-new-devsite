@@ -32,6 +32,16 @@ const nextConfig = {
             destination: '/blog',
             permanent: true,
           },
+          {
+            source: '/learn',
+            destination: '/learning/courses',
+            permanent: true,
+          },
+          {
+            source: '/learn/:path*',
+            destination: '/learning/courses/:path*',
+            permanent: true,
+          },
         ]
       },
     images: {

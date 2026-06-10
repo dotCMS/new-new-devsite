@@ -4,7 +4,7 @@ import Footer from "@/components/footer";
 import { getCourses, courseShortTitle } from "@/services/courses/getCourse";
 
 export const metadata = {
-  title: "Courses | dotCMS Documentation",
+  title: "Learn | dotCMS Documentation",
   description: "Browse dotCMS learning courses.",
 };
 
@@ -21,7 +21,7 @@ export default async function Courses() {
       <Header />
       <main className="flex-1">
         <div className="mx-auto max-w-5xl px-6 py-12">
-          <h1 className="text-4xl font-bold mb-2">Courses</h1>
+          <h1 className="text-4xl font-bold mb-2">Learn</h1>
           <p className="text-muted-foreground mb-10">
             Learn dotCMS through hands-on, self-paced courses.
           </p>
@@ -29,15 +29,15 @@ export default async function Courses() {
           {courses.length === 0 ? (
             <p className="text-muted-foreground">No courses available yet.</p>
           ) : (
-            <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <ul className="flex flex-col gap-6">
               {courses.map((course) => (
                 <li key={course.urlTitle}>
                   <Link
-                    href={`/learn/${course.urlTitle}`}
-                    className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-primary"
+                    href={`/learning/courses/${course.urlTitle}`}
+                    className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-primary sm:flex-row"
                   >
                     {/* Image placeholder */}
-                    <div className="flex aspect-video w-full items-center justify-center bg-muted text-muted-foreground">
+                    <div className="flex aspect-video w-full shrink-0 items-center justify-center bg-muted text-muted-foreground sm:aspect-auto sm:w-64">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"

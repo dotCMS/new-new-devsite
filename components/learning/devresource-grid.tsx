@@ -56,11 +56,10 @@ export function DevResourceGrid(count: any) {
         />
 
         <FeatureCard
-          href={`https://dotcms.talentlms.com/catalog/index`}
+          href={`/learning/courses`}
           icon={GraduationCap}
-          title={"Training & Courses "}
-          description={"Learn dotCMS with our training courses. "}
-          externalLink={true}
+          title={"Courses"}
+          description={"Learn dotCMS through hands-on, self-paced courses."}
           color="[#a21caf]"
           count={-1}
           links={[]}
