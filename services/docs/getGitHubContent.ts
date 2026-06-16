@@ -8,12 +8,15 @@ import {
 import { logRequest } from '@/util/logRequest';
 
 interface ContentResult {
-  // 'github' is the legacy name for "loaded from an external source" (npm or
-  // GitHub); page.js keys on it to swap in the external content. 'dotcms' means
-  // the fallback dotCMS content was used.
+  // 'github' is the legacy name for "loaded from an external source" (npm);
+  // page.js keys on it to swap in the external content. 'dotcms' means the
+  // fallback dotCMS content was used.
   content: string;
   source: 'github' | 'dotcms';
   config: GitHubConfig | null;
+  // Whether the package publishes a `beta` dist-tag (drives the beta switch).
+  // Only meaningful when source === 'github'.
+  betaAvailable: boolean;
 }
 
 // Cache entry with expiration timestamp
@@ -100,38 +103,54 @@ async function fetchText(url: string, label: string): Promise<string | null> {
   return response.text();
 }
 
+// Request-level cache of dist-tags promises, keyed by package. A single page
+// render resolves the configured tag AND checks for a `beta` tag; without this
+// both would hit the registry. The map contains every tag, so one fetch
+// answers both questions.
+const distTagsCache = new Map<string, { promise: Promise<Record<string, string> | null>; expireAt: number }>();
+
 /**
- * Fetch the dist-tags map for an npm package from the registry.
+ * Fetch the dist-tags map for an npm package from the registry, deduped per
+ * package within the cache TTL.
  * @param pkg - npm package name
  * @returns A record of tag -> version, or null on failure
  */
-async function fetchNpmDistTags(pkg: string): Promise<Record<string, string> | null> {
+function fetchNpmDistTags(pkg: string): Promise<Record<string, string> | null> {
+  const cached = distTagsCache.get(pkg);
+  if (cached && Date.now() <= cached.expireAt) {
+    return cached.promise;
+  }
+
   const url = buildNpmRegistryUrl(pkg);
+  const promise = (async (): Promise<Record<string, string> | null> => {
+    try {
+      const response = await logRequest(() =>
+        fetch(url, {
+          headers: {
+            'Accept': 'application/vnd.npm.install-v1+json',
+            'User-Agent': 'dotCMS-docs-site'
+          },
+          // Cache tag->version resolution for 5 minutes
+          next: { revalidate: 300 }
+        }),
+        'fetchNpmDistTags'
+      );
 
-  try {
-    const response = await logRequest(() =>
-      fetch(url, {
-        headers: {
-          'Accept': 'application/vnd.npm.install-v1+json',
-          'User-Agent': 'dotCMS-docs-site'
-        },
-        // Cache tag->version resolution for 5 minutes
-        next: { revalidate: 300 }
-      }),
-      'fetchNpmDistTags'
-    );
+      if (!response || !response.ok) {
+        console.error(`Failed to resolve npm metadata for ${pkg}: ${response?.status} ${response?.statusText}`);
+        return null;
+      }
 
-    if (!response || !response.ok) {
-      console.error(`Failed to resolve npm metadata for ${pkg}: ${response?.status} ${response?.statusText}`);
+      const metadata = await response.json();
+      return (metadata?.['dist-tags'] as Record<string, string>) ?? null;
+    } catch (error) {
+      console.error(`Error fetching npm dist-tags for ${pkg}:`, error);
       return null;
     }
+  })();
 
-    const metadata = await response.json();
-    return (metadata?.['dist-tags'] as Record<string, string>) ?? null;
-  } catch (error) {
-    console.error(`Error fetching npm dist-tags for ${pkg}:`, error);
-    return null;
-  }
+  distTagsCache.set(pkg, { promise, expireAt: Date.now() + CACHE_TTL });
+  return promise;
 }
 
 /**
@@ -158,7 +177,7 @@ async function resolveNpmVersion(config: NpmDocConfig): Promise<string | null> {
  * @param tag - dist-tag to look for, e.g. "beta"
  * @returns true if the tag is published, false otherwise
  */
-export async function npmTagExists(pkg: string, tag: string): Promise<boolean> {
+async function npmTagExists(pkg: string, tag: string): Promise<boolean> {
   const distTags = await fetchNpmDistTags(pkg);
   return Boolean(distTags?.[tag]);
 }
@@ -363,12 +382,15 @@ export async function getDocsContentWithGitHub(
 ): Promise<ContentResult> {
   try {
     const githubContent = await fetchGitHubContent(githubConfig);
-    
+
     if (githubContent) {
+      // Reuses the dist-tags already fetched above (cached per package).
+      const betaAvailable = await npmTagExists(githubConfig.pkg, 'beta');
       return {
         content: githubContent,
         source: 'github',
-        config: githubConfig
+        config: githubConfig,
+        betaAvailable
       };
     }
   } catch (error) {
@@ -380,6 +402,7 @@ export async function getDocsContentWithGitHub(
   return {
     content: fallbackContent,
     source: 'dotcms',
-    config: null
+    config: null,
+    betaAvailable: false
   };
 } 

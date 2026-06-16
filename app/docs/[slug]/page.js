@@ -5,7 +5,7 @@ import { getDotCMSPage } from "@/util/getDotCMSPage";
 export const revalidate = 60;
 import { getSideNav } from "@/services/docs/getSideNav"
 import { isGitHubDoc, getGitHubConfig, withTag } from "@/config/github-docs";
-import { getDocsContentWithGitHub, npmTagExists } from "@/services/docs/getGitHubContent";
+import { getDocsContentWithGitHub } from "@/services/docs/getGitHubContent";
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import Documentation from "@/components/documentation/Documentation";
@@ -37,6 +37,44 @@ function processSlug(slug) {
     return processedSlug === 'table-of-contents' ? '' : processedSlug;
 }
 
+/**
+ * If the slug maps to an external (npm) doc, fetch its README for the requested
+ * dist-tag and swap it into the page's urlContentMap in place. No-op for
+ * regular dotCMS pages or when the external fetch fails.
+ * @param {string} slug - processed page slug
+ * @param {string|undefined} requestedTag - value of the `?tag=` query param
+ * @param {object} pageAsset - the dotCMS page asset to mutate
+ */
+async function applyExternalDocContent(slug, requestedTag, pageAsset) {
+    if (!isGitHubDoc(slug) || !pageAsset?.urlContentMap?.inode) {
+        return;
+    }
+
+    const githubConfig = withTag(getGitHubConfig(slug), requestedTag);
+    const contentResult = await getDocsContentWithGitHub(
+        slug,
+        githubConfig,
+        () => pageAsset?.urlContentMap?._map?.documentation || ''
+    );
+
+    if (contentResult.source !== 'github') {
+        return;
+    }
+
+    if (!pageAsset.urlContentMap._map) {
+        pageAsset.urlContentMap._map = {};
+    }
+
+    pageAsset.urlContentMap._map.documentation = contentResult.content;
+    pageAsset.urlContentMap._map.githubSource = true;
+    pageAsset.urlContentMap._map.githubConfig = contentResult.config;
+    // betaAvailable drives the beta switch; isBeta is derived client-side from
+    // the config tag, so it isn't duplicated here.
+    pageAsset.urlContentMap._map.tagInfo = {
+        betaAvailable: contentResult.betaAvailable,
+    };
+}
+
 async function fetchPageData(path, slug, requestedTag) {
     const finalPath = await path;
     const pageData = await getDotCMSPage(finalPath);
@@ -50,35 +88,7 @@ async function fetchPageData(path, slug, requestedTag) {
 
     const sideNav = await getSideNav();
 
-    // Check if this is a GitHub docs page
-    if (isGitHubDoc(slug)) {
-        const githubConfig = withTag(getGitHubConfig(slug), requestedTag);
-
-        // Only proceed if githubConfig exists and pageAsset structure is valid
-        if (githubConfig && pageAsset?.urlContentMap?._map) {
-            // Fetch GitHub content with fallback to dotCMS
-            const contentResult = await getDocsContentWithGitHub(
-                slug,
-                githubConfig,
-                () => pageAsset?.urlContentMap?._map?.documentation || ''
-            );
-
-            // Replace the documentation content with GitHub content
-            if (contentResult.source === 'github') {
-                // Ensure urlContentMap and _map exist before mutation
-                if (!pageAsset.urlContentMap) {
-                    pageAsset.urlContentMap = {};
-                }
-                if (!pageAsset.urlContentMap._map) {
-                    pageAsset.urlContentMap._map = {};
-                }
-                
-                pageAsset.urlContentMap._map.documentation = contentResult.content;
-                pageAsset.urlContentMap._map.githubSource = true;
-                pageAsset.urlContentMap._map.githubConfig = contentResult.config;
-            }
-        }
-    }
+    await applyExternalDocContent(slug, requestedTag, pageAsset);
 
     return { pageAsset, sideNav, currentPath: finalPath };
 }
@@ -255,38 +265,7 @@ export default async function Home({ searchParams, params }) {
         notFound();
     }
 
-    if (isGitHubDoc(slug)) {
-        const baseConfig = getGitHubConfig(slug);
-        const githubConfig = withTag(baseConfig, finalSearchParams.tag);
-
-        if (githubConfig && pageAsset?.urlContentMap?.inode) {
-            const contentResult = await getDocsContentWithGitHub(
-                slug,
-                githubConfig,
-                () => pageAsset?.urlContentMap?._map?.documentation || ""
-            );
-
-            // Does this package publish a `beta` tag? Drives the beta switch UI.
-            const betaAvailable = await npmTagExists(baseConfig.pkg, "beta");
-
-            if (contentResult.source === "github") {
-                if (!pageAsset.urlContentMap._map) {
-                    pageAsset.urlContentMap._map = {};
-                }
-
-                pageAsset.urlContentMap._map.documentation =
-                    contentResult.content;
-                pageAsset.urlContentMap._map.githubSource = true;
-                pageAsset.urlContentMap._map.githubConfig =
-                    contentResult.config;
-                pageAsset.urlContentMap._map.tagInfo = {
-                    effectiveTag: githubConfig.tag,
-                    isBeta: githubConfig.tag === "beta",
-                    betaAvailable,
-                };
-            }
-        }
-    }
+    await applyExternalDocContent(slug, finalSearchParams.tag, pageAsset);
 
     let allDeprecations = null;
     try {

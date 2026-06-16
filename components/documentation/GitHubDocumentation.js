@@ -61,17 +61,21 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
   // documentation is also in _map (since contentlet is urlContentMap)
   const documentation = contentlet._map?.documentation || contentlet.documentation;
 
-  // Beta switch info, computed server-side from the npm registry.
-  // - isBeta:        the page is currently showing the `beta` tag.
-  // - betaAvailable: the package actually publishes a `beta` dist-tag.
+  // Beta switch state. `isBeta` (viewing the beta tag) is derived from the
+  // effective tag; `betaAvailable` (the package publishes a beta tag) is
+  // computed server-side from the npm registry.
+  const isBeta = meta.tag === "beta";
   const tagInfo = contentlet._map?.tagInfo || contentlet.tagInfo || {};
-  const isBeta = Boolean(tagInfo.isBeta);
   const betaAvailable = Boolean(tagInfo.betaAvailable);
 
   // Toggle targets. The slug is the canonical page; beta is opted into via
   // ?tag=beta and dropped to return to stable.
   const stableUrl = `/docs/${slug}`;
   const betaUrl = `/docs/${slug}?tag=beta`;
+
+  // An http(s) starter guide opens in a new tab; an internal path navigates
+  // in-app. Computed once so server and client agree (no hydration mismatch).
+  const guideExternal = /^https?:\/\//.test(meta.starterGuide || "");
 
   return (
     <>
@@ -133,28 +137,14 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
               {meta.starterGuide && (
                 <a
                   href={meta.starterGuide}
-                  {...(() => {
-                    try {
-                      // If it starts with http/https, treat as external. Consistent
-                      // on server and client to avoid hydration mismatches.
-                      const isExternal = /^https?:\/\//.test(meta.starterGuide);
-                      return isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {};
-                    } catch {
-                      return {};
-                    }
-                  })()}
+                  {...(guideExternal
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
                 >
                   <Zap className="h-3.5 w-3.5" />
                   Integration guide
-                  {(() => {
-                    try {
-                      const isExternal = /^https?:\/\//.test(meta.starterGuide);
-                      return isExternal ? <ExternalLink className="h-3 w-3" /> : null;
-                    } catch {
-                      return null;
-                    }
-                  })()}
+                  {guideExternal && <ExternalLink className="h-3 w-3" />}
                 </a>
               )}
               {/* Beta discovery link: same row, pushed to the far right */}
