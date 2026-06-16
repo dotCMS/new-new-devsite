@@ -4,8 +4,8 @@ import { getDotCMSPage } from "@/util/getDotCMSPage";
 // ISR: Revalidate pages every 60 seconds
 export const revalidate = 60;
 import { getSideNav } from "@/services/docs/getSideNav"
-import { isGitHubDoc, getGitHubConfig } from "@/config/github-docs";
-import { getDocsContentWithGitHub } from "@/services/docs/getGitHubContent";
+import { isGitHubDoc, getGitHubConfig, withTag } from "@/config/github-docs";
+import { getDocsContentWithGitHub, npmTagExists } from "@/services/docs/getGitHubContent";
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import Documentation from "@/components/documentation/Documentation";
@@ -37,7 +37,7 @@ function processSlug(slug) {
     return processedSlug === 'table-of-contents' ? '' : processedSlug;
 }
 
-async function fetchPageData(path, slug) {
+async function fetchPageData(path, slug, requestedTag) {
     const finalPath = await path;
     const pageData = await getDotCMSPage(finalPath);
 
@@ -52,8 +52,8 @@ async function fetchPageData(path, slug) {
 
     // Check if this is a GitHub docs page
     if (isGitHubDoc(slug)) {
-        const githubConfig = getGitHubConfig(slug);
-        
+        const githubConfig = withTag(getGitHubConfig(slug), requestedTag);
+
         // Only proceed if githubConfig exists and pageAsset structure is valid
         if (githubConfig && pageAsset?.urlContentMap?._map) {
             // Fetch GitHub content with fallback to dotCMS
@@ -96,7 +96,7 @@ export async function generateMetadata({ params, searchParams }) {
     const slug = processSlug(finalParams.slug);
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
-    const { pageAsset } = await fetchPageData(path, slug);
+    const { pageAsset } = await fetchPageData(path, slug, finalSearchParams.tag);
     
     // Check if urlContentMap exists before accessing _map
     if (!pageAsset?.urlContentMap?.inode) {
@@ -256,7 +256,8 @@ export default async function Home({ searchParams, params }) {
     }
 
     if (isGitHubDoc(slug)) {
-        const githubConfig = getGitHubConfig(slug);
+        const baseConfig = getGitHubConfig(slug);
+        const githubConfig = withTag(baseConfig, finalSearchParams.tag);
 
         if (githubConfig && pageAsset?.urlContentMap?.inode) {
             const contentResult = await getDocsContentWithGitHub(
@@ -264,6 +265,9 @@ export default async function Home({ searchParams, params }) {
                 githubConfig,
                 () => pageAsset?.urlContentMap?._map?.documentation || ""
             );
+
+            // Does this package publish a `beta` tag? Drives the beta switch UI.
+            const betaAvailable = await npmTagExists(baseConfig.pkg, "beta");
 
             if (contentResult.source === "github") {
                 if (!pageAsset.urlContentMap._map) {
@@ -275,6 +279,11 @@ export default async function Home({ searchParams, params }) {
                 pageAsset.urlContentMap._map.githubSource = true;
                 pageAsset.urlContentMap._map.githubConfig =
                     contentResult.config;
+                pageAsset.urlContentMap._map.tagInfo = {
+                    effectiveTag: githubConfig.tag,
+                    isBeta: githubConfig.tag === "beta",
+                    betaAvailable,
+                };
             }
         }
     }

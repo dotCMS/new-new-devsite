@@ -1,121 +1,118 @@
 /**
- * GitHub repository configuration interface
+ * External docs configuration.
+ *
+ * Docs pages listed here are sourced from the README shipped inside a published
+ * npm package, resolved by dist-tag (e.g. `latest`, `beta`) instead of from
+ * dotCMS. This lets us generate "beta" doc pages straight from a pre-release
+ * published to npm.
+ *
+ * The legacy names (`GitHubConfig`, `isGitHubDoc`, `getGitHubConfig`) are kept
+ * for backwards compatibility with existing imports.
  */
-export interface GitHubConfig {
-  owner: string;
-  repo: string;
-  path: string;
-  branch: string;
+
+/**
+ * npm-sourced doc: the README inside a published npm package, by dist-tag.
+ */
+export interface NpmDocConfig {
+  source: 'npm';
+  /** Full npm package name, e.g. "@dotcms/mcp-server" */
+  pkg: string;
+  /** npm dist-tag to resolve, e.g. "latest" or "beta" */
+  tag: string;
   starterGuide?: string;
 }
 
+export type ExternalDocConfig = NpmDocConfig;
+
 /**
- * Configuration mapping docs slugs to GitHub repositories
- * These docs will be fetched from GitHub instead of dotCMS
+ * Backwards-compatible alias for existing imports.
  */
-export const GITHUB_DOCS_MAP: Record<string, GitHubConfig> = {
-  // Example SDK mappings - update with actual repo information
+export type GitHubConfig = ExternalDocConfig;
+
+/**
+ * Configuration mapping docs slugs to their npm source.
+ * These docs are fetched from npm instead of dotCMS.
+ *
+ * The configured `tag` is the default dist-tag (usually `latest`). A page can
+ * request a different published dist-tag at request time via the `?tag=` query
+ * param (e.g. `/docs/mcp-server?tag=beta`) — see `withTag`.
+ */
+export const GITHUB_DOCS_MAP: Record<string, ExternalDocConfig> = {
   'sdk-react-library': {
-    owner: 'dotCMS',
-    repo: 'core',
-    path: 'core-web/libs/sdk/react/README.md',
-    branch: 'main',
+    source: 'npm',
+    pkg: '@dotcms/react',
+    tag: 'latest',
   },
   'sdk-angular-library': {
-    owner: 'dotCMS',
-    repo: 'core',
-    path: 'core-web/libs/sdk/angular/README.md',
-    branch: 'main',
-    starterGuide: '/getting-started/integrations/angular'
+    source: 'npm',
+    pkg: '@dotcms/angular',
+    tag: 'latest',
+    starterGuide: '/getting-started/integrations/angular',
   },
   'sdk-client-library': {
-    owner: 'dotCMS',
-    repo: 'core',
-    path: 'core-web/libs/sdk/client/README.md',
-    branch: 'main'
+    source: 'npm',
+    pkg: '@dotcms/client',
+    tag: 'latest',
   },
   'sdk-experiments-library': {
-    owner: 'dotCMS',
-    repo: 'core',
-    path: 'core-web/libs/sdk/experiments/README.md',
-    branch: 'main'
+    source: 'npm',
+    pkg: '@dotcms/experiments',
+    tag: 'latest',
   },
   'sdk-analytics-library': {
-    owner: 'dotCMS',
-    repo: 'core',
-    path: 'core-web/libs/sdk/analytics/README.md',
-    branch: 'main'
+    source: 'npm',
+    pkg: '@dotcms/analytics',
+    tag: 'latest',
   },
   'sdk-types-library': {
-    owner: 'dotCMS',
-    repo: 'core',
-    path: 'core-web/libs/sdk/types/README.md',
-    branch: 'main'
+    source: 'npm',
+    pkg: '@dotcms/types',
+    tag: 'latest',
   },
   'sdk-uve-library': {
-    owner: 'dotCMS',
-    repo: 'core',
-    path: 'core-web/libs/sdk/uve/README.md',
-    branch: 'main'
-  },
-  'sdk-php-library': {
-    owner: 'dotCMS',
-    repo: 'dotcms-php-sdk',
-    path: 'README.md',
-    branch: 'main'
-  },
-  'sdk-nextjs-example': {
-    owner: 'dotCMS',
-    repo: 'core',
-    path: 'examples/nextjs/README.md',
-    branch: 'main',
-    starterGuide: '/getting-started/integrations/nextjs'
-  },
-  'sdk-angular-example': {
-    owner: 'dotCMS',
-    repo: 'core',
-    path: 'examples/angular/README.md',
-    branch: 'main',
-    starterGuide: '/getting-started/integrations/angular'
-  },
-  'sdk-astro-example': {
-    owner: 'dotCMS',
-    repo: 'core',
-    path: 'examples/astro/README.md',
-    branch: 'main',
-    starterGuide: '/getting-started/integrations/astro'
-  },
-  'sdk-laravel-example': {
-    owner: 'dotCMS',
-    repo: 'dotcms-php-sdk',
-    path: 'examples/dotcms-laravel/README.md',
-    branch: 'main',
-    starterGuide: '/getting-started/integrations/laravel'
-  },
-  'sdk-symfony-example': {
-    owner: 'dotCMS',
-    repo: 'dotcms-php-sdk',
-    path: 'examples/dotcms-symfony/README.md',
-    branch: 'main',
-    starterGuide: '/getting-started/integrations/symfony'
-  },
-  'sdk-dotnet-example': {
-    owner: 'dotCMS',
-    repo: 'dotnet-starter-example',
-    path: 'README.md',
-    branch: 'main'
+    source: 'npm',
+    pkg: '@dotcms/uve',
+    tag: 'latest',
   },
   'mcp-server': {
-    owner: 'dotCMS',
-    repo: 'core',
-    path: 'core-web/apps/mcp-server/README.md',
-    branch: 'main'
+    source: 'npm',
+    pkg: '@dotcms/mcp-server',
+    tag: 'latest',
   },
-  // Add more SDK mappings as needed
 };
 
 /**
- * Check if a docs slug should be fetched from GitHub
+ * Allowed dist-tags a page may request via `?tag=`. Restricting this prevents
+ * arbitrary/unpublished tag lookups against the registry.
+ */
+const ALLOWED_TAGS = ['latest', 'beta', 'next', 'alpha'] as const;
+
+/**
+ * Return a copy of an npm doc config with its dist-tag overridden, if the
+ * requested tag is a recognized, allowed value. Unknown/empty tags are ignored
+ * and the config's default tag is kept.
+ * @param config - base external doc config
+ * @param requestedTag - tag from the `?tag=` query param (may be undefined)
+ * @returns config with the effective tag
+ */
+export function withTag(
+  config: ExternalDocConfig,
+  requestedTag?: string | null,
+): ExternalDocConfig {
+  if (!requestedTag) {
+    return config;
+  }
+
+  const tag = requestedTag.toLowerCase();
+  if (!ALLOWED_TAGS.includes(tag as (typeof ALLOWED_TAGS)[number])) {
+    return config;
+  }
+
+  return { ...config, tag };
+}
+
+/**
+ * Check if a docs slug should be fetched from an external (npm) source.
  * @param slug - The docs page slug
  * @returns boolean
  */
@@ -124,20 +121,36 @@ export function isGitHubDoc(slug: string): boolean {
 }
 
 /**
- * Get GitHub configuration for a docs slug
+ * Get the external source configuration for a docs slug.
  * @param slug - The docs page slug
- * @returns GitHub config or null if not found
+ * @returns config or null if not found
  */
-export function getGitHubConfig(slug: string): GitHubConfig | null {
+export function getGitHubConfig(slug: string): ExternalDocConfig | null {
   return GITHUB_DOCS_MAP[slug] || null;
 }
 
 /**
- * Build the raw GitHub URL for fetching content
- * @param config - GitHub configuration object
- * @returns The raw GitHub URL
+ * Build the npm registry metadata URL used to resolve a dist-tag to a version.
+ * @param pkg - npm package name
+ * @returns The registry URL returning package metadata (incl. dist-tags)
  */
-export function buildGitHubRawUrl(config: GitHubConfig): string {
-  const { owner, repo, branch, path } = config;
-  return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${path}`;
-} 
+export function buildNpmRegistryUrl(pkg: string): string {
+  // encodeURIComponent turns the "/" in scoped names into %2f, which the
+  // registry expects for scoped packages (e.g. @dotcms%2fmcp-server).
+  return `https://registry.npmjs.org/${encodeURIComponent(pkg)}`;
+}
+
+/**
+ * Build the jsdelivr URL for a file inside a published npm package version.
+ * @param pkg - npm package name
+ * @param version - concrete, resolved version (not a dist-tag)
+ * @param file - path within the package (default README.md)
+ * @returns The jsdelivr CDN URL
+ */
+export function buildNpmCdnUrl(
+  pkg: string,
+  version: string,
+  file = 'README.md',
+): string {
+  return `https://cdn.jsdelivr.net/npm/${pkg}@${version}/${file}`;
+}
