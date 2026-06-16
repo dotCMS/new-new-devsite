@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ExternalLink, Github, Zap } from "lucide-react";
+import { ArrowRight, ExternalLink, FlaskConical, Package, Zap } from "lucide-react";
 
 import { useAssistant } from "@/components/chat/AssistantProvider";
 import { useContentColumnWideLayout } from "@/hooks/useHeaderWideNav";
@@ -11,6 +11,31 @@ import MarkdownContent from "@/components/MarkdownContent";
 import OnThisPage from "../navigation/OnThisPage";
 import Warn from "../mdx/Warn";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+
+/**
+ * Normalize an npm source config into the shape the source panel renders.
+ * Returns null if the config is missing/invalid.
+ *
+ * Shape:
+ *   {
+ *     pkg,           // npm package name, e.g. "@dotcms/client"
+ *     tag,           // npm dist-tag, e.g. "latest" | "beta"
+ *     packageUrl,    // npmjs.com package page
+ *     starterGuide,  // optional integration guide link
+ *   }
+ */
+function buildSourceMeta(config) {
+  if (!config || !config.pkg) {
+    return null;
+  }
+
+  return {
+    pkg: config.pkg,
+    tag: config.tag,
+    packageUrl: `https://www.npmjs.com/package/${config.pkg}`,
+    starterGuide: config.starterGuide,
+  };
+}
 
 const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
   const { open: assistantOpen, expanded: assistantExpanded } = useAssistant();
@@ -23,26 +48,34 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
     return <div>Loading...</div>;
   }
 
-  // githubConfig is stored in contentlet._map (since contentlet is urlContentMap)
-  const githubConfig = contentlet._map?.githubConfig || contentlet.githubConfig;
-  
-  // Check if githubConfig exists and has required properties
-  if (!githubConfig || !githubConfig.owner || !githubConfig.repo || !githubConfig.branch || !githubConfig.path) {
-    return <div>Error: Missing GitHub configuration</div>;
+  // The npm source config is stored in contentlet._map (since contentlet is
+  // urlContentMap): { source:'npm', pkg, tag, starterGuide? }.
+  const sourceConfig = contentlet._map?.githubConfig || contentlet.githubConfig;
+
+  // Normalize into a `meta` describing the source panel.
+  const meta = buildSourceMeta(sourceConfig);
+  if (!meta) {
+    return <div>Error: Missing documentation source configuration</div>;
   }
 
-  const githubUrl = `https://github.com/${githubConfig.owner}/${githubConfig.repo}`;
-  
-  // Construct library URL properly - remove README.md only if it's at the end of the path
-  const pathWithoutReadme = githubConfig.path.endsWith('/README.md')
-    ? githubConfig.path.slice(0, -10) // Remove '/README.md'
-    : githubConfig.path.endsWith('README.md') 
-    ? githubConfig.path.slice(0, -9) // Remove 'README.md'
-    : githubConfig.path;
-  
-  const githubLibraryUrl = `https://github.com/${githubConfig.owner}/${githubConfig.repo}/tree/${githubConfig.branch}/${pathWithoutReadme}`;
   // documentation is also in _map (since contentlet is urlContentMap)
   const documentation = contentlet._map?.documentation || contentlet.documentation;
+
+  // Beta switch state. `isBeta` (viewing the beta tag) is derived from the
+  // effective tag; `betaAvailable` (the package publishes a beta tag) is
+  // computed server-side from the npm registry.
+  const isBeta = meta.tag === "beta";
+  const tagInfo = contentlet._map?.tagInfo || contentlet.tagInfo || {};
+  const betaAvailable = Boolean(tagInfo.betaAvailable);
+
+  // Toggle targets. The slug is the canonical page; beta is opted into via
+  // ?tag=beta and dropped to return to stable.
+  const stableUrl = `/docs/${slug}`;
+  const betaUrl = `/docs/${slug}?tag=beta`;
+
+  // An http(s) starter guide opens in a new tab; an internal path navigates
+  // in-app. Computed once so server and client agree (no hydration mismatch).
+  const guideExternal = /^https?:\/\//.test(meta.starterGuide || "");
 
   return (
     <>
@@ -62,67 +95,69 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
           />
 
           <div className="markdown-content">
-            {/* GitHub Source Alert */}
-            <div className="not-markdown">
-              <Alert className="mb-6">
-                <AlertDescription>
-                  <div className="flex items-start gap-2">
-                    <Github className="h-4 w-4 mt-0.5 shrink-0" />
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-sm">
-                        This documentation is automatically synchronized from the{" "}
-                        <strong>{githubConfig.repo}</strong> repository.
-                      </span>
-                      <a
-                        href={githubLibraryUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline whitespace-nowrap ml-4"
-                      >
-                        View on GitHub
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    </div>
-                  </div>
-                  {githubConfig.starterGuide && (
-                    <div className="mt-3 pt-3 border-t border-border/50">
-                      <div className="flex items-start gap-2">
-                        <Zap className="h-4 w-4 mt-0.5 shrink-0" />
-                        <div className="flex items-center justify-between w-full">
-                          <span className="text-sm">
-                            Get started quickly with detailed instructions and visual aids.
-                          </span>
-                          <a
-                            href={githubConfig.starterGuide}
-                            {...(() => {
-                              try {
-                                // Simple and consistent logic: if it starts with http/https, treat as external
-                                // This works the same on server and client, preventing hydration mismatches
-                                const isExternal = /^https?:\/\//.test(githubConfig.starterGuide);
-                                return isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {};
-                              } catch {
-                                // If anything fails, treat as internal link
-                                return {};
-                              }
-                            })()}
-                            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline whitespace-nowrap ml-4"
-                          >
-                            View Integration Guide
-                            {(() => {
-                              try {
-                                const isExternal = /^https?:\/\//.test(githubConfig.starterGuide);
-                                return isExternal ? <ExternalLink className="h-3 w-3" /> : null;
-                              } catch {
-                                return null;
-                              }
-                            })()}
-                          </a>
-                        </div>
+            {/* Beta state: warning banner when viewing beta docs */}
+            {isBeta && (
+              <div className="not-markdown">
+                <Alert className="mb-6 border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
+                  <AlertDescription>
+                    <div className="flex items-start gap-2">
+                      <FlaskConical className="h-4 w-4 mt-0.5 shrink-0" />
+                      <div className="flex items-center justify-between w-full">
+                        <span className="text-sm">
+                          You&apos;re viewing <strong>pre-release (beta)</strong>{" "}
+                          documentation. Features and APIs may change before the
+                          stable release.
+                        </span>
+                        <a
+                          href={stableUrl}
+                          className="inline-flex items-center gap-1 text-sm font-medium hover:underline whitespace-nowrap ml-4"
+                        >
+                          View stable docs
+                          <ArrowRight className="h-3 w-3" />
+                        </a>
                       </div>
                     </div>
-                  )}
-                </AlertDescription>
-              </Alert>
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+
+            {/* npm source + integration guide links (compact) */}
+            <div className="not-markdown mb-6 flex flex-wrap items-center gap-x-5 gap-y-2">
+              <a
+                href={meta.packageUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+              >
+                <Package className="h-3.5 w-3.5" />
+                {meta.pkg}
+                <ExternalLink className="h-3 w-3" />
+              </a>
+              {meta.starterGuide && (
+                <a
+                  href={meta.starterGuide}
+                  {...(guideExternal
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                >
+                  <Zap className="h-3.5 w-3.5" />
+                  Integration guide
+                  {guideExternal && <ExternalLink className="h-3 w-3" />}
+                </a>
+              )}
+              {/* Beta discovery link: same row, pushed to the far right */}
+              {!isBeta && betaAvailable && (
+                <a
+                  href={betaUrl}
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline ml-auto"
+                >
+                  <FlaskConical className="h-3.5 w-3.5" />
+                  View beta docs
+                  <ArrowRight className="h-3 w-3" />
+                </a>
+              )}
             </div>
 
             <div className="flex items-center gap-3 mb-6">
@@ -146,42 +181,42 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
             <MarkdownContent content={documentation} />
           </div>
 
-          {/* Additional GitHub Info */}
+          {/* Additional npm Info */}
           <div className="mt-12 pt-8 border-t border-border">
             <div className="flex flex-col sm:flex-row gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <Github className="h-4 w-4" />
+                <Package className="h-4 w-4" />
                 <span>
-                  Source:{" "}
+                  Package:{" "}
                   <a
-                    href={`${githubLibraryUrl}`}
+                    href={meta.packageUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary hover:underline"
                   >
-                    {githubConfig.path}
+                    {meta.pkg}
                   </a>
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <span>
-                  Branch:{" "}
+                  Tag:{" "}
                   <code className="bg-muted px-1 py-0.5 rounded text-xs">
-                    {githubConfig.branch}
+                    {meta.tag}
                   </code>
                 </span>
               </div>
             </div>
-            
+
             <p className="mt-4 text-xs text-muted-foreground">
               Found an issue with this documentation?{" "}
               <a
-                href={`${githubUrl}/issues/new`}
+                href={meta.packageUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
               >
-                Report it on GitHub
+                View the package on npm
               </a>
             </p>
           </div>
