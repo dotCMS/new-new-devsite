@@ -15,6 +15,10 @@ const cacheTTL = 600;
 
 const vanityUrlPrefix="dotVanity:";
 
+// Only treat known static asset extensions as files — not version-like slugs (e.g. block-editor-2.0)
+const STATIC_FILE_EXTENSION =
+  /\.(css|js|mjs|cjs|map|ico|png|jpe?g|svg|gif|webp|avif|woff2?|ttf|eot|pdf|zip|gz|txt|xml|json|webmanifest|mp4|webm|mp3|wav)(\?|$)/i;
+
 // Escape pathname for GraphQL query to prevent injection issues
 function escapeGraphQLString(str: string): string {
   return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
@@ -76,8 +80,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/static/') ||
     pathname.startsWith('/favicon') ||
     pathname.startsWith('/.well-known/') ||
-    // Skip files with extensions (CSS, JS, images, maps, etc.)
-    /\.[a-zA-Z0-9]+(\?|$)/.test(pathname) ||
+    // Skip files with known static extensions (CSS, JS, images, maps, etc.)
+    STATIC_FILE_EXTENSION.test(pathname) ||
     // Skip common static file patterns
     pathname.includes('.css') ||
     pathname.includes('.js') ||
@@ -129,6 +133,6 @@ export const config = {
      * - Files with extensions (.css, .js, .png, etc.)
      * - Well-known paths (.well-known/)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.[a-zA-Z0-9]+$|\\.well-known).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:css|js|mjs|cjs|map|ico|png|jpe?g|svg|gif|webp|avif|woff2?|ttf|eot|pdf|zip|gz|txt|xml|json|webmanifest|mp4|webm|mp3|wav)$|\\.well-known).*)',
   ],
 }
