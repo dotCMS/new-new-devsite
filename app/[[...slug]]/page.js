@@ -74,12 +74,15 @@ export default async function Page({ params }) {
 
     const { pageAsset } = pageContent;
     const isBlockPage = pageAsset?.page?.contentType === "BlockPage"
-    const isTestingBuildPage = pageAsset?.page?.url?.startsWith("/testing-devresource/build") || path.startsWith("testing-devresource/build");
+    const isTestingDevresourcePage =
+        pageAsset?.page?.url?.startsWith("/testing-devresource") ||
+        path === "testing-devresource" ||
+        path.startsWith("testing-devresource/");
     const buildNavigation = transformDotCMSBuildNavigation(
         pageContent?.content?.buildNavigation
     );
 
-    if (isTestingBuildPage) {
+    if (isTestingDevresourcePage) {
         return (
             <DynamicBuildPageAsset
                 pageContent={pageContent}

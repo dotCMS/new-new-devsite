@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { getDotCMSBuildNavigation } from "@/services/docs/getDotCMSBuildNavigation";
 
 /**
- * Experimental SDK-backed navigation for the full Build branch:
- * Build sub-tabs plus the side nav sections for each sub-tab.
+ * Experimental SDK-backed navigation for /testing-devresource:
+ * primary sections (Build, Author, etc.), their sub-tabs, and side nav.
  */
 export async function GET() {
   try {

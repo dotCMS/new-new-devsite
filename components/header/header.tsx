@@ -17,6 +17,8 @@ import type { NavSection } from "@/util/navTransform";
 import LogoWithArrow from "./Logo/LogoWithArrow";
 import { DocsQuickSearch } from "./DocsQuickSearch";
 import type { DynamicBuildSubTab } from "@/services/docs/getDotCMSBuildNavigation";
+import { ReorderMenuButton } from "@/components/editor/ReorderMenuButton";
+import { useIsEditMode } from "@/hooks/useIsEditMode";
 
 type HeaderProps = {
   sideNavItems?: any[];
@@ -130,11 +132,15 @@ export default function Header({
   primaryNavItems,
 }: HeaderProps) {
   const pathname = usePathname();
+  const isEditMode = useIsEditMode();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { open: isAssistantOpen, toggleOpen, expanded: assistantExpanded } =
     useAssistant();
   const showWideNav = useHeaderWideNav(isAssistantOpen, assistantExpanded);
   const isOnDocs = Boolean(pathname?.startsWith("/docs"));
+  const isTestingDevresource = Boolean(
+    pathname?.startsWith("/testing-devresource")
+  );
 
   // Add effect to handle body scroll
   useEffect(() => {
@@ -159,8 +165,15 @@ export default function Header({
       <div className="w-full border-b bg-background">
         <div className="relative mx-auto flex h-16 w-full min-w-0 max-w-[100vw] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           {/* Left — logo and primary nav */}
-          <div className="relative z-20 min-w-0 shrink-0">
+          <div className="relative z-20 flex min-w-0 shrink-0 items-center gap-2">
             <LogoWithArrow />
+            {isEditMode && isTestingDevresource && (
+              <ReorderMenuButton
+                startLevel={2}
+                depth={1}
+                label="Reorder primary navigation"
+              />
+            )}
           </div>
 
           {showWideNav && (

@@ -9,10 +9,18 @@ export type DynamicBuildSubTab = {
   activeHref: string;
 };
 
-export type DynamicBuildNavigation = {
-  primaryTabs: DynamicBuildSubTab[];
+export type DynamicPrimarySectionNav = {
   tabs: DynamicBuildSubTab[];
   navBySubTab: Record<string, BuildNavSection[]>;
+};
+
+export type DynamicBuildNavigation = {
+  primaryTabs: DynamicBuildSubTab[];
+  /** @deprecated Prefer resolving via `navByPrimaryTab` + pathname. Kept for callers that still read top-level tabs. */
+  tabs: DynamicBuildSubTab[];
+  /** @deprecated Prefer resolving via `navByPrimaryTab` + pathname. */
+  navBySubTab: Record<string, BuildNavSection[]>;
+  navByPrimaryTab: Record<string, DynamicPrimarySectionNav>;
 };
 
 type DotCMSNavigationItem = {
@@ -41,12 +49,12 @@ type FetchBuildNavigationOptions = {
 export const DEFAULT_BUILD_NAV_URI = "/testing-devresource";
 export const DEFAULT_BUILD_NAV_DEPTH = 6;
 const PAGE_CONTEXT_PATH = "/docs/table-of-contents";
-const BUILD_SECTION_TITLE = "build";
 
 const emptyBuildNavigation: DynamicBuildNavigation = {
   primaryTabs: [],
   tabs: [],
   navBySubTab: {},
+  navByPrimaryTab: {},
 };
 
 export const buildNavPropsFragment = `
@@ -109,7 +117,7 @@ function pathSegment(path: string | null | undefined): string {
   return path?.split("/").filter(Boolean).at(-1) ?? "";
 }
 
-function itemId(item: DotCMSNavigationItem, fallback = "build-item"): string {
+function itemId(item: DotCMSNavigationItem, fallback = "nav-item"): string {
   const title = item.title?.trim() || fallback;
   return item.code?.trim() || pathSegment(item.href) || slugify(title) || pathSegment(item.folder);
 }
@@ -137,25 +145,9 @@ function firstNavigableHref(item: DotCMSNavigationItem): string {
   return itemHref(item);
 }
 
-function isBuildItem(item: DotCMSNavigationItem): boolean {
-  const title = item.title?.trim().toLowerCase();
-  const folder = item.folder?.trim().toLowerCase();
-
-  return title === BUILD_SECTION_TITLE || folder?.endsWith("/build") === true;
-}
-
-function findBuildRoot(root: DotCMSNavigationItem): DotCMSNavigationItem | null {
-  if (isBuildItem(root)) {
-    return root;
-  }
-
-  const children = root.children ?? [];
-  return children.find((item) => item.type === "folder" && isBuildItem(item)) ?? null;
-}
-
 function toBuildLink(item: DotCMSNavigationItem): BuildNavLink {
   const link: BuildNavLink = {
-    id: itemId(item, "build-link"),
+    id: itemId(item, "nav-link"),
     label: itemLabel(item),
     href: itemHref(item),
   };
@@ -185,8 +177,8 @@ function sectionFromFolder(item: DotCMSNavigationItem): BuildNavSection | null {
   }
 
   return {
-    id: itemId(item, "build-section"),
-    title: itemLabel(item, "Build"),
+    id: itemId(item, "nav-section"),
+    title: itemLabel(item, "Docs"),
     items,
   };
 }
@@ -206,12 +198,72 @@ function sectionsFromSubTab(subTab: DotCMSNavigationItem): BuildNavSection[] {
 
   return [
     {
-      id: `${itemId(subTab, "build-subtab")}-pages`,
-      title: itemLabel(subTab, "Build"),
+      id: `${itemId(subTab, "nav-subtab")}-pages`,
+      title: itemLabel(subTab, "Docs"),
       items: directLinks,
     },
     ...folderSections,
   ];
+}
+
+function sectionNavFromPrimary(primary: DotCMSNavigationItem): DynamicPrimarySectionNav {
+  const subTabItems = sortByOrder(primary.children ?? []).filter(
+    (item) => item.type === "folder"
+  );
+
+  const tabs = subTabItems.map((item) => ({
+    id: itemId(item, "nav-subtab"),
+    label: itemLabel(item, "Docs"),
+    href: firstNavigableHref(item),
+    activeHref: itemHref(item),
+  }));
+
+  const navBySubTab = subTabItems.reduce<Record<string, BuildNavSection[]>>(
+    (acc, item) => {
+      const id = itemId(item, "nav-subtab");
+      acc[id] = sectionsFromSubTab(item);
+      return acc;
+    },
+    {}
+  );
+
+  return { tabs, navBySubTab };
+}
+
+export function resolveActivePrimaryNav(
+  navigation: DynamicBuildNavigation | null | undefined,
+  pathname: string | null | undefined
+): {
+  primaryTab: DynamicBuildSubTab | null;
+  tabs: DynamicBuildSubTab[];
+  navBySubTab: Record<string, BuildNavSection[]>;
+} {
+  const primaryTabs = navigation?.primaryTabs ?? [];
+  const navByPrimaryTab = navigation?.navByPrimaryTab ?? {};
+
+  const activePrimary =
+    primaryTabs
+      .filter((tab) => pathname?.startsWith(tab.activeHref || tab.href))
+      .sort(
+        (a, b) =>
+          (b.activeHref || b.href).length - (a.activeHref || a.href).length
+      )[0] ?? primaryTabs[0] ?? null;
+
+  if (!activePrimary) {
+    return {
+      primaryTab: null,
+      tabs: navigation?.tabs ?? [],
+      navBySubTab: navigation?.navBySubTab ?? {},
+    };
+  }
+
+  const sectionNav = navByPrimaryTab[activePrimary.id];
+
+  return {
+    primaryTab: activePrimary,
+    tabs: sectionNav?.tabs ?? navigation?.tabs ?? [],
+    navBySubTab: sectionNav?.navBySubTab ?? navigation?.navBySubTab ?? {},
+  };
 }
 
 export function transformDotCMSBuildNavigation(
@@ -231,35 +283,27 @@ export function transformDotCMSBuildNavigation(
     activeHref: itemHref(item),
   }));
 
-  const buildRoot = findBuildRoot(navigation);
-  if (!buildRoot) {
-    return {
-      ...emptyBuildNavigation,
-      primaryTabs,
-    };
-  }
+  const navByPrimaryTab = primaryItems.reduce<
+    Record<string, DynamicPrimarySectionNav>
+  >((acc, item) => {
+    const id = itemId(item, "primary-tab");
+    acc[id] = sectionNavFromPrimary(item);
+    return acc;
+  }, {});
 
-  const subTabItems = sortByOrder(buildRoot.children ?? []).filter(
-    (item) => item.type === "folder"
-  );
+  // Keep top-level tabs/navBySubTab pointing at the first primary section for
+  // older callers that don't resolve by pathname yet.
+  const firstPrimaryId = primaryTabs[0]?.id;
+  const firstSectionNav = firstPrimaryId
+    ? navByPrimaryTab[firstPrimaryId]
+    : undefined;
 
-  const tabs = subTabItems.map((item) => ({
-    id: itemId(item, "build-subtab"),
-    label: itemLabel(item, "Build"),
-    href: firstNavigableHref(item),
-    activeHref: itemHref(item),
-  }));
-
-  const navBySubTab = subTabItems.reduce<Record<string, BuildNavSection[]>>(
-    (acc, item) => {
-      const id = itemId(item, "build-subtab");
-      acc[id] = sectionsFromSubTab(item);
-      return acc;
-    },
-    {}
-  );
-
-  return { primaryTabs, tabs, navBySubTab };
+  return {
+    primaryTabs,
+    tabs: firstSectionNav?.tabs ?? [],
+    navBySubTab: firstSectionNav?.navBySubTab ?? {},
+    navByPrimaryTab,
+  };
 }
 
 export async function getDotCMSBuildNavigation(
@@ -268,7 +312,7 @@ export async function getDotCMSBuildNavigation(
   const uri = options.uri ?? DEFAULT_BUILD_NAV_URI;
   const depth = options.depth ?? DEFAULT_BUILD_NAV_DEPTH;
   const ttlSeconds = options.ttlSeconds ?? 600;
-  const cacheKey = getCacheKey(`dotcms-build-navigation|${uri}|${depth}|v1`);
+  const cacheKey = getCacheKey(`dotcms-build-navigation|${uri}|${depth}|v2`);
   const query = buildNavigationQuery(uri, depth);
 
   const cached = navCache.get<DynamicBuildNavigation>(cacheKey);
@@ -289,7 +333,10 @@ export async function getDotCMSBuildNavigation(
     ?.buildNavigation;
   const buildNavigation = transformDotCMSBuildNavigation(navigation);
 
-  if (buildNavigation.tabs.length > 0) {
+  if (
+    buildNavigation.primaryTabs.length > 0 ||
+    Object.keys(buildNavigation.navByPrimaryTab).length > 0
+  ) {
     navCache.set(cacheKey, buildNavigation, ttlSeconds);
   }
 

@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/util/utils";
-import type { DynamicBuildNavigation } from "@/services/docs/getDotCMSBuildNavigation";
+import {
+  resolveActivePrimaryNav,
+  type DynamicBuildNavigation,
+} from "@/services/docs/getDotCMSBuildNavigation";
+import { ReorderMenuButton } from "@/components/editor/ReorderMenuButton";
 
 type BuildSubNavProps = {
   className?: string;
@@ -12,7 +16,8 @@ type BuildSubNavProps = {
 
 export function BuildSubNav({ className, buildNavigation }: BuildSubNavProps) {
   const pathname = usePathname();
-  const tabs = buildNavigation?.tabs ?? [];
+  const { primaryTab, tabs } = resolveActivePrimaryNav(buildNavigation, pathname);
+  const sectionLabel = primaryTab?.label ?? "Docs";
   const status = tabs.length > 0 ? "ready" : "empty";
 
   return (
@@ -23,19 +28,25 @@ export function BuildSubNav({ className, buildNavigation }: BuildSubNavProps) {
       )}
     >
       <div className="mx-auto flex w-full min-w-0 items-stretch gap-0 px-4 sm:px-6 lg:px-8">
-        <div className="flex shrink-0 items-center py-2.5 pr-3 sm:pr-4">
+        <div className="flex shrink-0 items-center gap-2 py-2.5 pr-3 sm:pr-4">
           <span className="text-[11px] font-bold uppercase leading-none tracking-widest text-muted-foreground">
-            Build
+            {sectionLabel}
           </span>
+          <ReorderMenuButton
+            startLevel={3}
+            depth={1}
+            label={`Reorder ${sectionLabel} sub-navigation`}
+            className="scale-90"
+          />
         </div>
         <div className="my-2.5 w-px shrink-0 self-stretch bg-border/60" aria-hidden />
         <nav
           className="flex min-w-0 flex-1 items-end gap-0 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          aria-label="Build sections"
+          aria-label={`${sectionLabel} sections`}
         >
           {status === "empty" && (
             <span className="px-3 py-2.5 text-sm font-medium text-destructive">
-              No Build navigation returned from dotCMS.
+              No {sectionLabel} navigation returned from dotCMS.
             </span>
           )}
           {status === "ready" && tabs.map((tab) => {

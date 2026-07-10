@@ -9,10 +9,12 @@ import {
   type BuildNavLink,
   type BuildNavSection,
 } from "./buildNavData";
-import type {
-  DynamicBuildNavigation,
-  DynamicBuildSubTab,
+import {
+  resolveActivePrimaryNav,
+  type DynamicBuildNavigation,
+  type DynamicBuildSubTab,
 } from "@/services/docs/getDotCMSBuildNavigation";
+import { ReorderMenuButton } from "@/components/editor/ReorderMenuButton";
 
 const SIDEBAR_BG = "bg-[#F6F6F7] dark:bg-muted/25";
 const EMPTY_BUILD_TABS: DynamicBuildSubTab[] = [];
@@ -26,7 +28,7 @@ type NavRowProps = {
 function NavRow({ item, isActive }: NavRowProps) {
   const rowClassName = cn(
     "flex w-full min-w-0 items-center gap-2 text-left text-sm",
-    "py-1.5 pl-2.5",
+    "py-1.5 pl-1",
     "-mr-3 pr-3",
     "text-muted-foreground transition-colors",
     !isActive && "hover:bg-muted/80 hover:text-foreground",
@@ -77,24 +79,31 @@ export function BuildSectionNav({
   buildNavigation,
 }: BuildSectionNavProps) {
   const pathname = usePathname();
-  const tabs = buildNavigation?.tabs ?? EMPTY_BUILD_TABS;
+  const { primaryTab, tabs, navBySubTab } = resolveActivePrimaryNav(
+    buildNavigation,
+    pathname
+  );
+  const sectionLabel = primaryTab?.label ?? "Docs";
+  const resolvedTabs = tabs.length > 0 ? tabs : EMPTY_BUILD_TABS;
   const dynamicNavBySubTab =
-    buildNavigation?.navBySubTab ?? EMPTY_BUILD_NAV_BY_SUB_TAB;
+    Object.keys(navBySubTab).length > 0
+      ? navBySubTab
+      : EMPTY_BUILD_NAV_BY_SUB_TAB;
   const status = Object.keys(dynamicNavBySubTab).length > 0 ? "ready" : "empty";
   const activeTab = React.useMemo(
     () =>
-      tabs
+      resolvedTabs
         .filter((tab) => pathname?.startsWith(tab.activeHref || tab.href))
         .sort(
           (a, b) =>
             (b.activeHref || b.href).length - (a.activeHref || a.href).length
         )[0],
-    [pathname, tabs]
+    [pathname, resolvedTabs]
   );
   const activeSubTab = activeTab?.id ?? buildSub ?? "";
   const sections = dynamicNavBySubTab[activeSubTab] ?? [];
 
-  const paddingX = isMobile ? "pl-5 pr-3" : "pl-6 pr-3 sm:pl-7";
+  const paddingX = isMobile ? "pl-3 pr-3" : "pl-3 pr-3 sm:pl-4";
   const scrollClass = isMobile ? "max-h-[50vh] overflow-y-auto" : "";
 
   return (
@@ -112,15 +121,24 @@ export function BuildSectionNav({
         className={cn("min-h-0", isMobile && scrollClass, "pt-0")}
       >
         <DocsSidebarFilter />
-        <div className="pt-4">
+        <div className={cn(paddingX, "flex items-center justify-end pt-3")}>
+          <ReorderMenuButton
+            startLevel={4}
+            depth={2}
+            label={`Reorder ${sectionLabel} side navigation`}
+            className="scale-90"
+          />
+        </div>
+        <div className="pt-2">
           {status === "empty" && (
             <div className={cn(paddingX, "text-sm font-medium text-destructive")}>
-              No Build navigation returned from dotCMS.
+              No {sectionLabel} navigation returned from dotCMS.
             </div>
           )}
           {status === "ready" && sections.length === 0 && (
             <div className={cn(paddingX, "text-sm font-medium text-destructive")}>
-              No Build side nav found for <code>{activeSubTab || pathname}</code>.
+              No {sectionLabel} side nav found for{" "}
+              <code>{activeSubTab || pathname}</code>.
             </div>
           )}
           {status === "ready" && sections.map((section, sectionIndex) => (
@@ -131,8 +149,9 @@ export function BuildSectionNav({
                 sectionIndex > 0 && "mt-7 border-t border-border/50 pt-6"
               )}
             >
-              <h2 className="pl-2.5 text-[10px] font-bold uppercase leading-tight tracking-wider text-foreground/80">
-                {section.title}
+              <h2 className="flex items-center gap-2 pl-1 text-[10px] font-bold uppercase leading-tight tracking-wider text-foreground/80">
+                <span className="h-4 w-1 shrink-0" aria-hidden />
+                <span className="min-w-0 flex-1">{section.title}</span>
               </h2>
               <ul className="mt-1.5 space-y-0 pb-0.5">
                 {section.items.map((item) => (
