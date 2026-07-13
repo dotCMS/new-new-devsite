@@ -39,8 +39,11 @@ export const TableReleases: FC<{
   const {data: regularReleases, loading, error} = useReleases(limit, currentPage, filter, false, version);
   const pagination = showCurrent ? {} : regularReleases?.pagination;
   
+  const getEffectiveEolDate = (release: { eolDate: string; parent?: { eolDate?: string } }) =>
+    release.parent?.eolDate || release.eolDate;
+
   const releaseMap = currentReleases.reduce((acc, release) => {
-    acc[release.minor] = {version: release.minor, lts: release.lts, eolDate: release.eolDate, isLatest: release.lts === "3"};
+    acc[release.minor] = {version: release.minor, lts: release.lts, eolDate: getEffectiveEolDate(release), isLatest: release.lts === "3"};
     return acc;
   }, {} as Record<string, {version: string, lts: string, eolDate: string, isLatest: boolean}>);
 
@@ -118,13 +121,15 @@ export const TableReleases: FC<{
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
-            {filteredReleases.map((release, index) => (
+            {filteredReleases.map((release, index) => {
+              const effectiveEolDate = getEffectiveEolDate(release);
+              return (
               <tr 
                 key={`lts-${index}-${release.minor}`} 
                 className={`transition-colors ${
-                    releaseMap[release.minor] && !isEolPassed(release.eolDate)?
+                    releaseMap[release.minor] && !isEolPassed(effectiveEolDate)?
                     'bg-green-100 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-700'
-                   : isEolPassed(release.eolDate)
+                   : isEolPassed(effectiveEolDate)
                     ? 'bg-gray-100 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-700'
                     : 'hover:bg-gray-50 dark:hover:bg-gray-700'
                 }`}
@@ -223,12 +228,13 @@ export const TableReleases: FC<{
                   {extractDateForTables(release.releasedDate)}
                 </td>
                 {showLtsColumn && (   
-                <td className={`px-6 py-4 text-sm text-gray-500 dark:text-gray-400 text-center text-nowrap font-mono ${isEolPassed(release.eolDate) ? 'line-through' : ''}`}>
-                  {release.lts === "3" ? "-" : extractDateForTables(release.eolDate)}
+                <td className={`px-6 py-4 text-sm text-gray-500 dark:text-gray-400 text-center text-nowrap font-mono ${isEolPassed(effectiveEolDate) ? 'line-through' : ''}`}>
+                  {release.lts === "3" ? "-" : extractDateForTables(effectiveEolDate)}
                 </td>
                 )}
               </tr>
-            ))}
+            );
+            })}
           </tbody>
         </table>
         {!showCurrent && (
