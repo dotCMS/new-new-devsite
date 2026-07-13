@@ -141,10 +141,11 @@ export default function ChangeLogContainer({ sideNav, slug }) {
                 const ltsMajorVersions = []; // list of LTS major versions
                 const ltsEol = []; // list of boolean values indicating if the LTS version has reached EOL
                 const pastEol = (eol) => { return new Date(eol) < new Date(); }
+                const resolveLineMetadata = (item) => item.parent || item;
                 for (const item of data.ltsMajors) { // iterate over the LTS major versions
                   for (const vTag of item.tags) { // check tags
                     if (/^\d/.test(vTag) && !ltsMajorVersions.includes(vTag)) { // if tag designates a major LTS version
-                      const eol = new Date(item.eolDate);
+                      const eol = new Date(resolveLineMetadata(item).eolDate);
                       ltsMajorVersions.push(vTag); // store tag
                       ltsEol.push(pastEol(eol)) // store EOL status
                       break;
@@ -169,8 +170,7 @@ export default function ChangeLogContainer({ sideNav, slug }) {
                 // just to convey the Designation/EOL dates for the entire page
                 const vLtsIndex = ltsMajorVersions.indexOf(vLts);
                 if (vLtsIndex !== -1 && data.ltsMajors && data.ltsMajors[vLtsIndex]) {
-                  thisMajorVersion = data.ltsMajors[vLtsIndex].parent ? 
-                    data.ltsMajors[vLtsIndex].parent : data.ltsMajors[vLtsIndex];
+                  thisMajorVersion = resolveLineMetadata(data.ltsMajors[vLtsIndex]);
                 } else {
                   thisMajorVersion = null;
                 }
