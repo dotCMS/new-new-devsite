@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrowRight, ExternalLink, FlaskConical, Package, Zap } from "lucide-react";
+import { ArrowRight, ExternalLink, FlaskConical, Github, Package, Zap } from "lucide-react";
 
 import { useAssistant } from "@/components/chat/AssistantProvider";
 import { useContentColumnWideLayout } from "@/hooks/useHeaderWideNav";
@@ -13,28 +13,43 @@ import Warn from "../mdx/Warn";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 /**
- * Normalize an npm source config into the shape the source panel renders.
+ * Normalize an npm or GitHub source config into the source panel shape.
  * Returns null if the config is missing/invalid.
  *
  * Shape:
  *   {
- *     pkg,           // npm package name, e.g. "@dotcms/client"
- *     tag,           // npm dist-tag, e.g. "latest" | "beta"
- *     packageUrl,    // npmjs.com package page
+ *     kind,          // "npm" | "github"
+ *     label,         // package or repository name
+ *     sourceUrl,     // npm or GitHub source page
+ *     tag,           // npm dist-tag when applicable
  *     starterGuide,  // optional integration guide link
  *   }
  */
 function buildSourceMeta(config) {
-  if (!config || !config.pkg) {
+  if (!config) {
     return null;
   }
 
-  return {
-    pkg: config.pkg,
-    tag: config.tag,
-    packageUrl: `https://www.npmjs.com/package/${config.pkg}`,
-    starterGuide: config.starterGuide,
-  };
+  if (config.source === "npm" && config.pkg) {
+    return {
+      kind: "npm",
+      label: config.pkg,
+      tag: config.tag,
+      sourceUrl: `https://www.npmjs.com/package/${config.pkg}`,
+      starterGuide: config.starterGuide,
+    };
+  }
+
+  if (config.source === "github" && config.owner && config.repo) {
+    return {
+      kind: "github",
+      label: `${config.owner}/${config.repo}`,
+      sourceUrl: `https://github.com/${config.owner}/${config.repo}/tree/${config.branch}`,
+      starterGuide: config.starterGuide,
+    };
+  }
+
+  return null;
 }
 
 const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
@@ -48,8 +63,7 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
     return <div>Loading...</div>;
   }
 
-  // The npm source config is stored in contentlet._map (since contentlet is
-  // urlContentMap): { source:'npm', pkg, tag, starterGuide? }.
+  // The external source config is stored in contentlet._map.
   const sourceConfig = contentlet._map?.githubConfig || contentlet.githubConfig;
 
   // Normalize into a `meta` describing the source panel.
@@ -122,16 +136,20 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
               </div>
             )}
 
-            {/* npm source + integration guide links (compact) */}
+            {/* External source + integration guide links (compact) */}
             <div className="not-markdown mb-6 flex flex-wrap items-center gap-x-5 gap-y-2">
               <a
-                href={meta.packageUrl}
+                href={meta.sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
               >
-                <Package className="h-3.5 w-3.5" />
-                {meta.pkg}
+                {meta.kind === "npm" ? (
+                  <Package className="h-3.5 w-3.5" />
+                ) : (
+                  <Github className="h-3.5 w-3.5" />
+                )}
+                {meta.label}
                 <ExternalLink className="h-3 w-3" />
               </a>
               {meta.starterGuide && (
@@ -181,42 +199,48 @@ const GitHubDocumentation = ({ contentlet, sideNav, slug }) => {
             <MarkdownContent content={documentation} />
           </div>
 
-          {/* Additional npm Info */}
+          {/* Additional source info */}
           <div className="mt-12 pt-8 border-t border-border">
             <div className="flex flex-col sm:flex-row gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <Package className="h-4 w-4" />
+                {meta.kind === "npm" ? (
+                  <Package className="h-4 w-4" />
+                ) : (
+                  <Github className="h-4 w-4" />
+                )}
                 <span>
-                  Package:{" "}
+                  {meta.kind === "npm" ? "Package" : "Repository"}:{" "}
                   <a
-                    href={meta.packageUrl}
+                    href={meta.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary hover:underline"
                   >
-                    {meta.pkg}
+                    {meta.label}
                   </a>
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <span>
-                  Tag:{" "}
-                  <code className="bg-muted px-1 py-0.5 rounded text-xs">
-                    {meta.tag}
-                  </code>
-                </span>
-              </div>
+              {meta.tag && (
+                <div className="flex items-center gap-2">
+                  <span>
+                    Tag:{" "}
+                    <code className="bg-muted px-1 py-0.5 rounded text-xs">
+                      {meta.tag}
+                    </code>
+                  </span>
+                </div>
+              )}
             </div>
 
             <p className="mt-4 text-xs text-muted-foreground">
               Found an issue with this documentation?{" "}
               <a
-                href={meta.packageUrl}
+                href={meta.sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
               >
-                View the package on npm
+                View the source
               </a>
             </p>
           </div>

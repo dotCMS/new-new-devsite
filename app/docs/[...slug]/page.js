@@ -1,78 +1,43 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getDotCMSPage } from "@/util/getDotCMSPage";
+import { normalizeDocPath } from "@/config/github-docs";
+import { resolveSpecialDocsPage } from "@/config/special-doc-pages";
+import { applyExternalDocContent } from "@/services/docs/applyExternalDocContent";
 
 // ISR: Revalidate pages every 60 seconds
 export const revalidate = 60;
 import { getSideNav } from "@/services/docs/getSideNav"
-import { isGitHubDoc, getGitHubConfig, withTag } from "@/config/github-docs";
-import { getDocsContentWithGitHub } from "@/services/docs/getGitHubContent";
 import Footer from "@/components/footer";
 import { DocsPageShell } from "@/components/docs/DocsPageShell";
 import Documentation from "@/components/documentation/Documentation";
 import GitHubDocumentation from "@/components/documentation/GitHubDocumentation";
-import ChangeLogList from "@/components/changelogs/ChangeLogList";
+import { SpecialDocsPageContent } from "@/components/docs/SpecialDocsPageContent";
 import { getNavSections } from "@/services/docs/getNavSections";
-import CurrentReleases from "@/components/releases/CurrentReleases";
-import AllReleases from "@/components/releases/AllReleases";
-import AllSecurityIssues from "@/components/security-issues/AllSecurityIssues";
-import RestApiPlayground from "@/components/playgrounds/RestApiPlayground/RestApiPlayground";
-import SwaggerUIComponent from "@/components/playgrounds/SwaggerUIComponent/SwaggerUIComponent";
 import Script from "next/script";
 import { getSecurityIssues } from "@/services/docs/getSecurityIssues/getSecurityIssues";
-import Deprecations from "@/components/deprecations/Deprecations";
 import getDeprecations from "@/services/docs/getDeprecations/getDeprecations";
-import { JavadocEmbeddedDocs } from "@/components/javadocs/JavadocEmbeddedDocs";
 
 /**
- * Process slug consistently across all functions
+ * Process slug consistently across all functions.
+ * Returns the full path after `/docs/` (supports nested routes).
  * @param {string|string[]|undefined} slug - The slug from params
- * @returns {string} - The processed slug
+ * @returns {string} - The processed docs path
  */
 function processSlug(slug) {
-    // Handle slug as array (for nested paths) or string, and ensure consistent processing
-    const slugArray = Array.isArray(slug) ? slug : (slug ? [slug] : []);
-    const processedSlug = slugArray.filter(Boolean).join('/').toLowerCase();
-    // Convert 'table-of-contents' to empty string for consistency with GitHub docs check
+    const processedSlug = normalizeDocPath(slug);
+    // Convert 'table-of-contents' to empty string for the TOC page
     return processedSlug === 'table-of-contents' ? '' : processedSlug;
 }
 
 /**
- * If the slug maps to an external (npm) doc, fetch its README for the requested
- * dist-tag and swap it into the page's urlContentMap in place. No-op for
- * regular dotCMS pages or when the external fetch fails.
- * @param {string} slug - processed page slug
- * @param {string|undefined} requestedTag - value of the `?tag=` query param
- * @param {object} pageAsset - the dotCMS page asset to mutate
+ * Check whether a docs path matches a known single-segment page key.
+ * @param {string} slug - processed docs path
+ * @param {string} pageKey - page identifier (e.g. `changelogs`)
+ * @returns {boolean}
  */
-async function applyExternalDocContent(slug, requestedTag, pageAsset) {
-    if (!isGitHubDoc(slug) || !pageAsset?.urlContentMap?.inode) {
-        return;
-    }
-
-    const githubConfig = withTag(getGitHubConfig(slug), requestedTag);
-    const contentResult = await getDocsContentWithGitHub(
-        slug,
-        githubConfig,
-        () => pageAsset?.urlContentMap?._map?.documentation || ''
-    );
-
-    if (contentResult.source !== 'github') {
-        return;
-    }
-
-    if (!pageAsset.urlContentMap._map) {
-        pageAsset.urlContentMap._map = {};
-    }
-
-    pageAsset.urlContentMap._map.documentation = contentResult.content;
-    pageAsset.urlContentMap._map.githubSource = true;
-    pageAsset.urlContentMap._map.githubConfig = contentResult.config;
-    // betaAvailable drives the beta switch; isBeta is derived client-side from
-    // the config tag, so it isn't duplicated here.
-    pageAsset.urlContentMap._map.tagInfo = {
-        betaAvailable: contentResult.betaAvailable,
-    };
+function matchesPageSlug(slug, pageKey) {
+    return slug === pageKey || slug.endsWith(`/${pageKey}`);
 }
 
 async function fetchPageData(path, slug, requestedTag) {
@@ -125,7 +90,7 @@ export async function generateMetadata({ params, searchParams }) {
     // Check if this is a security issue detail page
     let title = pageAsset.urlContentMap.navTitle || pageAsset.urlContentMap.title;
     
-    if (slug === 'known-security-issues' && finalSearchParams.issueNumber) {
+    if (matchesPageSlug(slug, 'known-security-issues') && finalSearchParams.issueNumber) {
         try {
             const { securityIssues } = await getSecurityIssues(1, 1, undefined, false, finalSearchParams.issueNumber);
             if (securityIssues && securityIssues.length > 0) {
@@ -267,6 +232,8 @@ export default async function Home({ searchParams, params }) {
 
     await applyExternalDocContent(slug, finalSearchParams.tag, pageAsset);
 
+    const specialPageKey = resolveSpecialDocsPage(slug);
+
     let allDeprecations = null;
     try {
         allDeprecations = await getDeprecations();
@@ -275,6 +242,8 @@ export default async function Home({ searchParams, params }) {
         allDeprecations = null;
     }
 
+    const leafSlug = slug.split("/").filter(Boolean).pop() || slug;
+
     let deprecationForPage = null;
     if (allDeprecations && Array.isArray(allDeprecations)) {
         deprecationForPage =
@@ -282,7 +251,10 @@ export default async function Home({ searchParams, params }) {
                 (dep) =>
                     dep.docLinks &&
                     Array.isArray(dep.docLinks) &&
-                    dep.docLinks.some((link) => link.urlTitle === slug)
+                    dep.docLinks.some(
+                        (link) =>
+                            link.urlTitle === slug || link.urlTitle === leafSlug
+                    )
             ) || null;
     }
 
@@ -292,36 +264,23 @@ export default async function Home({ searchParams, params }) {
         currentPath: slug,
         searchParams: finalSearchParams,
         deprecation: deprecationForPage,
-        allDeprecations: slug === "deprecations" ? allDeprecations : undefined,
+        allDeprecations: specialPageKey === "deprecations" ? allDeprecations : undefined,
     };
 
-    // Add more path-component mappings here as needed.
-    const componentMap = {
-        "changelogs": (data) => <ChangeLogList {...data} slug={slug} />,
-        "current-releases": (data) => <CurrentReleases  {...data} slug={slug} />,
-        "all-releases": (data) => <AllReleases  {...data} slug={slug} />,
-        "previous-releases": (data) => <AllReleases  {...data} slug={slug} />,
-        "known-security-issues": (data) => <AllSecurityIssues  {...data} slug={slug} />,
-        "deprecations": (data) => <Deprecations {...data} slug={slug} initialItems={data.allDeprecations || []} />,
-        "rest-api-sampler": (data) => <RestApiPlayground {...data} slug={slug} />,
-        "all-rest-apis": (data) => <SwaggerUIComponent {...data} slug={slug} />,
-        "javadocs": (data) => (
-            <JavadocEmbeddedDocs
-                contentlet={data.contentlet}
-                sideNav={data.sideNav}
-                slug={slug}
-                searchParams={data.searchParams}
-            />
-        ),
-        default: (data) => {
-            // Check if this is GitHub-sourced content
-            // githubSource is set on urlContentMap._map, so check _map property
-            if (data.contentlet._map?.githubSource) {
-                return <GitHubDocumentation {...data} slug={slug} />;
-            }
-            return <Documentation {...data} slug={slug} />;
-        }
-    };
+    const pageBody = specialPageKey ? (
+        <SpecialDocsPageContent
+            pageKey={specialPageKey}
+            slug={slug}
+            sideNav={sideNav}
+            contentlet={pageAsset.urlContentMap}
+            searchParams={finalSearchParams}
+            allDeprecations={data.allDeprecations}
+        />
+    ) : data.contentlet._map?.githubSource ? (
+        <GitHubDocumentation {...data} slug={slug} />
+    ) : (
+        <Documentation {...data} slug={slug} />
+    );
 
 
     return (
@@ -340,7 +299,7 @@ export default async function Home({ searchParams, params }) {
                         pageAsset.layout.footer ? <Footer variant="content" /> : null
                     }
                 >
-                    {(componentMap[slug] || componentMap.default)(data)}
+                    {pageBody}
                 </DocsPageShell>
             </Suspense>
         </div>

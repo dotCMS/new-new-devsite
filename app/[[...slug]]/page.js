@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { PageAsset } from "@/components/page-asset";
 import { ErrorPage } from "@/components/error";
 import { getDotCMSPage } from "@/util/getDotCMSPage";
@@ -5,7 +6,11 @@ import { getNavSections } from "@/services/docs/getNavSections";
 import { getSideNav } from "@/services/docs/getSideNav";
 import { BlockPageAsset } from "@/components/page-asset-with-content-block";
 import { DynamicBuildPageAsset } from "@/components/docs/DynamicBuildPageAsset";
+import { SpecialDocsPageContent } from "@/components/docs/SpecialDocsPageContent";
 import { transformDotCMSBuildNavigation } from "@/services/docs/getDotCMSBuildNavigation";
+import { applyExternalDocContent } from "@/services/docs/applyExternalDocContent";
+import { resolveSpecialDocsPage } from "@/config/special-doc-pages";
+import getDeprecations from "@/services/docs/getDeprecations/getDeprecations";
 /**
  * Generate metadata
  *
@@ -61,8 +66,9 @@ export async function generateMetadata({ params }) {
     }
 }
 
-export default async function Page({ params }) {
+export default async function Page({ params, searchParams }) {
     const finalParams = await params;
+    const finalSearchParams = await searchParams;
 
     const path = finalParams?.slug?.join("/") || "/";
     const pageContent = await getDotCMSPage(path);
@@ -73,6 +79,8 @@ export default async function Page({ params }) {
     }
 
     const { pageAsset } = pageContent;
+    await applyExternalDocContent(path, finalSearchParams?.tag, pageAsset);
+
     const isBlockPage = pageAsset?.page?.contentType === "BlockPage"
     const isTestingDevresourcePage =
         pageAsset?.page?.url?.startsWith("/testing-devresource") ||
@@ -83,10 +91,53 @@ export default async function Page({ params }) {
     );
 
     if (isTestingDevresourcePage) {
+        const specialPageKey = resolveSpecialDocsPage(path);
+        let specialContent = null;
+
+        if (specialPageKey) {
+            const sideNav = await getSideNav();
+            let allDeprecations = undefined;
+
+            if (specialPageKey === "deprecations") {
+                try {
+                    allDeprecations = await getDeprecations();
+                } catch (e) {
+                    console.error("Error fetching deprecations:", e);
+                    allDeprecations = [];
+                }
+            }
+
+            const contentlet =
+                pageAsset?.page?.urlContentMap ||
+                pageAsset?.urlContentMap ||
+                {
+                    title: pageAsset?.page?.title,
+                    navTitle: pageAsset?.page?.friendlyName || pageAsset?.page?.title,
+                };
+
+            specialContent = (
+                <Suspense
+                    fallback={
+                        <div className="min-h-[50vh] w-full animate-pulse bg-muted/15" />
+                    }
+                >
+                    <SpecialDocsPageContent
+                        pageKey={specialPageKey}
+                        slug={path}
+                        sideNav={sideNav}
+                        contentlet={contentlet}
+                        searchParams={finalSearchParams}
+                        allDeprecations={allDeprecations}
+                    />
+                </Suspense>
+            );
+        }
+
         return (
             <DynamicBuildPageAsset
                 pageContent={pageContent}
                 buildNavigation={buildNavigation}
+                specialContent={specialContent}
             />
         );
     }
