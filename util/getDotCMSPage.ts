@@ -3,10 +3,13 @@ import { client } from "./dotcmsClient";
 import {
     buildNavigationQuery,
     buildNavPropsFragment,
+    DEFAULT_BUILD_NAV_URI,
 } from "@/services/docs/getDotCMSBuildNavigation";
+import { getBuildNavUriForPath } from "@/config/docs-path-roots";
 
 export const getDotCMSPage = cache(async (path: string) => {
     try {
+        const navUri = getBuildNavUriForPath(path) || DEFAULT_BUILD_NAV_URI;
         const pageData = await client.page.get(path, {
             graphql: {
                 page: `
@@ -136,7 +139,7 @@ export const getDotCMSPage = cache(async (path: string) => {
                     }
                 `,
                 content: {
-                    buildNavigation: buildNavigationQuery(),
+                    buildNavigation: buildNavigationQuery(navUri),
                 },
                 fragments: [buildNavPropsFragment],
             }

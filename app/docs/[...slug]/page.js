@@ -2,8 +2,10 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getDotCMSPage } from "@/util/getDotCMSPage";
 import { normalizeDocPath } from "@/config/github-docs";
-import { resolveSpecialDocsPage } from "@/config/special-doc-pages";
 import { applyExternalDocContent } from "@/services/docs/applyExternalDocContent";
+import { resolveDocsExperience } from "@/services/docs/resolveDocsExperience";
+import { renderDynamicDocsExperience } from "@/services/docs/renderDynamicDocsExperience";
+import { transformDotCMSBuildNavigation } from "@/services/docs/getDotCMSBuildNavigation";
 
 // ISR: Revalidate pages every 60 seconds
 export const revalidate = 60;
@@ -55,7 +57,7 @@ async function fetchPageData(path, slug, requestedTag) {
 
     await applyExternalDocContent(slug, requestedTag, pageAsset);
 
-    return { pageAsset, sideNav, currentPath: finalPath };
+    return { pageAsset, sideNav, currentPath: finalPath, pageData };
 }
 
 /**
@@ -72,8 +74,26 @@ export async function generateMetadata({ params, searchParams }) {
     const path = "/docs/" + (slug || "table-of-contents");
     const hostname = "https://dev.dotcms.com";
     const { pageAsset } = await fetchPageData(path, slug, finalSearchParams.tag);
-    
-    // Check if urlContentMap exists before accessing _map
+    const experience = resolveDocsExperience(path, pageAsset);
+
+    // Dynamic/reorg pages may lack urlContentMap.inode; use page fields instead.
+    if (experience?.shell === "dynamic") {
+        const page = pageAsset?.page;
+        const title = page?.friendlyName || page?.title || "dotCMS Docs";
+        const description =
+            page?.description ||
+            page?.teaser ||
+            page?.seoDescription ||
+            "dotCMS Dev Site, Documentation and Resources";
+
+        return {
+            title,
+            description,
+            alternates: { canonical: `${hostname}${path}` },
+            metadataBase: new URL(hostname),
+        };
+    }
+
     if (!pageAsset?.urlContentMap?.inode) {
         return {
             title: "Page Not Found",
@@ -217,6 +237,27 @@ export default async function Home({ searchParams, params }) {
     }
 
     const { pageAsset } = pageData;
+    await applyExternalDocContent(slug, finalSearchParams.tag, pageAsset);
+
+    const experience = resolveDocsExperience(path, pageAsset);
+    const buildNavigation = transformDotCMSBuildNavigation(
+        pageData?.content?.buildNavigation
+    );
+
+    // Redesigned nested /docs pages share the dynamic shell with testing-devresource.
+    if (experience?.shell === "dynamic") {
+        return renderDynamicDocsExperience({
+            experience,
+            pageContent: pageData,
+            buildNavigation,
+            searchParams: finalSearchParams,
+        });
+    }
+
+    // Legacy flat /docs/{slug} URL-mapped documentation
+    if (!pageAsset?.urlContentMap?.inode) {
+        notFound();
+    }
 
     const sideNav = await getSideNav();
     const navSections = await getNavSections({
@@ -226,13 +267,7 @@ export default async function Home({ searchParams, params }) {
         ttlSeconds: 600,
     });
 
-    if (!pageAsset?.urlContentMap?.inode) {
-        notFound();
-    }
-
-    await applyExternalDocContent(slug, finalSearchParams.tag, pageAsset);
-
-    const specialPageKey = resolveSpecialDocsPage(slug);
+    const specialPageKey = experience?.specialPageKey ?? null;
 
     let allDeprecations = null;
     try {

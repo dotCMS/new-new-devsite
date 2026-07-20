@@ -16,6 +16,13 @@ import MarkdownContent from "@/components/MarkdownContent";
 const TOC_SELECTORS =
   "main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4";
 
+/**
+ * @param {{
+ *   pageContent: unknown,
+ *   buildNavigation?: unknown,
+ *   specialContent?: import('react').ReactNode,
+ * }} props
+ */
 export function DynamicBuildPageAsset({
   pageContent,
   buildNavigation,

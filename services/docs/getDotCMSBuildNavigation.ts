@@ -48,6 +48,7 @@ type FetchBuildNavigationOptions = {
 
 export const DEFAULT_BUILD_NAV_URI = "/testing-devresource";
 export const DEFAULT_BUILD_NAV_DEPTH = 6;
+/** Page used only as a GraphQL carrier when fetching nav outside a real page request. */
 const PAGE_CONTEXT_PATH = "/docs/table-of-contents";
 
 const emptyBuildNavigation: DynamicBuildNavigation = {

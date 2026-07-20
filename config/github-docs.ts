@@ -189,6 +189,8 @@ export function withTag(
   return { ...config, tag };
 }
 
+import { stripDocsPathRoot } from '@/config/docs-path-roots';
+
 /**
  * Normalize either public route family into a path key.
  * @param slug - route params or a path, with or without a leading slash
@@ -202,7 +204,7 @@ export function normalizeDocPath(slug: string | string[] | undefined): string {
     .toLowerCase()
     .replace(/^\/+|\/+$/g, '');
 
-  return path.replace(/^(?:docs|testing-devresource)\//, '');
+  return stripDocsPathRoot(path);
 }
 
 /**

@@ -59,7 +59,7 @@ export function SpecialDocsPageContent({
         />
       );
     case "all-rest-apis":
-      return <SwaggerUIComponent {...data} slug={slug} />;
+      return <SwaggerUIComponent />;
     case "javadocs":
       return (
         <JavadocEmbeddedDocs
