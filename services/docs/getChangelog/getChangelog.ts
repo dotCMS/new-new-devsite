@@ -7,6 +7,22 @@ function luceneQuotedTerm(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
 
+/** GraphQL field errors we can ignore when collection data is still usable. */
+function isSoftGraphQLError(error: { message?: string; extensions?: { code?: string } }) {
+  const message = error?.message || '';
+  if (message.includes('dockerImage') && message.includes('null value')) {
+    return true;
+  }
+  // RelationshipFieldDataFetcher PERMISSION_DENIED on `parent` — content still returns.
+  if (
+    message.includes("permission to access the relationship metadata for field 'parent'") ||
+    (error?.extensions?.code === 'PERMISSION_DENIED' && message.includes("'parent'"))
+  ) {
+    return true;
+  }
+  return false;
+}
+
 /**
  * Embed full Lucene query in GraphQL string literal — inner " must be escaped.
  */
@@ -63,10 +79,19 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
   const ltsMajorResults =  await logRequest(async () => graphqlResults(ltsMajorQuery), 'getLTSMajorVersions');
   const ltsMajorResult = ltsMajorResults?.data;
 
-  if (!ltsMajorResult?.DotcmsbuildsCollection ) {
-
+  if (ltsMajorResults?.errors?.length) {
+    const hardErrors = ltsMajorResults.errors.filter((e: any) => !isSoftGraphQLError(e));
+    if (hardErrors.length || !ltsMajorResult?.DotcmsbuildsCollection) {
+      console.error('GraphQL errors in getLTSMajorVersions:', ltsMajorResults.errors);
+      throw new Error(hardErrors[0]?.message || ltsMajorResults.errors[0].message);
+    }
+    console.warn(
+      'Soft GraphQL errors in getLTSMajorVersions (continuing with partial data):',
+      ltsMajorResults.errors.map((e: any) => e.message),
+    );
+  } else if (!ltsMajorResult?.DotcmsbuildsCollection) {
     console.error('GraphQL errors in getLTSMajorVersions:', ltsMajorResults.errors);
-    throw new Error(ltsMajorResults.errors[0].message);
+    throw new Error(ltsMajorResults?.errors?.[0]?.message || 'Failed to load LTS major versions');
   }
 
   // If singleVersion is provided while already scoped to LTS (lts=…), detect patch lines
@@ -115,23 +140,30 @@ export const getChangelog = async ({ page = 1, vLts = "false", singleVersion = "
   const result = await logRequest(async () => graphqlResults(query), 'getChangelog');
   
   if (result?.errors && result.errors.length > 0) {
-    console.error('GraphQL errors in getChangelog:', result.errors);
-    
-    // Check if the error is related to null dockerImage fields
-    const isDockerImageError = result.errors.some((error: any) => 
-      error.message && error.message.includes('dockerImage') && error.message.includes('null value')
+    const hardErrors = result.errors.filter((error: any) => !isSoftGraphQLError(error));
+    const hasCollection = Boolean(result?.data?.DotcmsbuildsCollection);
+
+    if (hardErrors.length || !hasCollection) {
+      console.error('GraphQL errors in getChangelog:', result.errors);
+      throw new Error(hardErrors[0]?.message || result.errors[0].message);
+    }
+
+    console.warn(
+      'Soft GraphQL errors in getChangelog (continuing with partial data):',
+      result.errors.map((e: any) => e.message),
     );
-    
-    if (isDockerImageError) {
-      console.warn('Handling null dockerImage values in changelog data');
-      // Filter out entries with null dockerImage values from the results if data exists
-      if (result?.data?.DotcmsbuildsCollection) {
-        result.data.DotcmsbuildsCollection = result.data.DotcmsbuildsCollection.filter((item: any) => 
-          item && typeof item === 'object'
-        );
-      }
-    } else {
-      throw new Error(result.errors[0].message);
+
+    // Null dockerImage entries can poison the collection — drop empties if present.
+    const isDockerImageError = result.errors.some(
+      (error: any) =>
+        error.message &&
+        error.message.includes('dockerImage') &&
+        error.message.includes('null value'),
+    );
+    if (isDockerImageError && result?.data?.DotcmsbuildsCollection) {
+      result.data.DotcmsbuildsCollection = result.data.DotcmsbuildsCollection.filter(
+        (item: any) => item && typeof item === 'object',
+      );
     }
   }
 

@@ -3,6 +3,22 @@ import { Config } from '@/util/config';
 import { logRequest } from '@/util/logRequest';
 import { graphqlResults } from '@/services/gql';
 import { FilterReleases } from './types';
+
+/** GraphQL field errors we can ignore when collection data is still usable. */
+function isSoftGraphQLError(error: { message?: string; extensions?: { code?: string } }) {
+  const message = error?.message || '';
+  if (message.includes('dockerImage') && message.includes('null value')) {
+    return true;
+  }
+  if (
+    message.includes("permission to access the relationship metadata for field 'parent'") ||
+    (error?.extensions?.code === 'PERMISSION_DENIED' && message.includes("'parent'"))
+  ) {
+    return true;
+  }
+  return false;
+}
+
 export const getReleases = async (limit: number = 50, page: number = 1, filter: FilterReleases = FilterReleases.ALL, log: boolean = false, version: string = "") => {
   var buildQuery = '+contentType:Dotcmsbuilds +Dotcmsbuilds.download:1 +Dotcmsbuilds.released:true +live:true';
 
@@ -65,23 +81,29 @@ if (log) {
 const result = await logRequest(async () => graphqlResults(query), 'getCurrentRelease');
 
 if (result?.errors && result.errors.length > 0) {
-  console.error('GraphQL errors in getReleases:', result.errors);
-  
-  // Check if the error is related to null dockerImage fields
-  const isDockerImageError = result.errors.some((error: any) => 
-    error.message && error.message.includes('dockerImage') && error.message.includes('null value')
+  const hardErrors = result.errors.filter((error: any) => !isSoftGraphQLError(error));
+  const hasCollection = Boolean(result?.data?.DotcmsbuildsCollection);
+
+  if (hardErrors.length || !hasCollection) {
+    console.error('GraphQL errors in getReleases:', result.errors);
+    throw new Error(hardErrors[0]?.message || result.errors[0].message);
+  }
+
+  console.warn(
+    'Soft GraphQL errors in getReleases (continuing with partial data):',
+    result.errors.map((e: any) => e.message),
   );
-  
-  if (isDockerImageError) {
-    console.warn('Handling null dockerImage values in releases data');
-    // Filter out entries with null dockerImage values from the results if data exists
-    if (result?.data?.DotcmsbuildsCollection) {
-      result.data.DotcmsbuildsCollection = result.data.DotcmsbuildsCollection.filter((item: any) => 
-        item && typeof item === 'object'
-      );
-    }
-  } else {
-    throw new Error(result.errors[0].message);
+
+  const isDockerImageError = result.errors.some(
+    (error: any) =>
+      error.message &&
+      error.message.includes('dockerImage') &&
+      error.message.includes('null value'),
+  );
+  if (isDockerImageError && result?.data?.DotcmsbuildsCollection) {
+    result.data.DotcmsbuildsCollection = result.data.DotcmsbuildsCollection.filter(
+      (item: any) => item && typeof item === 'object',
+    );
   }
 }
 
