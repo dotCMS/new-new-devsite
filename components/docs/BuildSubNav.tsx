@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/util/utils";
 import {
   resolveActivePrimaryNav,
+  resolveCanonicalDocsPathname,
   type DynamicBuildNavigation,
 } from "@/services/docs/getDotCMSBuildNavigation";
 import { ReorderMenuButton } from "@/components/editor/ReorderMenuButton";
@@ -16,6 +17,8 @@ type BuildSubNavProps = {
 
 export function BuildSubNav({ className, buildNavigation }: BuildSubNavProps) {
   const pathname = usePathname();
+  const effectivePath =
+    resolveCanonicalDocsPathname(buildNavigation, pathname) || pathname;
   const { primaryTab, tabs } = resolveActivePrimaryNav(buildNavigation, pathname);
   const sectionLabel = primaryTab?.label ?? "Docs";
   const status = tabs.length > 0 ? "ready" : "empty";
@@ -51,7 +54,8 @@ export function BuildSubNav({ className, buildNavigation }: BuildSubNavProps) {
           )}
           {status === "ready" && tabs.map((tab) => {
             const isActive = Boolean(
-              pathname && pathname.startsWith(tab.activeHref || tab.href)
+              effectivePath &&
+                effectivePath.startsWith(tab.activeHref || tab.href)
             );
             return (
               <Link

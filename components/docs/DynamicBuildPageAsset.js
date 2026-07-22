@@ -12,21 +12,60 @@ import { useAssistant } from "@/components/chat/AssistantProvider";
 import { useContentColumnWideLayout } from "@/hooks/useHeaderWideNav";
 import { cn, isJSON } from "@/util/utils";
 import MarkdownContent from "@/components/MarkdownContent";
+import { DeprecationCard } from "@/components/deprecations/DeprecationCard";
+import Warn from "@/components/mdx/Warn";
 
 const TOC_SELECTORS =
   "main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4";
+
+/**
+ * Some BlockPages put a lone "Deprecated" paragraph in `page.content` as a
+ * status note; the real article lives in the layout. When we already render
+ * DeprecationCard, skip that duplicate label.
+ * @param {unknown} blocks
+ * @returns {boolean}
+ */
+function isDeprecationLabelOnly(blocks) {
+  if (!blocks) return false;
+  const root =
+    typeof blocks === "string" && isJSON(blocks)
+      ? JSON.parse(blocks)
+      : blocks?.json || blocks;
+  const nodes = Array.isArray(root?.content)
+    ? root.content
+    : Array.isArray(root)
+      ? root
+      : null;
+  if (!nodes || nodes.length === 0) return false;
+
+  const texts = [];
+  const walk = (node) => {
+    if (!node || typeof node !== "object") return;
+    if (node.type === "text" && typeof node.text === "string") {
+      const t = node.text.trim();
+      if (t) texts.push(t);
+    }
+    if (Array.isArray(node.content)) node.content.forEach(walk);
+  };
+  nodes.forEach(walk);
+
+  if (texts.length !== 1) return false;
+  return /^(deprecated|retired)$/i.test(texts[0]);
+}
 
 /**
  * @param {{
  *   pageContent: unknown,
  *   buildNavigation?: unknown,
  *   specialContent?: import('react').ReactNode,
+ *   deprecation?: import('@/services/docs/getDeprecations/types').TDeprecation | null,
  * }} props
  */
 export function DynamicBuildPageAsset({
   pageContent,
   buildNavigation,
   specialContent = null,
+  deprecation = null,
 }) {
   const { pageAsset, content = {} } = useEditableDotCMSPage(pageContent);
   const navigation = content.navigation;
@@ -40,7 +79,7 @@ export function DynamicBuildPageAsset({
     return null;
   }
 
-  const hasBlockContent = pageAsset?.page?.content;
+  const rawBlockContent = pageAsset?.page?.content;
   const urlContentMap = pageAsset?.page?.urlContentMap || pageAsset?.urlContentMap;
   const pageMap = urlContentMap?._map || {};
   const externalDocumentation = pageMap.githubSource
@@ -54,6 +93,20 @@ export function DynamicBuildPageAsset({
     urlContentMap?.content ||
     urlContentMap?.documentation;
 
+  const pageTags = pageAsset?.page?.tags || pageMap.tag || urlContentMap?.tag || [];
+  const tagList = Array.isArray(pageTags)
+    ? pageTags
+    : typeof pageTags === "string"
+      ? pageTags.split(",").map((t) => t.trim())
+      : [];
+  const showDeprecationBox =
+    Boolean(deprecation) || tagList.includes("deprecated");
+
+  // Skip CMS "Deprecated" label blocks when the inline card already covers it.
+  const hasBlockContent =
+    Boolean(rawBlockContent) &&
+    !(showDeprecationBox && isDeprecationLabelOnly(rawBlockContent));
+
   const showPageToc =
     !specialContent &&
     (!pageAsset?.page?.show || pageAsset.page.show.indexOf("toc") !== -1);
@@ -64,6 +117,7 @@ export function DynamicBuildPageAsset({
         <Header
           navItems={navigation?.children}
           primaryNavItems={buildNavigation?.primaryTabs}
+          buildNavigation={buildNavigation}
         />
       )}
       <BuildSubNav buildNavigation={buildNavigation} />
@@ -91,6 +145,18 @@ export function DynamicBuildPageAsset({
                         {pageAsset.page.title}
                       </h1>
                     </div>
+                    {showDeprecationBox && (
+                      <div className="mb-6">
+                        {deprecation ? (
+                          <DeprecationCard
+                            deprecation={deprecation}
+                            variant="inline"
+                          />
+                        ) : (
+                          <Warn>This function has been deprecated.</Warn>
+                        )}
+                      </div>
+                    )}
                     {externalDocumentation && (
                       <div className="prose dark:prose-invert mb-8 max-w-none">
                         <MarkdownContent content={externalDocumentation} />
@@ -100,11 +166,10 @@ export function DynamicBuildPageAsset({
                       <div className="prose dark:prose-invert mb-8 max-w-none">
                         <DotBlockEditor
                           blocks={
-                            typeof pageAsset.page.content === "string" &&
-                            isJSON(pageAsset.page.content)
-                              ? JSON.parse(pageAsset.page.content)
-                              : pageAsset.page.content?.json ||
-                                pageAsset.page.content
+                            typeof rawBlockContent === "string" &&
+                            isJSON(rawBlockContent)
+                              ? JSON.parse(rawBlockContent)
+                              : rawBlockContent?.json || rawBlockContent
                           }
                           customRenderers={{}}
                         />
@@ -112,6 +177,7 @@ export function DynamicBuildPageAsset({
                     )}
                     {!externalDocumentation &&
                       !hasBlockContent &&
+                      !isDeprecationLabelOnly(rawBlockContent) &&
                       fallbackBody && (
                         <div className="prose dark:prose-invert mb-8 max-w-none">
                           {typeof fallbackBody === "string" ? (

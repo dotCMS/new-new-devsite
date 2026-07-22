@@ -128,7 +128,26 @@ function itemLabel(item: DotCMSNavigationItem, fallback = "Untitled"): string {
 }
 
 function itemHref(item: DotCMSNavigationItem): string {
-  return item.href?.trim() || "#";
+  const raw = item.href?.trim() || "#";
+  if (raw === "#" || raw.startsWith("/")) {
+    return raw;
+  }
+
+  // MenuLinks often store absolute CMS host URLs; keep same-site docs paths relative
+  // so they work on localhost and production.
+  try {
+    const url = new URL(raw);
+    if (
+      url.pathname.startsWith("/docs") ||
+      url.pathname.startsWith("/testing-devresource")
+    ) {
+      return `${url.pathname}${url.search}${url.hash}`;
+    }
+  } catch {
+    // Non-URL strings fall through unchanged.
+  }
+
+  return raw;
 }
 
 function firstNavigableHref(item: DotCMSNavigationItem): string {
@@ -207,28 +226,103 @@ function sectionsFromSubTab(subTab: DotCMSNavigationItem): BuildNavSection[] {
   ];
 }
 
-function sectionNavFromPrimary(primary: DotCMSNavigationItem): DynamicPrimarySectionNav {
-  const subTabItems = sortByOrder(primary.children ?? []).filter(
-    (item) => item.type === "folder"
-  );
-
-  const tabs = subTabItems.map((item) => ({
+function subTabFromItem(item: DotCMSNavigationItem): DynamicBuildSubTab {
+  return {
     id: itemId(item, "nav-subtab"),
     label: itemLabel(item, "Docs"),
     href: firstNavigableHref(item),
     activeHref: itemHref(item),
-  }));
+  };
+}
 
-  const navBySubTab = subTabItems.reduce<Record<string, BuildNavSection[]>>(
+function sectionNavFromPrimary(primary: DotCMSNavigationItem): DynamicPrimarySectionNav {
+  const children = sortByOrder(primary.children ?? []);
+
+  // Include folders and MenuLinks/pages so shortcuts under a primary (e.g.
+  // Overview → Releases) appear in the sub-nav alongside folder sections.
+  const tabs = children.map(subTabFromItem);
+
+  const navBySubTab = children.reduce<Record<string, BuildNavSection[]>>(
     (acc, item) => {
       const id = itemId(item, "nav-subtab");
-      acc[id] = sectionsFromSubTab(item);
+      acc[id] =
+        item.type === "folder" ? sectionsFromSubTab(item) : [];
       return acc;
     },
     {}
   );
 
   return { tabs, navBySubTab };
+}
+
+/**
+ * True for flat docs URLs like `/docs/{slug}` (or the shadow-root equivalent).
+ * Nested redesign paths keep their real pathname for startsWith matching.
+ */
+export function isShallowDocsPath(
+  pathname: string | null | undefined
+): boolean {
+  const parts = (pathname || "").split("/").filter(Boolean);
+  return (
+    parts.length === 2 &&
+    (parts[0] === "docs" || parts[0] === "testing-devresource")
+  );
+}
+
+function pathLeaf(pathname: string | null | undefined): string | null {
+  const parts = (pathname || "").split("/").filter(Boolean);
+  return parts.length > 0 ? parts[parts.length - 1] : null;
+}
+
+/**
+ * Map a flat `/docs/{slug}` URL to its nested nav href when the leaf appears
+ * in the build-nav tree. Lets outdated links highlight the correct primary /
+ * sub / side-nav entries.
+ */
+export function resolveCanonicalDocsPathname(
+  navigation: DynamicBuildNavigation | null | undefined,
+  pathname: string | null | undefined
+): string | null | undefined {
+  if (!pathname || !navigation || !isShallowDocsPath(pathname)) {
+    return pathname;
+  }
+
+  const leaf = pathLeaf(pathname);
+  if (!leaf) {
+    return pathname;
+  }
+
+  let best: string | null = null;
+  for (const primary of navigation.primaryTabs ?? []) {
+    const sectionNav = navigation.navByPrimaryTab?.[primary.id];
+    if (!sectionNav) continue;
+
+    for (const sections of Object.values(sectionNav.navBySubTab ?? {})) {
+      for (const section of sections) {
+        for (const item of section.items ?? []) {
+          const href = item.href?.trim();
+          if (!href || href === "#") continue;
+          if (pathLeaf(href) !== leaf) continue;
+          if (!best || href.length > best.length) {
+            best = href;
+          }
+        }
+      }
+    }
+  }
+
+  return best ?? pathname;
+}
+
+export function isBuildNavHrefActive(
+  pathname: string | null | undefined,
+  href: string | null | undefined,
+  navigation?: DynamicBuildNavigation | null
+): boolean {
+  if (!pathname || !href || href === "#") return false;
+  if (pathname === href) return true;
+  const canonical = resolveCanonicalDocsPathname(navigation, pathname);
+  return Boolean(canonical && canonical === href);
 }
 
 export function resolveActivePrimaryNav(
@@ -241,10 +335,12 @@ export function resolveActivePrimaryNav(
 } {
   const primaryTabs = navigation?.primaryTabs ?? [];
   const navByPrimaryTab = navigation?.navByPrimaryTab ?? {};
+  const effectivePath =
+    resolveCanonicalDocsPathname(navigation, pathname) ?? pathname;
 
   const activePrimary =
     primaryTabs
-      .filter((tab) => pathname?.startsWith(tab.activeHref || tab.href))
+      .filter((tab) => effectivePath?.startsWith(tab.activeHref || tab.href))
       .sort(
         (a, b) =>
           (b.activeHref || b.href).length - (a.activeHref || a.href).length
@@ -313,7 +409,7 @@ export async function getDotCMSBuildNavigation(
   const uri = options.uri ?? DEFAULT_BUILD_NAV_URI;
   const depth = options.depth ?? DEFAULT_BUILD_NAV_DEPTH;
   const ttlSeconds = options.ttlSeconds ?? 600;
-  const cacheKey = getCacheKey(`dotcms-build-navigation|${uri}|${depth}|v2`);
+  const cacheKey = getCacheKey(`dotcms-build-navigation|${uri}|${depth}|v3`);
   const query = buildNavigationQuery(uri, depth);
 
   const cached = navCache.get<DynamicBuildNavigation>(cacheKey);

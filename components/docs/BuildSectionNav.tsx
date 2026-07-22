@@ -10,7 +10,9 @@ import {
   type BuildNavSection,
 } from "./buildNavData";
 import {
+  isBuildNavHrefActive,
   resolveActivePrimaryNav,
+  resolveCanonicalDocsPathname,
   type DynamicBuildNavigation,
   type DynamicBuildSubTab,
 } from "@/services/docs/getDotCMSBuildNavigation";
@@ -79,6 +81,8 @@ export function BuildSectionNav({
   buildNavigation,
 }: BuildSectionNavProps) {
   const pathname = usePathname();
+  const effectivePath =
+    resolveCanonicalDocsPathname(buildNavigation, pathname) || pathname;
   const { primaryTab, tabs, navBySubTab } = resolveActivePrimaryNav(
     buildNavigation,
     pathname
@@ -93,12 +97,14 @@ export function BuildSectionNav({
   const activeTab = React.useMemo(
     () =>
       resolvedTabs
-        .filter((tab) => pathname?.startsWith(tab.activeHref || tab.href))
+        .filter((tab) =>
+          effectivePath?.startsWith(tab.activeHref || tab.href)
+        )
         .sort(
           (a, b) =>
             (b.activeHref || b.href).length - (a.activeHref || a.href).length
         )[0],
-    [pathname, resolvedTabs]
+    [effectivePath, resolvedTabs]
   );
   const activeSubTab = activeTab?.id ?? buildSub ?? "";
   const sections = dynamicNavBySubTab[activeSubTab] ?? [];
@@ -158,7 +164,11 @@ export function BuildSectionNav({
                   <NavRow
                     key={item.id}
                     item={item}
-                      isActive={pathname === item.href}
+                    isActive={isBuildNavHrefActive(
+                      pathname,
+                      item.href,
+                      buildNavigation
+                    )}
                   />
                 ))}
               </ul>

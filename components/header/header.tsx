@@ -16,7 +16,8 @@ import RedesignedNavTree from "@/components/navigation/RedesignedNavTree";
 import type { NavSection } from "@/util/navTransform";
 import LogoWithArrow from "./Logo/LogoWithArrow";
 import { DocsQuickSearch } from "./DocsQuickSearch";
-import type { DynamicBuildSubTab } from "@/services/docs/getDotCMSBuildNavigation";
+import type { DynamicBuildSubTab, DynamicBuildNavigation } from "@/services/docs/getDotCMSBuildNavigation";
+import { resolveCanonicalDocsPathname } from "@/services/docs/getDotCMSBuildNavigation";
 import { isDocsExperiencePath } from "@/config/docs-path-roots";
 import { ReorderMenuButton } from "@/components/editor/ReorderMenuButton";
 import { useIsEditMode } from "@/hooks/useIsEditMode";
@@ -26,6 +27,8 @@ type HeaderProps = {
   currentPath?: string;
   navSections?: NavSection[];
   primaryNavItems?: DynamicBuildSubTab[];
+  /** Full build-nav tree — used to map flat `/docs/{slug}` URLs to nested hrefs for active state. */
+  buildNavigation?: DynamicBuildNavigation;
 };
 
 type HeaderPrimaryNavProps = {
@@ -131,8 +134,11 @@ export default function Header({
   currentPath,
   navSections,
   primaryNavItems,
+  buildNavigation,
 }: HeaderProps) {
   const pathname = usePathname();
+  const activePathname =
+    resolveCanonicalDocsPathname(buildNavigation, pathname) || pathname;
   const isEditMode = useIsEditMode();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { open: isAssistantOpen, toggleOpen, expanded: assistantExpanded } =
@@ -178,7 +184,7 @@ export default function Header({
           {showWideNav && (
             <HeaderPrimaryNav
               className="ml-3 flex-1 justify-start overflow-x-auto sm:ml-5 lg:ml-8"
-              pathname={pathname}
+              pathname={activePathname}
               primaryNavItems={primaryNavItems}
             />
           )}
@@ -238,7 +244,7 @@ export default function Header({
               {/* Main Navigation Links */}
               <div className="py-4">
                 <HeaderMobileNavLinks
-                  pathname={pathname}
+                  pathname={activePathname}
                   primaryNavItems={primaryNavItems}
                   onAfterNavigate={() => setIsMobileMenuOpen(false)}
                 />

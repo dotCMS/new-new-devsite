@@ -11,7 +11,10 @@ import {
 export type DocsShell = 'legacy' | 'dynamic';
 
 export type DocsExperience = {
-  /** Which chrome + body pipeline to use */
+  /**
+   * Chrome + nav pipeline. Always `dynamic` (BuildSubNav / BuildSectionNav)
+   * so flat `/docs/{slug}` and nested paths share one redesigned nav.
+   */
   shell: DocsShell;
   /** First path segment when under a configured docs root */
   pathRoot: DocsPathRoot | null;
@@ -21,6 +24,11 @@ export type DocsExperience = {
   specialPageKey: SpecialDocsPageKey | null;
   /** Normalized route path (no leading slash) */
   routePath: string;
+  /**
+   * True when the page is a URL-mapped DotcmsDocumentation contentlet
+   * (flat legacy bodies rendered via Documentation / GitHubDocumentation).
+   */
+  hasUrlMappedContent: boolean;
 };
 
 type PageAssetLike = {
@@ -36,23 +44,20 @@ function normalizeRoutePath(path: string): string {
   return path.replace(/^\/+|\/+$/g, '');
 }
 
-function hasLegacyUrlMappedContent(pageAsset: PageAssetLike | null | undefined): boolean {
+function hasLegacyUrlMappedContent(
+  pageAsset: PageAssetLike | null | undefined,
+): boolean {
   const inode =
     pageAsset?.urlContentMap?.inode || pageAsset?.page?.urlContentMap?.inode;
   return Boolean(inode);
 }
 
-function isBlockPage(pageAsset: PageAssetLike | null | undefined): boolean {
-  return pageAsset?.page?.contentType === 'BlockPage';
-}
-
 /**
  * Decide how a docs (or shadow-docs) URL should be rendered.
  *
- * - `legacy`: flat `/docs/{slug}` URL-mapped DotcmsDocumentation pages
- *   (require urlContentMap.inode; DocsPageShell)
- * - `dynamic`: redesigned tree pages (BlockPage / missing inode) under any
- *   docs path root, including `/testing-devresource` and nested `/docs/...`
+ * All configured docs roots use the redesigned nav chrome (`shell: 'dynamic'`).
+ * URL-mapped contentlets still render via Documentation / GitHubDocumentation
+ * as `specialContent` inside that chrome.
  */
 export function resolveDocsExperience(
   path: string,
@@ -65,32 +70,12 @@ export function resolveDocsExperience(
     return null;
   }
 
-  const specialPageKey = resolveSpecialDocsPage(routePath);
-  const navUri = getBuildNavUriForPath(routePath);
-  const legacyContent = hasLegacyUrlMappedContent(pageAsset);
-  const blockPage = isBlockPage(pageAsset);
-
-  // Shadow root is always the redesigned experience.
-  if (pathRoot === 'testing-devresource') {
-    return {
-      shell: 'dynamic',
-      pathRoot,
-      navUri,
-      specialPageKey,
-      routePath,
-    };
-  }
-
-  // Nested / BlockPage / no URL-map inode → redesigned shell.
-  // Flat URL-mapped docs (inode present, not BlockPage) → legacy shell.
-  const shell: DocsShell =
-    blockPage || !legacyContent ? 'dynamic' : 'legacy';
-
   return {
-    shell,
+    shell: 'dynamic',
     pathRoot,
-    navUri,
-    specialPageKey,
+    navUri: getBuildNavUriForPath(routePath),
+    specialPageKey: resolveSpecialDocsPage(routePath),
     routePath,
+    hasUrlMappedContent: hasLegacyUrlMappedContent(pageAsset),
   };
 }
