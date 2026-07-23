@@ -19,19 +19,21 @@ type RenderDynamicDocsExperienceArgs = {
   searchParams?: Record<string, string | string[] | undefined>;
 };
 
+type UrlContentMapLike = Record<string, unknown> & {
+  inode?: string | null;
+  _map?: {
+    githubSource?: unknown;
+    documentation?: unknown;
+  };
+};
+
 type PageAssetShape = {
   pageAsset?: {
-    urlContentMap?: Record<string, unknown> & {
-      inode?: string | null;
-      _map?: { githubSource?: unknown };
-    };
+    urlContentMap?: UrlContentMapLike;
     page?: {
       title?: string;
       friendlyName?: string;
-      urlContentMap?: Record<string, unknown> & {
-        inode?: string | null;
-        _map?: { githubSource?: unknown };
-      };
+      urlContentMap?: UrlContentMapLike;
     };
   };
 };
@@ -73,13 +75,12 @@ export async function renderDynamicDocsExperience({
   if (specialPageKey || hasUrlMappedContent) {
     const sideNav = await getSideNav();
 
-    const contentlet =
+    const contentlet: UrlContentMapLike =
       urlContentMap ||
-      ({
+      {
         title: page?.title,
         navTitle: page?.friendlyName || page?.title,
-      } as Record<string, unknown>);
-
+      };
     if (specialPageKey) {
       specialContent = (
         <Suspense
