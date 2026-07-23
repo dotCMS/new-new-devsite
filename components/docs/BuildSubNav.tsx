@@ -9,6 +9,7 @@ import {
   type DynamicBuildNavigation,
 } from "@/services/docs/getDotCMSBuildNavigation";
 import { ReorderMenuButton } from "@/components/editor/ReorderMenuButton";
+import { docsSubNavStickyClass } from "./docsChrome";
 
 type BuildSubNavProps = {
   className?: string;
@@ -26,7 +27,9 @@ export function BuildSubNav({ className, buildNavigation }: BuildSubNavProps) {
   return (
     <div
       className={cn(
-        "sticky top-16 z-40 w-full border-b border-border/50 bg-[#fdfdfd] dark:bg-muted/15",
+        docsSubNavStickyClass,
+        // Opaque fill so body text never shows through while sticky
+        "w-full border-b border-border/50 bg-[#fdfdfd] dark:bg-background",
         className
       )}
     >

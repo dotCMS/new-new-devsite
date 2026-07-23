@@ -119,7 +119,7 @@ export function BuildSectionNav({
         "border-border/60",
         isMobile
           ? "w-full border-t py-3"
-          : "sticky top-16 z-10 h-[calc(100vh-4rem)] w-full min-h-0 overflow-y-auto",
+          : "flex h-full min-h-0 w-full flex-col overflow-y-auto",
         className
       )}
     >

@@ -14,6 +14,8 @@ import { cn, isJSON } from "@/util/utils";
 import MarkdownContent from "@/components/MarkdownContent";
 import { DeprecationCard } from "@/components/deprecations/DeprecationCard";
 import Warn from "@/components/mdx/Warn";
+import { DocsSlugIndexProvider } from "@/components/docs/DocsSlugIndexContext";
+import { docsSidebarFixedClass } from "@/components/docs/docsChrome";
 
 const TOC_SELECTORS =
   "main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4";
@@ -59,6 +61,7 @@ function isDeprecationLabelOnly(blocks) {
  *   buildNavigation?: unknown,
  *   specialContent?: import('react').ReactNode,
  *   deprecation?: import('@/services/docs/getDeprecations/types').TDeprecation | null,
+ *   docsSlugIndex?: import('@/services/docs/resolveDocsHref').DocsSlugIndex | null,
  * }} props
  */
 export function DynamicBuildPageAsset({
@@ -66,6 +69,7 @@ export function DynamicBuildPageAsset({
   buildNavigation,
   specialContent = null,
   deprecation = null,
+  docsSlugIndex = null,
 }) {
   const { pageAsset, content = {} } = useEditableDotCMSPage(pageContent);
   const navigation = content.navigation;
@@ -112,6 +116,7 @@ export function DynamicBuildPageAsset({
     (!pageAsset?.page?.show || pageAsset.page.show.indexOf("toc") !== -1);
 
   return (
+    <DocsSlugIndexProvider index={docsSlugIndex}>
     <div className="flex min-h-screen flex-col bg-background">
       {pageAsset?.layout?.header && (
         <Header
@@ -122,10 +127,20 @@ export function DynamicBuildPageAsset({
       )}
       <BuildSubNav buildNavigation={buildNavigation} />
       <div className="flex min-h-0 w-full min-w-0 flex-1">
-        <div className="flex w-full min-w-0 flex-1 flex-col lg:min-h-[calc(100vh-4rem)] lg:flex-row">
-          <div className="hidden min-h-0 w-72 shrink-0 self-stretch border-border/60 bg-[#F6F6F7] dark:bg-muted/25 lg:block lg:border-r">
+        <div className="flex w-full min-w-0 flex-1 flex-col lg:flex-row">
+          {/* In-flow spacer so main content clears the fixed sidebar */}
+          <div
+            className="hidden w-72 shrink-0 lg:block"
+            aria-hidden
+          />
+          <aside
+            className={cn(
+              "hidden border-border/60 bg-[#F6F6F7] dark:bg-muted/25 lg:block lg:border-r",
+              docsSidebarFixedClass
+            )}
+          >
             <BuildSectionNav buildNavigation={buildNavigation} />
-          </div>
+          </aside>
 
           {/* Content + TOC centered in the remaining space (Cursor-style) */}
           <div className="flex min-h-0 min-w-0 flex-1 justify-center">
@@ -224,5 +239,6 @@ export function DynamicBuildPageAsset({
       </div>
       {pageAsset?.layout?.footer && <Footer {...content} />}
     </div>
+    </DocsSlugIndexProvider>
   );
 }

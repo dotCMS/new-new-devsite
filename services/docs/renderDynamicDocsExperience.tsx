@@ -6,6 +6,7 @@ import GitHubDocumentation from '@/components/documentation/GitHubDocumentation'
 import { getSideNav } from '@/services/docs/getSideNav';
 import getDeprecations from '@/services/docs/getDeprecations/getDeprecations';
 import { findDeprecationForPath } from '@/services/docs/findDeprecationForPath';
+import { getDocsSlugIndex } from '@/services/docs/getDocsSlugIndex';
 import { stripDocsPathRoot } from '@/config/docs-path-roots';
 import type { DocsExperience } from '@/services/docs/resolveDocsExperience';
 import type { DynamicBuildNavigation } from '@/services/docs/getDotCMSBuildNavigation';
@@ -133,12 +134,15 @@ export async function renderDynamicDocsExperience({
     deprecation = null;
   }
 
+  const docsSlugIndex = await getDocsSlugIndex();
+
   return (
     <DynamicBuildPageAsset
       pageContent={pageContent}
       buildNavigation={buildNavigation}
       specialContent={specialContent}
       deprecation={deprecation}
+      docsSlugIndex={docsSlugIndex}
     />
   );
 }

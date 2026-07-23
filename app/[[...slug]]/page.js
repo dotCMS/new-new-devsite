@@ -8,6 +8,12 @@ import { transformDotCMSBuildNavigation } from "@/services/docs/getDotCMSBuildNa
 import { applyExternalDocContent } from "@/services/docs/applyExternalDocContent";
 import { resolveDocsExperience } from "@/services/docs/resolveDocsExperience";
 import { renderDynamicDocsExperience } from "@/services/docs/renderDynamicDocsExperience";
+import {
+    getDocsSlugIndex,
+    lookupDocsMissRedirect,
+} from "@/services/docs/getDocsSlugIndex";
+import { redirect } from "next/navigation";
+import { isDocsExperiencePath } from "@/config/docs-path-roots";
 
 /**
  * Generate metadata
@@ -73,6 +79,20 @@ export default async function Page({ params, searchParams }) {
 
 
     if (!pageContent) {
+        if (isDocsExperiencePath(path)) {
+            try {
+                const index = await getDocsSlugIndex();
+                const canonical = lookupDocsMissRedirect(
+                    path.startsWith("/") ? path : `/${path}`,
+                    index
+                );
+                if (canonical) {
+                    redirect(canonical);
+                }
+            } catch (e) {
+                console.error("Docs miss redirect failed:", e);
+            }
+        }
         return <ErrorPage error={{ message: "Page not found", status: 404 }} />;
     }
 

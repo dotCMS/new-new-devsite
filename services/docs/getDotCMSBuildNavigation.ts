@@ -34,6 +34,8 @@ type DotCMSNavigationItem = {
   children?: DotCMSNavigationItem[] | null;
 };
 
+export type { DotCMSNavigationItem };
+
 type BuildNavigationPageContent = {
   content?: {
     buildNavigation?: DotCMSNavigationItem;

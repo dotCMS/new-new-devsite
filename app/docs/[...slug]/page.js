@@ -1,11 +1,15 @@
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getDotCMSPage } from "@/util/getDotCMSPage";
 import { normalizeDocPath } from "@/config/github-docs";
 import { applyExternalDocContent } from "@/services/docs/applyExternalDocContent";
 import { resolveDocsExperience } from "@/services/docs/resolveDocsExperience";
 import { renderDynamicDocsExperience } from "@/services/docs/renderDynamicDocsExperience";
 import { transformDotCMSBuildNavigation } from "@/services/docs/getDotCMSBuildNavigation";
+import {
+    getDocsSlugIndex,
+    lookupDocsMissRedirect,
+} from "@/services/docs/getDocsSlugIndex";
 
 // ISR: Revalidate pages every 60 seconds
 export const revalidate = 60;
@@ -200,6 +204,15 @@ export default async function Home({ searchParams, params }) {
     const pageData = await getDotCMSPage(path);
 
     if (!pageData || !pageData.pageAsset) {
+        try {
+            const index = await getDocsSlugIndex();
+            const canonical = lookupDocsMissRedirect(path, index);
+            if (canonical) {
+                redirect(canonical);
+            }
+        } catch (e) {
+            console.error("Docs miss redirect failed:", e);
+        }
         notFound();
         return null;
     }
@@ -209,6 +222,15 @@ export default async function Home({ searchParams, params }) {
 
     const experience = resolveDocsExperience(path, pageAsset);
     if (!experience) {
+        try {
+            const index = await getDocsSlugIndex();
+            const canonical = lookupDocsMissRedirect(path, index);
+            if (canonical) {
+                redirect(canonical);
+            }
+        } catch (e) {
+            console.error("Docs miss redirect failed:", e);
+        }
         notFound();
         return null;
     }
