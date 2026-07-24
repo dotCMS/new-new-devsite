@@ -11,7 +11,8 @@ export const getSiteSearch = async ({
   try {
     const requestBody = {
       q: isAllSourcesSearch ? `+uri:/${searchPlace}/* ${searchTerm}` : searchTerm,
-      p: currentPage > 0 ? currentPage - 1 : 0,
+      // VTL expects 0-based page index
+      p: Math.max(0, currentPage || 0),
     };
 
     const data = await logRequest(async () => {

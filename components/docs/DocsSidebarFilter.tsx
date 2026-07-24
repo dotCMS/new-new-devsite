@@ -113,6 +113,8 @@ export function DocsSidebarFilter({
             "text-foreground placeholder:text-muted-foreground",
             "outline-none transition-[box-shadow,border-color,background-color]",
             "focus-visible:border-primary/40 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-primary/15",
+            // Prefer our clear control over the native search cancel button.
+            "[&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden",
           )}
         />
         {query ? (
