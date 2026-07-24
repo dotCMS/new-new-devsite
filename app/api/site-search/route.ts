@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSiteSearch } from "@/services/search/getSiteSearch/getSiteSearch";
 import { getLearnSearchHits } from "@/services/search/getLearnSearchHits";
+import { enrichBlogSearchDescriptions } from "@/services/search/enrichBlogSearchDescriptions";
 import {
   mergeSiteAndLearnReferences,
   normalizeSiteSearchReferences,
@@ -13,6 +14,7 @@ import type { TReference } from "@/services/search/getSiteSearch/types";
  * Site-wide keyword search: DotCMS `/api/vtl/sitesearch` (page index)
  * merged with Learn front-end content (CourseE2e + devresource).
  * Courses collapse to one `/learning/courses/{urlTitle}` hit with chapter boost.
+ * Blog hits with empty/legacy `$pDescription` meta get `teaser` backfilled.
  */
 const MAX_QUERY_LENGTH = 200;
 const MAX_PAGE = 100;
@@ -69,9 +71,6 @@ export async function GET(request: Request) {
     const learnToMerge = siteAlreadyHasLearn ? [] : learnRefs;
 
     if (!siteRefs.length && !learnToMerge.length) {
-      // Distinguish empty results from total CMS failure: if every page call
-      // returned null and we have no learn hits, surface 502 only when learn
-      // also failed empty due to no CMS — learn can succeed alone.
       const allSiteNull = sitePages.every((d) => d == null);
       if (allSiteNull && learnRefs.length === 0) {
         return NextResponse.json(
@@ -82,7 +81,9 @@ export async function GET(request: Request) {
     }
 
     const pooled = mergeSiteAndLearnReferences(siteRefs, learnToMerge);
-    const references = paginateReferences(pooled, safePage);
+    // Enrich before paginate so backfilled teasers are available on every page.
+    const enriched = await enrichBlogSearchDescriptions(pooled);
+    const references = paginateReferences(enriched, safePage);
     const totalHits = siteTotalHits + learnToMerge.length;
 
     return NextResponse.json({

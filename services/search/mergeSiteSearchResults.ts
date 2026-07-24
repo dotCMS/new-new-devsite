@@ -4,6 +4,35 @@ const SHOW = 10;
 /** How many sitesearch pages (×10) to pull into the merge pool. */
 const SITE_POOL_PAGES = 5;
 
+/**
+ * Frame / listing shells that Site Search includes via `/blog/*` (and similar)
+ * wildcards. The job UI cannot combine Include + Exclude, so we drop these
+ * at query time (mirrored in post.vtl).
+ */
+export function isExcludedSiteSearchUri(uri: string): boolean {
+  if (!uri) return true;
+  if (uri === "/blog/index") return true;
+  if (uri === "/blog/blog-detail") return true;
+  if (uri.startsWith("/blog/category")) return true;
+  return false;
+}
+
+/**
+ * Drop unresolved Velocity (`$pDescription`) and crawl junk so the UI does
+ * not show template leftovers. Permanent fix: quiet-reference / field
+ * fallbacks in the page template, then reindex.
+ */
+export function sanitizeSiteSearchDescription(
+  description: string | undefined | null,
+): string {
+  const raw = (description || "").trim();
+  if (!raw) return "";
+  if (raw.startsWith("$")) return "";
+  if (raw.includes("PaginatedArrayList")) return "";
+  if (raw.includes("$blogs")) return "";
+  return description || "";
+}
+
 export function normalizeSiteSearchReferences(
   data: Record<string, unknown> | null,
 ): TReference[] {
@@ -18,10 +47,11 @@ export function normalizeSiteSearchReferences(
 
   return (references as TReference[])
     .filter((r) => r && typeof r === "object" && typeof r.uri === "string")
+    .filter((r) => !isExcludedSiteSearchUri(r.uri))
     .map((r) => ({
       title: r.title || r.uri,
       uri: r.uri,
-      description: r.description || "",
+      description: sanitizeSiteSearchDescription(r.description),
       matches: typeof r.matches === "number" ? r.matches : 0,
       score: typeof r.score === "number" ? r.score : 0,
       contentType: r.contentType || "noShow",
@@ -32,7 +62,7 @@ function contentTypeForUri(uri: string, existing?: string): string {
   if (existing && existing !== "noShow") return existing;
   if (uri.includes("/learning/courses/")) return "Course";
   if (uri.includes("/learning/")) return "Guide";
-  if (uri.includes("/blog/post/") || uri.includes("/blog/")) return "Blog";
+  if (uri.startsWith("/blog/") || uri.includes("/blog/post/")) return "Blog";
   if (uri.includes("/case-studies/")) return "Case Study";
   if (uri.includes("/codeshare/")) return "Codeshare Article";
   if (uri.includes("/company/events/")) return "Event";
@@ -61,6 +91,7 @@ export function mergeSiteAndLearnReferences(
   const filteredSite = siteRefs
     .filter((r) => {
       const uri = r.uri || "";
+      if (isExcludedSiteSearchUri(uri)) return false;
       if (learnUris.has(uri)) return false;
       // Drop page-index learning URLs when we already project Learn from GraphQL
       if (uri.startsWith("/learning/")) return false;
@@ -68,6 +99,7 @@ export function mergeSiteAndLearnReferences(
     })
     .map((r) => ({
       ...r,
+      description: sanitizeSiteSearchDescription(r.description),
       contentType: contentTypeForUri(r.uri, r.contentType),
     }));
 
