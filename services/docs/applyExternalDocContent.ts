@@ -28,8 +28,7 @@ function getUrlContentMap(pageAsset: DotCMSPageAsset): DotCMSContentMap | undefi
 /**
  * Replace dotCMS page content with its configured external README.
  *
- * `routePath` may belong to either `/docs/...` or
- * `/testing-devresource/...`; both normalize to the same map key.
+ * `routePath` is under `/docs/...`; normalizeDocPath strips the root for map keys.
  */
 export async function applyExternalDocContent(
   routePath: string | string[],

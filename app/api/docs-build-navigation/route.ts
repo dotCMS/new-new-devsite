@@ -4,7 +4,7 @@ import { getBuildNavUriForPath } from "@/config/docs-path-roots";
 
 /**
  * SDK-backed navigation for the redesigned docs experience.
- * Optional `?path=` selects the dual-root nav URI (`/docs` or `/testing-devresource`).
+ * Optional `?path=` selects the build-nav URI (defaults to `/docs`).
  */
 export async function GET(request: Request) {
   try {

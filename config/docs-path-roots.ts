@@ -1,22 +1,15 @@
 /**
  * Public path roots that host the docs experience.
  *
- * Dual-root during the nav redesign: both `/docs` and `/testing-devresource`
- * serve the same page tree. To retire the shadow tree later, remove
- * `testing-devresource` from this list (and the matching CMS folder).
+ * Nested docs live under `/docs`. The former shadow root
+ * (`testing-devresource`) has been retired.
  */
-export const DOCS_PATH_ROOTS = ['docs', 'testing-devresource'] as const;
+export const DOCS_PATH_ROOTS = ['docs'] as const;
 
 export type DocsPathRoot = (typeof DOCS_PATH_ROOTS)[number];
 
-/** Prefer this root for new links once the shadow tree is retired. */
+/** Canonical docs root for links and slug-index canonicalization. */
 export const PRIMARY_DOCS_PATH_ROOT: DocsPathRoot = 'docs';
-
-/**
- * Shadow / experimental root used while the reorg is validated.
- * Remove from DOCS_PATH_ROOTS when cut over.
- */
-export const SHADOW_DOCS_PATH_ROOT: DocsPathRoot = 'testing-devresource';
 
 function normalizePathInput(
   path: string | string[] | undefined | null,
@@ -55,8 +48,7 @@ export function isDocsExperiencePath(
 }
 
 /**
- * Build-nav GraphQL URI for a route. Each dual-root uses its own CMS folder
- * so hrefs stay on the same root the user is browsing.
+ * Build-nav GraphQL URI for a route (`/docs`).
  */
 export function getBuildNavUriForPath(
   path: string | string[] | undefined | null,
@@ -66,8 +58,7 @@ export function getBuildNavUriForPath(
 }
 
 /**
- * Strip a known docs root prefix, leaving the path after `/docs/` or
- * `/testing-devresource/`.
+ * Strip a known docs root prefix, leaving the path after `/docs/`.
  */
 export function stripDocsPathRoot(
   path: string | string[] | undefined | null,

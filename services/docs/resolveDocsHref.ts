@@ -45,7 +45,7 @@ export function normalizeDocsPathname(href: string | null | undefined): string |
 
 /**
  * Prefer longer (more nested) paths when the same leaf appears twice.
- * Rewrites shadow-root paths to the primary `/docs` root for a single canonical.
+ * Rewrites docs paths to the primary `/docs` root for a single canonical.
  */
 export function addHrefToSlugIndex(index: DocsSlugIndex, href: string): void {
   const pathname = normalizeDocsPathname(href);
@@ -169,7 +169,7 @@ export function resolveDocsHref(
 }
 
 /**
- * Flat `/docs/{slug}` (or shadow-root equivalent) → nested canonical for redirect.
+ * Flat `/docs/{slug}` → nested canonical for redirect.
  */
 export function lookupShallowDocsRedirect(
   pathname: string | null | undefined,

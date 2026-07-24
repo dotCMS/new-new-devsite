@@ -22,7 +22,7 @@ type SpecialDocsPageContentProps = {
 
 /**
  * Shared renderer for docs pages that need custom React UIs.
- * Used by both `/docs/...` and `/testing-devresource/...`.
+ * Used by nested (and legacy flat) `/docs/...` special pages.
  */
 export function SpecialDocsPageContent({
   pageKey,

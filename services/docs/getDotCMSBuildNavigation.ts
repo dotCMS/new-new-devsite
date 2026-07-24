@@ -48,7 +48,7 @@ type FetchBuildNavigationOptions = {
   ttlSeconds?: number;
 };
 
-export const DEFAULT_BUILD_NAV_URI = "/testing-devresource";
+export const DEFAULT_BUILD_NAV_URI = "/docs";
 export const DEFAULT_BUILD_NAV_DEPTH = 6;
 /** Page used only as a GraphQL carrier when fetching nav outside a real page request. */
 const PAGE_CONTEXT_PATH = "/docs/table-of-contents";
@@ -139,10 +139,7 @@ function itemHref(item: DotCMSNavigationItem): string {
   // so they work on localhost and production.
   try {
     const url = new URL(raw);
-    if (
-      url.pathname.startsWith("/docs") ||
-      url.pathname.startsWith("/testing-devresource")
-    ) {
+    if (url.pathname === "/docs" || url.pathname.startsWith("/docs/")) {
       return `${url.pathname}${url.search}${url.hash}`;
     }
   } catch {
@@ -258,17 +255,14 @@ function sectionNavFromPrimary(primary: DotCMSNavigationItem): DynamicPrimarySec
 }
 
 /**
- * True for flat docs URLs like `/docs/{slug}` (or the shadow-root equivalent).
+ * True for flat docs URLs like `/docs/{slug}`.
  * Nested redesign paths keep their real pathname for startsWith matching.
  */
 export function isShallowDocsPath(
   pathname: string | null | undefined
 ): boolean {
   const parts = (pathname || "").split("/").filter(Boolean);
-  return (
-    parts.length === 2 &&
-    (parts[0] === "docs" || parts[0] === "testing-devresource")
-  );
+  return parts.length === 2 && parts[0] === "docs";
 }
 
 function pathLeaf(pathname: string | null | undefined): string | null {

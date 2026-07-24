@@ -45,8 +45,8 @@ export type GitHubConfig = ExternalDocConfig;
  * Configuration mapping docs leaf slugs (or full paths) to their external source.
  *
  * Lookup tries, in order:
- * 1. the full path after `/docs/` or `/testing-devresource/`
- * 2. the final path segment (so nested shadow URLs resolve to the same entry
+ * 1. the full path after `/docs/`
+ * 2. the final path segment (so nested URLs resolve to the same entry
  *    as today's flat `/docs/{slug}` pages)
  *
  * Prefer npm for published packages (exact version + beta switch). Prefer
@@ -194,7 +194,7 @@ import { stripDocsPathRoot } from '@/config/docs-path-roots';
 /**
  * Normalize either public route family into a path key.
  * @param slug - route params or a path, with or without a leading slash
- * @returns normalized path after `/docs/` or `/testing-devresource/`
+ * @returns normalized path after `/docs/`
  */
 export function normalizeDocPath(slug: string | string[] | undefined): string {
   const slugArray = Array.isArray(slug) ? slug : slug ? [slug] : [];
@@ -231,7 +231,7 @@ function resolveDocMapKey(docPath: string): string | null {
 
 /**
  * Check if a docs path should be fetched from an external source.
- * @param docPath - full path after `/docs/` or `/testing-devresource/`
+ * @param docPath - full path after `/docs/`
  * @returns boolean
  */
 export function isGitHubDoc(docPath: string): boolean {
@@ -240,7 +240,7 @@ export function isGitHubDoc(docPath: string): boolean {
 
 /**
  * Get the external source configuration for a docs path.
- * @param docPath - full path after `/docs/` or `/testing-devresource/`
+ * @param docPath - full path after `/docs/`
  * @returns config or null if not found
  */
 export function getGitHubConfig(docPath: string): ExternalDocConfig | null {

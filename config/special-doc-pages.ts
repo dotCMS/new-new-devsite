@@ -39,8 +39,7 @@ const SPECIAL_PAGE_KEYS = new Set<SpecialDocsPageKey>([
 ]);
 
 /**
- * Href for the deprecations listing, rooted under the current docs experience
- * (`/docs/...` or `/testing-devresource/...`).
+ * Href for the deprecations listing under `/docs/...`.
  */
 export function getDeprecationsPageHref(
   routePath?: string | null,
