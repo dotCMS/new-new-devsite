@@ -6,6 +6,7 @@ import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import { BuildSubNav } from "./BuildSubNav";
 import { BuildSectionNav } from "./BuildSectionNav";
+import { DocsMobileNavSheet } from "./DocsMobileNavSheet";
 import { DotBlockEditor } from "@/components/shared/dotBlockEditor";
 import OnThisPage from "@/components/navigation/OnThisPage";
 import { useAssistant } from "@/components/chat/AssistantProvider";
@@ -15,7 +16,7 @@ import MarkdownContent from "@/components/MarkdownContent";
 import { DeprecationCard } from "@/components/deprecations/DeprecationCard";
 import Warn from "@/components/mdx/Warn";
 import { DocsSlugIndexProvider } from "@/components/docs/DocsSlugIndexContext";
-import { docsSidebarFixedClass } from "@/components/docs/docsChrome";
+import { docsSidebarStickyClass } from "@/components/docs/docsChrome";
 
 const TOC_SELECTORS =
   "main h2, main h3, main h4, .dot-block-editor h1, .dot-block-editor h2, .dot-block-editor h3, .dot-block-editor h4";
@@ -125,20 +126,15 @@ export function DynamicBuildPageAsset({
           buildNavigation={buildNavigation}
         />
       )}
-      <BuildSubNav buildNavigation={buildNavigation} />
+      <BuildSubNav
+        buildNavigation={buildNavigation}
+        trailing={
+          <DocsMobileNavSheet buildNavigation={buildNavigation} />
+        }
+      />
       <div className="flex min-h-0 w-full min-w-0 flex-1">
         <div className="flex w-full min-w-0 flex-1 flex-col lg:flex-row">
-          {/* In-flow spacer so main content clears the fixed sidebar */}
-          <div
-            className="hidden w-72 shrink-0 lg:block"
-            aria-hidden
-          />
-          <aside
-            className={cn(
-              "hidden border-border/60 bg-[#F6F6F7] dark:bg-muted/25 lg:block lg:border-r",
-              docsSidebarFixedClass
-            )}
-          >
+          <aside className={docsSidebarStickyClass}>
             <BuildSectionNav buildNavigation={buildNavigation} />
           </aside>
 

@@ -27,6 +27,8 @@ import {
   formatDocSourcePath,
   sourceHrefToDisplay,
 } from "@/components/chat/sourceLinks";
+import { useDocsSlugIndex } from "@/components/docs/DocsSlugIndexContext";
+import type { DocsSlugIndex } from "@/services/docs/resolveDocsHref";
 
 const CONVERSION_EVENT = "ai-chat-question-sent";
 
@@ -235,7 +237,10 @@ function bestMatchDistance(
   return best;
 }
 
-function mapSearchJsonToSources(data: unknown): DocSource[] {
+function mapSearchJsonToSources(
+  data: unknown,
+  slugIndex?: DocsSlugIndex | null,
+): DocSource[] {
   if (!data || typeof data !== "object") return [];
   const dotCMSResults = (data as { dotCMSResults?: unknown[] }).dotCMSResults;
   if (!Array.isArray(dotCMSResults)) return [];
@@ -267,7 +272,7 @@ function mapSearchJsonToSources(data: unknown): DocSource[] {
     const distance = bestMatchDistance(matches);
     const title = (result.title as string) || "Untitled";
     const contentType = (result.contentType as string) || "";
-    const href = formatDocSourcePath(contentType, rawUrl);
+    const href = formatDocSourcePath(contentType, rawUrl, slugIndex);
     const displayUrl = sourceHrefToDisplay(href);
 
     const prev = byHref.get(href);
@@ -321,6 +326,28 @@ export const ChatComponent = forwardRef<ChatComponentHandle, ChatComponentProps>
     const [recentQuestions, setRecentQuestions] = useState<string[]>([]);
     const abortControllerRef = useRef<AbortController | null>(null);
     const { conversion } = useContentAnalytics(AnalyticsConfig);
+    const contextSlugIndex = useDocsSlugIndex();
+    const slugIndexRef = useRef<DocsSlugIndex | null>(contextSlugIndex);
+
+    useEffect(() => {
+      slugIndexRef.current = contextSlugIndex;
+    }, [contextSlugIndex]);
+
+    useEffect(() => {
+      if (contextSlugIndex) return;
+      let cancelled = false;
+      fetch("/api/docs-slug-index")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (!cancelled && data && typeof data === "object" && !data.error) {
+            slugIndexRef.current = data as DocsSlugIndex;
+          }
+        })
+        .catch(() => {});
+      return () => {
+        cancelled = true;
+      };
+    }, [contextSlugIndex]);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const formRef = useRef<HTMLFormElement>(null);
@@ -397,7 +424,7 @@ export const ChatComponent = forwardRef<ChatComponentHandle, ChatComponentProps>
       const signal = abortControllerRef.current.signal;
 
       const searchPromise = fetchSearchForSources(inputTrimmed, signal)
-        .then((json) => mapSearchJsonToSources(json))
+        .then((json) => mapSearchJsonToSources(json, slugIndexRef.current))
         .catch(() => [] as DocSource[]);
 
       try {

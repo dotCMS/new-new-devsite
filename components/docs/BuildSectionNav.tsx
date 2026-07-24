@@ -109,8 +109,27 @@ export function BuildSectionNav({
   const activeSubTab = activeTab?.id ?? buildSub ?? "";
   const sections = dynamicNavBySubTab[activeSubTab] ?? [];
 
+  const inSectionHrefs = React.useMemo(() => {
+    const set = new Set<string>();
+    const prefix = activeTab?.activeHref || activeTab?.href || "";
+    if (prefix) set.add(prefix);
+    for (const section of sections) {
+      for (const item of section.items ?? []) {
+        if (!item.href) continue;
+        set.add(item.href);
+        const leaf = item.href.split("/").filter(Boolean).pop();
+        if (leaf) set.add(leaf);
+      }
+    }
+    return set;
+  }, [sections, activeTab]);
+
+  const [filterActive, setFilterActive] = React.useState(false);
+  const onFilterActiveChange = React.useCallback((active: boolean) => {
+    setFilterActive(active);
+  }, []);
+
   const paddingX = isMobile ? "pl-3 pr-3" : "pl-3 pr-3 sm:pl-4";
-  const scrollClass = isMobile ? "max-h-[50vh] overflow-y-auto" : "";
 
   return (
     <div
@@ -119,64 +138,73 @@ export function BuildSectionNav({
         "border-border/60",
         isMobile
           ? "w-full border-t py-3"
-          : "flex h-full min-h-0 w-full flex-col overflow-y-auto",
+          : "flex min-h-full w-full flex-col",
         className
       )}
     >
-      <div
-        className={cn("min-h-0", isMobile && scrollClass, "pt-0")}
-      >
-        <DocsSidebarFilter />
-        <div className={cn(paddingX, "flex items-center justify-end pt-3")}>
-          <ReorderMenuButton
-            startLevel={4}
-            depth={2}
-            label={`Reorder ${sectionLabel} side navigation`}
-            className="scale-90"
-          />
-        </div>
-        <div className="pt-2">
-          {status === "empty" && (
-            <div className={cn(paddingX, "text-sm font-medium text-destructive")}>
-              No {sectionLabel} navigation returned from dotCMS.
-            </div>
-          )}
-          {status === "ready" && sections.length === 0 && (
-            <div className={cn(paddingX, "text-sm font-medium text-destructive")}>
-              No {sectionLabel} side nav found for{" "}
-              <code>{activeSubTab || pathname}</code>.
-            </div>
-          )}
-          {status === "ready" && sections.map((section, sectionIndex) => (
-            <div
-              key={section.id}
-              className={cn(
-                paddingX,
-                sectionIndex > 0 && "mt-7 border-t border-border/50 pt-6"
-              )}
-            >
-              <h2 className="flex items-center gap-2 pl-1 text-[10px] font-bold uppercase leading-tight tracking-wider text-foreground/80">
-                <span className="h-4 w-1 shrink-0" aria-hidden />
-                <span className="min-w-0 flex-1">{section.title}</span>
-              </h2>
-              <ul className="mt-1.5 space-y-0 pb-0.5">
-                {section.items.map((item) => (
-                  <NavRow
-                    key={item.id}
-                    item={item}
-                    isActive={isBuildNavHrefActive(
-                      pathname,
-                      item.href,
-                      buildNavigation
-                    )}
-                  />
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <div className={cn("h-4", paddingX)} aria-hidden />
-      </div>
+      {/*
+        Filter + nav list share one scroll container (the sticky aside).
+        Do not sticky/fixed the filter to the viewport — it moves only when
+        this column scrolls (e.g. long Velocity Viewtools lists).
+      */}
+      <DocsSidebarFilter
+        inSectionHrefs={inSectionHrefs}
+        onActiveChange={onFilterActiveChange}
+      />
+      {!filterActive && (
+        <>
+          <div className={cn(paddingX, "flex items-center justify-end pt-3")}>
+            <ReorderMenuButton
+              startLevel={4}
+              depth={2}
+              label={`Reorder ${sectionLabel} side navigation`}
+              className="scale-90"
+            />
+          </div>
+          <div className="pt-2">
+            {status === "empty" && (
+              <div className={cn(paddingX, "text-sm font-medium text-destructive")}>
+                No {sectionLabel} navigation returned from dotCMS.
+              </div>
+            )}
+            {status === "ready" && sections.length === 0 && (
+              <div className={cn(paddingX, "text-sm font-medium text-destructive")}>
+                No {sectionLabel} side nav found for{" "}
+                <code>{activeSubTab || pathname}</code>.
+              </div>
+            )}
+            {status === "ready" &&
+              sections.map((section, sectionIndex) => (
+                <div
+                  key={section.id}
+                  className={cn(
+                    paddingX,
+                    sectionIndex > 0 && "mt-7 border-t border-border/50 pt-6"
+                  )}
+                >
+                  <h2 className="flex items-center gap-2 pl-1 text-[10px] font-bold uppercase leading-tight tracking-wider text-foreground/80">
+                    <span className="h-4 w-1 shrink-0" aria-hidden />
+                    <span className="min-w-0 flex-1">{section.title}</span>
+                  </h2>
+                  <ul className="mt-1.5 space-y-0 pb-0.5">
+                    {section.items.map((item) => (
+                      <NavRow
+                        key={item.id}
+                        item={item}
+                        isActive={isBuildNavHrefActive(
+                          pathname,
+                          item.href,
+                          buildNavigation
+                        )}
+                      />
+                    ))}
+                  </ul>
+                </div>
+              ))}
+          </div>
+          <div className={cn("h-4", paddingX)} aria-hidden />
+        </>
+      )}
     </div>
   );
 }

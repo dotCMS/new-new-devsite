@@ -4,7 +4,7 @@ import { Menu, Sparkles, X } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import * as React from "react";
 import { cn } from "@/util/utils";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ChatWithUsLink from "./ChatWithUsLink";
@@ -90,56 +90,6 @@ function HeaderPrimaryNav({
   );
 }
 
-type HeaderDocsMobileNavLinksProps = {
-  pathname: string | null;
-  onAfterNavigate: () => void;
-  primaryNavItems?: DynamicBuildSubTab[];
-};
-
-function HeaderDocsMobileNavLinks({
-  pathname,
-  onAfterNavigate,
-  primaryNavItems,
-}: HeaderDocsMobileNavLinksProps) {
-  if (primaryNavItems === undefined) {
-    return null;
-  }
-
-  return (
-    <nav className="flex flex-col" aria-label="Main">
-      <div className="space-y-1">
-        {primaryNavItems.length === 0 ? (
-          <span className="block px-4 py-2 text-sm font-medium text-destructive">
-            No primary navigation returned from dotCMS.
-          </span>
-        ) : (
-          primaryNavItems.map((item) => {
-            const isActive = Boolean(
-              pathname && pathname.startsWith(item.activeHref || item.href)
-            );
-            return (
-              <Link
-                key={item.id}
-                href={item.href}
-                onClick={() => onAfterNavigate()}
-                className={cn(
-                  "flex h-9 w-full items-center justify-start rounded-md px-4 text-left text-sm font-medium transition-colors",
-                  "hover:bg-muted/70",
-                  isActive
-                    ? "bg-muted/70 font-semibold text-foreground ring-1 ring-border/60"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {item.label}
-              </Link>
-            );
-          })
-        )}
-      </div>
-    </nav>
-  );
-}
-
 export default function Header({
   sideNavItems,
   currentPath,
@@ -155,6 +105,8 @@ export default function Header({
   const [currentOpenMenu, setCurrentOpenMenu] = useState<string | undefined>(
     undefined
   );
+  const [mobileMenuTop, setMobileMenuTop] = useState(64);
+  const headerBarRef = useRef<HTMLDivElement>(null);
   const { open: isAssistantOpen, toggleOpen, expanded: assistantExpanded } =
     useAssistant();
   const showWideNav = useHeaderWideNav(isAssistantOpen, assistantExpanded);
@@ -181,9 +133,32 @@ export default function Header({
     setCurrentOpenMenu(undefined);
   }, [pathname]);
 
+  // Anchor the overlay below the sticky header bar (accounts for BSL banner
+  // still in document flow when scrolled to top).
+  useLayoutEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const updateTop = () => {
+      const el = headerBarRef.current;
+      if (!el) return;
+      setMobileMenuTop(el.getBoundingClientRect().bottom);
+    };
+
+    updateTop();
+    window.addEventListener("resize", updateTop);
+    window.addEventListener("scroll", updateTop, true);
+    return () => {
+      window.removeEventListener("resize", updateTop);
+      window.removeEventListener("scroll", updateTop, true);
+    };
+  }, [isMobileMenuOpen]);
+
   return (
     <header className="sticky top-0 z-50 w-full overflow-x-clip">
-      <div className="w-full border-b bg-background">
+      <div
+        ref={headerBarRef}
+        className="relative z-[60] w-full border-b bg-background"
+      >
         <div className="relative mx-auto flex h-16 w-full min-w-0 max-w-[100vw] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           {/* Left — logo and primary nav */}
           <div className="relative z-20 flex min-w-0 shrink-0 items-center gap-2">
@@ -200,12 +175,12 @@ export default function Header({
           {showWideNav &&
             (isDocsChrome ? (
               <HeaderPrimaryNav
-                className="ml-3 flex-1 justify-start overflow-x-auto sm:ml-5 lg:ml-8"
+                className="ml-3 min-w-0 flex-1 justify-start overflow-hidden sm:ml-5 lg:ml-8"
                 pathname={activePathname}
                 primaryNavItems={primaryNavItems}
               />
             ) : (
-              <div className="ml-3 flex min-w-0 flex-1 justify-start sm:ml-5 lg:ml-8">
+              <div className="ml-3 flex min-w-0 flex-1 justify-start overflow-hidden sm:ml-5 lg:ml-8">
                 <HeaderSiteDesktopNav
                   currentOpenMenu={currentOpenMenu}
                   setCurrentOpenMenu={setCurrentOpenMenu}
@@ -215,14 +190,7 @@ export default function Header({
 
           {/* Right — search, Ask AI, utilities */}
           <div className="relative z-20 flex min-w-0 shrink-0 items-center justify-end gap-2 sm:gap-3">
-            <DocsQuickSearch
-              items={
-                sideNavItems && sideNavItems.length > 0
-                  ? sideNavItems
-                  : undefined
-              }
-              className="max-w-lg"
-            />
+            <DocsQuickSearch className="max-w-lg" />
             <button
               type="button"
               onClick={toggleOpen}
@@ -251,8 +219,10 @@ export default function Header({
 
             <button
               type="button"
-              className={cn("p-2", showWideNav && "hidden")}
+              className={cn("relative z-[70] p-2", showWideNav && "hidden")}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-expanded={isMobileMenuOpen}
+              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
             >
               {isMobileMenuOpen ? (
                 <X className="h-6 w-6" />
@@ -264,23 +234,18 @@ export default function Header({
         </div>
       </div>
 
-      {/* Mobile Navigation Menu */}
+      {/* Mobile menu: site chrome always (docs sections live in BuildSubNav). */}
       {isMobileMenuOpen && !showWideNav && (
-        <div className="fixed inset-0 top-16 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+        <div
+          className="fixed inset-x-0 bottom-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+          style={{ top: mobileMenuTop }}
+        >
           <div className="h-full w-full overflow-y-auto px-4 py-4 sm:px-6">
             <div className="flex h-full flex-col">
               <div className="py-4">
-                {isDocsChrome ? (
-                  <HeaderDocsMobileNavLinks
-                    pathname={activePathname}
-                    primaryNavItems={primaryNavItems}
-                    onAfterNavigate={() => setIsMobileMenuOpen(false)}
-                  />
-                ) : (
-                  <HeaderSiteMobileNav
-                    onAfterNavigate={() => setIsMobileMenuOpen(false)}
-                  />
-                )}
+                <HeaderSiteMobileNav
+                  onAfterNavigate={() => setIsMobileMenuOpen(false)}
+                />
               </div>
 
               {sideNavItems && !isOnDocs && (
