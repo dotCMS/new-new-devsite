@@ -1,55 +1,64 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Logo from './Logo';
-import { ArrowLeft } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import Logo from "./Logo";
+import { ArrowLeft } from "lucide-react";
+import { cn } from "@/util/utils";
 
-
+/**
+ * Logo with a “back to dotCMS.com” affordance on hover.
+ * The arrow sits in reserved left space inside the header padding so it
+ * never paints past the viewport edge.
+ */
 export default function LogoWithArrow() {
+  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [showBackArrow, setShowBackArrow] = useState(false);
 
+  const handleLogoMouseEnter = () => {
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+    }
+    setShowBackArrow(true);
+  };
 
-    const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
-    const [showBackArrow, setShowBackArrow] = useState(false);
+  const handleLogoMouseLeave = () => {
+    const timeout = setTimeout(() => {
+      setShowBackArrow(false);
+    }, 2000);
+    setHoverTimeout(timeout);
+  };
 
-    const handleLogoMouseEnter = () => {
-        if (hoverTimeout) {
-          clearTimeout(hoverTimeout);
-        }
-        setShowBackArrow(true);
-      };
-    
-      const handleLogoMouseLeave = () => {
-        const timeout = setTimeout(() => {
-          setShowBackArrow(false);
-        }, 2000);
-        setHoverTimeout(timeout);
-      };
-    
-    
+  useEffect(() => {
+    return () => {
+      if (hoverTimeout) clearTimeout(hoverTimeout);
+    };
+  }, [hoverTimeout]);
 
   return (
     <div
-    className="flex items-center relative group"
-    onMouseEnter={handleLogoMouseEnter}
-    onMouseLeave={handleLogoMouseLeave}
-  >
-    <div
-      className={`absolute right-full mr-2 transition-opacity duration-2000 z-[60] ${
-        showBackArrow ? "opacity-75" : "opacity-0 pointer-events-none"
-      }`}
+      className="group relative flex items-center"
+      onMouseEnter={handleLogoMouseEnter}
+      onMouseLeave={handleLogoMouseLeave}
     >
-      <a
-        href="https://www.dotcms.com"
-        className="hover:text-primary p-2 block"
-        aria-label="Back to dotCMS.com"
-        title="Back to dotCMS.com"
+      <div
+        className={cn(
+          "mr-1 flex w-7 shrink-0 items-center justify-center transition-opacity duration-200",
+          showBackArrow ? "opacity-75" : "pointer-events-none opacity-0"
+        )}
       >
-        <ArrowLeft className="h-6 w-6" />
-      </a>
+        <a
+          href="https://www.dotcms.com"
+          className="block p-1 hover:text-primary"
+          aria-label="Back to dotCMS.com"
+          title="Back to dotCMS.com"
+          tabIndex={showBackArrow ? 0 : -1}
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </a>
+      </div>
+      <div className="max-w-[100px]">
+        <Logo />
+      </div>
     </div>
-    <div className="max-w-[100px]">
-      <Logo />
-    </div>
-  </div>
   );
 }

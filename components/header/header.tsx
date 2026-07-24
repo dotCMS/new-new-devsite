@@ -16,11 +16,18 @@ import RedesignedNavTree from "@/components/navigation/RedesignedNavTree";
 import type { NavSection } from "@/util/navTransform";
 import LogoWithArrow from "./Logo/LogoWithArrow";
 import { DocsQuickSearch } from "./DocsQuickSearch";
-import type { DynamicBuildSubTab, DynamicBuildNavigation } from "@/services/docs/getDotCMSBuildNavigation";
+import type {
+  DynamicBuildSubTab,
+  DynamicBuildNavigation,
+} from "@/services/docs/getDotCMSBuildNavigation";
 import { resolveCanonicalDocsPathname } from "@/services/docs/getDotCMSBuildNavigation";
 import { isDocsExperiencePath } from "@/config/docs-path-roots";
 import { ReorderMenuButton } from "@/components/editor/ReorderMenuButton";
 import { useIsEditMode } from "@/hooks/useIsEditMode";
+import {
+  HeaderSiteDesktopNav,
+  HeaderSiteMobileNav,
+} from "./HeaderSiteNav";
 
 type HeaderProps = {
   sideNavItems?: any[];
@@ -55,43 +62,45 @@ function HeaderPrimaryNav({
         <span className="px-3 py-1.5 text-sm font-medium text-destructive">
           No primary navigation returned from dotCMS.
         </span>
-      ) : primaryNavItems.map((item) => {
-        const isActive = Boolean(
-          pathname && pathname.startsWith(item.activeHref || item.href)
-        );
-        return (
-          <Link
-            key={item.id}
-            href={item.href}
-            className={cn(
-              "shrink-0 rounded-md px-3 py-1.5 text-sm font-medium sm:px-3.5",
-              "transition-[color,background-color,box-shadow] duration-150",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20",
-              "hover:bg-muted/70",
-              isActive
-                ? "bg-muted/70 font-semibold text-foreground shadow-sm ring-1 ring-border/60"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            {item.label}
-          </Link>
-        );
-      })}
+      ) : (
+        primaryNavItems.map((item) => {
+          const isActive = Boolean(
+            pathname && pathname.startsWith(item.activeHref || item.href)
+          );
+          return (
+            <Link
+              key={item.id}
+              href={item.href}
+              className={cn(
+                "shrink-0 rounded-md px-3 py-1.5 text-sm font-medium sm:px-3.5",
+                "transition-[color,background-color,box-shadow] duration-150",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20",
+                "hover:bg-muted/70",
+                isActive
+                  ? "bg-muted/70 font-semibold text-foreground shadow-sm ring-1 ring-border/60"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {item.label}
+            </Link>
+          );
+        })
+      )}
     </nav>
   );
 }
 
-type HeaderMobileNavLinksProps = {
+type HeaderDocsMobileNavLinksProps = {
   pathname: string | null;
   onAfterNavigate: () => void;
   primaryNavItems?: DynamicBuildSubTab[];
 };
 
-function HeaderMobileNavLinks({
+function HeaderDocsMobileNavLinks({
   pathname,
   onAfterNavigate,
   primaryNavItems,
-}: HeaderMobileNavLinksProps) {
+}: HeaderDocsMobileNavLinksProps) {
   if (primaryNavItems === undefined) {
     return null;
   }
@@ -103,27 +112,29 @@ function HeaderMobileNavLinks({
           <span className="block px-4 py-2 text-sm font-medium text-destructive">
             No primary navigation returned from dotCMS.
           </span>
-        ) : primaryNavItems.map((item) => {
-          const isActive = Boolean(
-            pathname && pathname.startsWith(item.activeHref || item.href)
-          );
-          return (
-            <Link
-              key={item.id}
-              href={item.href}
-              onClick={() => onAfterNavigate()}
-              className={cn(
-                "flex h-9 w-full items-center justify-start rounded-md px-4 text-left text-sm font-medium transition-colors",
-                "hover:bg-muted/70",
-                isActive
-                  ? "bg-muted/70 font-semibold text-foreground ring-1 ring-border/60"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
+        ) : (
+          primaryNavItems.map((item) => {
+            const isActive = Boolean(
+              pathname && pathname.startsWith(item.activeHref || item.href)
+            );
+            return (
+              <Link
+                key={item.id}
+                href={item.href}
+                onClick={() => onAfterNavigate()}
+                className={cn(
+                  "flex h-9 w-full items-center justify-start rounded-md px-4 text-left text-sm font-medium transition-colors",
+                  "hover:bg-muted/70",
+                  isActive
+                    ? "bg-muted/70 font-semibold text-foreground ring-1 ring-border/60"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {item.label}
+              </Link>
+            );
+          })
+        )}
       </div>
     </nav>
   );
@@ -141,13 +152,15 @@ export default function Header({
     resolveCanonicalDocsPathname(buildNavigation, pathname) || pathname;
   const isEditMode = useIsEditMode();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [currentOpenMenu, setCurrentOpenMenu] = useState<string | undefined>(
+    undefined
+  );
   const { open: isAssistantOpen, toggleOpen, expanded: assistantExpanded } =
     useAssistant();
   const showWideNav = useHeaderWideNav(isAssistantOpen, assistantExpanded);
   const isOnDocs = Boolean(pathname?.startsWith("/docs"));
-  const isDocsExperience = isDocsExperiencePath(pathname);
+  const isDocsChrome = isDocsExperiencePath(pathname);
 
-  // Add effect to handle body scroll
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -155,7 +168,6 @@ export default function Header({
       document.body.style.overflow = "unset";
     }
 
-    // Cleanup
     return () => {
       document.body.style.overflow = "unset";
     };
@@ -165,14 +177,18 @@ export default function Header({
     if (showWideNav) setIsMobileMenuOpen(false);
   }, [showWideNav]);
 
+  useEffect(() => {
+    setCurrentOpenMenu(undefined);
+  }, [pathname]);
+
   return (
-    <header className="sticky top-0 z-50 w-full">
+    <header className="sticky top-0 z-50 w-full overflow-x-clip">
       <div className="w-full border-b bg-background">
         <div className="relative mx-auto flex h-16 w-full min-w-0 max-w-[100vw] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           {/* Left — logo and primary nav */}
           <div className="relative z-20 flex min-w-0 shrink-0 items-center gap-2">
             <LogoWithArrow />
-            {isEditMode && isDocsExperience && (
+            {isEditMode && isDocsChrome && (
               <ReorderMenuButton
                 startLevel={2}
                 depth={1}
@@ -181,18 +197,30 @@ export default function Header({
             )}
           </div>
 
-          {showWideNav && (
-            <HeaderPrimaryNav
-              className="ml-3 flex-1 justify-start overflow-x-auto sm:ml-5 lg:ml-8"
-              pathname={activePathname}
-              primaryNavItems={primaryNavItems}
-            />
-          )}
+          {showWideNav &&
+            (isDocsChrome ? (
+              <HeaderPrimaryNav
+                className="ml-3 flex-1 justify-start overflow-x-auto sm:ml-5 lg:ml-8"
+                pathname={activePathname}
+                primaryNavItems={primaryNavItems}
+              />
+            ) : (
+              <div className="ml-3 flex min-w-0 flex-1 justify-start sm:ml-5 lg:ml-8">
+                <HeaderSiteDesktopNav
+                  currentOpenMenu={currentOpenMenu}
+                  setCurrentOpenMenu={setCurrentOpenMenu}
+                />
+              </div>
+            ))}
 
           {/* Right — search, Ask AI, utilities */}
           <div className="relative z-20 flex min-w-0 shrink-0 items-center justify-end gap-2 sm:gap-3">
             <DocsQuickSearch
-              items={sideNavItems && sideNavItems.length > 0 ? sideNavItems : undefined}
+              items={
+                sideNavItems && sideNavItems.length > 0
+                  ? sideNavItems
+                  : undefined
+              }
               className="max-w-lg"
             />
             <button
@@ -240,14 +268,19 @@ export default function Header({
       {isMobileMenuOpen && !showWideNav && (
         <div className="fixed inset-0 top-16 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
           <div className="h-full w-full overflow-y-auto px-4 py-4 sm:px-6">
-            <div className="flex flex-col h-full">
-              {/* Main Navigation Links */}
+            <div className="flex h-full flex-col">
               <div className="py-4">
-                <HeaderMobileNavLinks
-                  pathname={activePathname}
-                  primaryNavItems={primaryNavItems}
-                  onAfterNavigate={() => setIsMobileMenuOpen(false)}
-                />
+                {isDocsChrome ? (
+                  <HeaderDocsMobileNavLinks
+                    pathname={activePathname}
+                    primaryNavItems={primaryNavItems}
+                    onAfterNavigate={() => setIsMobileMenuOpen(false)}
+                  />
+                ) : (
+                  <HeaderSiteMobileNav
+                    onAfterNavigate={() => setIsMobileMenuOpen(false)}
+                  />
+                )}
               </div>
 
               {sideNavItems && !isOnDocs && (
@@ -263,8 +296,7 @@ export default function Header({
                 </div>
               )}
 
-              {/* External Links and Theme Toggle */}
-              <div className="border-t py-4 mt-4">
+              <div className="mt-4 border-t py-4">
                 <div className="flex items-center gap-2 px-2">
                   <GithubLink />
                   <DiscourseLink />
@@ -275,7 +307,6 @@ export default function Header({
           </div>
         </div>
       )}
-
     </header>
   );
 }
