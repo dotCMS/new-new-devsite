@@ -18,6 +18,7 @@ type SpecialDocsPageContentProps = {
   };
   searchParams?: Record<string, string | string[] | undefined>;
   allDeprecations?: unknown[];
+  allReleases?: unknown[];
 };
 
 /**
@@ -31,6 +32,7 @@ export function SpecialDocsPageContent({
   contentlet,
   searchParams,
   allDeprecations,
+  allReleases,
 }: SpecialDocsPageContentProps) {
   const data = {
     contentlet,
@@ -47,7 +49,13 @@ export function SpecialDocsPageContent({
       return <CurrentReleases {...data} slug={slug} />;
     case "all-releases":
     case "previous-releases":
-      return <AllReleases {...data} slug={slug} />;
+      return (
+        <AllReleases
+          {...data}
+          slug={slug}
+          initialItems={(allReleases as never[]) || []}
+        />
+      );
     case "known-security-issues":
       return <AllSecurityIssues {...data} slug={slug} />;
     case "deprecations":

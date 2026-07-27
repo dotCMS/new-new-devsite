@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { getReleases } from '@/services/docs/getReleases/getReleases';
 import { FilterReleases } from '@/services/docs/getReleases/types';
+
 interface ReleaseData {
   releases: any[];
   pagination: {
@@ -11,8 +12,7 @@ interface ReleaseData {
   };
 }
 
-const filterCurrentReleases = (releases: any[]) => {
-
+export const filterCurrentReleases = (releases: any[]) => {
     const latestCurrent = releases.filter((release) => release.lts === "3")[0];
     const latestLtses = releases.filter((release) => {
       const eolDate = release.parent?.eolDate || release.eolDate;
@@ -34,32 +34,44 @@ const filterCurrentReleases = (releases: any[]) => {
       versions.sort((a, b) => b.keyVersion.localeCompare(a.keyVersion));
     }
     versions.unshift(latestCurrent);
-    return versions;
-
+    return versions.filter(Boolean);
 }   
 
-export function useCurrentReleases() {
-    const { data } = useReleases();
-    if (!data?.releases) {
+export function useCurrentReleases(allItems?: any[]) {
+    const { data } = useReleases(50, 1, FilterReleases.ALL, false, "", {
+      enabled: !Array.isArray(allItems),
+    });
+    const releases = Array.isArray(allItems) ? allItems : data?.releases;
+    if (!releases) {
         return [];
     }
-    return filterCurrentReleases(data.releases);
+    return filterCurrentReleases(releases);
 }
 
-
-
-export function useReleases(limit: number = 50, page: number = 1, filter: FilterReleases = FilterReleases.ALL, log: boolean = false, version: string = "") {
+export function useReleases(
+  limit: number = 50,
+  page: number = 1,
+  filter: FilterReleases = FilterReleases.ALL,
+  log: boolean = false,
+  version: string = "",
+  options: { enabled?: boolean } = {},
+) {
+  const enabled = options.enabled !== false;
   const [data, setData] = useState<ReleaseData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
+
     async function fetchCurrentRelease() {
       try {
         setLoading(true);
         const result = await getReleases(limit, page, filter, false, version);
         if (result) {
-
           setData(result);
         } else {
           setError(new Error('Failed to fetch changelog data'));
@@ -72,7 +84,7 @@ export function useReleases(limit: number = 50, page: number = 1, filter: Filter
     }
 
     fetchCurrentRelease();
-  }, [limit, page, filter, log, version]);
+  }, [limit, page, filter, log, version, enabled]);
 
   return { data, loading, error };
-} 
+}

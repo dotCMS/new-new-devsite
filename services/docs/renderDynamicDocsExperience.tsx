@@ -6,6 +6,7 @@ import GitHubDocumentation from '@/components/documentation/GitHubDocumentation'
 import { getSideNav } from '@/services/docs/getSideNav';
 import getDeprecations from '@/services/docs/getDeprecations/getDeprecations';
 import { findDeprecationForPath } from '@/services/docs/findDeprecationForPath';
+import { getAllReleases } from '@/services/docs/getReleases/getReleases';
 import { getDocsSlugIndex } from '@/services/docs/getDocsSlugIndex';
 import { stripDocsPathRoot } from '@/config/docs-path-roots';
 import type { DocsExperience } from '@/services/docs/resolveDocsExperience';
@@ -60,6 +61,19 @@ export async function renderDynamicDocsExperience({
     allDeprecations = [];
   }
 
+  let allReleases: unknown[] | undefined;
+  if (
+    specialPageKey === 'all-releases' ||
+    specialPageKey === 'previous-releases'
+  ) {
+    try {
+      allReleases = await getAllReleases();
+    } catch (e) {
+      console.error('Error fetching releases:', e);
+      allReleases = [];
+    }
+  }
+
   if (!specialPageKey) {
     deprecation = findDeprecationForPath(allDeprecations, routePath);
   }
@@ -97,6 +111,7 @@ export async function renderDynamicDocsExperience({
             allDeprecations={
               specialPageKey === 'deprecations' ? allDeprecations : undefined
             }
+            allReleases={allReleases}
           />
         </Suspense>
       );

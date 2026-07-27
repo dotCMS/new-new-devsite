@@ -2,7 +2,7 @@
 import { type FC } from "react";
 import { useReleases, useCurrentReleases } from "@/hooks/useReleases";
 import { extractDateForTables } from "@/util/formatDate";
-import { Copy, Check, Loader2, Link2Off, Link2, ExternalLink, Medal,Trophy } from "lucide-react";
+import { Copy, Check, Loader2, ExternalLink, Trophy } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import PaginationBar from "@/components/PaginationBar";
@@ -10,46 +10,80 @@ import { useSearchParams } from "next/navigation";
 import { FilterReleases } from '@/services/docs/getReleases/types';
 import DockerComposeYAML from "../DockerComposeYAML/DockerComposeYAML";
 
+type ReleasesPagination = {
+  totalPages?: number;
+  page?: number;
+  hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
+  [key: string]: unknown;
+};
+
 export const TableReleases: FC<{
-  showCurrent: boolean, 
-  limit?: number, 
-  page?: number, 
-  filter?: FilterReleases, 
-  version?: string,
-  downloadYAML?: boolean,
+  showCurrent?: boolean;
+  limit?: number;
+  page?: number;
+  filter?: FilterReleases;
+  version?: string;
+  downloadYAML?: boolean;
+  /** Preloaded page rows — skips network fetch when provided */
+  items?: any[];
+  /** Full release list used for Latest/LTS badges when filtering client-side */
+  allItems?: any[];
+  pagination?: ReleasesPagination;
+  onPageChange?: (page: number) => void;
 }> = ({
-  showCurrent=true,
-  limit=40,
-  page=1,
-  filter=FilterReleases.ALL,
-  version="",
-  downloadYAML=false,
+  showCurrent = true,
+  limit = 40,
+  page = 1,
+  filter = FilterReleases.ALL,
+  version = "",
+  downloadYAML = false,
+  items,
+  allItems,
+  pagination: paginationProp,
+  onPageChange,
 }) => {
   const [copiedStates, setCopiedStates] = useState<{ [key: string]: boolean }>({});
-  const currentReleases = useCurrentReleases();
+  const hasClientItems = Array.isArray(items);
+  const currentReleases = useCurrentReleases(allItems);
   const searchParams = useSearchParams();
-  var currentPage = Number(searchParams.get("page")) || 1;
+  let currentPage = Number(searchParams.get("page")) || page || 1;
   if (currentPage < 1) {
     currentPage = 1;
+  }
+  if (paginationProp?.page) {
+    currentPage = Number(paginationProp.page) || currentPage;
   }
 
   // Only show LTS column when viewing LTS or ALL releases
   const showLtsColumn = filter !== FilterReleases.CURRENT;
 
-  const {data: regularReleases, loading, error} = useReleases(limit, currentPage, filter, false, version);
-  const pagination = showCurrent ? {} : regularReleases?.pagination;
-  
+  const { data: regularReleases, loading, error } = useReleases(
+    limit,
+    currentPage,
+    filter,
+    false,
+    version,
+    { enabled: !hasClientItems && !showCurrent }
+  );
+  const pagination = showCurrent
+    ? {}
+    : (paginationProp ?? regularReleases?.pagination);
+
   const getEffectiveEolDate = (release: { eolDate: string; parent?: { eolDate?: string } }) =>
     release.parent?.eolDate || release.eolDate;
 
   const releaseMap = currentReleases.reduce((acc, release) => {
-    acc[release.minor] = {version: release.minor, lts: release.lts, eolDate: getEffectiveEolDate(release), isLatest: release.lts === "3"};
+    acc[release.minor] = {
+      version: release.minor,
+      lts: release.lts,
+      eolDate: getEffectiveEolDate(release),
+      isLatest: release.lts === "3",
+    };
     return acc;
-  }, {} as Record<string, {version: string, lts: string, eolDate: string, isLatest: boolean}>);
+  }, {} as Record<string, { version: string; lts: string; eolDate: string; isLatest: boolean }>);
 
-  const latestLts = currentReleases.filter((release) => release.lts === "1").sort((a, b) => a.minor - b.minor)[0];
-  const latestCurrent = currentReleases.filter((release) => release.lts === "3").sort((a, b) => a.minor - b.minor)[0];
-  if (loading) {
+  if (!hasClientItems && loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -57,7 +91,7 @@ export const TableReleases: FC<{
     );
   }
 
-  if (error) {
+  if (!hasClientItems && error) {
     return (
       <div className="flex items-center justify-center min-h-[400px] text-destructive">
         Error loading {downloadYAML ? "releases" : "changelogs"}: {error.message}
@@ -65,11 +99,13 @@ export const TableReleases: FC<{
     );
   }
 
-  const releases = showCurrent ? currentReleases : regularReleases?.releases;
+  const releases = showCurrent
+    ? currentReleases
+    : (hasClientItems ? items : regularReleases?.releases);
   if (!releases) return <>No data</>;
 
   // Filter out null or undefined entries
-  const filteredReleases = releases.filter((release): release is NonNullable<typeof release> => 
+  const filteredReleases = releases.filter((release): release is NonNullable<typeof release> =>
     release !== null && release !== undefined
   );
 
@@ -96,17 +132,17 @@ export const TableReleases: FC<{
             <tr>
               {downloadYAML && (
                 <th className="px-12 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                Download
-              </th>
+                  Download
+                </th>
               )}
               <th className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Version
               </th>
-              
-                <th className="px-6 py-4  text-sm font-semibold text-gray-900 dark:text-gray-100 text-center">
-                  Type
-                </th>
- 
+
+              <th className="px-6 py-4  text-sm font-semibold text-gray-900 dark:text-gray-100 text-center">
+                Type
+              </th>
+
               <th className="px-6 py-4 t text-sm font-semibold text-gray-900 dark:text-gray-100 text-center">
                 Docker Tag
               </th>
@@ -124,49 +160,53 @@ export const TableReleases: FC<{
             {filteredReleases.map((release, index) => {
               const effectiveEolDate = getEffectiveEolDate(release);
               return (
-              <tr 
-                key={`lts-${index}-${release.minor}`} 
+              <tr
+                key={`lts-${index}-${release.minor}`}
                 className={`transition-colors ${
-                    releaseMap[release.minor] && !isEolPassed(effectiveEolDate)?
-                    'bg-green-100 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-700'
-                   : isEolPassed(effectiveEolDate)
-                    ? 'bg-gray-100 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-700'
-                    : 'hover:bg-gray-50 dark:hover:bg-gray-700'
+                  releaseMap[release.minor] && !isEolPassed(effectiveEolDate)
+                    ? 'bg-green-100 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    : isEolPassed(effectiveEolDate)
+                      ? 'bg-gray-100 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-700'
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-700'
                 }`}
               >
                 {downloadYAML && (
                   <td className="px-6 py-4 text-sm font-semibold text-gray-900 
                                 dark:text-gray-100 flex flex-row gap-2">
-                      <button
-                        onClick={() => { DockerComposeYAML({ 
-                          version: release.minor, 
-                          lts: release.lts !== "3", 
-                          dockerTag: release.dockerImage?.replace("dotcms/dotcms:", "") || release.minor, 
-                          cleanStarter: release.starterEmpty, 
-                          demoStarter: release.starter, 
-                          includeDemo: false 
-                        })}}
-                        className="px-1 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 w-0 grow
+                    <button
+                      onClick={() => {
+                        DockerComposeYAML({
+                          version: release.minor,
+                          lts: release.lts !== "3",
+                          dockerTag: release.dockerImage?.replace("dotcms/dotcms:", "") || release.minor,
+                          cleanStarter: release.starterEmpty,
+                          demoStarter: release.starter,
+                          includeDemo: false
+                        })
+                      }}
+                      className="px-1 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 w-0 grow
                                   rounded-md transition-colors bg-indigo-100 dark:bg-indigo-600"
-                        disabled={!release.dockerImage}
-                      >
-                        Clean
-                      </button>
-                      <button
-                        onClick={() => { DockerComposeYAML({ 
-                            version: release.minor, 
-                            lts: release.lts !== "3", 
-                            dockerTag: release.dockerImage?.replace("dotcms/dotcms:", "") || release.minor, 
-                            cleanStarter: release.starterEmpty, 
-                            demoStarter: release.starter, 
-                            includeDemo: true 
-                          })}}
-                        className="px-1 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 w-0 grow
+                      disabled={!release.dockerImage}
+                    >
+                      Clean
+                    </button>
+                    <button
+                      onClick={() => {
+                        DockerComposeYAML({
+                          version: release.minor,
+                          lts: release.lts !== "3",
+                          dockerTag: release.dockerImage?.replace("dotcms/dotcms:", "") || release.minor,
+                          cleanStarter: release.starterEmpty,
+                          demoStarter: release.starter,
+                          includeDemo: true
+                        })
+                      }}
+                      className="px-1 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 w-0 grow
                                   rounded-md transition-colors bg-purple-100 dark:bg-purple-600"
-                        disabled={!release.dockerImage}
-                      >
-                        Demo Site
-                      </button>
+                      disabled={!release.dockerImage}
+                    >
+                      Demo Site
+                    </button>
                   </td>
                 )}
 
@@ -175,51 +215,51 @@ export const TableReleases: FC<{
                     {release.minor}
                   </Link>
                 </td>
-                
-                  <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
-                    {releaseMap[release.minor] && release.lts === "3" 
-                        ? (
-                            <>
-                            <Trophy className="w-4 m-2 h-4 border-0 border-red-500   inline-block" />
-                            &nbsp;
-                            <span className="inline-block ">Latest</span>
-                            </>
-                        )
-                         
-                        : releaseMap[release.minor] && release.lts === "1"
-                            ? "Latest LTS"
-                            : release.lts !== "3" 
-                                ? "LTS" 
-                                : "-"}
-                  </td>
-               
+
+                <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 text-center">
+                  {releaseMap[release.minor] && release.lts === "3"
+                    ? (
+                      <>
+                        <Trophy className="w-4 m-2 h-4 border-0 border-red-500   inline-block" />
+                        &nbsp;
+                        <span className="inline-block ">Latest</span>
+                      </>
+                    )
+
+                    : releaseMap[release.minor] && release.lts === "1"
+                      ? "Latest LTS"
+                      : release.lts !== "3"
+                        ? "LTS"
+                        : "-"}
+                </td>
+
                 <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 text-center">
                   <div className="flex items-center space-x-2  overflow-hidden justify-center">
                     <code className="font-mono">
 
-                      {release.dockerImage && release.dockerImage.includes("dotcms/dotcms:") &&(
-                      <>{release.dockerImage.replace("dotcms/dotcms:", "")}
-                            <button
+                      {release.dockerImage && release.dockerImage.includes("dotcms/dotcms:") && (
+                        <>{release.dockerImage.replace("dotcms/dotcms:", "")}
+                          <button
                             onClick={() => handleCopy(release.dockerImage || '', `lts${index + 1}`)}
                             className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                             aria-label="Copy docker image"
-                            >
+                          >
                             {copiedStates[`lts${index + 1}`] ? (
-                                <Check className="w-4 h-4 text-green-500" />
+                              <Check className="w-4 h-4 text-green-500" />
                             ) : (
-                                <Copy className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                              <Copy className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                             )}
-                            </button>
-                            </>
+                          </button>
+                        </>
                       )
-                    }
-                    {!(release.dockerImage && release.dockerImage.includes("dotcms/dotcms:")) && (
+                      }
+                      {!(release.dockerImage && release.dockerImage.includes("dotcms/dotcms:")) && (
 
                         <Link href={`https://static.dotcms.com/versions/dotcms_${release.minor}.tar.gz`}>
-                            tar.gz <ExternalLink className="w-4 h-4 text-gray-500 dark:text-gray-400 inline-block" />
+                          tar.gz <ExternalLink className="w-4 h-4 text-gray-500 dark:text-gray-400 inline-block" />
                         </Link>
-                    )}
-                    
+                      )}
+
 
                     </code>
                   </div>
@@ -227,19 +267,23 @@ export const TableReleases: FC<{
                 <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 font-mono text-center text-nowrap">
                   {extractDateForTables(release.releasedDate)}
                 </td>
-                {showLtsColumn && (   
-                <td className={`px-6 py-4 text-sm text-gray-500 dark:text-gray-400 text-center text-nowrap font-mono ${isEolPassed(effectiveEolDate) ? 'line-through' : ''}`}>
-                  {release.lts === "3" ? "-" : extractDateForTables(effectiveEolDate)}
-                </td>
+                {showLtsColumn && (
+                  <td className={`px-6 py-4 text-sm text-gray-500 dark:text-gray-400 text-center text-nowrap font-mono ${isEolPassed(effectiveEolDate) ? 'line-through' : ''}`}>
+                    {release.lts === "3" ? "-" : extractDateForTables(effectiveEolDate)}
+                  </td>
                 )}
               </tr>
-            );
+              );
             })}
           </tbody>
         </table>
         {!showCurrent && (
           <div className="m-6">
-            <PaginationBar pagination={pagination} additionalQueryParams={`&filter=${filter}&version=${version}`} />
+            <PaginationBar
+              pagination={pagination}
+              additionalQueryParams={`&filter=${filter}&version=${version}`}
+              onPageChange={onPageChange}
+            />
           </div>
         )}
       </div>
