@@ -7,7 +7,18 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination";
 
-export default function PaginationBar({ pagination, additionalQueryParams, onPageChange }) {
+/**
+ * @param {{
+ *   pagination: any,
+ *   additionalQueryParams?: string,
+ *   onPageChange?: (page: number) => void,
+ * }} props
+ */
+export default function PaginationBar({
+    pagination,
+    additionalQueryParams,
+    onPageChange,
+}) {
     // Check if pagination is empty or has only one page
     if (!pagination || Object.keys(pagination).length === 0 || pagination.totalPages <= 1) {
         return null;
