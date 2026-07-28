@@ -5,6 +5,8 @@ import { DotCMSBlockEditorRenderer } from "@dotcms/react";
 import LinkCards from "../content-types/link-cards";
 import Video from "../content-types/Video";
 import YoutubeComponent from "./Youtube";
+import { useDocsSlugIndex } from "@/components/docs/DocsSlugIndexContext";
+import { resolveDocsHref } from "@/services/docs/resolveDocsHref";
 
 /**
  * Renders the text in bold.
@@ -42,20 +44,32 @@ const Underline = ({ children }) => <u>{children}</u>;
  * @returns The rendered link component.
  */
 const LinkMark = ({ children, attrs }) => {
-  const { href } = attrs;
-  const relative = href.startsWith("/") || href.startsWith("..");
+  const { href, ...rest } = attrs || {};
+  const slugIndex = useDocsSlugIndex();
+  const resolvedHref = resolveDocsHref(href, slugIndex);
+  const relative =
+    resolvedHref.startsWith("/") ||
+    resolvedHref.startsWith("..") ||
+    (!/^https?:\/\//i.test(resolvedHref) && !resolvedHref.startsWith("#"));
 
   if (relative) {
-    // If the URL fails it is likely a relative URL
     return (
-      <Link {...attrs} href={href || "/"} className="text-primary-purple hover:opacity-80 underline hover:no-underline">
+      <Link
+        {...rest}
+        href={resolvedHref || "/"}
+        className="text-primary-purple hover:opacity-80 underline hover:no-underline"
+      >
         {children}
       </Link>
     );
   }
 
   return (
-    <a {...attrs} href={href} className="text-primary-purple hover:opacity-80 underline hover:no-underline">
+    <a
+      {...rest}
+      href={resolvedHref}
+      className="text-primary-purple hover:opacity-80 underline hover:no-underline"
+    >
       {children}
     </a>
   );

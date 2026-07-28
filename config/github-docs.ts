@@ -22,7 +22,19 @@ export interface NpmDocConfig {
   starterGuide?: string;
 }
 
-export type ExternalDocConfig = NpmDocConfig;
+/**
+ * GitHub-sourced doc: a README fetched directly from a repository.
+ */
+export interface GitHubReadmeDocConfig {
+  source: 'github';
+  owner: string;
+  repo: string;
+  path: string;
+  branch: string;
+  starterGuide?: string;
+}
+
+export type ExternalDocConfig = NpmDocConfig | GitHubReadmeDocConfig;
 
 /**
  * Backwards-compatible alias for existing imports.
@@ -30,14 +42,24 @@ export type ExternalDocConfig = NpmDocConfig;
 export type GitHubConfig = ExternalDocConfig;
 
 /**
- * Configuration mapping docs slugs to their npm source.
- * These docs are fetched from npm instead of dotCMS.
+ * Configuration mapping docs leaf slugs (or full paths) to their external source.
+ *
+ * Lookup tries, in order:
+ * 1. the full path after `/docs/`
+ * 2. the final path segment (so nested URLs resolve to the same entry
+ *    as today's flat `/docs/{slug}` pages)
+ *
+ * Prefer npm for published packages (exact version + beta switch). Prefer
+ * GitHub for repos/examples that are not published to npm.
+ *
+ * Temporary band-aid until README content is synced into dotCMS via automation.
  *
  * The configured `tag` is the default dist-tag (usually `latest`). A page can
  * request a different published dist-tag at request time via the `?tag=` query
  * param (e.g. `/docs/mcp-server?tag=beta`) — see `withTag`.
  */
 export const GITHUB_DOCS_MAP: Record<string, ExternalDocConfig> = {
+  // Published SDK packages — README from the npm artifact
   'sdk-react-library': {
     source: 'npm',
     pkg: '@dotcms/react',
@@ -79,6 +101,62 @@ export const GITHUB_DOCS_MAP: Record<string, ExternalDocConfig> = {
     pkg: '@dotcms/mcp-server',
     tag: 'latest',
   },
+
+  // Example projects / non-npm READMEs — fetch from GitHub
+  'sdk-dotnet-example': {
+    source: 'github',
+    owner: 'dotCMS',
+    repo: 'dotnet-starter-example',
+    path: 'README.md',
+    branch: 'main',
+  },
+  'sdk-nextjs-example': {
+    source: 'github',
+    owner: 'dotCMS',
+    repo: 'core',
+    path: 'examples/nextjs/README.md',
+    branch: 'main',
+    starterGuide: '/getting-started/integrations/nextjs',
+  },
+  'sdk-angular-example': {
+    source: 'github',
+    owner: 'dotCMS',
+    repo: 'core',
+    path: 'examples/angular/README.md',
+    branch: 'main',
+    starterGuide: '/getting-started/integrations/angular',
+  },
+  'sdk-astro-example': {
+    source: 'github',
+    owner: 'dotCMS',
+    repo: 'core',
+    path: 'examples/astro/README.md',
+    branch: 'main',
+    starterGuide: '/getting-started/integrations/astro',
+  },
+  'sdk-laravel-example': {
+    source: 'github',
+    owner: 'dotCMS',
+    repo: 'dotcms-php-sdk',
+    path: 'examples/dotcms-laravel/README.md',
+    branch: 'main',
+    starterGuide: '/getting-started/integrations/laravel',
+  },
+  'sdk-symfony-example': {
+    source: 'github',
+    owner: 'dotCMS',
+    repo: 'dotcms-php-sdk',
+    path: 'examples/dotcms-symfony/README.md',
+    branch: 'main',
+    starterGuide: '/getting-started/integrations/symfony',
+  },
+  'sdk-php-library': {
+    source: 'github',
+    owner: 'dotCMS',
+    repo: 'dotcms-php-sdk',
+    path: 'README.md',
+    branch: 'main',
+  },
 };
 
 /**
@@ -99,7 +177,7 @@ export function withTag(
   config: ExternalDocConfig,
   requestedTag?: string | null,
 ): ExternalDocConfig {
-  if (!requestedTag) {
+  if (config.source !== 'npm' || !requestedTag) {
     return config;
   }
 
@@ -111,22 +189,63 @@ export function withTag(
   return { ...config, tag };
 }
 
+import { stripDocsPathRoot } from '@/config/docs-path-roots';
+
 /**
- * Check if a docs slug should be fetched from an external (npm) source.
- * @param slug - The docs page slug
- * @returns boolean
+ * Normalize either public route family into a path key.
+ * @param slug - route params or a path, with or without a leading slash
+ * @returns normalized path after `/docs/`
  */
-export function isGitHubDoc(slug: string): boolean {
-  return slug in GITHUB_DOCS_MAP;
+export function normalizeDocPath(slug: string | string[] | undefined): string {
+  const slugArray = Array.isArray(slug) ? slug : slug ? [slug] : [];
+  const path = slugArray
+    .filter(Boolean)
+    .join('/')
+    .toLowerCase()
+    .replace(/^\/+|\/+$/g, '');
+
+  return stripDocsPathRoot(path);
 }
 
 /**
- * Get the external source configuration for a docs slug.
- * @param slug - The docs page slug
+ * Resolve a route path to a GITHUB_DOCS_MAP key.
+ * Tries the full normalized path, then the final segment.
+ */
+function resolveDocMapKey(docPath: string): string | null {
+  const normalized = normalizeDocPath(docPath);
+  if (!normalized) {
+    return null;
+  }
+
+  if (normalized in GITHUB_DOCS_MAP) {
+    return normalized;
+  }
+
+  const leaf = normalized.split('/').filter(Boolean).pop();
+  if (leaf && leaf in GITHUB_DOCS_MAP) {
+    return leaf;
+  }
+
+  return null;
+}
+
+/**
+ * Check if a docs path should be fetched from an external source.
+ * @param docPath - full path after `/docs/`
+ * @returns boolean
+ */
+export function isGitHubDoc(docPath: string): boolean {
+  return resolveDocMapKey(docPath) !== null;
+}
+
+/**
+ * Get the external source configuration for a docs path.
+ * @param docPath - full path after `/docs/`
  * @returns config or null if not found
  */
-export function getGitHubConfig(slug: string): ExternalDocConfig | null {
-  return GITHUB_DOCS_MAP[slug] || null;
+export function getGitHubConfig(docPath: string): ExternalDocConfig | null {
+  const key = resolveDocMapKey(docPath);
+  return key ? GITHUB_DOCS_MAP[key] : null;
 }
 
 /**
@@ -138,6 +257,13 @@ export function buildNpmRegistryUrl(pkg: string): string {
   // encodeURIComponent turns the "/" in scoped names into %2f, which the
   // registry expects for scoped packages (e.g. @dotcms%2fmcp-server).
   return `https://registry.npmjs.org/${encodeURIComponent(pkg)}`;
+}
+
+/**
+ * Build the raw GitHub URL for a repository-backed README.
+ */
+export function buildGitHubRawUrl(config: GitHubReadmeDocConfig): string {
+  return `https://raw.githubusercontent.com/${config.owner}/${config.repo}/${config.branch}/${config.path}`;
 }
 
 /**

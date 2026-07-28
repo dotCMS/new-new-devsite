@@ -33,14 +33,14 @@ export function AlertBanner({
   if (!isVisible) return null;
 
   return (
-    <div className="sticky top-0 z-50 w-full">
-      <Alert className="rounded-none relative py-3 px-4 text-white border-none m-0" style={{ backgroundColor: 'rgb(24, 24, 109)' }}>
-        <AlertDescription className="text-white w-full text-center">
+    <div className="w-full">
+      <Alert className="relative m-0 rounded-none border-none px-4 py-3 text-white" style={{ backgroundColor: 'rgb(24, 24, 109)' }}>
+        <AlertDescription className="w-full text-center text-white">
           {message}
         </AlertDescription>
         <button
           onClick={dismissBanner}
-          className="p-1 absolute right-4 top-1/2 transform -translate-y-1/2 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full p-1 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
           aria-label="Close alert"
         >
           <X className="h-4 w-4 text-white" />

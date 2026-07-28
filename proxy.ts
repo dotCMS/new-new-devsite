@@ -110,6 +110,29 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(redirectUrl, request.url), statusCode);
   }
 
+  // Flat /docs/{slug} → nested canonical from build-nav slug index.
+  // Use 302 while the nav redesign is in testing — 301s are sticky in browsers.
+  // Switch DOCS_SLUG_REDIRECT_STATUS to 301 for production cutover.
+  const DOCS_SLUG_REDIRECT_STATUS = 302;
+  try {
+    const {
+      getDocsSlugIndex,
+      lookupShallowDocsRedirect,
+    } = await import('@/services/docs/getDocsSlugIndex');
+    const index = await getDocsSlugIndex();
+    const canonical = lookupShallowDocsRedirect(pathname, index);
+    if (canonical) {
+      const target = new URL(canonical, request.url);
+      target.search = request.nextUrl.search;
+      console.log(
+        `Docs slug redirect: ${pathname} → ${canonical} (${DOCS_SLUG_REDIRECT_STATUS})`,
+      );
+      return NextResponse.redirect(target, DOCS_SLUG_REDIRECT_STATUS);
+    }
+  } catch (error) {
+    console.error('Docs slug index redirect failed:', error);
+  }
+
   let response = NextResponse.next();
   response.headers.set("Cache-Control", "public, s-maxage=600, stale-while-revalidate=120");
   response.headers.set("CDN-Cache-Control", "public, s-maxage=600, stale-while-revalidate=120");

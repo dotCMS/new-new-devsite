@@ -7,10 +7,18 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination";
 
-
-
-
-export default function PaginationBar({ pagination, additionalQueryParams }) {
+/**
+ * @param {{
+ *   pagination: any,
+ *   additionalQueryParams?: string,
+ *   onPageChange?: (page: number) => void,
+ * }} props
+ */
+export default function PaginationBar({
+    pagination,
+    additionalQueryParams,
+    onPageChange,
+}) {
     // Check if pagination is empty or has only one page
     if (!pagination || Object.keys(pagination).length === 0 || pagination.totalPages <= 1) {
         return null;
@@ -32,6 +40,15 @@ export default function PaginationBar({ pagination, additionalQueryParams }) {
     const pages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i)
 
     const finalAdditionalQueryParams = additionalQueryParams && additionalQueryParams.length > 0 ? additionalQueryParams : "";
+    const useClientPaging = typeof onPageChange === "function";
+
+    const goTo = (nextPage) => {
+        if (!useClientPaging) return;
+        onPageChange(nextPage);
+    };
+
+    const pageHref = (nextPage) =>
+        useClientPaging ? "#" : `?page=${nextPage}${finalAdditionalQueryParams}`;
 
     return (
 
@@ -39,16 +56,29 @@ export default function PaginationBar({ pagination, additionalQueryParams }) {
             <PaginationContent>
                 <PaginationItem>
                     <PaginationPrevious
-                        href={`?page=${currentPage - 1}${finalAdditionalQueryParams}`}
+                        href={pageHref(currentPage - 1)}
+                        onClick={useClientPaging ? (e) => {
+                            e.preventDefault();
+                            if (hasPreviousPage) goTo(currentPage - 1);
+                        } : undefined}
                         aria-disabled={!hasPreviousPage}
-                        className={!hasPreviousPage ? 'pointer-events-none opacity-50' : ''}
+                        className={!hasPreviousPage ? 'pointer-events-none opacity-50' : useClientPaging ? 'cursor-pointer' : ''}
                     />
                 </PaginationItem>
 
                 {startPage > 1 && (
                     <>
                         <PaginationItem>
-                            <PaginationLink href={`?page=1${finalAdditionalQueryParams}`}>1</PaginationLink>
+                            <PaginationLink
+                                href={pageHref(1)}
+                                onClick={useClientPaging ? (e) => {
+                                    e.preventDefault();
+                                    goTo(1);
+                                } : undefined}
+                                className={useClientPaging ? 'cursor-pointer' : undefined}
+                            >
+                                1
+                            </PaginationLink>
                         </PaginationItem>
                         {startPage > 2 && (
                             <PaginationItem>
@@ -58,13 +88,18 @@ export default function PaginationBar({ pagination, additionalQueryParams }) {
                     </>
                 )}
 
-                {pages.map((page) => (
-                    <PaginationItem key={page}>
+                {pages.map((pageNum) => (
+                    <PaginationItem key={pageNum}>
                         <PaginationLink
-                            href={`?page=${page}${finalAdditionalQueryParams}`}
-                            isActive={page === currentPage}
+                            href={pageHref(pageNum)}
+                            onClick={useClientPaging ? (e) => {
+                                e.preventDefault();
+                                goTo(pageNum);
+                            } : undefined}
+                            isActive={pageNum === currentPage}
+                            className={useClientPaging ? 'cursor-pointer' : undefined}
                         >
-                            {page}
+                            {pageNum}
                         </PaginationLink>
                     </PaginationItem>
                 ))}
@@ -77,7 +112,14 @@ export default function PaginationBar({ pagination, additionalQueryParams }) {
                             </PaginationItem>
                         )}
                         <PaginationItem>
-                            <PaginationLink href={`?page=${totalPages}${finalAdditionalQueryParams}`}>
+                            <PaginationLink
+                                href={pageHref(totalPages)}
+                                onClick={useClientPaging ? (e) => {
+                                    e.preventDefault();
+                                    goTo(totalPages);
+                                } : undefined}
+                                className={useClientPaging ? 'cursor-pointer' : undefined}
+                            >
                                 {totalPages}
                             </PaginationLink>
                         </PaginationItem>
@@ -86,9 +128,13 @@ export default function PaginationBar({ pagination, additionalQueryParams }) {
 
                 <PaginationItem>
                     <PaginationNext
-                        href={`?page=${currentPage + 1}${finalAdditionalQueryParams}`}
+                        href={pageHref(currentPage + 1)}
+                        onClick={useClientPaging ? (e) => {
+                            e.preventDefault();
+                            if (hasNextPage) goTo(currentPage + 1);
+                        } : undefined}
                         aria-disabled={!hasNextPage}
-                        className={!hasNextPage ? 'pointer-events-none opacity-50' : ''}
+                        className={!hasNextPage ? 'pointer-events-none opacity-50' : useClientPaging ? 'cursor-pointer' : ''}
                     />
                 </PaginationItem>
             </PaginationContent>

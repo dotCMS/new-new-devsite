@@ -1,8 +1,10 @@
 import {
+  buildGitHubRawUrl,
   buildNpmCdnUrl,
   buildNpmRegistryUrl,
   ExternalDocConfig,
   GitHubConfig,
+  GitHubReadmeDocConfig,
   NpmDocConfig,
 } from '@/config/github-docs';
 import { logRequest } from '@/util/logRequest';
@@ -207,14 +209,43 @@ async function fetchNpmContent(config: NpmDocConfig): Promise<string | null> {
 }
 
 /**
+ * Fetch and process a README directly from GitHub.
+ */
+async function fetchGitHubReadme(
+  config: GitHubReadmeDocConfig,
+): Promise<string | null> {
+  const content = await fetchText(buildGitHubRawUrl(config), 'fetchGitHubReadme');
+  if (content === null) {
+    return null;
+  }
+
+  const repositoryBase = `https://github.com/${config.owner}/${config.repo}`;
+  const readmeDirectory = config.path.includes('/')
+    ? config.path.slice(0, config.path.lastIndexOf('/'))
+    : '';
+  const sourceDirectory = readmeDirectory ? `${readmeDirectory}/` : '';
+  const linkBase = `${repositoryBase}/blob/${config.branch}/${sourceDirectory}`.replace(/\/$/, '');
+  const assetBase =
+    `https://raw.githubusercontent.com/${config.owner}/${config.repo}/${config.branch}/${sourceDirectory}`.replace(/\/$/, '');
+
+  return rewriteRelativeReferences(
+    stripReadmeChrome(content),
+    linkBase,
+    assetBase,
+  );
+}
+
+/**
  * Fetch README content for an external (npm) doc.
  * Results are request-cached by their resolved source key.
  * @param config - external doc configuration
  * @returns The processed markdown content or null if failed/unavailable
  */
 export async function fetchGitHubContent(config: ExternalDocConfig): Promise<string | null> {
-  // Cache key is stable per source target (package + tag).
-  const cacheKey = `npm:${config.pkg}@${config.tag}`;
+  const cacheKey =
+    config.source === 'npm'
+      ? `npm:${config.pkg}@${config.tag}`
+      : `github:${config.owner}/${config.repo}/${config.branch}/${config.path}`;
 
   const cachedPromise = getCachedEntry(cacheKey);
   if (cachedPromise) {
@@ -224,7 +255,9 @@ export async function fetchGitHubContent(config: ExternalDocConfig): Promise<str
 
   const fetchPromise = (async (): Promise<string | null> => {
     try {
-      return await fetchNpmContent(config);
+      return config.source === 'npm'
+        ? await fetchNpmContent(config)
+        : await fetchGitHubReadme(config);
     } catch (error) {
       console.error(`Error fetching external doc content (${cacheKey}):`, error);
       return null;
@@ -385,7 +418,10 @@ export async function getDocsContentWithGitHub(
 
     if (githubContent) {
       // Reuses the dist-tags already fetched above (cached per package).
-      const betaAvailable = await npmTagExists(githubConfig.pkg, 'beta');
+      const betaAvailable =
+        githubConfig.source === 'npm'
+          ? await npmTagExists(githubConfig.pkg, 'beta')
+          : false;
       return {
         content: githubContent,
         source: 'github',

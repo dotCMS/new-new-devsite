@@ -1,9 +1,10 @@
 "use client";
 
 import { useLayoutEffect, useState } from "react";
+import { DOCS_NAV_WIDE_MIN_PX } from "@/components/docs/docsChrome";
 
-/** Align with Tailwind `xl:` — horizontal nav + icon cluster fit above this content width. */
-const XL_CONTENT_MIN = 1280;
+/** Align with Tailwind `lg:` / docs sub-nav compact mode. */
+const WIDE_CONTENT_MIN = DOCS_NAV_WIDE_MIN_PX;
 /** Assistant uses side panel at this viewport width and up (see AssistantProvider). */
 const ASSISTANT_DESKTOP_MIN = 1024;
 
@@ -40,7 +41,7 @@ export function useHeaderWideNav(
       const vw = window.innerWidth;
       const reserve = assistantReservePx(assistantOpen, assistantExpanded, vw);
       const available = vw - reserve;
-      setWide(available >= XL_CONTENT_MIN);
+      setWide(available >= WIDE_CONTENT_MIN);
     };
 
     run();

@@ -4,7 +4,6 @@ import React, { useEffect, useState, createContext, useContext } from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import rehypeSlug from 'rehype-slug'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import remarkGfm from 'remark-gfm'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -16,6 +15,11 @@ import { a11yLight, a11yDark } from 'react-syntax-highlighter/dist/cjs/styles/hl
 import { useTheme } from "next-themes"
 import { Include } from '@/components/mdx/Include'
 import { remarkCustomId } from '@/util/remarkCustomId'
+import { useDocsSlugIndex } from '@/components/docs/DocsSlugIndexContext'
+import {
+  resolveDocsHref,
+  type DocsSlugIndex,
+} from '@/services/docs/resolveDocsHref'
 import { 
   extractBlockComponentContent, 
   rehypeUnwrapBlockComponents,
@@ -26,6 +30,8 @@ interface MarkdownContentProps {
   content: string
   className?: string
   disableBlockComponents?: boolean // Renamed from disableInfoWarn
+  /** Optional override; otherwise uses DocsSlugIndexProvider context */
+  docsSlugIndex?: DocsSlugIndex | null
 }
 
 type ExtendedComponents = Components & {
@@ -36,7 +42,7 @@ type ExtendedComponents = Components & {
 const HEADER_HEIGHT = 80;
 const BREADCRUMB_HEIGHT = 48; // 24px height + 24px bottom margin
 
-/** rehype-autolink-headings adds this class; only those # links should match heading chrome, not prose fragment links */
+/** Prefer not to treat heading permalink wrappers as nested anchors */
 function isHeadingAutolinkClass(className: unknown): boolean {
   if (!className) return false
   if (typeof className === 'string') return className.split(/\s+/).includes('anchor')
@@ -50,9 +56,16 @@ const ListItemContext = createContext(false);
 // Context to track if we're inside a heading
 const HeadingContext = createContext(false);
 
-const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, disableBlockComponents = false }) => {
+const MarkdownContent: React.FC<MarkdownContentProps> = ({
+  content,
+  className,
+  disableBlockComponents = false,
+  docsSlugIndex = null,
+}) => {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const contextSlugIndex = useDocsSlugIndex();
+  const slugIndex = docsSlugIndex ?? contextSlugIndex;
 
   useEffect(() => {
     setMounted(true);
@@ -208,10 +221,13 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, d
       const isHeadingAutolink = isHashFragment && isHeadingAutolinkClass(className)
       const proseLinkClass =
         'text-primary-purple hover:opacity-80 underline hover:no-underline'
+      const resolvedHref = isHashFragment
+        ? href
+        : resolveDocsHref(href, slugIndex)
 
       return (
         <a
-          href={href}
+          href={resolvedHref}
           className={cn(
             className,
             isHeadingAutolink ? 'text-foreground' : proseLinkClass
@@ -373,18 +389,13 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, className, d
   // Extract block component content before react-markdown processes it
   const processedContent = disableBlockComponents ? content : extractBlockComponentContent(content);
 
-  // Build rehype plugins array
+  // Build rehype plugins array.
+  // Do not use rehype-autolink-headings with behavior:"wrap" — headings often
+  // contain markdown links, and wrapping them creates invalid nested <a> tags
+  // (and hydration errors). Permalink "#" controls live on the heading components.
   const rehypePlugins: any[] = [
     [rehypeRaw],
     [rehypeSlug],
-    [rehypeAutolinkHeadings, { 
-      behavior: 'wrap',
-      properties: {
-        className: ['anchor'],
-        'data-heading-id': true,
-        style: 'scroll-margin-top: 80px;'
-      }
-    }]
   ];
 
   // Add block component unwrap plugin if not disabled

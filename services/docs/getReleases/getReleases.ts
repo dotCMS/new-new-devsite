@@ -1,8 +1,9 @@
-import { Config } from '@/util/config';
-
 import { logRequest } from '@/util/logRequest';
 import { graphqlResults } from '@/services/gql';
 import { FilterReleases } from './types';
+
+/** Releases change infrequently; keep GraphQL responses warm for an hour. */
+const RELEASES_CACHE_TTL_SECONDS = 3600;
 
 /** GraphQL field errors we can ignore when collection data is still usable. */
 function isSoftGraphQLError(error: { message?: string; extensions?: { code?: string } }) {
@@ -18,6 +19,21 @@ function isSoftGraphQLError(error: { message?: string; extensions?: { code?: str
   }
   return false;
 }
+
+/** Fetch every released downloadable build (for client-side all-releases filtering). */
+export const getAllReleases = async (): Promise<any[]> => {
+  const probe = await getReleases(1, 1, FilterReleases.ALL);
+  const total = Number(probe?.pagination?.totalRecords) || 0;
+  if (total <= 0) {
+    return Array.isArray(probe?.releases) ? probe.releases.filter(Boolean) : [];
+  }
+
+  const result = await getReleases(total, 1, FilterReleases.ALL);
+  const releases = Array.isArray(result?.releases) ? result.releases : [];
+  return releases.filter((release): release is NonNullable<typeof release> =>
+    release !== null && release !== undefined
+  );
+};
 
 export const getReleases = async (limit: number = 50, page: number = 1, filter: FilterReleases = FilterReleases.ALL, log: boolean = false, version: string = "") => {
   var buildQuery = '+contentType:Dotcmsbuilds +Dotcmsbuilds.download:1 +Dotcmsbuilds.released:true +live:true';
@@ -78,7 +94,10 @@ export const getReleases = async (limit: number = 50, page: number = 1, filter: 
 if (log) {
   console.log("query",query);
 }
-const result = await logRequest(async () => graphqlResults(query), 'getCurrentRelease');
+const result = await logRequest(
+  async () => graphqlResults(query, RELEASES_CACHE_TTL_SECONDS),
+  'getCurrentRelease',
+);
 
 if (result?.errors && result.errors.length > 0) {
   const hardErrors = result.errors.filter((error: any) => !isSoftGraphQLError(error));
@@ -108,4 +127,4 @@ if (result?.errors && result.errors.length > 0) {
 }
 
 return {releases: result?.data?.DotcmsbuildsCollection, pagination: result?.data?.Pagination[0]};
-};  
+};

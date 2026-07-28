@@ -27,6 +27,8 @@ import {
   formatDocSourcePath,
   sourceHrefToDisplay,
 } from "@/components/chat/sourceLinks";
+import { useDocsSlugIndex } from "@/components/docs/DocsSlugIndexContext";
+import type { DocsSlugIndex } from "@/services/docs/resolveDocsHref";
 
 const CONVERSION_EVENT = "ai-chat-question-sent";
 
@@ -235,7 +237,10 @@ function bestMatchDistance(
   return best;
 }
 
-function mapSearchJsonToSources(data: unknown): DocSource[] {
+function mapSearchJsonToSources(
+  data: unknown,
+  slugIndex?: DocsSlugIndex | null,
+): DocSource[] {
   if (!data || typeof data !== "object") return [];
   const dotCMSResults = (data as { dotCMSResults?: unknown[] }).dotCMSResults;
   if (!Array.isArray(dotCMSResults)) return [];
@@ -267,7 +272,7 @@ function mapSearchJsonToSources(data: unknown): DocSource[] {
     const distance = bestMatchDistance(matches);
     const title = (result.title as string) || "Untitled";
     const contentType = (result.contentType as string) || "";
-    const href = formatDocSourcePath(contentType, rawUrl);
+    const href = formatDocSourcePath(contentType, rawUrl, slugIndex);
     const displayUrl = sourceHrefToDisplay(href);
 
     const prev = byHref.get(href);
@@ -321,6 +326,61 @@ export const ChatComponent = forwardRef<ChatComponentHandle, ChatComponentProps>
     const [recentQuestions, setRecentQuestions] = useState<string[]>([]);
     const abortControllerRef = useRef<AbortController | null>(null);
     const { conversion } = useContentAnalytics(AnalyticsConfig);
+    const contextSlugIndex = useDocsSlugIndex();
+    const slugIndexRef = useRef<DocsSlugIndex | null>(contextSlugIndex);
+    const slugIndexPromiseRef = useRef<Promise<DocsSlugIndex | null> | null>(
+      null
+    );
+
+    useEffect(() => {
+      slugIndexRef.current = contextSlugIndex;
+      if (contextSlugIndex) {
+        slugIndexPromiseRef.current = Promise.resolve(contextSlugIndex);
+      }
+    }, [contextSlugIndex]);
+
+    const loadSlugIndex = useCallback((): Promise<DocsSlugIndex | null> => {
+      if (slugIndexRef.current) {
+        return Promise.resolve(slugIndexRef.current);
+      }
+      if (slugIndexPromiseRef.current) {
+        return slugIndexPromiseRef.current;
+      }
+
+      const request = fetch("/api/docs-slug-index")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (data && typeof data === "object" && !data.error) {
+            const index = data as DocsSlugIndex;
+            slugIndexRef.current = index;
+            return index;
+          }
+          return null;
+        })
+        .catch(() => null)
+        .finally(() => {
+          // Keep a successful index in slugIndexRef; allow retry after failure.
+          if (!slugIndexRef.current) {
+            slugIndexPromiseRef.current = null;
+          }
+        });
+
+      slugIndexPromiseRef.current = request;
+      return request;
+    }, []);
+
+    useEffect(() => {
+      if (contextSlugIndex) return;
+      let cancelled = false;
+      loadSlugIndex().then((index) => {
+        if (!cancelled && index) {
+          slugIndexRef.current = index;
+        }
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, [contextSlugIndex, loadSlugIndex]);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const formRef = useRef<HTMLFormElement>(null);
@@ -397,7 +457,13 @@ export const ChatComponent = forwardRef<ChatComponentHandle, ChatComponentProps>
       const signal = abortControllerRef.current.signal;
 
       const searchPromise = fetchSearchForSources(inputTrimmed, signal)
-        .then((json) => mapSearchJsonToSources(json))
+        .then(async (json) => {
+          // AI search returns contentlet-era flat docs URLs. Wait for the
+          // leaf→nested navigation index before turning those into links so a
+          // slow index request cannot leak `/docs/{slug}` into Sources.
+          const slugIndex = slugIndexRef.current ?? (await loadSlugIndex());
+          return mapSearchJsonToSources(json, slugIndex);
+        })
         .catch(() => [] as DocSource[]);
 
       try {

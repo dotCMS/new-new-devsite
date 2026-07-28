@@ -402,7 +402,7 @@ const RedesignedNavTree: React.FC<RedesignedNavTreeProps> = ({
 
   const mobileStyles = isMobile
     ? "pt-4"
-    : "max-h-[calc(100vh-4rem)] sticky top-16 pt-8";
+    : "h-[calc(100vh-4rem)] min-h-0 sticky top-16 pt-8";
 
   return (
     <nav

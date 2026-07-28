@@ -1,11 +1,14 @@
 import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import Link from "next/link";
+import { getDotCMSBuildNavigation } from "@/services/docs/getDotCMSBuildNavigation";
 
-export default function NotFound() {
+export default async function NotFound() {
+    const buildNavigation = await getDotCMSBuildNavigation();
+
     return (
         <>
-            <Header />
+            <Header primaryNavItems={buildNavigation.primaryTabs} />
             <div className="min-h-90-dvh w-full flex justify-center items-center">
                 <section>
             <div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">

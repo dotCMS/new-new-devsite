@@ -1,16 +1,12 @@
 import { NextResponse } from "next/server";
-import { getSideNav } from "@/services/docs/getSideNav";
+import { getDocsQuickSearchCorpus } from "@/services/docs/getDocsQuickSearchCorpus";
 
 /**
- * Public tree for header docs quick search on pages that don't receive server-fetched `sideNavItems`.
- * Same shape as `sideNav[0]?.dotcmsdocumentationchildren` from `getSideNav()`.
+ * @deprecated Prefer `/api/docs-quicksearch-corpus`. Kept as a thin alias.
  */
 export async function GET() {
   try {
-    const sideNav = await getSideNav();
-    const items = Array.isArray(sideNav)
-      ? sideNav[0]?.dotcmsdocumentationchildren ?? []
-      : [];
+    const items = await getDocsQuickSearchCorpus();
     return NextResponse.json({ items });
   } catch {
     return NextResponse.json({ items: [] as unknown[] });

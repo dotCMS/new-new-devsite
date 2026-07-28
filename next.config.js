@@ -5,12 +5,14 @@ const url = new URL(process.env.NEXT_PUBLIC_DOTCMS_HOST);
 const nextConfig = {
     reactStrictMode: true,
     // Avoid broken ./vendor-chunks/* for packages Next splits oddly on the server
-    // (consola via @dotcms/client; highlight.js via react-syntax-highlighter; AWS SDK).
+    // (consola via @dotcms/client; highlight.js via react-syntax-highlighter;
+    // AWS SDK; swagger-ui-react on docs pages that embed the API playground).
     serverExternalPackages: [
         "consola",
         "@aws-sdk/client-s3",
         "highlight.js",
         "react-syntax-highlighter",
+        "swagger-ui-react",
     ],
     // Fixes confusing dev/build behavior when Next infers the wrong repo root due to multiple lockfiles.
     // Also helps make stack traces and tracing output more consistent.

@@ -1,10 +1,14 @@
+"use client";
+
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, AlertTriangle, Ban, Link as LinkIcon } from "lucide-react";
 import { DotBlockEditor } from "@/components/shared/dotBlockEditor";
 import type { TDeprecation } from "@/services/docs/getDeprecations/types";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { extractDateForTables } from "@/util/formatDate";
+import { getDeprecationsPageHref } from "@/config/special-doc-pages";
 
 type DeprecationCardProps = {
   deprecation: TDeprecation;
@@ -37,8 +41,10 @@ function hasBlockContent(block: any): boolean {
 }
 
 export function DeprecationCard({ deprecation: dep, variant = "default" }: DeprecationCardProps) {
+  const pathname = usePathname();
   const isInline = variant === "inline";
   const isRetired = Boolean(dep.versionRetired);
+  const deprecationsHref = getDeprecationsPageHref(pathname);
   
   // Determine card styling based on variant and state
   const cardClassName = isInline 
@@ -141,7 +147,7 @@ export function DeprecationCard({ deprecation: dep, variant = "default" }: Depre
       {isInline && (
           <div className="text-right">
             <Link 
-              href="/docs/deprecations" 
+              href={deprecationsHref} 
               className="text-sm text-primary underline hover:no-underline inline-flex items-center gap-1"
             >
               All deprecations <LinkIcon className="h-4 w-4" />

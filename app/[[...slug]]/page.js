@@ -4,6 +4,17 @@ import { getDotCMSPage } from "@/util/getDotCMSPage";
 import { getNavSections } from "@/services/docs/getNavSections";
 import { getSideNav } from "@/services/docs/getSideNav";
 import { BlockPageAsset } from "@/components/page-asset-with-content-block";
+import { transformDotCMSBuildNavigation } from "@/services/docs/getDotCMSBuildNavigation";
+import { applyExternalDocContent } from "@/services/docs/applyExternalDocContent";
+import { resolveDocsExperience } from "@/services/docs/resolveDocsExperience";
+import { renderDynamicDocsExperience } from "@/services/docs/renderDynamicDocsExperience";
+import {
+    getDocsSlugIndex,
+    lookupDocsMissRedirect,
+} from "@/services/docs/getDocsSlugIndex";
+import { redirect } from "next/navigation";
+import { isDocsExperiencePath } from "@/config/docs-path-roots";
+
 /**
  * Generate metadata
  *
@@ -59,19 +70,49 @@ export async function generateMetadata({ params }) {
     }
 }
 
-export default async function Page({ params }) {
+export default async function Page({ params, searchParams }) {
     const finalParams = await params;
+    const finalSearchParams = await searchParams;
 
     const path = finalParams?.slug?.join("/") || "/";
     const pageContent = await getDotCMSPage(path);
 
 
     if (!pageContent) {
+        if (isDocsExperiencePath(path)) {
+            try {
+                const index = await getDocsSlugIndex();
+                const canonical = lookupDocsMissRedirect(
+                    path.startsWith("/") ? path : `/${path}`,
+                    index
+                );
+                if (canonical) {
+                    redirect(canonical);
+                }
+            } catch (e) {
+                console.error("Docs miss redirect failed:", e);
+            }
+        }
         return <ErrorPage error={{ message: "Page not found", status: 404 }} />;
     }
 
     const { pageAsset } = pageContent;
+    await applyExternalDocContent(path, finalSearchParams?.tag, pageAsset);
+
     const isBlockPage = pageAsset?.page?.contentType === "BlockPage"
+    const experience = resolveDocsExperience(path, pageAsset);
+    const buildNavigation = transformDotCMSBuildNavigation(
+        pageContent?.content?.buildNavigation
+    );
+
+    if (experience?.shell === "dynamic") {
+        return renderDynamicDocsExperience({
+            experience,
+            pageContent,
+            buildNavigation,
+            searchParams: finalSearchParams,
+        });
+    }
 
     if (isBlockPage) {
         // Fetch navigation data (reuse cached nav sections instead of separate API call)
@@ -102,6 +143,7 @@ export default async function Page({ params }) {
                 nav={navItems}
                 searchItems={searchData[0]?.dotcmsdocumentationchildren || []}
                 navSections={navSections}
+                buildNavigation={buildNavigation}
             />
         );
     }
@@ -109,6 +151,7 @@ export default async function Page({ params }) {
     return (
         <PageAsset
             pageContent={pageContent}
+            buildNavigation={buildNavigation}
         />
     );
 }
