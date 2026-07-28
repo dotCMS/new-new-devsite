@@ -1,10 +1,11 @@
-import { navCache, getCacheKey } from '@/util/cacheService';
+import { navCache } from '@/util/cacheService';
 import { graphqlResults } from '@/services/gql';
 import { getDocsSlugIndex } from '@/services/docs/getDocsSlugIndex';
 import { resolveDocsHref } from '@/services/docs/resolveDocsHref';
 import type { SearchableItem } from '@/util/docsSearch';
 
-const CACHE_KEY = getCacheKey('docs-quicksearch-corpus|v1');
+// String key (not hashed) — avoids collisions that can poison the corpus cache.
+const CACHE_KEY = 'docs-quicksearch-corpus|v2';
 const PAGE_SIZE = 500;
 const TTL_SECONDS = 3600;
 

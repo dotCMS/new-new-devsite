@@ -1,4 +1,4 @@
-import { getCacheKey, navCache } from '@/util/cacheService';
+import { navCache } from '@/util/cacheService';
 import {
   getDotCMSBuildNavigation,
   transformDotCMSBuildNavigation,
@@ -92,6 +92,7 @@ function buildInlineNavigationQuery(uri: string, depth = 6): string {
 
 /**
  * Fetch + transform nav via graphqlResults (works in middleware; no SDK client).
+ * Throws when the response is empty so callers can fall back.
  */
 async function fetchBuildNavigationGraphql(
   uri: string,
@@ -101,7 +102,14 @@ async function fetchBuildNavigationGraphql(
     | DotCMSNavigationItem
     | null
     | undefined;
-  return transformDotCMSBuildNavigation(raw ?? null);
+
+  if (!raw || !Array.isArray(raw.children) || raw.children.length === 0) {
+    throw new Error(
+      `DotNavigation empty for uri=${uri} (errors=${JSON.stringify(json?.errors || [])})`,
+    );
+  }
+
+  return transformDotCMSBuildNavigation(raw);
 }
 
 /**
@@ -113,14 +121,16 @@ export async function getDocsSlugIndex(
 ): Promise<DocsSlugIndex> {
   const uri = options.uri ?? `/${PRIMARY_DOCS_PATH_ROOT}`;
   const ttlSeconds = options.ttlSeconds ?? 600;
-  const cacheKey = getCacheKey(`docs-slug-index|${uri}|v1`);
+  // String key (not hashed) — numeric getCacheKey hashes collide and can
+  // return an unrelated truthy `{}`, which short-circuits to an empty index.
+  const cacheKey = `docs-slug-index|${uri}|v2`;
 
   const cached = navCache.get<DocsSlugIndex>(cacheKey);
-  if (cached) {
+  if (cached && Object.keys(cached).length > 0) {
     return cached;
   }
 
-  let navigation: DynamicBuildNavigation;
+  let navigation: DynamicBuildNavigation | null = null;
   try {
     navigation = await fetchBuildNavigationGraphql(uri);
   } catch (error) {
@@ -128,13 +138,23 @@ export async function getDocsSlugIndex(
       'Slug index GraphQL fetch failed, falling back to page client:',
       error,
     );
-    navigation = await getDotCMSBuildNavigation({
-      uri,
-      ttlSeconds,
-    });
   }
 
-  const index = buildSlugIndexFromBuildNavigation(navigation);
+  let index = navigation
+    ? buildSlugIndexFromBuildNavigation(navigation)
+    : {};
+
+  if (Object.keys(index).length === 0) {
+    try {
+      navigation = await getDotCMSBuildNavigation({
+        uri,
+        ttlSeconds,
+      });
+      index = buildSlugIndexFromBuildNavigation(navigation);
+    } catch (error) {
+      console.error('Slug index page-client fallback failed:', error);
+    }
+  }
 
   if (Object.keys(index).length > 0) {
     navCache.set(cacheKey, index, ttlSeconds);
