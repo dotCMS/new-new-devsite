@@ -1,7 +1,20 @@
 import { Config } from '@/util/config';
-import { getCacheKey } from '@/util/cacheService'
 import axios from 'axios';
 import { graphCache } from '@/util/cacheService';
+
+/**
+ * Cache key for GraphQL responses. Avoid bare 32-bit hashes — collisions can
+ * return the wrong payload (e.g. empty DotNavigation) for an unrelated query.
+ * Keep this Edge-safe (no node:crypto) because middleware imports gql.
+ */
+function graphqlCacheKey(query) {
+  let hash = 2166136261;
+  for (let i = 0; i < query.length; i++) {
+    hash ^= query.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `gql:v2:${query.length}:${hash >>> 0}:${query.slice(0, 48)}:${query.slice(-48)}`;
+}
 
 /**
  * Get the GraphQL query for a page
@@ -114,7 +127,7 @@ export function getGraphQLPageQuery({ path, mode }) {
  */
 export const graphqlResults = async (query, cacheTTL = 10) => {
 
-    const cacheKey = getCacheKey(query);
+    const cacheKey = graphqlCacheKey(query);
     const cachedData = graphCache.get(cacheKey);
     if (cachedData) {
         return cachedData;
@@ -154,7 +167,6 @@ export const graphqlResults = async (query, cacheTTL = 10) => {
 
 
 const axiosFetch = async (query, method) => {
-    const queryHash = getCacheKey(query);
     const graphUrl = Config.GraphqlUrl ;
     console.debug("Graphql " + method.toUpperCase() + ", url:" + graphUrl)
     try {
