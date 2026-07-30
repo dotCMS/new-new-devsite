@@ -9,8 +9,8 @@ import { AlertBanner } from '@/components/AlertBanner';
 import MicrosoftClarity from '@/components/metrics/MicrosoftClarity';
 import { InitialScroll } from '@/components/InitialScroll';
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { LeadboxerScript } from '@/components/metrics/Leadboxer';
 import { WarmlyScript } from '@/components/metrics/Warmly';
+import { MeiroScript } from '@/components/metrics/Meiro';
 import { DotContentAnalytics } from "@dotcms/analytics/react";
 import { AnalyticsConfig } from '@/util/config';
 import { AssistantProvider } from '@/components/chat/AssistantProvider';
@@ -95,8 +95,8 @@ export default function RootLayout({
         </ErrorBoundary>
         <GoogleAnalytics gaId="G-CM1HLQW35G" />
         <MicrosoftClarity />
-        <LeadboxerScript />
         <WarmlyScript />
+        <MeiroScript />
         <SpeedInsights />
       </body>
     </html>

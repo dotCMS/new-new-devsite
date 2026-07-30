@@ -94,7 +94,7 @@ const Analytics = dynamic(() => import('@/components/Analytics'), {
 import { useEffect } from 'react';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import MicrosoftClarity from '@/components/metrics/MicrosoftClarity';
-import { LeadboxerScript } from '@/components/metrics/Leadboxer';
+import { MeiroScript } from '@/components/metrics/Meiro';
 
 export default function Analytics() {
   useEffect(() => {
@@ -110,7 +110,7 @@ export default function Analytics() {
     <>
       <GoogleAnalytics gaId="G-CM1HLQW35G" />
       <MicrosoftClarity />
-      <LeadboxerScript />
+      <MeiroScript />
     </>
   );
 }
