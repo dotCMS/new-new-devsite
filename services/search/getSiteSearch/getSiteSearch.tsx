@@ -16,7 +16,7 @@ export const getSiteSearch = async ({
     };
 
     const data = await logRequest(async () => {
-      const response = await fetch(`${Config.DotCMSHost}/api/vtl/sitesearch`, {
+      const response = await fetch(`${Config.SearchHost}/api/vtl/sitesearch`, {
         method: 'POST',
         headers: Config.Headers,
         body: JSON.stringify(requestBody),

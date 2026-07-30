@@ -19,9 +19,17 @@ const normalizedCDNHost = process.env.NEXT_PUBLIC_CDN_HOST && process.env.NEXT_P
     : (process.env.NEXT_PUBLIC_CDN_HOST as string)
   : (normalizedDotCMSHost as string)
 
+/** Origin for VTL sitesearch. Prefer SEARCH_HOST when DOTCMS_HOST is a CDN. */
+const rawSearchHost = cleanEnv(process.env.NEXT_PUBLIC_DOTCMS_SEARCH_HOST);
+const normalizedSearchHost = rawSearchHost
+  ? (rawSearchHost.endsWith('/') ? rawSearchHost.slice(0, -1) : rawSearchHost)
+  : normalizedDotCMSHost;
+
 export const Config = {
   DotCMSHost: normalizedDotCMSHost as string,
   CDNHost: normalizedCDNHost as string,
+  /** Host for `/api/vtl/sitesearch` (falls back to DotCMSHost). */
+  SearchHost: normalizedSearchHost as string,
   GraphqlUrl: process.env.NEXT_PUBLIC_API_GRAPH_URL || ((normalizedDotCMSHost + '/api/v1/graphql') as string),
   AuthToken: process.env.NEXT_PUBLIC_DOTCMS_AUTH_TOKEN as string,
   SwaggerUrl: ((process.env.NEXT_PUBLIC_API_SWAGGER_URL || normalizedDotCMSHost) + '/api/openapi.json') as string,
