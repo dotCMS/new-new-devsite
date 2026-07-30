@@ -84,17 +84,19 @@ export async function renderDynamicDocsExperience({
   const page = pageAsset?.page;
   const docsSlug = stripDocsPathRoot(routePath);
 
-  // Special pages + flat URL-mapped docs share the redesigned chrome via
-  // specialContent. BlockPages without a URL map use the default CMS body.
-  if (specialPageKey || hasUrlMappedContent) {
+  const contentlet: UrlContentMapLike =
+    urlContentMap ||
+    {
+      title: page?.title,
+      navTitle: page?.friendlyName || page?.title,
+    };
+  const isExternalReadme = Boolean(contentlet?._map?.githubSource);
+
+  // Special pages, flat URL-mapped docs, and external README mirrors share the
+  // redesigned chrome via specialContent. Other BlockPages use the CMS body.
+  if (specialPageKey || hasUrlMappedContent || isExternalReadme) {
     const sideNav = await getSideNav();
 
-    const contentlet: UrlContentMapLike =
-      urlContentMap ||
-      {
-        title: page?.title,
-        navTitle: page?.friendlyName || page?.title,
-      };
     if (specialPageKey) {
       specialContent = (
         <Suspense

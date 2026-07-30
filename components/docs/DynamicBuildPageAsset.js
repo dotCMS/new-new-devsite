@@ -169,7 +169,7 @@ export function DynamicBuildPageAsset({
                       </div>
                     )}
                     {externalDocumentation && (
-                      <div className="prose dark:prose-invert mb-8 max-w-none">
+                      <div className="markdown-content mb-8">
                         <MarkdownContent content={externalDocumentation} />
                       </div>
                     )}

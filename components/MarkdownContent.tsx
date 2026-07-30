@@ -240,6 +240,11 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({
       )
     },
 
+    // react-markdown wraps fenced code in <pre><code>; our `code` handler already
+    // renders the full block UI, so unwrap the outer <pre> to avoid nested pre
+    // (and prose styles painting a dark background around the highlighter).
+    pre: ({ children }) => <>{children}</>,
+
     code: function CodeComponent({ node, className, children, ...props }: any) {
       const match = /language-(\w+)/.exec(className || '')
       const inline = !String(children).includes("\n");
@@ -283,7 +288,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({
             language={highlight}
             PreTag="div"
             style={resolvedTheme === 'dark' ? { ...a11yDark, hljs: { ...a11yDark.hljs, color: '#f8f8f2' } } : a11yLight}
-            className="rounded-lg py-2 [&>pre]:!m-0 border border-border [&>pre]:!bg-muted"
+            className="rounded-lg py-2 border border-border"
             customStyle={{
               padding: '1rem',
               paddingTop: '2rem',
