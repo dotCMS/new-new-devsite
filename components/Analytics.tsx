@@ -10,8 +10,8 @@ const MicrosoftClarity = dynamic(
   { ssr: false }
 );
 
-const LeadboxerScript = dynamic(
-  () => import('@/components/metrics/Leadboxer').then(mod => mod.LeadboxerScript),
+const MeiroScript = dynamic(
+  () => import('@/components/metrics/Meiro').then(mod => mod.MeiroScript),
   { ssr: false }
 );
 
@@ -46,7 +46,7 @@ export default function Analytics() {
     <>
       <GoogleAnalytics gaId="G-CM1HLQW35G" />
       <MicrosoftClarity />
-      <LeadboxerScript />
+      <MeiroScript />
     </>
   );
 }
