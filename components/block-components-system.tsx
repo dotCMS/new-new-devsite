@@ -28,6 +28,69 @@ export const BLOCK_COMPONENTS: Record<string, BlockComponentConfig> = {
 // Get list of component names for regex
 export const getBlockComponentNames = (): string[] => Object.keys(BLOCK_COMPONENTS);
 
+/** GitHub alert types → existing info/warn block components */
+const GITHUB_ALERT_TO_COMPONENT: Record<string, 'info' | 'warn'> = {
+  NOTE: 'info',
+  TIP: 'info',
+  IMPORTANT: 'warn',
+  WARNING: 'warn',
+  CAUTION: 'warn',
+};
+
+const GITHUB_ALERT_MARKER =
+  /^>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*$/i;
+
+/**
+ * Convert GitHub-flavored alert blockquotes into <info>/<warn> tags
+ * so they share the existing block-component rendering path.
+ *
+ *   > [!CAUTION]
+ *   > Be careful
+ *
+ * becomes:
+ *
+ *   <warn>
+ *   Be careful
+ *   </warn>
+ */
+export function convertGitHubAlerts(content: string): string {
+  const lines = content.split('\n');
+  const result: string[] = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+    const markerMatch = line.match(GITHUB_ALERT_MARKER);
+    const lineStart =
+      lines.slice(0, i).reduce((sum, l) => sum + l.length + 1, 0);
+
+    if (markerMatch && !isInsideCodeBlock(content, lineStart)) {
+      const alertType = markerMatch[1].toUpperCase();
+      const component = GITHUB_ALERT_TO_COMPONENT[alertType];
+      i += 1;
+
+      const bodyLines: string[] = [];
+      while (i < lines.length && /^>/.test(lines[i])) {
+        // Strip leading `>` plus one optional space (GFM blockquote convention)
+        bodyLines.push(lines[i].replace(/^>\s?/, ''));
+        i += 1;
+      }
+
+      result.push(`<${component}>`);
+      if (bodyLines.length > 0) {
+        result.push(bodyLines.join('\n'));
+      }
+      result.push(`</${component}>`);
+      continue;
+    }
+
+    result.push(line);
+    i += 1;
+  }
+
+  return result.join('\n');
+}
+
 // Helper function to check if a position is inside a code block using remark-parse
 function isInsideCodeBlock(content: string, position: number): boolean {
   try {
