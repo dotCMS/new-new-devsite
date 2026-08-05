@@ -40,6 +40,26 @@ The Info component works as expected!
 <Warn>
 And the Warn component too!
 </Warn>
+
+## GitHub-style alerts
+
+These are converted into Info/Warn boxes automatically:
+
+> [!NOTE]
+> Something worth knowing — maps to Info.
+
+> [!TIP]
+> A helpful suggestion — also maps to Info.
+
+> [!IMPORTANT]
+> Don't skip this — maps to Warn.
+
+> [!WARNING]
+> Be careful — maps to Warn.
+
+> [!CAUTION]
+> **Rollback Warning:** This release contains an irreversible change that is non-trivial to rollback from.
+> - **Analytics Dashboard**: The dashboard now queries the new domain-driven analytics endpoints. [[#36843](https://github.com/dotCMS/core/issues/36843)]
 `;
 
 export default function TestComponentsPage() {

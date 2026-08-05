@@ -21,6 +21,7 @@ import {
   type DocsSlugIndex,
 } from '@/services/docs/resolveDocsHref'
 import { 
+  convertGitHubAlerts,
   extractBlockComponentContent, 
   rehypeUnwrapBlockComponents,
   generateBlockComponentMappings
@@ -391,8 +392,10 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({
     ...generateBlockComponentMappings(disableBlockComponents),
   }
 
-  // Extract block component content before react-markdown processes it
-  const processedContent = disableBlockComponents ? content : extractBlockComponentContent(content);
+  // GitHub alerts → <info>/<warn>, then extract block component content
+  const processedContent = disableBlockComponents
+    ? content
+    : extractBlockComponentContent(convertGitHubAlerts(content));
 
   // Build rehype plugins array.
   // Do not use rehype-autolink-headings with behavior:"wrap" — headings often
